@@ -1,0 +1,4 @@
+tactics
+=======
+
+Isometric tactics game
