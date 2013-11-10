@@ -19,13 +19,13 @@
     "main.coffee.md": {
       "path": "main.coffee.md",
       "mode": "100644",
-      "content": "Tactics\n=======\n\nA game about squad based dungeon combat.\n\nYou manage a tribe of humble humanoids over a thousand years.\n\nWill you conquer the world? Will they all die? That's between you and the RNG.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    Canvas = require \"touch-canvas\"\n    Sprite = require \"./sprite\"\n\n    {width, height} = require(\"./pixie\")\n\n    canvas = Canvas\n      width: width\n      height: height\n\n    $(\"body\").append canvas.element()\n    \n    canvas.fill \"red\"\n",
+      "content": "Tactics\n=======\n\nA game about squad based dungeon combat.\n\nYou manage a tribe of humble humanoids over a thousand years.\n\nWill you conquer the world? Will they all die? That's between you and the RNG.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    Canvas = require \"touch-canvas\"\n    Sprite = require \"./sprite\"\n    Action = require \"./action\"\n\n    {width, height} = require(\"./pixie\")\n\n    canvas = Canvas\n      width: width\n      height: height\n\n    $(\"body\").append canvas.element()\n    \n    canvas.fill \"red\"\n\n    ui =\n      actions: Observable [Action(), Action()]\n\n    $(\"body\").append require(\"./templates/ui\")(ui)\n",
       "type": "blob"
     },
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n",
       "type": "blob"
     },
     "test/tile.coffee": {
@@ -55,19 +55,31 @@
     "style.styl": {
       "path": "style.styl",
       "mode": "100644",
-      "content": "html, body\n  margin: 0\n  height: 100%\n\nbody\n  canvas\n    position: absolute\n    top: 0\n    bottom: 0\n    left: 0\n    right: 0\n    margin: auto\n",
+      "content": "html, body\n  margin: 0\n  height: 100%\n  user-select:none\n\nbody\n  canvas, .ui\n    position: absolute\n    top: 0\n    bottom: 0\n    left: 0\n    right: 0\n    margin: auto\n\n  .ui\n    height: 100%\n\n  .actions\n    position: absolute\n    bottom: 0\n    padding: 0 64px\n\n    .action\n      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.4)\n      background-color: lightgray\n      background-position: center\n      background-repeat: no-repeat\n      border: 1px solid black\n      border-radius: 4px\n      border-right: none\n      display: inline-block\n      padding: 4px\n      width: 64px\n      height: 64px\n      text-align: center\n      text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4)\n\n      &:last-child\n        border-right: 1px solid\n\n      &:active\n        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6)\n",
+      "type": "blob"
+    },
+    "templates/ui.haml": {
+      "path": "templates/ui.haml",
+      "mode": "100644",
+      "content": ".ui\n  .actions\n    - each @actions, (action) ->\n      .action(style=\"background-image: url(#{action.icon})\")\n        = action.name\n        - on \"click\", action.perform\n",
+      "type": "blob"
+    },
+    "action.coffee.md": {
+      "path": "action.coffee.md",
+      "mode": "100644",
+      "content": "Action\n======\n\nThe only thing persons can do in the game are actions.\n\nThey live in a little menu that changes based on the context.\n\nClicking on them makes them happen.\n\n    module.exports = (I={}) ->\n      self = {}\n\n      Object.defaults self, I,\n        name: \"Action\"\n        icon: \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABEklEQVQ4T2NkoBAwUqifYYgZ4Dfdbffdl0+9rzZc/QXzOklecJ9g//3nt19PDlQdV0UxoPh4+n+QwN/ffxn+/P7D8PvXH4ZfP38z/PoBwr8YfgIxiJYUkmT49es3w41bNy+d7bqsD9IDdgHIACthW4a//4AG/PsDx7///mX4/fc3w+9/QPwXKA7EIPrc+bMMN67fPnVz5h1zsAEFh1L+W4haIzSDFAINgmgG0n+gBoAMBxlw7jzDzeu3j96b99AGbEDO3oT/uJz98zvEC1wcXAySklIMr1+9Zrh1/c6Fe/MfGsK9QExi0svVtPj569f+37//Pro374E6WbGgnKiw4+6XB34MqxnIi0ZsLiUpHQxOAwDhLLkRWHt4RAAAAABJRU5ErkJggg==\"\n\n      return self\n",
       "type": "blob"
     }
   },
   "distribution": {
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Canvas, Sprite, canvas, height, runtime, width, _ref;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  Canvas = require(\"touch-canvas\");\n\n  Sprite = require(\"./sprite\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  canvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  $(\"body\").append(canvas.element());\n\n  canvas.fill(\"red\");\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+      "content": "(function() {\n  var Action, Canvas, Sprite, canvas, height, runtime, ui, width, _ref;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  Canvas = require(\"touch-canvas\");\n\n  Sprite = require(\"./sprite\");\n\n  Action = require(\"./action\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  canvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  $(\"body\").append(canvas.element());\n\n  canvas.fill(\"red\");\n\n  ui = {\n    actions: Observable([Action(), Action()])\n  };\n\n  $(\"body\").append(require(\"./templates/ui\")(ui));\n\n}).call(this);\n\n//# sourceURL=main.coffee",
       "type": "blob"
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\"}};",
       "type": "blob"
     },
     "test/tile": {
@@ -92,7 +104,17 @@
     },
     "style": {
       "path": "style",
-      "content": "module.exports = \"html,\\nbody {\\n  margin: 0;\\n  height: 100%;\\n}\\n\\nbody canvas {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\";",
+      "content": "module.exports = \"html,\\nbody {\\n  margin: 0;\\n  height: 100%;\\n  -ms-user-select: none;\\n  -moz-user-select: none;\\n  -webkit-user-select: none;\\n  user-select: none;\\n}\\n\\nbody canvas,\\nbody .ui {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\nbody .ui {\\n  height: 100%;\\n}\\n\\nbody .actions .action:last-child {\\n  border-right: 1px solid;\\n}\\n\\nbody .actions .action:active {\\n  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);\\n}\\n\\nbody .actions .action {\\n  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.4);\\n  background-color: lightgray;\\n  background-position: center;\\n  background-repeat: no-repeat;\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  border-right: none;\\n  display: inline-block;\\n  padding: 4px;\\n  width: 64px;\\n  height: 64px;\\n  text-align: center;\\n  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4);\\n}\\n\\nbody .actions {\\n  position: absolute;\\n  bottom: 0;\\n  padding: 0 64px;\\n}\";",
+      "type": "blob"
+    },
+    "templates/ui": {
+      "path": "templates/ui",
+      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\".ui\\n  .actions\\n    - each @actions, (action) ->\\n      .action(style=\\\"background-image: url(#{action.icon})\\\")\\n        = action.name\\n        - on \\\"click\\\", action.perform\\n\", {compiler: CoffeeScript}))()",
+      "type": "blob"
+    },
+    "action": {
+      "path": "action",
+      "content": "(function() {\n  module.exports = function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {};\n    Object.defaults(self, I, {\n      name: \"Action\",\n      icon: \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABEklEQVQ4T2NkoBAwUqifYYgZ4Dfdbffdl0+9rzZc/QXzOklecJ9g//3nt19PDlQdV0UxoPh4+n+QwN/ffxn+/P7D8PvXH4ZfP38z/PoBwr8YfgIxiJYUkmT49es3w41bNy+d7bqsD9IDdgHIACthW4a//4AG/PsDx7///mX4/fc3w+9/QPwXKA7EIPrc+bMMN67fPnVz5h1zsAEFh1L+W4haIzSDFAINgmgG0n+gBoAMBxlw7jzDzeu3j96b99AGbEDO3oT/uJz98zvEC1wcXAySklIMr1+9Zrh1/c6Fe/MfGsK9QExi0svVtPj569f+37//Pro374E6WbGgnKiw4+6XB34MqxnIi0ZsLiUpHQxOAwDhLLkRWHt4RAAAAABJRU5ErkJggg==\"\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=action.coffee",
       "type": "blob"
     }
   },
@@ -880,6 +902,7 @@
   },
   "remoteDependencies": [
     "//code.jquery.com/jquery-1.10.1.min.js",
+    "//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js",
     "http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js",
     "http://strd6.github.io/require/v0.2.2.js"
   ],

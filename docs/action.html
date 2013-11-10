@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>main</title>
+  <title>action</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="tactics">Tactics</h1>
+              <h1 id="action">Action</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,37 +32,19 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>A game about squad based dungeon combat.</p>
-<p>You manage a tribe of humble humanoids over a thousand years.</p>
-<p>Will you conquer the world? Will they all die? That&#39;s between you and the RNG.</p>
+              <p>The only thing persons can do in the game are actions.</p>
+<p>They live in a little menu that changes based on the context.</p>
+<p>Clicking on them makes them happen.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># For debug purposes</span>
-global.PACKAGE = PACKAGE
-global.require = require
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}) -&gt;
+  self = {}
 
-runtime = require(<span class="string">"runtime"</span>)(PACKAGE)
-runtime.boot()
-runtime.applyStyleSheet(require(<span class="string">'./style'</span>))
+  Object.defaults self, I,
+    name: <span class="string">"Action"</span>
+    icon: <span class="string">"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABEklEQVQ4T2NkoBAwUqifYYgZ4Dfdbffdl0+9rzZc/QXzOklecJ9g//3nt19PDlQdV0UxoPh4+n+QwN/ffxn+/P7D8PvXH4ZfP38z/PoBwr8YfgIxiJYUkmT49es3w41bNy+d7bqsD9IDdgHIACthW4a//4AG/PsDx7///mX4/fc3w+9/QPwXKA7EIPrc+bMMN67fPnVz5h1zsAEFh1L+W4haIzSDFAINgmgG0n+gBoAMBxlw7jzDzeu3j96b99AGbEDO3oT/uJz98zvEC1wcXAySklIMr1+9Zrh1/c6Fe/MfGsK9QExi0svVtPj569f+37//Pro374E6WbGgnKiw4+6XB34MqxnIi0ZsLiUpHQxOAwDhLLkRWHt4RAAAAABJRU5ErkJggg=="</span>
 
-Canvas = require <span class="string">"touch-canvas"</span>
-Sprite = require <span class="string">"./sprite"</span>
-Action = require <span class="string">"./action"</span>
-
-{width, height} = require(<span class="string">"./pixie"</span>)
-
-canvas = Canvas
-  width: width
-  height: height
-
-$(<span class="string">"body"</span>).append canvas.element()
-
-canvas.fill <span class="string">"red"</span>
-
-ui =
-  actions: Observable [Action(), Action()]
-
-$(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)</code></pre>
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
