@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1384124577401">
+<html manifest="manifest.appcache?1384125054955">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -29,13 +29,13 @@ require('./main')
     "main.coffee.md": {
       "path": "main.coffee.md",
       "mode": "100644",
-      "content": "    Sprite = require \"./sprite\"\n    \n    Canvas = require \"touch-canvas\"\n    \n    ",
+      "content": "Tactics\n=======\n\nA game about squad based dungeon combat.\n\nYou manage a tribe of humble humanoids over a thousand years.\n\nWill you conquer the world? Will they all die? That's between you and the RNG.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    Canvas = require \"touch-canvas\"\n    Sprite = require \"./sprite\"\n\n    {width, height} = require(\"./pixie\")\n\n    canvas = Canvas\n      width: width\n      height: height\n\n    $(\"body\").append canvas.element()\n    \n    canvas.fill \"red\"\n",
       "type": "blob"
     },
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n",
       "type": "blob"
     },
     "test/tile.coffee": {
@@ -61,17 +61,23 @@ require('./main')
       "mode": "100644",
       "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n  \nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n  \n      width: width\n      height: height\n      image: image\n  \nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n  \n      sprites = []\n      image = new Image()\n  \n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        loadedCallback?.defer(sprite)\n        return sprite\n\n      img = new Image()\n      proxy = LoaderProxy()\n\n      img.onload = ->\n        spriteCache[url] = Object.extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n    \nLoad a sprite with the given name. The first parameter is name The name of the \nimage in your images directory. The second parameter is a callback function to \nexecute once the image is loaded. The sprite proxy data is passed to this as a parameter.\n\n    Sprite.loadByName = (name, callback) ->\n      Sprite.load(ResourceLoader.urlFor(\"images\", name), callback)\n\n    module.exports = Sprite\n",
       "type": "blob"
+    },
+    "style.styl": {
+      "path": "style.styl",
+      "mode": "100644",
+      "content": "html, body\n  margin: 0\n  height: 100%\n\nbody\n  canvas\n    position: absolute\n    top: 0\n    bottom: 0\n    left: 0\n    right: 0\n    margin: auto\n",
+      "type": "blob"
     }
   },
   "distribution": {
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Canvas, Sprite;\n\n  Sprite = require(\"./sprite\");\n\n  Canvas = require(\"touch-canvas\");\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+      "content": "(function() {\n  var Canvas, Sprite, canvas, height, runtime, width, _ref;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  Canvas = require(\"touch-canvas\");\n\n  Sprite = require(\"./sprite\");\n\n  _ref = require(\"./pixie\"), width = _ref.width, height = _ref.height;\n\n  canvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  $(\"body\").append(canvas.element());\n\n  canvas.fill(\"red\");\n\n}).call(this);\n\n//# sourceURL=main.coffee",
       "type": "blob"
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\"}};",
       "type": "blob"
     },
     "test/tile": {
@@ -92,6 +98,11 @@ require('./main')
     "sprite": {
       "path": "sprite",
       "content": "(function() {\n  var LoaderProxy, Sprite, spriteCache;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        loadedCallback.defer(sprite);\n      }\n      return sprite;\n    }\n    img = new Image();\n    proxy = LoaderProxy();\n    img.onload = function() {\n      spriteCache[url] = Object.extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  Sprite.loadByName = function(name, callback) {\n    return Sprite.load(ResourceLoader.urlFor(\"images\", name), callback);\n  };\n\n  module.exports = Sprite;\n\n}).call(this);\n\n//# sourceURL=sprite.coffee",
+      "type": "blob"
+    },
+    "style": {
+      "path": "style",
+      "content": "module.exports = \"html,\\nbody {\\n  margin: 0;\\n  height: 100%;\\n}\\n\\nbody canvas {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\";",
       "type": "blob"
     }
   },
@@ -719,6 +730,162 @@ require('./main')
         "branch": "v0.2.0",
         "defaultBranch": "master"
       }
+    },
+    "runtime": {
+      "version": "0.1.1",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "runtime\n=======\n",
+          "type": "blob"
+        },
+        "runtime.coffee.md": {
+          "path": "runtime.coffee.md",
+          "mode": "100644",
+          "content": "The runtime holds utilities to assist with an apps running environment.\n\nIt should me moved into it's own component one day.\n\n    Runtime = (pkg) ->\n\nHold on to a reference to our root node.\n\n      root = null\n\nReturns the node that is the parent of the script element that contains the code\nthat calls this function. If `document.write` has been called before this then the\nresults may not be accurate. Therefore be sure to call currentNode before\nwriting anything to the document.\n\n      currentNode = ->\n        target = document.documentElement\n\n        while (target.childNodes.length and target.lastChild.nodeType == 1)\n          target = target.lastChild\n\n        return target.parentNode\n\nDisplay a promo in the console linking back to the creator of this app.\n\n      promo = ->\n        console.log(\"%c You should meet my creator #{pkg.progenitor.url}\", \"\"\"\n          background: #000;\n          color: white;\n          font-size: 2em;\n          line-height: 2em;\n          padding: 10px 100px;\n          margin-bottom: 1em;\n          text-shadow:\n            0 0 0.05em #fff,\n            0 0 0.1em #fff,\n            0 0 0.15em #fff,\n            0 0 0.2em #ff00de,\n            0 0 0.35em #ff00de,\n            0 0 0.4em #ff00de,\n            0 0 0.5em #ff00de,\n            0 0 0.75em #ff00de;'\n        \"\"\")\n\nCall on start to boot up the runtime, get the root node, add styles, display a\npromo.\n\n      boot: ->\n        root = currentNode()\n\n        promo()\n\n        return root\n\nApply the stylesheet to the root node.\n\n      applyStyleSheet: (style) ->\n        styleNode = document.createElement(\"style\")\n        styleNode.innerHTML = style\n\n        root.appendChild(styleNode)\n\nExport\n\n    module.exports = Runtime\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.1\"\nentryPoint: \"runtime\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.0.js\"\n]\n",
+          "type": "blob"
+        },
+        "test/runtime.coffee": {
+          "path": "test/runtime.coffee",
+          "mode": "100644",
+          "content": "Runtime = require \"../runtime\"\n\ndescribe \"Runtime\", ->\n  it \"should be created from a package and provide a boot method\", ->\n    assert Runtime(PACKAGE).boot\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "runtime": {
+          "path": "runtime",
+          "content": "(function() {\n  var Runtime;\n\n  Runtime = function(pkg) {\n    var currentNode, promo, root;\n    root = null;\n    currentNode = function() {\n      var target;\n      target = document.documentElement;\n      while (target.childNodes.length && target.lastChild.nodeType === 1) {\n        target = target.lastChild;\n      }\n      return target.parentNode;\n    };\n    promo = function() {\n      return console.log(\"%c You should meet my creator \" + pkg.progenitor.url, \"background: #000;\\ncolor: white;\\nfont-size: 2em;\\nline-height: 2em;\\npadding: 10px 100px;\\nmargin-bottom: 1em;\\ntext-shadow:\\n  0 0 0.05em #fff,\\n  0 0 0.1em #fff,\\n  0 0 0.15em #fff,\\n  0 0 0.2em #ff00de,\\n  0 0 0.35em #ff00de,\\n  0 0 0.4em #ff00de,\\n  0 0 0.5em #ff00de,\\n  0 0 0.75em #ff00de;'\");\n    };\n    return {\n      boot: function() {\n        root = currentNode();\n        promo();\n        return root;\n      },\n      applyStyleSheet: function(style) {\n        var styleNode;\n        styleNode = document.createElement(\"style\");\n        styleNode.innerHTML = style;\n        return root.appendChild(styleNode);\n      }\n    };\n  };\n\n  module.exports = Runtime;\n\n}).call(this);\n",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.1\",\"entryPoint\":\"runtime\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.0.js\"]};",
+          "type": "blob"
+        },
+        "test/runtime": {
+          "path": "test/runtime",
+          "content": "(function() {\n  var Runtime;\n\n  Runtime = require(\"../runtime\");\n\n  describe(\"Runtime\", function() {\n    return it(\"should be created from a package and provide a boot method\", function() {\n      return assert(Runtime(PACKAGE).boot);\n    });\n  });\n\n}).call(this);\n",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "runtime",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.0.js"
+      ],
+      "repository": {
+        "id": 13202878,
+        "name": "runtime",
+        "full_name": "STRd6/runtime",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User"
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/runtime",
+        "description": "",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/runtime",
+        "forks_url": "https://api.github.com/repos/STRd6/runtime/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/runtime/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/runtime/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/runtime/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/runtime/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/runtime/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/runtime/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/runtime/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/runtime/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/runtime/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/runtime/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/runtime/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/runtime/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/runtime/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/runtime/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/runtime/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/runtime/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/runtime/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/runtime/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/runtime/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/runtime/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/runtime/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/runtime/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/runtime/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/runtime/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/runtime/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/runtime/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/runtime/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/runtime/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/runtime/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/runtime/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/runtime/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/runtime/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/runtime/labels{/name}",
+        "created_at": "2013-09-30T00:44:37Z",
+        "updated_at": "2013-09-30T00:44:37Z",
+        "pushed_at": "2013-09-30T00:44:37Z",
+        "git_url": "git://github.com/STRd6/runtime.git",
+        "ssh_url": "git@github.com:STRd6/runtime.git",
+        "clone_url": "https://github.com/STRd6/runtime.git",
+        "svn_url": "https://github.com/STRd6/runtime",
+        "homepage": null,
+        "size": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "master_branch": "master",
+        "default_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 0,
+        "branch": "v0.1.1",
+        "defaultBranch": "master",
+        "includedModules": [
+          "Bindable"
+        ]
+      },
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "name": "runtime"
     }
   },
   "remoteDependencies": [
