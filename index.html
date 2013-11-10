@@ -1,11 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
+<html manifest="manifest.appcache?1384124577401">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script class="env" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
-<script class="env" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script class="env" src="//code.jquery.com/jquery-1.10.1.min.js"></script>
-<script class="env" src="http://strd6.github.io/tempest/javascripts/envweb.js"></script>
-<script class="env" src="http://strd6.github.io/require/v0.2.0.js"></script>
+<script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
 </head>
 <body>
 <script>
@@ -30,13 +29,13 @@ require('./main')
     "main.coffee.md": {
       "path": "main.coffee.md",
       "mode": "100644",
-      "content": "",
+      "content": "    Sprite = require \"./sprite\"\n    \n    Canvas = require \"touch-canvas\"\n    \n    ",
       "type": "blob"
     },
-    "tile.coffee.md": {
-      "path": "tile.coffee.md",
+    "pixie.cson": {
+      "path": "pixie.cson",
       "mode": "100644",
-      "content": "Tile\n====\n\nA tile in the isometric board.\n\n    Tile = (I={}) ->\n      {sha, back} = I\n    \n      img = $(\"<img>\",\n        src: Resource.url(sha)\n        load: ->\n          self.height = @height\n      ).get(0)\n    \n      if back\n        backImg = $(\"<img>\",\n          src: Resource.url(back)\n          load: ->\n            self.backHeight = @height\n        ).get(0)\n    \n      self = Object.extend {},\n        __proto__: Tile::\n        img: img\n        backImg: backImg\n        orientation: [1, 0]\n      , I\n    \n    Tile:: =\n      toJSON: ->\n        _.omit(@, \"img\", \"backImg\")\n    \n      present: ->\n        frontUrl: Resource.url @sha\n        backUrl: Resource.url(@back || @sha)\n    \n      draw: (canvas, x, y, cameraRotation=Matrix.IDENTITY) ->\n        imgHeight = imgWidth = 64 # TODO real size\n        orientation = cameraRotation.deltaTransformPoint(@orientation).round()\n    \n        hflip = orientation.y\n    \n        back = (orientation.x + orientation.y) < 0\n        if back && @backImg\n          hflip = !hflip\n          img = @backImg\n    \n          offset = 64 - (@backHeight or @height)\n        else\n          img = @img\n          offset = 64 - @height\n    \n        if hflip\n          transform = Matrix.HORIZONTAL_FLIP\n        else\n          transform = Matrix.IDENTITY\n    \n        canvas.withTransform Matrix.translation(x + imgWidth/2, y + imgHeight/2 + offset), =>\n          canvas.withTransform transform, =>\n            canvas.drawImage(img, -imgWidth/2, -imgHeight/2)\n\n    module.exports = Tile\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n",
       "type": "blob"
     },
     "test/tile.coffee": {
@@ -45,44 +44,691 @@ require('./main')
       "content": "Tile = require \"../tile\"\n\ndescribe \"Tile\", ->\n  it \"should exist\", ->\n    assert Tile\n",
       "type": "blob"
     },
-    "pixie.cson": {
-      "path": "pixie.cson",
+    "tile.coffee.md": {
+      "path": "tile.coffee.md",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 480\nheight: 320\nremoteDependencies: [\n  \"//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb.js\"\n  \"http://strd6.github.io/require/v0.2.0.js\"\n]\n",
+      "content": "Tile\n====\n\nA tile in the isometric board.\n\n    Tile = (I={}) ->\n      {sha, back} = I\n\n      img = $(\"<img>\",\n        src: Resource.url(sha)\n        load: ->\n          self.height = @height\n      ).get(0)\n\n      if back\n        backImg = $(\"<img>\",\n          src: Resource.url(back)\n          load: ->\n            self.backHeight = @height\n        ).get(0)\n\n      self = Object.extend {},\n        __proto__: Tile::\n        img: img\n        backImg: backImg\n        orientation: [1, 0]\n      , I\n\n    Tile:: =\n      toJSON: ->\n        _.omit(@, \"img\", \"backImg\")\n\n      present: ->\n        frontUrl: Resource.url @sha\n        backUrl: Resource.url(@back || @sha)\n\n      draw: (canvas, x, y, cameraRotation=Matrix.IDENTITY) ->\n        imgHeight = imgWidth = 64 # TODO real size\n        orientation = cameraRotation.deltaTransformPoint(@orientation).round()\n\n        hflip = orientation.y\n\n        back = (orientation.x + orientation.y) < 0\n        if back && @backImg\n          hflip = !hflip\n          img = @backImg\n\n          offset = 64 - (@backHeight or @height)\n        else\n          img = @img\n          offset = 64 - @height\n\n        if hflip\n          transform = Matrix.HORIZONTAL_FLIP\n        else\n          transform = Matrix.IDENTITY\n\n        canvas.withTransform Matrix.translation(x + imgWidth/2, y + imgHeight/2 + offset), =>\n          canvas.withTransform transform, =>\n            canvas.drawImage(img, -imgWidth/2, -imgHeight/2)\n\n    module.exports = Tile\n",
+      "type": "blob"
+    },
+    "resource.coffee.md": {
+      "path": "resource.coffee.md",
+      "mode": "100644",
+      "content": "Resource\n========\n\nA loader for resources in games and stuff.\n\nWe primarily want to load resources from localStorage or resource packfiles\nbundled with the page or downloaded from the internet.\n\nI don't know what packfiles are yet, but the seem like a good way to package up\nresources.\n\nLocally we can look up pngs by name and return data-urls.\n\nWe may even want to store the data-urls as compressed data, but that seems\nexcessive.\n\n    Resource =\n      load",
+      "type": "blob"
+    },
+    "sprite.coffee.md": {
+      "path": "sprite.coffee.md",
+      "mode": "100644",
+      "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n  \nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n  \n      width: width\n      height: height\n      image: image\n  \nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n  \n      sprites = []\n      image = new Image()\n  \n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        loadedCallback?.defer(sprite)\n        return sprite\n\n      img = new Image()\n      proxy = LoaderProxy()\n\n      img.onload = ->\n        spriteCache[url] = Object.extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n    \nLoad a sprite with the given name. The first parameter is name The name of the \nimage in your images directory. The second parameter is a callback function to \nexecute once the image is loaded. The sprite proxy data is passed to this as a parameter.\n\n    Sprite.loadByName = (name, callback) ->\n      Sprite.load(ResourceLoader.urlFor(\"images\", name), callback)\n\n    module.exports = Sprite\n",
       "type": "blob"
     }
   },
   "distribution": {
     "main": {
       "path": "main",
-      "content": "(function() {\n\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "tile": {
-      "path": "tile",
-      "content": "(function() {\n  var Tile;\n\n  Tile = function(I) {\n    var back, backImg, img, self, sha;\n    if (I == null) {\n      I = {};\n    }\n    sha = I.sha, back = I.back;\n    img = $(\"<img>\", {\n      src: Resource.url(sha),\n      load: function() {\n        return self.height = this.height;\n      }\n    }).get(0);\n    if (back) {\n      backImg = $(\"<img>\", {\n        src: Resource.url(back),\n        load: function() {\n          return self.backHeight = this.height;\n        }\n      }).get(0);\n    }\n    return self = Object.extend({}, {\n      __proto__: Tile.prototype,\n      img: img,\n      backImg: backImg,\n      orientation: [1, 0]\n    }, I);\n  };\n\n  Tile.prototype = {\n    toJSON: function() {\n      return _.omit(this, \"img\", \"backImg\");\n    },\n    present: function() {\n      return {\n        frontUrl: Resource.url(this.sha),\n        backUrl: Resource.url(this.back || this.sha)\n      };\n    },\n    draw: function(canvas, x, y, cameraRotation) {\n      var back, hflip, img, imgHeight, imgWidth, offset, orientation, transform,\n        _this = this;\n      if (cameraRotation == null) {\n        cameraRotation = Matrix.IDENTITY;\n      }\n      imgHeight = imgWidth = 64;\n      orientation = cameraRotation.deltaTransformPoint(this.orientation).round();\n      hflip = orientation.y;\n      back = (orientation.x + orientation.y) < 0;\n      if (back && this.backImg) {\n        hflip = !hflip;\n        img = this.backImg;\n        offset = 64 - (this.backHeight || this.height);\n      } else {\n        img = this.img;\n        offset = 64 - this.height;\n      }\n      if (hflip) {\n        transform = Matrix.HORIZONTAL_FLIP;\n      } else {\n        transform = Matrix.IDENTITY;\n      }\n      return canvas.withTransform(Matrix.translation(x + imgWidth / 2, y + imgHeight / 2 + offset), function() {\n        return canvas.withTransform(transform, function() {\n          return canvas.drawImage(img, -imgWidth / 2, -imgHeight / 2);\n        });\n      });\n    }\n  };\n\n  module.exports = Tile;\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "test/tile": {
-      "path": "test/tile",
-      "content": "(function() {\n  var Tile;\n\n  Tile = require(\"../tile\");\n\n  describe(\"Tile\", function() {\n    return it(\"should exist\", function() {\n      return assert(Tile);\n    });\n  });\n\n}).call(this);\n",
+      "content": "(function() {\n  var Canvas, Sprite;\n\n  Sprite = require(\"./sprite\");\n\n  Canvas = require(\"touch-canvas\");\n\n}).call(this);\n\n//# sourceURL=main.coffee",
       "type": "blob"
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":480,\"height\":320,\"remoteDependencies\":[\"//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb.js\",\"http://strd6.github.io/require/v0.2.0.js\"]};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\"}};",
+      "type": "blob"
+    },
+    "test/tile": {
+      "path": "test/tile",
+      "content": "(function() {\n  var Tile;\n\n  Tile = require(\"../tile\");\n\n  describe(\"Tile\", function() {\n    return it(\"should exist\", function() {\n      return assert(Tile);\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/tile.coffee",
+      "type": "blob"
+    },
+    "tile": {
+      "path": "tile",
+      "content": "(function() {\n  var Tile;\n\n  Tile = function(I) {\n    var back, backImg, img, self, sha;\n    if (I == null) {\n      I = {};\n    }\n    sha = I.sha, back = I.back;\n    img = $(\"<img>\", {\n      src: Resource.url(sha),\n      load: function() {\n        return self.height = this.height;\n      }\n    }).get(0);\n    if (back) {\n      backImg = $(\"<img>\", {\n        src: Resource.url(back),\n        load: function() {\n          return self.backHeight = this.height;\n        }\n      }).get(0);\n    }\n    return self = Object.extend({}, {\n      __proto__: Tile.prototype,\n      img: img,\n      backImg: backImg,\n      orientation: [1, 0]\n    }, I);\n  };\n\n  Tile.prototype = {\n    toJSON: function() {\n      return _.omit(this, \"img\", \"backImg\");\n    },\n    present: function() {\n      return {\n        frontUrl: Resource.url(this.sha),\n        backUrl: Resource.url(this.back || this.sha)\n      };\n    },\n    draw: function(canvas, x, y, cameraRotation) {\n      var back, hflip, img, imgHeight, imgWidth, offset, orientation, transform,\n        _this = this;\n      if (cameraRotation == null) {\n        cameraRotation = Matrix.IDENTITY;\n      }\n      imgHeight = imgWidth = 64;\n      orientation = cameraRotation.deltaTransformPoint(this.orientation).round();\n      hflip = orientation.y;\n      back = (orientation.x + orientation.y) < 0;\n      if (back && this.backImg) {\n        hflip = !hflip;\n        img = this.backImg;\n        offset = 64 - (this.backHeight || this.height);\n      } else {\n        img = this.img;\n        offset = 64 - this.height;\n      }\n      if (hflip) {\n        transform = Matrix.HORIZONTAL_FLIP;\n      } else {\n        transform = Matrix.IDENTITY;\n      }\n      return canvas.withTransform(Matrix.translation(x + imgWidth / 2, y + imgHeight / 2 + offset), function() {\n        return canvas.withTransform(transform, function() {\n          return canvas.drawImage(img, -imgWidth / 2, -imgHeight / 2);\n        });\n      });\n    }\n  };\n\n  module.exports = Tile;\n\n}).call(this);\n\n//# sourceURL=tile.coffee",
+      "type": "blob"
+    },
+    "resource": {
+      "path": "resource",
+      "content": "(function() {\n  var Resource;\n\n  Resource = load;\n\n}).call(this);\n\n//# sourceURL=resource.coffee",
+      "type": "blob"
+    },
+    "sprite": {
+      "path": "sprite",
+      "content": "(function() {\n  var LoaderProxy, Sprite, spriteCache;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        loadedCallback.defer(sprite);\n      }\n      return sprite;\n    }\n    img = new Image();\n    proxy = LoaderProxy();\n    img.onload = function() {\n      spriteCache[url] = Object.extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  Sprite.loadByName = function(name, callback) {\n    return Sprite.load(ResourceLoader.urlFor(\"images\", name), callback);\n  };\n\n  module.exports = Sprite;\n\n}).call(this);\n\n//# sourceURL=sprite.coffee",
       "type": "blob"
     }
   },
   "entryPoint": "main",
-  "dependencies": {},
+  "dependencies": {
+    "compression": {
+      "version": "1.3.3",
+      "source": {
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "lz-string\n=========\nLZ-based compression algorithm for JavaScript\n\n## Home page\nHome page for this program with examples, documentation and a live demo: http://pieroxy.net/blog/pages/lz-string/index.html\n",
+          "type": "blob"
+        },
+        "main.js": {
+          "path": "main.js",
+          "mode": "100644",
+          "content": "// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>\n// This work is free. You can redistribute it and/or modify it\n// under the terms of the WTFPL, Version 2\n// For more information see LICENSE.txt or http://www.wtfpl.net/\n//\n// For more information, the home page:\n// http://pieroxy.net/blog/pages/lz-string/testing.html\n//\n// LZ-based compression algorithm, version 1.3.3\nvar LZString = {\n  \n  \n  // private property\n  _keyStr : \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\",\n  _f : String.fromCharCode,\n  \n  compressToBase64 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\";\n    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;\n    var i = 0;\n    \n    input = LZString.compress(input);\n    \n    while (i < input.length*2) {\n      \n      if (i%2==0) {\n        chr1 = input.charCodeAt(i/2) >> 8;\n        chr2 = input.charCodeAt(i/2) & 255;\n        if (i/2+1 < input.length) \n          chr3 = input.charCodeAt(i/2+1) >> 8;\n        else \n          chr3 = NaN;\n      } else {\n        chr1 = input.charCodeAt((i-1)/2) & 255;\n        if ((i+1)/2 < input.length) {\n          chr2 = input.charCodeAt((i+1)/2) >> 8;\n          chr3 = input.charCodeAt((i+1)/2) & 255;\n        } else \n          chr2=chr3=NaN;\n      }\n      i+=3;\n      \n      enc1 = chr1 >> 2;\n      enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);\n      enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);\n      enc4 = chr3 & 63;\n      \n      if (isNaN(chr2)) {\n        enc3 = enc4 = 64;\n      } else if (isNaN(chr3)) {\n        enc4 = 64;\n      }\n      \n      output = output +\n        LZString._keyStr.charAt(enc1) + LZString._keyStr.charAt(enc2) +\n          LZString._keyStr.charAt(enc3) + LZString._keyStr.charAt(enc4);\n      \n    }\n    \n    return output;\n  },\n  \n  decompressFromBase64 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\",\n        ol = 0, \n        output_,\n        chr1, chr2, chr3,\n        enc1, enc2, enc3, enc4,\n        i = 0, f=LZString._f;\n    \n    input = input.replace(/[^A-Za-z0-9\\+\\/\\=]/g, \"\");\n    \n    while (i < input.length) {\n      \n      enc1 = LZString._keyStr.indexOf(input.charAt(i++));\n      enc2 = LZString._keyStr.indexOf(input.charAt(i++));\n      enc3 = LZString._keyStr.indexOf(input.charAt(i++));\n      enc4 = LZString._keyStr.indexOf(input.charAt(i++));\n      \n      chr1 = (enc1 << 2) | (enc2 >> 4);\n      chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);\n      chr3 = ((enc3 & 3) << 6) | enc4;\n      \n      if (ol%2==0) {\n        output_ = chr1 << 8;\n        \n        if (enc3 != 64) {\n          output += f(output_ | chr2);\n        }\n        if (enc4 != 64) {\n          output_ = chr3 << 8;\n        }\n      } else {\n        output = output + f(output_ | chr1);\n        \n        if (enc3 != 64) {\n          output_ = chr2 << 8;\n        }\n        if (enc4 != 64) {\n          output += f(output_ | chr3);\n        }\n      }\n      ol+=3;\n    }\n    \n    return LZString.decompress(output);\n    \n  },\n\n  compressToUTF16 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\",\n        i,c,\n        current,\n        status = 0,\n        f = LZString._f;\n    \n    input = LZString.compress(input);\n    \n    for (i=0 ; i<input.length ; i++) {\n      c = input.charCodeAt(i);\n      switch (status++) {\n        case 0:\n          output += f((c >> 1)+32);\n          current = (c & 1) << 14;\n          break;\n        case 1:\n          output += f((current + (c >> 2))+32);\n          current = (c & 3) << 13;\n          break;\n        case 2:\n          output += f((current + (c >> 3))+32);\n          current = (c & 7) << 12;\n          break;\n        case 3:\n          output += f((current + (c >> 4))+32);\n          current = (c & 15) << 11;\n          break;\n        case 4:\n          output += f((current + (c >> 5))+32);\n          current = (c & 31) << 10;\n          break;\n        case 5:\n          output += f((current + (c >> 6))+32);\n          current = (c & 63) << 9;\n          break;\n        case 6:\n          output += f((current + (c >> 7))+32);\n          current = (c & 127) << 8;\n          break;\n        case 7:\n          output += f((current + (c >> 8))+32);\n          current = (c & 255) << 7;\n          break;\n        case 8:\n          output += f((current + (c >> 9))+32);\n          current = (c & 511) << 6;\n          break;\n        case 9:\n          output += f((current + (c >> 10))+32);\n          current = (c & 1023) << 5;\n          break;\n        case 10:\n          output += f((current + (c >> 11))+32);\n          current = (c & 2047) << 4;\n          break;\n        case 11:\n          output += f((current + (c >> 12))+32);\n          current = (c & 4095) << 3;\n          break;\n        case 12:\n          output += f((current + (c >> 13))+32);\n          current = (c & 8191) << 2;\n          break;\n        case 13:\n          output += f((current + (c >> 14))+32);\n          current = (c & 16383) << 1;\n          break;\n        case 14:\n          output += f((current + (c >> 15))+32, (c & 32767)+32);\n          status = 0;\n          break;\n      }\n    }\n    \n    return output + f(current + 32);\n  },\n  \n\n  decompressFromUTF16 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\",\n        current,c,\n        status=0,\n        i = 0,\n        f = LZString._f;\n    \n    while (i < input.length) {\n      c = input.charCodeAt(i) - 32;\n      \n      switch (status++) {\n        case 0:\n          current = c << 1;\n          break;\n        case 1:\n          output += f(current | (c >> 14));\n          current = (c&16383) << 2;\n          break;\n        case 2:\n          output += f(current | (c >> 13));\n          current = (c&8191) << 3;\n          break;\n        case 3:\n          output += f(current | (c >> 12));\n          current = (c&4095) << 4;\n          break;\n        case 4:\n          output += f(current | (c >> 11));\n          current = (c&2047) << 5;\n          break;\n        case 5:\n          output += f(current | (c >> 10));\n          current = (c&1023) << 6;\n          break;\n        case 6:\n          output += f(current | (c >> 9));\n          current = (c&511) << 7;\n          break;\n        case 7:\n          output += f(current | (c >> 8));\n          current = (c&255) << 8;\n          break;\n        case 8:\n          output += f(current | (c >> 7));\n          current = (c&127) << 9;\n          break;\n        case 9:\n          output += f(current | (c >> 6));\n          current = (c&63) << 10;\n          break;\n        case 10:\n          output += f(current | (c >> 5));\n          current = (c&31) << 11;\n          break;\n        case 11:\n          output += f(current | (c >> 4));\n          current = (c&15) << 12;\n          break;\n        case 12:\n          output += f(current | (c >> 3));\n          current = (c&7) << 13;\n          break;\n        case 13:\n          output += f(current | (c >> 2));\n          current = (c&3) << 14;\n          break;\n        case 14:\n          output += f(current | (c >> 1));\n          current = (c&1) << 15;\n          break;\n        case 15:\n          output += f(current | c);\n          status=0;\n          break;\n      }\n      \n      \n      i++;\n    }\n    \n    return LZString.decompress(output);\n    //return output;\n    \n  },\n\n\n  \n  compress: function (uncompressed) {\n    if (uncompressed == null) return \"\";\n    var i, value,\n        context_dictionary= {},\n        context_dictionaryToCreate= {},\n        context_c=\"\",\n        context_wc=\"\",\n        context_w=\"\",\n        context_enlargeIn= 2, // Compensate for the first entry which should not count\n        context_dictSize= 3,\n        context_numBits= 2,\n        context_data_string=\"\", \n        context_data_val=0, \n        context_data_position=0,\n        ii,\n        f=LZString._f;\n    \n    for (ii = 0; ii < uncompressed.length; ii += 1) {\n      context_c = uncompressed.charAt(ii);\n      if (!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)) {\n        context_dictionary[context_c] = context_dictSize++;\n        context_dictionaryToCreate[context_c] = true;\n      }\n      \n      context_wc = context_w + context_c;\n      if (Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)) {\n        context_w = context_wc;\n      } else {\n        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {\n          if (context_w.charCodeAt(0)<256) {\n            for (i=0 ; i<context_numBits ; i++) {\n              context_data_val = (context_data_val << 1);\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n            }\n            value = context_w.charCodeAt(0);\n            for (i=0 ; i<8 ; i++) {\n              context_data_val = (context_data_val << 1) | (value&1);\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n              value = value >> 1;\n            }\n          } else {\n            value = 1;\n            for (i=0 ; i<context_numBits ; i++) {\n              context_data_val = (context_data_val << 1) | value;\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n              value = 0;\n            }\n            value = context_w.charCodeAt(0);\n            for (i=0 ; i<16 ; i++) {\n              context_data_val = (context_data_val << 1) | (value&1);\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n              value = value >> 1;\n            }\n          }\n          context_enlargeIn--;\n          if (context_enlargeIn == 0) {\n            context_enlargeIn = Math.pow(2, context_numBits);\n            context_numBits++;\n          }\n          delete context_dictionaryToCreate[context_w];\n        } else {\n          value = context_dictionary[context_w];\n          for (i=0 ; i<context_numBits ; i++) {\n            context_data_val = (context_data_val << 1) | (value&1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = value >> 1;\n          }\n          \n          \n        }\n        context_enlargeIn--;\n        if (context_enlargeIn == 0) {\n          context_enlargeIn = Math.pow(2, context_numBits);\n          context_numBits++;\n        }\n        // Add wc to the dictionary.\n        context_dictionary[context_wc] = context_dictSize++;\n        context_w = String(context_c);\n      }\n    }\n    \n    // Output the code for w.\n    if (context_w !== \"\") {\n      if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {\n        if (context_w.charCodeAt(0)<256) {\n          for (i=0 ; i<context_numBits ; i++) {\n            context_data_val = (context_data_val << 1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n          }\n          value = context_w.charCodeAt(0);\n          for (i=0 ; i<8 ; i++) {\n            context_data_val = (context_data_val << 1) | (value&1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = value >> 1;\n          }\n        } else {\n          value = 1;\n          for (i=0 ; i<context_numBits ; i++) {\n            context_data_val = (context_data_val << 1) | value;\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = 0;\n          }\n          value = context_w.charCodeAt(0);\n          for (i=0 ; i<16 ; i++) {\n            context_data_val = (context_data_val << 1) | (value&1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = value >> 1;\n          }\n        }\n        context_enlargeIn--;\n        if (context_enlargeIn == 0) {\n          context_enlargeIn = Math.pow(2, context_numBits);\n          context_numBits++;\n        }\n        delete context_dictionaryToCreate[context_w];\n      } else {\n        value = context_dictionary[context_w];\n        for (i=0 ; i<context_numBits ; i++) {\n          context_data_val = (context_data_val << 1) | (value&1);\n          if (context_data_position == 15) {\n            context_data_position = 0;\n            context_data_string += f(context_data_val);\n            context_data_val = 0;\n          } else {\n            context_data_position++;\n          }\n          value = value >> 1;\n        }\n        \n        \n      }\n      context_enlargeIn--;\n      if (context_enlargeIn == 0) {\n        context_enlargeIn = Math.pow(2, context_numBits);\n        context_numBits++;\n      }\n    }\n    \n    // Mark the end of the stream\n    value = 2;\n    for (i=0 ; i<context_numBits ; i++) {\n      context_data_val = (context_data_val << 1) | (value&1);\n      if (context_data_position == 15) {\n        context_data_position = 0;\n        context_data_string += f(context_data_val);\n        context_data_val = 0;\n      } else {\n        context_data_position++;\n      }\n      value = value >> 1;\n    }\n    \n    // Flush the last char\n    while (true) {\n      context_data_val = (context_data_val << 1);\n      if (context_data_position == 15) {\n        context_data_string += f(context_data_val);\n        break;\n      }\n      else context_data_position++;\n    }\n    return context_data_string;\n  },\n  \n  decompress: function (compressed) {\n    if (compressed == null) return \"\";\n    if (compressed == \"\") return null;\n    var dictionary = [],\n        next,\n        enlargeIn = 4,\n        dictSize = 4,\n        numBits = 3,\n        entry = \"\",\n        result = \"\",\n        i,\n        w,\n        bits, resb, maxpower, power,\n        c,\n        f = LZString._f,\n        data = {string:compressed, val:compressed.charCodeAt(0), position:32768, index:1};\n    \n    for (i = 0; i < 3; i += 1) {\n      dictionary[i] = i;\n    }\n    \n    bits = 0;\n    maxpower = Math.pow(2,2);\n    power=1;\n    while (power!=maxpower) {\n      resb = data.val & data.position;\n      data.position >>= 1;\n      if (data.position == 0) {\n        data.position = 32768;\n        data.val = data.string.charCodeAt(data.index++);\n      }\n      bits |= (resb>0 ? 1 : 0) * power;\n      power <<= 1;\n    }\n    \n    switch (next = bits) {\n      case 0: \n          bits = 0;\n          maxpower = Math.pow(2,8);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n        c = f(bits);\n        break;\n      case 1: \n          bits = 0;\n          maxpower = Math.pow(2,16);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n        c = f(bits);\n        break;\n      case 2: \n        return \"\";\n    }\n    dictionary[3] = c;\n    w = result = c;\n    while (true) {\n      if (data.index > data.string.length) {\n        return \"\";\n      }\n      \n      bits = 0;\n      maxpower = Math.pow(2,numBits);\n      power=1;\n      while (power!=maxpower) {\n        resb = data.val & data.position;\n        data.position >>= 1;\n        if (data.position == 0) {\n          data.position = 32768;\n          data.val = data.string.charCodeAt(data.index++);\n        }\n        bits |= (resb>0 ? 1 : 0) * power;\n        power <<= 1;\n      }\n\n      switch (c = bits) {\n        case 0: \n          bits = 0;\n          maxpower = Math.pow(2,8);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n\n          dictionary[dictSize++] = f(bits);\n          c = dictSize-1;\n          enlargeIn--;\n          break;\n        case 1: \n          bits = 0;\n          maxpower = Math.pow(2,16);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n          dictionary[dictSize++] = f(bits);\n          c = dictSize-1;\n          enlargeIn--;\n          break;\n        case 2: \n          return result;\n      }\n      \n      if (enlargeIn == 0) {\n        enlargeIn = Math.pow(2, numBits);\n        numBits++;\n      }\n      \n      if (dictionary[c]) {\n        entry = dictionary[c];\n      } else {\n        if (c === dictSize) {\n          entry = w + w.charAt(0);\n        } else {\n          return null;\n        }\n      }\n      result += entry;\n      \n      // Add w+entry[0] to the dictionary.\n      dictionary[dictSize++] = w + entry.charAt(0);\n      enlargeIn--;\n      \n      w = entry;\n      \n      if (enlargeIn == 0) {\n        enlargeIn = Math.pow(2, numBits);\n        numBits++;\n      }\n      \n    }\n  }\n};\n\nif( typeof module !== 'undefined' && module != null ) {\n  module.exports = LZString\n}\n",
+          "type": "blob"
+        },
+        "tests/lz-string-spec.js": {
+          "path": "tests/lz-string-spec.js",
+          "mode": "100644",
+          "content": "LZString = require(\"../main\")\n\ndescribe(\"LZString\", function(compress, decompress) {\n    it('compresses and decompresses  \"Hello world!\"', function() {\n        var compressed = compress('Hello world!');\n        expect(compressed).not.toBe('Hello world!');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe('Hello world!');\n    });\n\n    it('compresses and decompresses null', function() {\n        var compressed = compress(null);\n        expect(compressed).toBe('');\n        expect(typeof compressed).toBe(typeof '');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(null);\n    });\n\n    it('compresses and decompresses undefined', function() {\n        var compressed = compress();\n        expect(compressed).toBe('');\n        expect(typeof compressed).toBe(typeof '');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(null);\n    });\n\n    it('decompresses null', function() {\n        var decompressed = decompress(null);\n        expect(decompressed).toBe('');\n    });\n\n    it('compresses and decompresses an empty string', function() {\n        var compressed = compress('');\n        expect(compressed).not.toBe('');\n        expect(typeof compressed).toBe(typeof '');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe('');\n    });\n\n    it('compresses and decompresses all printable UTF-16 characters',\n        function() {\n        var testString = '';\n        var i;\n        for (i = 32; i < 127; ++i) {\n            testString += String.fromCharCode(i);\n        }\n        for (i = 128 + 32; i < 55296; ++i) {\n            testString += String.fromCharCode(i);\n        }\n        for (i = 63744; i < 65536; ++i) {\n            testString += String.fromCharCode(i);\n        }\n        //console.log(testString);\n        var compressed = compress(testString);\n        expect(compressed).not.toBe(testString);\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(testString);\n    });\n\n    it('compresses and decompresses a string that repeats',\n        function() {\n        var testString = 'aaaaabaaaaacaaaaadaaaaaeaaaaa';\n        var compressed = compress(testString);\n        expect(compressed).not.toBe(testString);\n        expect(compressed.length).toBeLessThan(testString.length);\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(testString);\n    });\n\n    it('compresses and decompresses a long string',\n        function() {\n        var testString = '';\n        var i;\n        for (i=0 ; i<1000 ; i++)\n          testString += Math.random() + \" \";\n            \n        var compressed = compress(testString);\n        expect(compressed).not.toBe(testString);\n        expect(compressed.length).toBeLessThan(testString.length);\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(testString);\n    });\n});\n\ndescribe('LZString', function() {\n    it('base 64', function() {\n        compressionTests(LZString.compressToBase64,\n                         LZString.decompressFromBase64);\n    });\n\n    it('UTF-16', function() {\n        compressionTests(LZString.compressToUTF16,\n                         LZString.decompressFromUTF16);\n    });\n});\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"1.3.3\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\n",
+          "type": "blob"
+        },
+        "test/main.coffee": {
+          "path": "test/main.coffee",
+          "mode": "100644",
+          "content": "{compress, decompress} = LZString = require(\"../main\")\n\n# TODO: Test other compression methods\n\ndescribe \"LZString\", ->\n  it \"compresses and decompresses \\\"Hello world!\\\"\", ->\n    compressed = compress(\"Hello world!\")\n    decompressed = decompress(compressed)\n\n    assert.equal decompressed, \"Hello world!\"\n\n  it \"compresses and decompresses null\", ->\n    compressed = compress(null)\n    assert.equal compressed, \"\"\n\n    decompressed = decompress(compressed)\n    assert.equal decompressed, null\n\n  it \"compresses and decompresses an empty string\", ->\n    compressed = compress(\"\")\n\n    decompressed = decompress(compressed)\n    assert.equal decompressed, \"\"\n\n  it \"compresses and decompresses all printable UTF-16 characters\", ->\n    testString = \"\"\n    i = undefined\n    i = 32\n    while i < 127\n      testString += String.fromCharCode(i)\n      ++i\n    i = 128 + 32\n    while i < 55296\n      testString += String.fromCharCode(i)\n      ++i\n    i = 63744\n    while i < 65536\n      testString += String.fromCharCode(i)\n      ++i\n\n    compressed = compress(testString)\n\n    decompressed = decompress(compressed)\n    assert.equal decompressed, testString\n\n  it \"compresses and decompresses a string that repeats\", ->\n    testString = \"aaaaabaaaaacaaaaadaaaaaeaaaaa\"\n    compressed = compress(testString)\n\n    assert compressed.length < testString.length\n\n    decompressed = decompress(compressed)\n    assert.equal decompressed, testString\n\n  it \"compresses and decompresses a long string\", ->\n    testString = \"\"\n\n    i = 0\n    while i < 1000\n      testString += Math.random() + \" \"\n      i++\n\n    compressed = compress(testString)\n\n    assert compressed.length < testString.length\n    decompressed = decompress(compressed)\n    assert.equal decompressed, testString\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>\n// This work is free. You can redistribute it and/or modify it\n// under the terms of the WTFPL, Version 2\n// For more information see LICENSE.txt or http://www.wtfpl.net/\n//\n// For more information, the home page:\n// http://pieroxy.net/blog/pages/lz-string/testing.html\n//\n// LZ-based compression algorithm, version 1.3.3\nvar LZString = {\n  \n  \n  // private property\n  _keyStr : \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\",\n  _f : String.fromCharCode,\n  \n  compressToBase64 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\";\n    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;\n    var i = 0;\n    \n    input = LZString.compress(input);\n    \n    while (i < input.length*2) {\n      \n      if (i%2==0) {\n        chr1 = input.charCodeAt(i/2) >> 8;\n        chr2 = input.charCodeAt(i/2) & 255;\n        if (i/2+1 < input.length) \n          chr3 = input.charCodeAt(i/2+1) >> 8;\n        else \n          chr3 = NaN;\n      } else {\n        chr1 = input.charCodeAt((i-1)/2) & 255;\n        if ((i+1)/2 < input.length) {\n          chr2 = input.charCodeAt((i+1)/2) >> 8;\n          chr3 = input.charCodeAt((i+1)/2) & 255;\n        } else \n          chr2=chr3=NaN;\n      }\n      i+=3;\n      \n      enc1 = chr1 >> 2;\n      enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);\n      enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);\n      enc4 = chr3 & 63;\n      \n      if (isNaN(chr2)) {\n        enc3 = enc4 = 64;\n      } else if (isNaN(chr3)) {\n        enc4 = 64;\n      }\n      \n      output = output +\n        LZString._keyStr.charAt(enc1) + LZString._keyStr.charAt(enc2) +\n          LZString._keyStr.charAt(enc3) + LZString._keyStr.charAt(enc4);\n      \n    }\n    \n    return output;\n  },\n  \n  decompressFromBase64 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\",\n        ol = 0, \n        output_,\n        chr1, chr2, chr3,\n        enc1, enc2, enc3, enc4,\n        i = 0, f=LZString._f;\n    \n    input = input.replace(/[^A-Za-z0-9\\+\\/\\=]/g, \"\");\n    \n    while (i < input.length) {\n      \n      enc1 = LZString._keyStr.indexOf(input.charAt(i++));\n      enc2 = LZString._keyStr.indexOf(input.charAt(i++));\n      enc3 = LZString._keyStr.indexOf(input.charAt(i++));\n      enc4 = LZString._keyStr.indexOf(input.charAt(i++));\n      \n      chr1 = (enc1 << 2) | (enc2 >> 4);\n      chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);\n      chr3 = ((enc3 & 3) << 6) | enc4;\n      \n      if (ol%2==0) {\n        output_ = chr1 << 8;\n        \n        if (enc3 != 64) {\n          output += f(output_ | chr2);\n        }\n        if (enc4 != 64) {\n          output_ = chr3 << 8;\n        }\n      } else {\n        output = output + f(output_ | chr1);\n        \n        if (enc3 != 64) {\n          output_ = chr2 << 8;\n        }\n        if (enc4 != 64) {\n          output += f(output_ | chr3);\n        }\n      }\n      ol+=3;\n    }\n    \n    return LZString.decompress(output);\n    \n  },\n\n  compressToUTF16 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\",\n        i,c,\n        current,\n        status = 0,\n        f = LZString._f;\n    \n    input = LZString.compress(input);\n    \n    for (i=0 ; i<input.length ; i++) {\n      c = input.charCodeAt(i);\n      switch (status++) {\n        case 0:\n          output += f((c >> 1)+32);\n          current = (c & 1) << 14;\n          break;\n        case 1:\n          output += f((current + (c >> 2))+32);\n          current = (c & 3) << 13;\n          break;\n        case 2:\n          output += f((current + (c >> 3))+32);\n          current = (c & 7) << 12;\n          break;\n        case 3:\n          output += f((current + (c >> 4))+32);\n          current = (c & 15) << 11;\n          break;\n        case 4:\n          output += f((current + (c >> 5))+32);\n          current = (c & 31) << 10;\n          break;\n        case 5:\n          output += f((current + (c >> 6))+32);\n          current = (c & 63) << 9;\n          break;\n        case 6:\n          output += f((current + (c >> 7))+32);\n          current = (c & 127) << 8;\n          break;\n        case 7:\n          output += f((current + (c >> 8))+32);\n          current = (c & 255) << 7;\n          break;\n        case 8:\n          output += f((current + (c >> 9))+32);\n          current = (c & 511) << 6;\n          break;\n        case 9:\n          output += f((current + (c >> 10))+32);\n          current = (c & 1023) << 5;\n          break;\n        case 10:\n          output += f((current + (c >> 11))+32);\n          current = (c & 2047) << 4;\n          break;\n        case 11:\n          output += f((current + (c >> 12))+32);\n          current = (c & 4095) << 3;\n          break;\n        case 12:\n          output += f((current + (c >> 13))+32);\n          current = (c & 8191) << 2;\n          break;\n        case 13:\n          output += f((current + (c >> 14))+32);\n          current = (c & 16383) << 1;\n          break;\n        case 14:\n          output += f((current + (c >> 15))+32, (c & 32767)+32);\n          status = 0;\n          break;\n      }\n    }\n    \n    return output + f(current + 32);\n  },\n  \n\n  decompressFromUTF16 : function (input) {\n    if (input == null) return \"\";\n    var output = \"\",\n        current,c,\n        status=0,\n        i = 0,\n        f = LZString._f;\n    \n    while (i < input.length) {\n      c = input.charCodeAt(i) - 32;\n      \n      switch (status++) {\n        case 0:\n          current = c << 1;\n          break;\n        case 1:\n          output += f(current | (c >> 14));\n          current = (c&16383) << 2;\n          break;\n        case 2:\n          output += f(current | (c >> 13));\n          current = (c&8191) << 3;\n          break;\n        case 3:\n          output += f(current | (c >> 12));\n          current = (c&4095) << 4;\n          break;\n        case 4:\n          output += f(current | (c >> 11));\n          current = (c&2047) << 5;\n          break;\n        case 5:\n          output += f(current | (c >> 10));\n          current = (c&1023) << 6;\n          break;\n        case 6:\n          output += f(current | (c >> 9));\n          current = (c&511) << 7;\n          break;\n        case 7:\n          output += f(current | (c >> 8));\n          current = (c&255) << 8;\n          break;\n        case 8:\n          output += f(current | (c >> 7));\n          current = (c&127) << 9;\n          break;\n        case 9:\n          output += f(current | (c >> 6));\n          current = (c&63) << 10;\n          break;\n        case 10:\n          output += f(current | (c >> 5));\n          current = (c&31) << 11;\n          break;\n        case 11:\n          output += f(current | (c >> 4));\n          current = (c&15) << 12;\n          break;\n        case 12:\n          output += f(current | (c >> 3));\n          current = (c&7) << 13;\n          break;\n        case 13:\n          output += f(current | (c >> 2));\n          current = (c&3) << 14;\n          break;\n        case 14:\n          output += f(current | (c >> 1));\n          current = (c&1) << 15;\n          break;\n        case 15:\n          output += f(current | c);\n          status=0;\n          break;\n      }\n      \n      \n      i++;\n    }\n    \n    return LZString.decompress(output);\n    //return output;\n    \n  },\n\n\n  \n  compress: function (uncompressed) {\n    if (uncompressed == null) return \"\";\n    var i, value,\n        context_dictionary= {},\n        context_dictionaryToCreate= {},\n        context_c=\"\",\n        context_wc=\"\",\n        context_w=\"\",\n        context_enlargeIn= 2, // Compensate for the first entry which should not count\n        context_dictSize= 3,\n        context_numBits= 2,\n        context_data_string=\"\", \n        context_data_val=0, \n        context_data_position=0,\n        ii,\n        f=LZString._f;\n    \n    for (ii = 0; ii < uncompressed.length; ii += 1) {\n      context_c = uncompressed.charAt(ii);\n      if (!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)) {\n        context_dictionary[context_c] = context_dictSize++;\n        context_dictionaryToCreate[context_c] = true;\n      }\n      \n      context_wc = context_w + context_c;\n      if (Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)) {\n        context_w = context_wc;\n      } else {\n        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {\n          if (context_w.charCodeAt(0)<256) {\n            for (i=0 ; i<context_numBits ; i++) {\n              context_data_val = (context_data_val << 1);\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n            }\n            value = context_w.charCodeAt(0);\n            for (i=0 ; i<8 ; i++) {\n              context_data_val = (context_data_val << 1) | (value&1);\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n              value = value >> 1;\n            }\n          } else {\n            value = 1;\n            for (i=0 ; i<context_numBits ; i++) {\n              context_data_val = (context_data_val << 1) | value;\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n              value = 0;\n            }\n            value = context_w.charCodeAt(0);\n            for (i=0 ; i<16 ; i++) {\n              context_data_val = (context_data_val << 1) | (value&1);\n              if (context_data_position == 15) {\n                context_data_position = 0;\n                context_data_string += f(context_data_val);\n                context_data_val = 0;\n              } else {\n                context_data_position++;\n              }\n              value = value >> 1;\n            }\n          }\n          context_enlargeIn--;\n          if (context_enlargeIn == 0) {\n            context_enlargeIn = Math.pow(2, context_numBits);\n            context_numBits++;\n          }\n          delete context_dictionaryToCreate[context_w];\n        } else {\n          value = context_dictionary[context_w];\n          for (i=0 ; i<context_numBits ; i++) {\n            context_data_val = (context_data_val << 1) | (value&1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = value >> 1;\n          }\n          \n          \n        }\n        context_enlargeIn--;\n        if (context_enlargeIn == 0) {\n          context_enlargeIn = Math.pow(2, context_numBits);\n          context_numBits++;\n        }\n        // Add wc to the dictionary.\n        context_dictionary[context_wc] = context_dictSize++;\n        context_w = String(context_c);\n      }\n    }\n    \n    // Output the code for w.\n    if (context_w !== \"\") {\n      if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {\n        if (context_w.charCodeAt(0)<256) {\n          for (i=0 ; i<context_numBits ; i++) {\n            context_data_val = (context_data_val << 1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n          }\n          value = context_w.charCodeAt(0);\n          for (i=0 ; i<8 ; i++) {\n            context_data_val = (context_data_val << 1) | (value&1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = value >> 1;\n          }\n        } else {\n          value = 1;\n          for (i=0 ; i<context_numBits ; i++) {\n            context_data_val = (context_data_val << 1) | value;\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = 0;\n          }\n          value = context_w.charCodeAt(0);\n          for (i=0 ; i<16 ; i++) {\n            context_data_val = (context_data_val << 1) | (value&1);\n            if (context_data_position == 15) {\n              context_data_position = 0;\n              context_data_string += f(context_data_val);\n              context_data_val = 0;\n            } else {\n              context_data_position++;\n            }\n            value = value >> 1;\n          }\n        }\n        context_enlargeIn--;\n        if (context_enlargeIn == 0) {\n          context_enlargeIn = Math.pow(2, context_numBits);\n          context_numBits++;\n        }\n        delete context_dictionaryToCreate[context_w];\n      } else {\n        value = context_dictionary[context_w];\n        for (i=0 ; i<context_numBits ; i++) {\n          context_data_val = (context_data_val << 1) | (value&1);\n          if (context_data_position == 15) {\n            context_data_position = 0;\n            context_data_string += f(context_data_val);\n            context_data_val = 0;\n          } else {\n            context_data_position++;\n          }\n          value = value >> 1;\n        }\n        \n        \n      }\n      context_enlargeIn--;\n      if (context_enlargeIn == 0) {\n        context_enlargeIn = Math.pow(2, context_numBits);\n        context_numBits++;\n      }\n    }\n    \n    // Mark the end of the stream\n    value = 2;\n    for (i=0 ; i<context_numBits ; i++) {\n      context_data_val = (context_data_val << 1) | (value&1);\n      if (context_data_position == 15) {\n        context_data_position = 0;\n        context_data_string += f(context_data_val);\n        context_data_val = 0;\n      } else {\n        context_data_position++;\n      }\n      value = value >> 1;\n    }\n    \n    // Flush the last char\n    while (true) {\n      context_data_val = (context_data_val << 1);\n      if (context_data_position == 15) {\n        context_data_string += f(context_data_val);\n        break;\n      }\n      else context_data_position++;\n    }\n    return context_data_string;\n  },\n  \n  decompress: function (compressed) {\n    if (compressed == null) return \"\";\n    if (compressed == \"\") return null;\n    var dictionary = [],\n        next,\n        enlargeIn = 4,\n        dictSize = 4,\n        numBits = 3,\n        entry = \"\",\n        result = \"\",\n        i,\n        w,\n        bits, resb, maxpower, power,\n        c,\n        f = LZString._f,\n        data = {string:compressed, val:compressed.charCodeAt(0), position:32768, index:1};\n    \n    for (i = 0; i < 3; i += 1) {\n      dictionary[i] = i;\n    }\n    \n    bits = 0;\n    maxpower = Math.pow(2,2);\n    power=1;\n    while (power!=maxpower) {\n      resb = data.val & data.position;\n      data.position >>= 1;\n      if (data.position == 0) {\n        data.position = 32768;\n        data.val = data.string.charCodeAt(data.index++);\n      }\n      bits |= (resb>0 ? 1 : 0) * power;\n      power <<= 1;\n    }\n    \n    switch (next = bits) {\n      case 0: \n          bits = 0;\n          maxpower = Math.pow(2,8);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n        c = f(bits);\n        break;\n      case 1: \n          bits = 0;\n          maxpower = Math.pow(2,16);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n        c = f(bits);\n        break;\n      case 2: \n        return \"\";\n    }\n    dictionary[3] = c;\n    w = result = c;\n    while (true) {\n      if (data.index > data.string.length) {\n        return \"\";\n      }\n      \n      bits = 0;\n      maxpower = Math.pow(2,numBits);\n      power=1;\n      while (power!=maxpower) {\n        resb = data.val & data.position;\n        data.position >>= 1;\n        if (data.position == 0) {\n          data.position = 32768;\n          data.val = data.string.charCodeAt(data.index++);\n        }\n        bits |= (resb>0 ? 1 : 0) * power;\n        power <<= 1;\n      }\n\n      switch (c = bits) {\n        case 0: \n          bits = 0;\n          maxpower = Math.pow(2,8);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n\n          dictionary[dictSize++] = f(bits);\n          c = dictSize-1;\n          enlargeIn--;\n          break;\n        case 1: \n          bits = 0;\n          maxpower = Math.pow(2,16);\n          power=1;\n          while (power!=maxpower) {\n            resb = data.val & data.position;\n            data.position >>= 1;\n            if (data.position == 0) {\n              data.position = 32768;\n              data.val = data.string.charCodeAt(data.index++);\n            }\n            bits |= (resb>0 ? 1 : 0) * power;\n            power <<= 1;\n          }\n          dictionary[dictSize++] = f(bits);\n          c = dictSize-1;\n          enlargeIn--;\n          break;\n        case 2: \n          return result;\n      }\n      \n      if (enlargeIn == 0) {\n        enlargeIn = Math.pow(2, numBits);\n        numBits++;\n      }\n      \n      if (dictionary[c]) {\n        entry = dictionary[c];\n      } else {\n        if (c === dictSize) {\n          entry = w + w.charAt(0);\n        } else {\n          return null;\n        }\n      }\n      result += entry;\n      \n      // Add w+entry[0] to the dictionary.\n      dictionary[dictSize++] = w + entry.charAt(0);\n      enlargeIn--;\n      \n      w = entry;\n      \n      if (enlargeIn == 0) {\n        enlargeIn = Math.pow(2, numBits);\n        numBits++;\n      }\n      \n    }\n  }\n};\n\nif( typeof module !== 'undefined' && module != null ) {\n  module.exports = LZString\n}\n",
+          "type": "blob"
+        },
+        "tests/lz-string-spec": {
+          "path": "tests/lz-string-spec",
+          "content": "LZString = require(\"../main\")\n\ndescribe(\"LZString\", function(compress, decompress) {\n    it('compresses and decompresses  \"Hello world!\"', function() {\n        var compressed = compress('Hello world!');\n        expect(compressed).not.toBe('Hello world!');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe('Hello world!');\n    });\n\n    it('compresses and decompresses null', function() {\n        var compressed = compress(null);\n        expect(compressed).toBe('');\n        expect(typeof compressed).toBe(typeof '');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(null);\n    });\n\n    it('compresses and decompresses undefined', function() {\n        var compressed = compress();\n        expect(compressed).toBe('');\n        expect(typeof compressed).toBe(typeof '');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(null);\n    });\n\n    it('decompresses null', function() {\n        var decompressed = decompress(null);\n        expect(decompressed).toBe('');\n    });\n\n    it('compresses and decompresses an empty string', function() {\n        var compressed = compress('');\n        expect(compressed).not.toBe('');\n        expect(typeof compressed).toBe(typeof '');\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe('');\n    });\n\n    it('compresses and decompresses all printable UTF-16 characters',\n        function() {\n        var testString = '';\n        var i;\n        for (i = 32; i < 127; ++i) {\n            testString += String.fromCharCode(i);\n        }\n        for (i = 128 + 32; i < 55296; ++i) {\n            testString += String.fromCharCode(i);\n        }\n        for (i = 63744; i < 65536; ++i) {\n            testString += String.fromCharCode(i);\n        }\n        //console.log(testString);\n        var compressed = compress(testString);\n        expect(compressed).not.toBe(testString);\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(testString);\n    });\n\n    it('compresses and decompresses a string that repeats',\n        function() {\n        var testString = 'aaaaabaaaaacaaaaadaaaaaeaaaaa';\n        var compressed = compress(testString);\n        expect(compressed).not.toBe(testString);\n        expect(compressed.length).toBeLessThan(testString.length);\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(testString);\n    });\n\n    it('compresses and decompresses a long string',\n        function() {\n        var testString = '';\n        var i;\n        for (i=0 ; i<1000 ; i++)\n          testString += Math.random() + \" \";\n            \n        var compressed = compress(testString);\n        expect(compressed).not.toBe(testString);\n        expect(compressed.length).toBeLessThan(testString.length);\n        var decompressed = decompress(compressed);\n        expect(decompressed).toBe(testString);\n    });\n});\n\ndescribe('LZString', function() {\n    it('base 64', function() {\n        compressionTests(LZString.compressToBase64,\n                         LZString.decompressFromBase64);\n    });\n\n    it('UTF-16', function() {\n        compressionTests(LZString.compressToUTF16,\n                         LZString.decompressFromUTF16);\n    });\n});\n",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"1.3.3\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js\"]};",
+          "type": "blob"
+        },
+        "test/main": {
+          "path": "test/main",
+          "content": "(function() {\n  var LZString, compress, decompress, _ref;\n\n  _ref = LZString = require(\"../main\"), compress = _ref.compress, decompress = _ref.decompress;\n\n  describe(\"LZString\", function() {\n    it(\"compresses and decompresses \\\"Hello world!\\\"\", function() {\n      var compressed, decompressed;\n      compressed = compress(\"Hello world!\");\n      decompressed = decompress(compressed);\n      return assert.equal(decompressed, \"Hello world!\");\n    });\n    it(\"compresses and decompresses null\", function() {\n      var compressed, decompressed;\n      compressed = compress(null);\n      assert.equal(compressed, \"\");\n      decompressed = decompress(compressed);\n      return assert.equal(decompressed, null);\n    });\n    it(\"compresses and decompresses an empty string\", function() {\n      var compressed, decompressed;\n      compressed = compress(\"\");\n      decompressed = decompress(compressed);\n      return assert.equal(decompressed, \"\");\n    });\n    it(\"compresses and decompresses all printable UTF-16 characters\", function() {\n      var compressed, decompressed, i, testString;\n      testString = \"\";\n      i = void 0;\n      i = 32;\n      while (i < 127) {\n        testString += String.fromCharCode(i);\n        ++i;\n      }\n      i = 128 + 32;\n      while (i < 55296) {\n        testString += String.fromCharCode(i);\n        ++i;\n      }\n      i = 63744;\n      while (i < 65536) {\n        testString += String.fromCharCode(i);\n        ++i;\n      }\n      compressed = compress(testString);\n      decompressed = decompress(compressed);\n      return assert.equal(decompressed, testString);\n    });\n    it(\"compresses and decompresses a string that repeats\", function() {\n      var compressed, decompressed, testString;\n      testString = \"aaaaabaaaaacaaaaadaaaaaeaaaaa\";\n      compressed = compress(testString);\n      assert(compressed.length < testString.length);\n      decompressed = decompress(compressed);\n      return assert.equal(decompressed, testString);\n    });\n    return it(\"compresses and decompresses a long string\", function() {\n      var compressed, decompressed, i, testString;\n      testString = \"\";\n      i = 0;\n      while (i < 1000) {\n        testString += Math.random() + \" \";\n        i++;\n      }\n      compressed = compress(testString);\n      assert(compressed.length < testString.length);\n      decompressed = decompress(compressed);\n      return assert.equal(decompressed, testString);\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/main.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.2.js"
+      ],
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 14217030,
+        "name": "lz-string",
+        "full_name": "STRd6/lz-string",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/lz-string",
+        "description": "LZ-based compression algorithm for JavaScript",
+        "fork": true,
+        "url": "https://api.github.com/repos/STRd6/lz-string",
+        "forks_url": "https://api.github.com/repos/STRd6/lz-string/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/lz-string/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/lz-string/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/lz-string/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/lz-string/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/lz-string/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/lz-string/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/lz-string/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/lz-string/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/lz-string/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/lz-string/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/lz-string/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/lz-string/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/lz-string/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/lz-string/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/lz-string/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/lz-string/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/lz-string/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/lz-string/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/lz-string/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/lz-string/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/lz-string/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/lz-string/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/lz-string/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/lz-string/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/lz-string/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/lz-string/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/lz-string/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/lz-string/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/lz-string/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/lz-string/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/lz-string/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/lz-string/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/lz-string/labels{/name}",
+        "releases_url": "https://api.github.com/repos/STRd6/lz-string/releases{/id}",
+        "created_at": "2013-11-07T21:56:34Z",
+        "updated_at": "2013-11-07T22:02:49Z",
+        "pushed_at": "2013-11-07T22:02:44Z",
+        "git_url": "git://github.com/STRd6/lz-string.git",
+        "ssh_url": "git@github.com:STRd6/lz-string.git",
+        "clone_url": "https://github.com/STRd6/lz-string.git",
+        "svn_url": "https://github.com/STRd6/lz-string",
+        "homepage": null,
+        "size": 134,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": "JavaScript",
+        "has_issues": false,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "parent": {
+          "id": 9938102,
+          "name": "lz-string",
+          "full_name": "pieroxy/lz-string",
+          "owner": {
+            "login": "pieroxy",
+            "id": 1426854,
+            "avatar_url": "https://2.gravatar.com/avatar/e62e85a6ea5257c79252947be6913696?d=https%3A%2F%2Fidenticons.github.com%2Fccf41f2204389b1165e0221906776ab1.png&r=x",
+            "gravatar_id": "e62e85a6ea5257c79252947be6913696",
+            "url": "https://api.github.com/users/pieroxy",
+            "html_url": "https://github.com/pieroxy",
+            "followers_url": "https://api.github.com/users/pieroxy/followers",
+            "following_url": "https://api.github.com/users/pieroxy/following{/other_user}",
+            "gists_url": "https://api.github.com/users/pieroxy/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/pieroxy/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/pieroxy/subscriptions",
+            "organizations_url": "https://api.github.com/users/pieroxy/orgs",
+            "repos_url": "https://api.github.com/users/pieroxy/repos",
+            "events_url": "https://api.github.com/users/pieroxy/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/pieroxy/received_events",
+            "type": "User",
+            "site_admin": false
+          },
+          "private": false,
+          "html_url": "https://github.com/pieroxy/lz-string",
+          "description": "LZ-based compression algorithm for JavaScript",
+          "fork": false,
+          "url": "https://api.github.com/repos/pieroxy/lz-string",
+          "forks_url": "https://api.github.com/repos/pieroxy/lz-string/forks",
+          "keys_url": "https://api.github.com/repos/pieroxy/lz-string/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/pieroxy/lz-string/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/pieroxy/lz-string/teams",
+          "hooks_url": "https://api.github.com/repos/pieroxy/lz-string/hooks",
+          "issue_events_url": "https://api.github.com/repos/pieroxy/lz-string/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/pieroxy/lz-string/events",
+          "assignees_url": "https://api.github.com/repos/pieroxy/lz-string/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/pieroxy/lz-string/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/pieroxy/lz-string/tags",
+          "blobs_url": "https://api.github.com/repos/pieroxy/lz-string/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/pieroxy/lz-string/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/pieroxy/lz-string/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/pieroxy/lz-string/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/pieroxy/lz-string/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/pieroxy/lz-string/languages",
+          "stargazers_url": "https://api.github.com/repos/pieroxy/lz-string/stargazers",
+          "contributors_url": "https://api.github.com/repos/pieroxy/lz-string/contributors",
+          "subscribers_url": "https://api.github.com/repos/pieroxy/lz-string/subscribers",
+          "subscription_url": "https://api.github.com/repos/pieroxy/lz-string/subscription",
+          "commits_url": "https://api.github.com/repos/pieroxy/lz-string/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/pieroxy/lz-string/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/pieroxy/lz-string/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/pieroxy/lz-string/issues/comments/{number}",
+          "contents_url": "https://api.github.com/repos/pieroxy/lz-string/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/pieroxy/lz-string/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/pieroxy/lz-string/merges",
+          "archive_url": "https://api.github.com/repos/pieroxy/lz-string/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/pieroxy/lz-string/downloads",
+          "issues_url": "https://api.github.com/repos/pieroxy/lz-string/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/pieroxy/lz-string/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/pieroxy/lz-string/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/pieroxy/lz-string/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/pieroxy/lz-string/labels{/name}",
+          "releases_url": "https://api.github.com/repos/pieroxy/lz-string/releases{/id}",
+          "created_at": "2013-05-08T14:26:27Z",
+          "updated_at": "2013-11-07T21:56:34Z",
+          "pushed_at": "2013-10-27T23:43:36Z",
+          "git_url": "git://github.com/pieroxy/lz-string.git",
+          "ssh_url": "git@github.com:pieroxy/lz-string.git",
+          "clone_url": "https://github.com/pieroxy/lz-string.git",
+          "svn_url": "https://github.com/pieroxy/lz-string",
+          "homepage": null,
+          "size": 352,
+          "stargazers_count": 173,
+          "watchers_count": 173,
+          "language": "JavaScript",
+          "has_issues": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "forks_count": 32,
+          "mirror_url": null,
+          "open_issues_count": 1,
+          "forks": 32,
+          "open_issues": 1,
+          "watchers": 173,
+          "default_branch": "master",
+          "master_branch": "master"
+        },
+        "source": {
+          "id": 9938102,
+          "name": "lz-string",
+          "full_name": "pieroxy/lz-string",
+          "owner": {
+            "login": "pieroxy",
+            "id": 1426854,
+            "avatar_url": "https://2.gravatar.com/avatar/e62e85a6ea5257c79252947be6913696?d=https%3A%2F%2Fidenticons.github.com%2Fccf41f2204389b1165e0221906776ab1.png&r=x",
+            "gravatar_id": "e62e85a6ea5257c79252947be6913696",
+            "url": "https://api.github.com/users/pieroxy",
+            "html_url": "https://github.com/pieroxy",
+            "followers_url": "https://api.github.com/users/pieroxy/followers",
+            "following_url": "https://api.github.com/users/pieroxy/following{/other_user}",
+            "gists_url": "https://api.github.com/users/pieroxy/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/pieroxy/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/pieroxy/subscriptions",
+            "organizations_url": "https://api.github.com/users/pieroxy/orgs",
+            "repos_url": "https://api.github.com/users/pieroxy/repos",
+            "events_url": "https://api.github.com/users/pieroxy/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/pieroxy/received_events",
+            "type": "User",
+            "site_admin": false
+          },
+          "private": false,
+          "html_url": "https://github.com/pieroxy/lz-string",
+          "description": "LZ-based compression algorithm for JavaScript",
+          "fork": false,
+          "url": "https://api.github.com/repos/pieroxy/lz-string",
+          "forks_url": "https://api.github.com/repos/pieroxy/lz-string/forks",
+          "keys_url": "https://api.github.com/repos/pieroxy/lz-string/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/pieroxy/lz-string/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/pieroxy/lz-string/teams",
+          "hooks_url": "https://api.github.com/repos/pieroxy/lz-string/hooks",
+          "issue_events_url": "https://api.github.com/repos/pieroxy/lz-string/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/pieroxy/lz-string/events",
+          "assignees_url": "https://api.github.com/repos/pieroxy/lz-string/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/pieroxy/lz-string/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/pieroxy/lz-string/tags",
+          "blobs_url": "https://api.github.com/repos/pieroxy/lz-string/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/pieroxy/lz-string/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/pieroxy/lz-string/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/pieroxy/lz-string/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/pieroxy/lz-string/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/pieroxy/lz-string/languages",
+          "stargazers_url": "https://api.github.com/repos/pieroxy/lz-string/stargazers",
+          "contributors_url": "https://api.github.com/repos/pieroxy/lz-string/contributors",
+          "subscribers_url": "https://api.github.com/repos/pieroxy/lz-string/subscribers",
+          "subscription_url": "https://api.github.com/repos/pieroxy/lz-string/subscription",
+          "commits_url": "https://api.github.com/repos/pieroxy/lz-string/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/pieroxy/lz-string/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/pieroxy/lz-string/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/pieroxy/lz-string/issues/comments/{number}",
+          "contents_url": "https://api.github.com/repos/pieroxy/lz-string/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/pieroxy/lz-string/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/pieroxy/lz-string/merges",
+          "archive_url": "https://api.github.com/repos/pieroxy/lz-string/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/pieroxy/lz-string/downloads",
+          "issues_url": "https://api.github.com/repos/pieroxy/lz-string/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/pieroxy/lz-string/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/pieroxy/lz-string/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/pieroxy/lz-string/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/pieroxy/lz-string/labels{/name}",
+          "releases_url": "https://api.github.com/repos/pieroxy/lz-string/releases{/id}",
+          "created_at": "2013-05-08T14:26:27Z",
+          "updated_at": "2013-11-07T21:56:34Z",
+          "pushed_at": "2013-10-27T23:43:36Z",
+          "git_url": "git://github.com/pieroxy/lz-string.git",
+          "ssh_url": "git@github.com:pieroxy/lz-string.git",
+          "clone_url": "https://github.com/pieroxy/lz-string.git",
+          "svn_url": "https://github.com/pieroxy/lz-string",
+          "homepage": null,
+          "size": 352,
+          "stargazers_count": 173,
+          "watchers_count": 173,
+          "language": "JavaScript",
+          "has_issues": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "forks_count": 32,
+          "mirror_url": null,
+          "open_issues_count": 1,
+          "forks": 32,
+          "open_issues": 1,
+          "watchers": 173,
+          "default_branch": "master",
+          "master_branch": "master"
+        },
+        "network_count": 32,
+        "subscribers_count": 1,
+        "branch": "v1.3.3",
+        "defaultBranch": "master"
+      }
+    },
+    "touch-canvas": {
+      "version": "0.2.0",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "touch-canvas\n============\n\nA canvas you can touch\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "entryPoint: \"touch_canvas\"\nversion: \"0.2.0\"\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  \"pixie-canvas\": \"STRd6/pixie-canvas:v0.8.1\"\n",
+          "type": "blob"
+        },
+        "touch_canvas.coffee.md": {
+          "path": "touch_canvas.coffee.md",
+          "mode": "100644",
+          "content": "Touch Canvas\n============\n\nA canvas element that reports mouse and touch events in the range [0, 1].\n\n    PixieCanvas = require \"pixie-canvas\"\n\nA number really close to 1. We should never actually return 1, but move events\nmay get a little fast and loose with exiting the canvas, so let's play it safe.\n\n    MAX = 0.999999999999\n\n    TouchCanvas = (I={}) ->\n      self = PixieCanvas I\n\n      Core(I, self)\n\n      self.include Bindable\n\n      element = self.element()\n\n      # Keep track of if the mouse is active in the element\n      active = false\n\nWhen we click within the canvas set the value for the position we clicked at.\n\n      $(element).on \"mousedown\", (e) ->\n        active = true\n\n        self.trigger \"touch\", localPosition(e)\n\nHandle touch starts\n\n      $(element).on \"touchstart\", (e) ->\n        # Global `event`\n        processTouches event, (touch) ->\n          self.trigger \"touch\", localPosition(touch)\n\nWhen the mouse moves apply a change for each x value in the intervening positions.\n\n      $(element).on \"mousemove\", (e) ->\n        if active\n          self.trigger \"move\", localPosition(e)\n\nHandle moves outside of the element.\n\n      $(document).on \"mousemove\", (e) ->\n        if active\n          self.trigger \"move\", localPosition(e)\n\nHandle touch moves.\n\n      $(element).on \"touchmove\", (e) ->\n        # Global `event`\n        processTouches event, (touch) ->\n          self.trigger \"move\", localPosition(touch)\n\nHandle releases.\n\n      $(element).on \"mouseup\", (e) ->\n        self.trigger \"release\", localPosition(e)\n        active = false\n\n        return\n\nHandle touch ends.\n\n      $(element).on \"touchend\", (e) ->\n        # Global `event`\n        processTouches event, (touch) ->\n          self.trigger \"release\", localPosition(touch)\n\nWhenever the mouse button is released from anywhere, deactivate. Be sure to\ntrigger the release event if the mousedown started within the element.\n\n      $(document).on \"mouseup\", (e) ->\n        if active\n          self.trigger \"release\", localPosition(e)\n\n        active = false\n\n        return\n\nHelpers\n-------\n\nProcess touches\n\n      processTouches = (event, fn) ->\n        event.preventDefault()\n\n        if event.type is \"touchend\"\n          # touchend doesn't have any touches, but does have changed touches\n          touches = event.changedTouches\n        else\n          touches = event.touches\n\n        self.debug? Array::map.call touches, ({identifier, pageX, pageY}) ->\n          \"[#{identifier}: #{pageX}, #{pageY} (#{event.type})]\\n\"\n\n        Array::forEach.call touches, fn\n\nLocal event position.\n\n      localPosition = (e) ->\n        $currentTarget = $(element)\n        offset = $currentTarget.offset()\n\n        width = $currentTarget.width()\n        height = $currentTarget.height()\n\n        point = Point(\n          ((e.pageX - offset.left) / width).clamp(0, MAX)\n          ((e.pageY - offset.top) / height).clamp(0, MAX)\n        )\n\n        # Add mouse into touch identifiers as 0\n        point.identifier = (e.identifier + 1) or 0\n\n        return point\n\nReturn self\n\n      return self\n\nExport\n\n    module.exports = TouchCanvas\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"entryPoint\":\"touch_canvas\",\"version\":\"0.2.0\",\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"pixie-canvas\":\"STRd6/pixie-canvas:v0.8.1\"}};",
+          "type": "blob"
+        },
+        "touch_canvas": {
+          "path": "touch_canvas",
+          "content": "(function() {\n  var MAX, PixieCanvas, TouchCanvas;\n\n  PixieCanvas = require(\"pixie-canvas\");\n\n  MAX = 0.999999999999;\n\n  TouchCanvas = function(I) {\n    var active, element, localPosition, processTouches, self;\n    if (I == null) {\n      I = {};\n    }\n    self = PixieCanvas(I);\n    Core(I, self);\n    self.include(Bindable);\n    element = self.element();\n    active = false;\n    $(element).on(\"mousedown\", function(e) {\n      active = true;\n      return self.trigger(\"touch\", localPosition(e));\n    });\n    $(element).on(\"touchstart\", function(e) {\n      return processTouches(event, function(touch) {\n        return self.trigger(\"touch\", localPosition(touch));\n      });\n    });\n    $(element).on(\"mousemove\", function(e) {\n      if (active) {\n        return self.trigger(\"move\", localPosition(e));\n      }\n    });\n    $(document).on(\"mousemove\", function(e) {\n      if (active) {\n        return self.trigger(\"move\", localPosition(e));\n      }\n    });\n    $(element).on(\"touchmove\", function(e) {\n      return processTouches(event, function(touch) {\n        return self.trigger(\"move\", localPosition(touch));\n      });\n    });\n    $(element).on(\"mouseup\", function(e) {\n      self.trigger(\"release\", localPosition(e));\n      active = false;\n    });\n    $(element).on(\"touchend\", function(e) {\n      return processTouches(event, function(touch) {\n        return self.trigger(\"release\", localPosition(touch));\n      });\n    });\n    $(document).on(\"mouseup\", function(e) {\n      if (active) {\n        self.trigger(\"release\", localPosition(e));\n      }\n      active = false;\n    });\n    processTouches = function(event, fn) {\n      var touches;\n      event.preventDefault();\n      if (event.type === \"touchend\") {\n        touches = event.changedTouches;\n      } else {\n        touches = event.touches;\n      }\n      if (typeof self.debug === \"function\") {\n        self.debug(Array.prototype.map.call(touches, function(_arg) {\n          var identifier, pageX, pageY;\n          identifier = _arg.identifier, pageX = _arg.pageX, pageY = _arg.pageY;\n          return \"[\" + identifier + \": \" + pageX + \", \" + pageY + \" (\" + event.type + \")]\\n\";\n        }));\n      }\n      return Array.prototype.forEach.call(touches, fn);\n    };\n    localPosition = function(e) {\n      var $currentTarget, height, offset, point, width;\n      $currentTarget = $(element);\n      offset = $currentTarget.offset();\n      width = $currentTarget.width();\n      height = $currentTarget.height();\n      point = Point(((e.pageX - offset.left) / width).clamp(0, MAX), ((e.pageY - offset.top) / height).clamp(0, MAX));\n      point.identifier = (e.identifier + 1) || 0;\n      return point;\n    };\n    return self;\n  };\n\n  module.exports = TouchCanvas;\n\n}).call(this);\n\n//# sourceURL=touch_canvas.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "touch_canvas",
+      "dependencies": {
+        "pixie-canvas": {
+          "version": "0.8.1",
+          "source": {
+            "pixie.cson": {
+              "path": "pixie.cson",
+              "mode": "100644",
+              "content": "entryPoint: \"pixie_canvas\"\nversion: \"0.8.1\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.1.js\"\n]\n",
+              "type": "blob"
+            },
+            "pixie_canvas.coffee.md": {
+              "path": "pixie_canvas.coffee.md",
+              "mode": "100644",
+              "content": "Pixie Canvas\n============\n\nPixieCanvas provides a convenient wrapper for working with Context2d.\n\nMethods try to be as flexible as possible as to what arguments they take.\n\nNon-getter methods return `this` for method chaining.\n\n    TAU = 2 * Math.PI\n\n    module.exports = (options={}) ->\n        defaults options,\n          width: 400\n          height: 400\n          init: ->\n\n        canvas = document.createElement \"canvas\"\n        canvas.width = options.width\n        canvas.height = options.height\n\n        context = undefined\n\n        self =\n\n`clear` clears the entire canvas (or a portion of it).\n\nTo clear the entire canvas use `canvas.clear()`\n\n>     #! paint\n>     # Set up: Fill canvas with blue\n>     canvas.fill(\"blue\")\n>\n>     # Clear a portion of the canvas\n>     canvas.clear\n>       x: 50\n>       y: 50\n>       width: 50\n>       height: 50\n\n          clear: ({x, y, width, height}={}) ->\n            x ?= 0\n            y ?= 0\n            width = canvas.width unless width?\n            height = canvas.height unless height?\n\n            context.clearRect(x, y, width, height)\n\n            return this\n\nFills the entire canvas (or a specified section of it) with\nthe given color.\n\n>     #! paint\n>     # Paint the town (entire canvas) red\n>     canvas.fill \"red\"\n>\n>     # Fill a section of the canvas white (#FFF)\n>     canvas.fill\n>       x: 50\n>       y: 50\n>       width: 50\n>       height: 50\n>       color: \"#FFF\"\n\n          fill: (color={}) ->\n            unless (typeof color is \"string\") or color.channels\n              {x, y, width, height, bounds, color} = color\n\n            {x, y, width, height} = bounds if bounds\n\n            x ||= 0\n            y ||= 0\n            width = canvas.width unless width?\n            height = canvas.height unless height?\n\n            @fillColor(color)\n            context.fillRect(x, y, width, height)\n\n            return this\n\nA direct map to the Context2d draw image. `GameObject`s\nthat implement drawable will have this wrapped up nicely,\nso there is a good chance that you will not have to deal with\nit directly.\n\n>     #! paint\n>     $ \"<img>\",\n>       src: \"https://secure.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045\"\n>       load: ->\n>         canvas.drawImage(this, 25, 25)\n\n          drawImage: (args...) ->\n            context.drawImage(args...)\n\n            return this\n\nDraws a circle at the specified position with the specified\nradius and color.\n\n>     #! paint\n>     # Draw a large orange circle\n>     canvas.drawCircle\n>       radius: 30\n>       position: Point(100, 75)\n>       color: \"orange\"\n>\n>     # You may also set a stroke\n>     canvas.drawCircle\n>       x: 25\n>       y: 50\n>       radius: 10\n>       color: \"blue\"\n>       stroke:\n>         color: \"red\"\n>         width: 1\n\nYou can pass in circle objects as well.\n\n>     #! paint\n>     # Create a circle object to set up the next examples\n>     circle =\n>       radius: 20\n>       x: 50\n>       y: 50\n>\n>     # Draw a given circle in yellow\n>     canvas.drawCircle\n>       circle: circle\n>       color: \"yellow\"\n>\n>     # Draw the circle in green at a different position\n>     canvas.drawCircle\n>       circle: circle\n>       position: Point(25, 75)\n>       color: \"green\"\n\nYou may set a stroke, or even pass in only a stroke to draw an unfilled circle.\n\n>     #! paint\n>     # Draw an outline circle in purple.\n>     canvas.drawCircle\n>       x: 50\n>       y: 75\n>       radius: 10\n>       stroke:\n>         color: \"purple\"\n>         width: 2\n>\n\n          drawCircle: ({x, y, radius, position, color, stroke, circle}) ->\n            {x, y, radius} = circle if circle\n            {x, y} = position if position\n\n            radius = 0 if radius < 0\n\n            context.beginPath()\n            context.arc(x, y, radius, 0, TAU, true)\n            context.closePath()\n\n            if color\n              @fillColor(color)\n              context.fill()\n\n            if stroke\n              @strokeColor(stroke.color)\n              @lineWidth(stroke.width)\n              context.stroke()\n\n            return this\n\nDraws a rectangle at the specified position with given\nwidth and height. Optionally takes a position, bounds\nand color argument.\n\n\n          drawRect: ({x, y, width, height, position, bounds, color, stroke}) ->\n            {x, y, width, height} = bounds if bounds\n            {x, y} = position if position\n\n            if color\n              @fillColor(color)\n              context.fillRect(x, y, width, height)\n\n            if stroke\n              @strokeColor(stroke.color)\n              @lineWidth(stroke.width)\n              context.strokeRect(x, y, width, height)\n\n            return @\n\n>     #! paint\n>     # Draw a red rectangle using x, y, width and height\n>     canvas.drawRect\n>       x: 50\n>       y: 50\n>       width: 50\n>       height: 50\n>       color: \"#F00\"\n\n----\n\nYou can mix and match position, witdth and height.\n\n>     #! paint\n>     canvas.drawRect\n>       position: Point(0, 0)\n>       width: 50\n>       height: 50\n>       color: \"blue\"\n>       stroke:\n>         color: \"orange\"\n>         width: 3\n\n----\n\nA bounds can be reused to draw multiple rectangles.\n\n>     #! paint\n>     bounds =\n>       x: 100\n>       y: 0\n>       width: 100\n>       height: 100\n>\n>     # Draw a purple rectangle using bounds\n>     canvas.drawRect\n>       bounds: bounds\n>       color: \"green\"\n>\n>     # Draw the outline of the same bounds, but at a different position\n>     canvas.drawRect\n>       bounds: bounds\n>       position: Point(0, 50)\n>       stroke:\n>         color: \"purple\"\n>         width: 2\n\n----\n\nDraw a line from `start` to `end`.\n\n>     #! paint\n>     # Draw a sweet diagonal\n>     canvas.drawLine\n>       start: Point(0, 0)\n>       end: Point(200, 200)\n>       color: \"purple\"\n>\n>     # Draw another sweet diagonal\n>     canvas.drawLine\n>       start: Point(200, 0)\n>       end: Point(0, 200)\n>       color: \"red\"\n>       width: 6\n>\n>     # Now draw a sweet horizontal with a direction and a length\n>     canvas.drawLine\n>       start: Point(0, 100)\n>       length: 200\n>       direction: Point(1, 0)\n>       color: \"orange\"\n\n          drawLine: ({start, end, width, color, direction, length}) ->\n            width ||= 3\n\n            if direction\n              end = direction.norm(length).add(start)\n\n            @lineWidth(width)\n            @strokeColor(color)\n\n            context.beginPath()\n            context.moveTo(start.x, start.y)\n            context.lineTo(end.x, end.y)\n            context.closePath()\n            context.stroke()\n\n            return this\n\nDraw a polygon.\n\n>     #! paint\n>     # Draw a sweet rhombus\n>     canvas.drawPoly\n>       points: [\n>         Point(50, 25)\n>         Point(75, 50)\n>         Point(50, 75)\n>         Point(25, 50)\n>       ]\n>       color: \"purple\"\n>       stroke:\n>         color: \"red\"\n>         width: 2\n\n          drawPoly: ({points, color, stroke}) ->\n            context.beginPath()\n            points.forEach (point, i) ->\n              if i == 0\n                context.moveTo(point.x, point.y)\n              else\n                context.lineTo(point.x, point.y)\n            context.lineTo points[0].x, points[0].y\n\n            if color\n              @fillColor(color)\n              context.fill()\n\n            if stroke\n              @strokeColor(stroke.color)\n              @lineWidth(stroke.width)\n              context.stroke()\n\n            return @\n\nDraw a rounded rectangle.\n\nAdapted from http://js-bits.blogspot.com/2010/07/canvas-rounded-corner-rectangles.html\n\n>     #! paint\n>     # Draw a purple rounded rectangle with a red outline\n>     canvas.drawRoundRect\n>       position: Point(25, 25)\n>       radius: 10\n>       width: 150\n>       height: 100\n>       color: \"purple\"\n>       stroke:\n>         color: \"red\"\n>         width: 2\n\n          drawRoundRect: ({x, y, width, height, radius, position, bounds, color, stroke}) ->\n            radius = 5 unless radius?\n\n            {x, y, width, height} = bounds if bounds\n            {x, y} = position if position\n\n            context.beginPath()\n            context.moveTo(x + radius, y)\n            context.lineTo(x + width - radius, y)\n            context.quadraticCurveTo(x + width, y, x + width, y + radius)\n            context.lineTo(x + width, y + height - radius)\n            context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)\n            context.lineTo(x + radius, y + height)\n            context.quadraticCurveTo(x, y + height, x, y + height - radius)\n            context.lineTo(x, y + radius)\n            context.quadraticCurveTo(x, y, x + radius, y)\n            context.closePath()\n\n            if color\n              @fillColor(color)\n              context.fill()\n\n            if stroke\n              @lineWidth(stroke.width)\n              @strokeColor(stroke.color)\n              context.stroke()\n\n            return this\n\nDraws text on the canvas at the given position, in the given color.\nIf no color is given then the previous fill color is used.\n\n>     #! paint\n>     # Fill canvas to indicate bounds\n>     canvas.fill\n>       color: '#eee'\n>\n>     # A line to indicate the baseline\n>     canvas.drawLine\n>       start: Point(25, 50)\n>       end: Point(125, 50)\n>       color: \"#333\"\n>       width: 1\n>\n>     # Draw some text, note the position of the baseline\n>     canvas.drawText\n>       position: Point(25, 50)\n>       color: \"red\"\n>       text: \"It's dangerous to go alone\"\n\n\n          drawText: ({x, y, text, position, color, font}) ->\n            {x, y} = position if position\n\n            @fillColor(color)\n            @font(font) if font\n            context.fillText(text, x, y)\n\n            return this\n\nCenters the given text on the canvas at the given y position. An x position\nor point position can also be given in which case the text is centered at the\nx, y or position value specified.\n\n>     #! paint\n>     # Fill canvas to indicate bounds\n>     canvas.fill\n>       color: \"#eee\"\n>\n>     # Center text on the screen at y value 25\n>     canvas.centerText\n>       y: 25\n>       color: \"red\"\n>       text: \"It's dangerous to go alone\"\n>\n>     # Center text at point (75, 75)\n>     canvas.centerText\n>       position: Point(75, 75)\n>       color: \"green\"\n>       text: \"take this\"\n\n          centerText: ({text, x, y, position, color, font}) ->\n            {x, y} = position if position\n\n            x = canvas.width / 2 unless x?\n\n            textWidth = @measureText(text)\n\n            @drawText {\n              text\n              color\n              font\n              x: x - (textWidth) / 2\n              y\n            }\n\nSetting the fill color:\n\n`canvas.fillColor(\"#FF0000\")`\n\nPassing no arguments returns the fillColor:\n\n`canvas.fillColor() # => \"#FF000000\"`\n\nYou can also pass a Color object:\n\n`canvas.fillColor(Color('sky blue'))`\n\n          fillColor: (color) ->\n            if color\n              if color.channels\n                context.fillStyle = color.toString()\n              else\n                context.fillStyle = color\n\n              return @\n            else\n              return context.fillStyle\n\nSetting the stroke color:\n\n`canvas.strokeColor(\"#FF0000\")`\n\nPassing no arguments returns the strokeColor:\n\n`canvas.strokeColor() # => \"#FF0000\"`\n\nYou can also pass a Color object:\n\n`canvas.strokeColor(Color('sky blue'))`\n\n          strokeColor: (color) ->\n            if color\n              if color.channels\n                context.strokeStyle = color.toString()\n              else\n                context.strokeStyle = color\n\n              return this\n            else\n              return context.strokeStyle\n\nDetermine how wide some text is.\n\n`canvas.measureText('Hello World!') # => 55`\n\nIt may have accuracy issues depending on the font used.\n\n          measureText: (text) ->\n            context.measureText(text).width\n\nPasses this canvas to the block with the given matrix transformation\napplied. All drawing methods called within the block will draw\ninto the canvas with the transformation applied. The transformation\nis removed at the end of the block, even if the block throws an error.\n\n          withTransform: (matrix, block) ->\n            context.save()\n\n            context.transform(\n              matrix.a,\n              matrix.b,\n              matrix.c,\n              matrix.d,\n              matrix.tx,\n              matrix.ty\n            )\n\n            try\n              block(this)\n            finally\n              context.restore()\n\n            return this\n\nStraight proxy to context `putImageData` method.\n\n          putImageData: (args...) ->\n            context.putImageData(args...)\n\n            return this\n\nContext getter.\n\n          context: ->\n            context\n\nGetter for the actual html canvas element.\n\n          element: ->\n            canvas\n\nStraight proxy to context pattern creation.\n\n          createPattern: (image, repitition) ->\n            context.createPattern(image, repitition)\n\nSet a clip rectangle.\n\n          clip: (x, y, width, height) ->\n            context.beginPath()\n            context.rect(x, y, width, height)\n            context.clip()\n\n            return this\n\nGenerate accessors that get properties from the context object.\n\n        contextAttrAccessor = (attrs...) ->\n          attrs.forEach (attr) ->\n            self[attr] = (newVal) ->\n              if newVal?\n                context[attr] = newVal\n                return @\n              else\n                context[attr]\n\n        contextAttrAccessor(\n          \"font\",\n          \"globalAlpha\",\n          \"globalCompositeOperation\",\n          \"lineWidth\",\n          \"textAlign\",\n        )\n\nGenerate accessors that get properties from the canvas object.\n\n        canvasAttrAccessor = (attrs...) ->\n          attrs.forEach (attr) ->\n            self[attr] = (newVal) ->\n              if newVal?\n                canvas[attr] = newVal\n                return @\n              else\n                canvas[attr]\n\n        canvasAttrAccessor(\n          \"height\",\n          \"width\",\n        )\n\n        context = canvas.getContext('2d')\n\n        options.init(self)\n\n        return self\n\nDepend on either jQuery or Zepto for now (TODO: Don't depend on either)\n\nHelpers\n-------\n\nFill in default properties for an object, setting them only if they are not\nalready present.\n\n    defaults = (target, objects...) ->\n      for object in objects\n        for name of object\n          unless target.hasOwnProperty(name)\n            target[name] = object[name]\n\n      return target\n\nInteractive Examples\n--------------------\n\n>     #! setup\n>     Canvas = require \"/pixie_canvas\"\n>\n>     window.Point ?= (x, y) ->\n>       x: x\n>       y: y\n>\n>     Interactive.register \"paint\", ({source, runtimeElement}) ->\n>       canvas = Canvas\n>         width: 400\n>         height: 200\n>\n>       code = CoffeeScript.compile(source)\n>\n>       runtimeElement.empty().append canvas.element()\n>       Function(\"canvas\", code)(canvas)\n",
+              "type": "blob"
+            },
+            "test/test.coffee": {
+              "path": "test/test.coffee",
+              "mode": "100644",
+              "content": "Canvas = require \"../pixie_canvas\"\n\ndescribe \"pixie canvas\", ->\n  it \"Should create a canvas\", ->\n    canvas = Canvas\n      width: 400\n      height: 150\n\n    assert canvas\n    \n    assert canvas.width() is 400\n",
+              "type": "blob"
+            }
+          },
+          "distribution": {
+            "pixie": {
+              "path": "pixie",
+              "content": "module.exports = {\"entryPoint\":\"pixie_canvas\",\"version\":\"0.8.1\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.1.js\"]};",
+              "type": "blob"
+            },
+            "pixie_canvas": {
+              "path": "pixie_canvas",
+              "content": "(function() {\n  var TAU, defaults,\n    __slice = [].slice;\n\n  TAU = 2 * Math.PI;\n\n  module.exports = function(options) {\n    var canvas, canvasAttrAccessor, context, contextAttrAccessor, self;\n    if (options == null) {\n      options = {};\n    }\n    defaults(options, {\n      width: 400,\n      height: 400,\n      init: function() {}\n    });\n    canvas = document.createElement(\"canvas\");\n    canvas.width = options.width;\n    canvas.height = options.height;\n    context = void 0;\n    self = {\n      clear: function(_arg) {\n        var height, width, x, y, _ref;\n        _ref = _arg != null ? _arg : {}, x = _ref.x, y = _ref.y, width = _ref.width, height = _ref.height;\n        if (x == null) {\n          x = 0;\n        }\n        if (y == null) {\n          y = 0;\n        }\n        if (width == null) {\n          width = canvas.width;\n        }\n        if (height == null) {\n          height = canvas.height;\n        }\n        context.clearRect(x, y, width, height);\n        return this;\n      },\n      fill: function(color) {\n        var bounds, height, width, x, y, _ref;\n        if (color == null) {\n          color = {};\n        }\n        if (!((typeof color === \"string\") || color.channels)) {\n          _ref = color, x = _ref.x, y = _ref.y, width = _ref.width, height = _ref.height, bounds = _ref.bounds, color = _ref.color;\n        }\n        if (bounds) {\n          x = bounds.x, y = bounds.y, width = bounds.width, height = bounds.height;\n        }\n        x || (x = 0);\n        y || (y = 0);\n        if (width == null) {\n          width = canvas.width;\n        }\n        if (height == null) {\n          height = canvas.height;\n        }\n        this.fillColor(color);\n        context.fillRect(x, y, width, height);\n        return this;\n      },\n      drawImage: function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        context.drawImage.apply(context, args);\n        return this;\n      },\n      drawCircle: function(_arg) {\n        var circle, color, position, radius, stroke, x, y;\n        x = _arg.x, y = _arg.y, radius = _arg.radius, position = _arg.position, color = _arg.color, stroke = _arg.stroke, circle = _arg.circle;\n        if (circle) {\n          x = circle.x, y = circle.y, radius = circle.radius;\n        }\n        if (position) {\n          x = position.x, y = position.y;\n        }\n        if (radius < 0) {\n          radius = 0;\n        }\n        context.beginPath();\n        context.arc(x, y, radius, 0, TAU, true);\n        context.closePath();\n        if (color) {\n          this.fillColor(color);\n          context.fill();\n        }\n        if (stroke) {\n          this.strokeColor(stroke.color);\n          this.lineWidth(stroke.width);\n          context.stroke();\n        }\n        return this;\n      },\n      drawRect: function(_arg) {\n        var bounds, color, height, position, stroke, width, x, y;\n        x = _arg.x, y = _arg.y, width = _arg.width, height = _arg.height, position = _arg.position, bounds = _arg.bounds, color = _arg.color, stroke = _arg.stroke;\n        if (bounds) {\n          x = bounds.x, y = bounds.y, width = bounds.width, height = bounds.height;\n        }\n        if (position) {\n          x = position.x, y = position.y;\n        }\n        if (color) {\n          this.fillColor(color);\n          context.fillRect(x, y, width, height);\n        }\n        if (stroke) {\n          this.strokeColor(stroke.color);\n          this.lineWidth(stroke.width);\n          context.strokeRect(x, y, width, height);\n        }\n        return this;\n      },\n      drawLine: function(_arg) {\n        var color, direction, end, length, start, width;\n        start = _arg.start, end = _arg.end, width = _arg.width, color = _arg.color, direction = _arg.direction, length = _arg.length;\n        width || (width = 3);\n        if (direction) {\n          end = direction.norm(length).add(start);\n        }\n        this.lineWidth(width);\n        this.strokeColor(color);\n        context.beginPath();\n        context.moveTo(start.x, start.y);\n        context.lineTo(end.x, end.y);\n        context.closePath();\n        context.stroke();\n        return this;\n      },\n      drawPoly: function(_arg) {\n        var color, points, stroke;\n        points = _arg.points, color = _arg.color, stroke = _arg.stroke;\n        context.beginPath();\n        points.forEach(function(point, i) {\n          if (i === 0) {\n            return context.moveTo(point.x, point.y);\n          } else {\n            return context.lineTo(point.x, point.y);\n          }\n        });\n        context.lineTo(points[0].x, points[0].y);\n        if (color) {\n          this.fillColor(color);\n          context.fill();\n        }\n        if (stroke) {\n          this.strokeColor(stroke.color);\n          this.lineWidth(stroke.width);\n          context.stroke();\n        }\n        return this;\n      },\n      drawRoundRect: function(_arg) {\n        var bounds, color, height, position, radius, stroke, width, x, y;\n        x = _arg.x, y = _arg.y, width = _arg.width, height = _arg.height, radius = _arg.radius, position = _arg.position, bounds = _arg.bounds, color = _arg.color, stroke = _arg.stroke;\n        if (radius == null) {\n          radius = 5;\n        }\n        if (bounds) {\n          x = bounds.x, y = bounds.y, width = bounds.width, height = bounds.height;\n        }\n        if (position) {\n          x = position.x, y = position.y;\n        }\n        context.beginPath();\n        context.moveTo(x + radius, y);\n        context.lineTo(x + width - radius, y);\n        context.quadraticCurveTo(x + width, y, x + width, y + radius);\n        context.lineTo(x + width, y + height - radius);\n        context.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);\n        context.lineTo(x + radius, y + height);\n        context.quadraticCurveTo(x, y + height, x, y + height - radius);\n        context.lineTo(x, y + radius);\n        context.quadraticCurveTo(x, y, x + radius, y);\n        context.closePath();\n        if (color) {\n          this.fillColor(color);\n          context.fill();\n        }\n        if (stroke) {\n          this.lineWidth(stroke.width);\n          this.strokeColor(stroke.color);\n          context.stroke();\n        }\n        return this;\n      },\n      drawText: function(_arg) {\n        var color, font, position, text, x, y;\n        x = _arg.x, y = _arg.y, text = _arg.text, position = _arg.position, color = _arg.color, font = _arg.font;\n        if (position) {\n          x = position.x, y = position.y;\n        }\n        this.fillColor(color);\n        if (font) {\n          this.font(font);\n        }\n        context.fillText(text, x, y);\n        return this;\n      },\n      centerText: function(_arg) {\n        var color, font, position, text, textWidth, x, y;\n        text = _arg.text, x = _arg.x, y = _arg.y, position = _arg.position, color = _arg.color, font = _arg.font;\n        if (position) {\n          x = position.x, y = position.y;\n        }\n        if (x == null) {\n          x = canvas.width / 2;\n        }\n        textWidth = this.measureText(text);\n        return this.drawText({\n          text: text,\n          color: color,\n          font: font,\n          x: x - textWidth / 2,\n          y: y\n        });\n      },\n      fillColor: function(color) {\n        if (color) {\n          if (color.channels) {\n            context.fillStyle = color.toString();\n          } else {\n            context.fillStyle = color;\n          }\n          return this;\n        } else {\n          return context.fillStyle;\n        }\n      },\n      strokeColor: function(color) {\n        if (color) {\n          if (color.channels) {\n            context.strokeStyle = color.toString();\n          } else {\n            context.strokeStyle = color;\n          }\n          return this;\n        } else {\n          return context.strokeStyle;\n        }\n      },\n      measureText: function(text) {\n        return context.measureText(text).width;\n      },\n      withTransform: function(matrix, block) {\n        context.save();\n        context.transform(matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);\n        try {\n          block(this);\n        } finally {\n          context.restore();\n        }\n        return this;\n      },\n      putImageData: function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        context.putImageData.apply(context, args);\n        return this;\n      },\n      context: function() {\n        return context;\n      },\n      element: function() {\n        return canvas;\n      },\n      createPattern: function(image, repitition) {\n        return context.createPattern(image, repitition);\n      },\n      clip: function(x, y, width, height) {\n        context.beginPath();\n        context.rect(x, y, width, height);\n        context.clip();\n        return this;\n      }\n    };\n    contextAttrAccessor = function() {\n      var attrs;\n      attrs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n      return attrs.forEach(function(attr) {\n        return self[attr] = function(newVal) {\n          if (newVal != null) {\n            context[attr] = newVal;\n            return this;\n          } else {\n            return context[attr];\n          }\n        };\n      });\n    };\n    contextAttrAccessor(\"font\", \"globalAlpha\", \"globalCompositeOperation\", \"lineWidth\", \"textAlign\");\n    canvasAttrAccessor = function() {\n      var attrs;\n      attrs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n      return attrs.forEach(function(attr) {\n        return self[attr] = function(newVal) {\n          if (newVal != null) {\n            canvas[attr] = newVal;\n            return this;\n          } else {\n            return canvas[attr];\n          }\n        };\n      });\n    };\n    canvasAttrAccessor(\"height\", \"width\");\n    context = canvas.getContext('2d');\n    options.init(self);\n    return self;\n  };\n\n  defaults = function() {\n    var name, object, objects, target, _i, _len;\n    target = arguments[0], objects = 2 <= arguments.length ? __slice.call(arguments, 1) : [];\n    for (_i = 0, _len = objects.length; _i < _len; _i++) {\n      object = objects[_i];\n      for (name in object) {\n        if (!target.hasOwnProperty(name)) {\n          target[name] = object[name];\n        }\n      }\n    }\n    return target;\n  };\n\n}).call(this);\n",
+              "type": "blob"
+            },
+            "test/test": {
+              "path": "test/test",
+              "content": "(function() {\n  var Canvas;\n\n  Canvas = require(\"../pixie_canvas\");\n\n  describe(\"pixie canvas\", function() {\n    return it(\"Should create a canvas\", function() {\n      var canvas;\n      canvas = Canvas({\n        width: 400,\n        height: 150\n      });\n      assert(canvas);\n      return assert(canvas.width() === 400);\n    });\n  });\n\n}).call(this);\n",
+              "type": "blob"
+            }
+          },
+          "entryPoint": "pixie_canvas",
+          "dependencies": {},
+          "remoteDependencies": [
+            "http://strd6.github.io/require/v0.2.1.js"
+          ],
+          "repository": {
+            "id": 12096899,
+            "name": "pixie-canvas",
+            "full_name": "STRd6/pixie-canvas",
+            "owner": {
+              "login": "STRd6",
+              "id": 18894,
+              "avatar_url": "https://1.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+              "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+              "url": "https://api.github.com/users/STRd6",
+              "html_url": "https://github.com/STRd6",
+              "followers_url": "https://api.github.com/users/STRd6/followers",
+              "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+              "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+              "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+              "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+              "organizations_url": "https://api.github.com/users/STRd6/orgs",
+              "repos_url": "https://api.github.com/users/STRd6/repos",
+              "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+              "received_events_url": "https://api.github.com/users/STRd6/received_events",
+              "type": "User"
+            },
+            "private": false,
+            "html_url": "https://github.com/STRd6/pixie-canvas",
+            "description": "A pretty ok HTML5 canvas wrapper",
+            "fork": false,
+            "url": "https://api.github.com/repos/STRd6/pixie-canvas",
+            "forks_url": "https://api.github.com/repos/STRd6/pixie-canvas/forks",
+            "keys_url": "https://api.github.com/repos/STRd6/pixie-canvas/keys{/key_id}",
+            "collaborators_url": "https://api.github.com/repos/STRd6/pixie-canvas/collaborators{/collaborator}",
+            "teams_url": "https://api.github.com/repos/STRd6/pixie-canvas/teams",
+            "hooks_url": "https://api.github.com/repos/STRd6/pixie-canvas/hooks",
+            "issue_events_url": "https://api.github.com/repos/STRd6/pixie-canvas/issues/events{/number}",
+            "events_url": "https://api.github.com/repos/STRd6/pixie-canvas/events",
+            "assignees_url": "https://api.github.com/repos/STRd6/pixie-canvas/assignees{/user}",
+            "branches_url": "https://api.github.com/repos/STRd6/pixie-canvas/branches{/branch}",
+            "tags_url": "https://api.github.com/repos/STRd6/pixie-canvas/tags",
+            "blobs_url": "https://api.github.com/repos/STRd6/pixie-canvas/git/blobs{/sha}",
+            "git_tags_url": "https://api.github.com/repos/STRd6/pixie-canvas/git/tags{/sha}",
+            "git_refs_url": "https://api.github.com/repos/STRd6/pixie-canvas/git/refs{/sha}",
+            "trees_url": "https://api.github.com/repos/STRd6/pixie-canvas/git/trees{/sha}",
+            "statuses_url": "https://api.github.com/repos/STRd6/pixie-canvas/statuses/{sha}",
+            "languages_url": "https://api.github.com/repos/STRd6/pixie-canvas/languages",
+            "stargazers_url": "https://api.github.com/repos/STRd6/pixie-canvas/stargazers",
+            "contributors_url": "https://api.github.com/repos/STRd6/pixie-canvas/contributors",
+            "subscribers_url": "https://api.github.com/repos/STRd6/pixie-canvas/subscribers",
+            "subscription_url": "https://api.github.com/repos/STRd6/pixie-canvas/subscription",
+            "commits_url": "https://api.github.com/repos/STRd6/pixie-canvas/commits{/sha}",
+            "git_commits_url": "https://api.github.com/repos/STRd6/pixie-canvas/git/commits{/sha}",
+            "comments_url": "https://api.github.com/repos/STRd6/pixie-canvas/comments{/number}",
+            "issue_comment_url": "https://api.github.com/repos/STRd6/pixie-canvas/issues/comments/{number}",
+            "contents_url": "https://api.github.com/repos/STRd6/pixie-canvas/contents/{+path}",
+            "compare_url": "https://api.github.com/repos/STRd6/pixie-canvas/compare/{base}...{head}",
+            "merges_url": "https://api.github.com/repos/STRd6/pixie-canvas/merges",
+            "archive_url": "https://api.github.com/repos/STRd6/pixie-canvas/{archive_format}{/ref}",
+            "downloads_url": "https://api.github.com/repos/STRd6/pixie-canvas/downloads",
+            "issues_url": "https://api.github.com/repos/STRd6/pixie-canvas/issues{/number}",
+            "pulls_url": "https://api.github.com/repos/STRd6/pixie-canvas/pulls{/number}",
+            "milestones_url": "https://api.github.com/repos/STRd6/pixie-canvas/milestones{/number}",
+            "notifications_url": "https://api.github.com/repos/STRd6/pixie-canvas/notifications{?since,all,participating}",
+            "labels_url": "https://api.github.com/repos/STRd6/pixie-canvas/labels{/name}",
+            "created_at": "2013-08-14T01:15:34Z",
+            "updated_at": "2013-10-01T17:16:30Z",
+            "pushed_at": "2013-10-01T17:16:30Z",
+            "git_url": "git://github.com/STRd6/pixie-canvas.git",
+            "ssh_url": "git@github.com:STRd6/pixie-canvas.git",
+            "clone_url": "https://github.com/STRd6/pixie-canvas.git",
+            "svn_url": "https://github.com/STRd6/pixie-canvas",
+            "homepage": null,
+            "size": 1520,
+            "watchers_count": 0,
+            "language": "CoffeeScript",
+            "has_issues": true,
+            "has_downloads": true,
+            "has_wiki": true,
+            "forks_count": 0,
+            "mirror_url": null,
+            "open_issues_count": 2,
+            "forks": 0,
+            "open_issues": 2,
+            "watchers": 0,
+            "master_branch": "master",
+            "default_branch": "master",
+            "permissions": {
+              "admin": true,
+              "push": true,
+              "pull": true
+            },
+            "network_count": 0,
+            "branch": "v0.8.1",
+            "defaultBranch": "master",
+            "includedModules": [
+              "Bindable"
+            ]
+          },
+          "progenitor": {
+            "url": "http://strd6.github.io/editor/"
+          }
+        }
+      },
+      "remoteDependencies": [
+        "//code.jquery.com/jquery-1.10.1.min.js",
+        "http://strd6.github.io/tempest/javascripts/envweb.js",
+        "http://strd6.github.io/require/v0.2.2.js"
+      ],
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 13783983,
+        "name": "touch-canvas",
+        "full_name": "STRd6/touch-canvas",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://1.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/touch-canvas",
+        "description": "A canvas you can touch",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/touch-canvas",
+        "forks_url": "https://api.github.com/repos/STRd6/touch-canvas/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/touch-canvas/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/touch-canvas/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/touch-canvas/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/touch-canvas/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/touch-canvas/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/touch-canvas/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/touch-canvas/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/touch-canvas/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/touch-canvas/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/touch-canvas/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/touch-canvas/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/touch-canvas/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/touch-canvas/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/touch-canvas/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/touch-canvas/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/touch-canvas/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/touch-canvas/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/touch-canvas/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/touch-canvas/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/touch-canvas/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/touch-canvas/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/touch-canvas/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/touch-canvas/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/touch-canvas/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/touch-canvas/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/touch-canvas/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/touch-canvas/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/touch-canvas/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/touch-canvas/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/touch-canvas/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/touch-canvas/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/touch-canvas/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/touch-canvas/labels{/name}",
+        "created_at": "2013-10-22T19:46:48Z",
+        "updated_at": "2013-10-27T19:12:55Z",
+        "pushed_at": "2013-10-27T19:12:55Z",
+        "git_url": "git://github.com/STRd6/touch-canvas.git",
+        "ssh_url": "git@github.com:STRd6/touch-canvas.git",
+        "clone_url": "https://github.com/STRd6/touch-canvas.git",
+        "svn_url": "https://github.com/STRd6/touch-canvas",
+        "homepage": null,
+        "size": 948,
+        "watchers_count": 0,
+        "language": "CoffeeScript",
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "master_branch": "master",
+        "default_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 0,
+        "branch": "v0.2.0",
+        "defaultBranch": "master"
+      }
+    }
+  },
   "remoteDependencies": [
-    "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js",
-    "//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js",
     "//code.jquery.com/jquery-1.10.1.min.js",
-    "http://strd6.github.io/tempest/javascripts/envweb.js",
-    "http://strd6.github.io/require/v0.2.0.js"
+    "http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js",
+    "http://strd6.github.io/require/v0.2.2.js"
   ],
+  "progenitor": {
+    "url": "http://strd6.github.io/editor/"
+  },
   "repository": {
     "id": 13207718,
     "name": "tactics",
@@ -90,7 +736,7 @@ require('./main')
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -103,7 +749,8 @@ require('./main')
       "repos_url": "https://api.github.com/users/STRd6/repos",
       "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
       "received_events_url": "https://api.github.com/users/STRd6/received_events",
-      "type": "User"
+      "type": "User",
+      "site_admin": false
     },
     "private": false,
     "html_url": "https://github.com/STRd6/tactics",
@@ -144,17 +791,19 @@ require('./main')
     "milestones_url": "https://api.github.com/repos/STRd6/tactics/milestones{/number}",
     "notifications_url": "https://api.github.com/repos/STRd6/tactics/notifications{?since,all,participating}",
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
+    "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-09-30T06:23:29Z",
-    "pushed_at": "2013-09-30T06:23:29Z",
+    "updated_at": "2013-09-30T06:29:00Z",
+    "pushed_at": "2013-09-30T06:29:00Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
     "svn_url": "https://github.com/STRd6/tactics",
     "homepage": null,
-    "size": 0,
+    "size": 288,
+    "stargazers_count": 0,
     "watchers_count": 0,
-    "language": null,
+    "language": "CoffeeScript",
     "has_issues": true,
     "has_downloads": true,
     "has_wiki": true,
@@ -164,22 +813,17 @@ require('./main')
     "forks": 0,
     "open_issues": 0,
     "watchers": 0,
-    "master_branch": "master",
     "default_branch": "master",
+    "master_branch": "master",
     "permissions": {
       "admin": true,
       "push": true,
       "pull": true
     },
     "network_count": 0,
+    "subscribers_count": 1,
     "branch": "master",
-    "defaultBranch": "master",
-    "includedModules": [
-      "Bindable"
-    ]
-  },
-  "progenitor": {
-    "url": "http://strd6.github.io/editor/"
+    "defaultBranch": "master"
   }
 });
 </script>
