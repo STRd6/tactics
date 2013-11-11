@@ -63,7 +63,10 @@ canvas.fill <span class="string">"#222034"</span>
 ui =
   actions: Observable [
     Action
-      icon: Resource.load(<span class="string">"test"</span>)
+      name: <span class="string">"New Game"</span>
+      icon: Resource.load(<span class="string">"new_game"</span>)
+      perform: -&gt;
+        alert(<span class="string">"TODO"</span>)
     Action()
   ]
 
