@@ -49,7 +49,11 @@ Resource =
     <span class="comment"># Hacky load from localStorage for right now...</span>
     cache ||=
       <span class="keyword">try</span>
-        JSON.parse localStorage.images
+        res = JSON.parse localStorage.images
+
+        console.log Object.keys res
+
+        res
       <span class="keyword">catch</span>
         {}
 
