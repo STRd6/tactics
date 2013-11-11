@@ -21,7 +21,11 @@ excessive.
         # Hacky load from localStorage for right now...
         cache ||=
           try
-            JSON.parse localStorage.images
+            res = JSON.parse localStorage.images
+
+            console.log Object.keys res
+
+            res
           catch
             {}
 
