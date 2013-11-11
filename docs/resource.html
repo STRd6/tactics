@@ -42,8 +42,20 @@ resources.</p>
 excessive.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Resource =
-  load</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">cache = <span class="literal">null</span>
+
+Resource =
+  load: (name) -&gt;
+    <span class="comment"># Hacky load from localStorage for right now...</span>
+    cache ||=
+      <span class="keyword">try</span>
+        JSON.parse localStorage.images
+      <span class="keyword">catch</span>
+        {}
+
+    cache[name]
+
+module.exports = Resource</code></pre>
 </div>
         </li>
         

@@ -48,6 +48,7 @@ runtime.applyStyleSheet(require(<span class="string">'./style'</span>))
 Canvas = require <span class="string">"touch-canvas"</span>
 Sprite = require <span class="string">"./sprite"</span>
 Action = require <span class="string">"./action"</span>
+Resource = require <span class="string">"./resource"</span>
 
 {width, height} = require(<span class="string">"./pixie"</span>)
 
@@ -57,10 +58,14 @@ canvas = Canvas
 
 $(<span class="string">"body"</span>).append canvas.element()
 
-canvas.fill <span class="string">"red"</span>
+canvas.fill <span class="string">"#222034"</span>
 
 ui =
-  actions: Observable [Action(), Action()]
+  actions: Observable [
+    Action
+      icon: Resource.load(<span class="string">"test"</span>)
+    Action()
+  ]
 
 $(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)</code></pre>
 </div>
