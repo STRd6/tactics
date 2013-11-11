@@ -14,5 +14,17 @@ Locally we can look up pngs by name and return data-urls.
 We may even want to store the data-urls as compressed data, but that seems
 excessive.
 
+    cache = null
+
     Resource =
-      load
+      load: (name) ->
+        # Hacky load from localStorage for right now...
+        cache ||=
+          try
+            JSON.parse localStorage.images
+          catch
+            {}
+
+        cache[name]
+
+    module.exports = Resource

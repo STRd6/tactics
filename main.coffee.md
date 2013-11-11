@@ -18,6 +18,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Canvas = require "touch-canvas"
     Sprite = require "./sprite"
     Action = require "./action"
+    Resource = require "./resource"
 
     {width, height} = require("./pixie")
 
@@ -27,9 +28,13 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append canvas.element()
     
-    canvas.fill "red"
+    canvas.fill "#222034"
 
     ui =
-      actions: Observable [Action(), Action()]
+      actions: Observable [
+        Action
+          icon: Resource.load("test")
+        Action()
+      ]
 
     $("body").append require("./templates/ui")(ui)
