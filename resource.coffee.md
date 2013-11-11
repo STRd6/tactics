@@ -14,21 +14,10 @@ Locally we can look up pngs by name and return data-urls.
 We may even want to store the data-urls as compressed data, but that seems
 excessive.
 
-    cache = null
+    cache = require "./images"
 
     Resource =
       load: (name) ->
-        # Hacky load from localStorage for right now...
-        cache ||=
-          try
-            res = JSON.parse localStorage.images
-
-            console.log Object.keys res
-
-            res
-          catch
-            {}
-
         cache[name]
 
     module.exports = Resource
