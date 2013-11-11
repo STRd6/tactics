@@ -33,7 +33,10 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     ui =
       actions: Observable [
         Action
-          icon: Resource.load("test")
+          name: "New Game"
+          icon: Resource.load("new_game")
+          perform: ->
+            alert("TODO")
         Action()
       ]
 
