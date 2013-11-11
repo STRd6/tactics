@@ -42,21 +42,10 @@ resources.</p>
 excessive.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">cache = <span class="literal">null</span>
+            <div class="content"><pre><code class="lang-coffeescript">cache = require <span class="string">"./images"</span>
 
 Resource =
   load: (name) -&gt;
-    <span class="comment"># Hacky load from localStorage for right now...</span>
-    cache ||=
-      <span class="keyword">try</span>
-        res = JSON.parse localStorage.images
-
-        console.log Object.keys res
-
-        res
-      <span class="keyword">catch</span>
-        {}
-
     cache[name]
 
 module.exports = Resource</code></pre>
