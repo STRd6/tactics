@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>shadowcasting</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="shadowcasting">Shadowcasting</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Based on <a href="https://gist.github.com/ebonneville/4200578">https://gist.github.com/ebonneville/4200578</a></p>
+<p>Multipliers for transforming coordinates into other octants.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">mult = [
+  [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]
+  [<span class="number">0</span>, <span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>]
+  [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>]
+  [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>]
+]</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Uses shadowcasting to calculate lighting at specified position</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (position, radius) -&gt;
+  <span class="property">@tiles</span> = []
+  <span class="property">@position</span> = position
+  <span class="property">@radius</span> = radius
+
+  <span class="comment"># calculates an octant. Called by the this.calculate when calculating lighting</span>
+  <span class="property">@calculateOctant</span> = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
+    tile = <span class="property">@tileAt</span>(cx, cy)
+    tile.lit = <span class="literal">true</span>
+    tile.unseen = <span class="literal">false</span>
+
+    <span class="property">@tiles</span>.push tile
+
+    new_start = <span class="number">0</span>
+    <span class="keyword">return</span>  <span class="keyword">if</span> start &lt; end
+    radius_squared = radius * radius
+    i = row
+
+    <span class="keyword">return</span> <span class="keyword">unless</span> row &lt;= radius
+    done = <span class="literal">false</span>
+
+    [row..radius].forEach (i) =&gt;
+      <span class="keyword">return</span> <span class="keyword">if</span> done
+
+      dx = -i - <span class="number">1</span>
+      dy = -i
+      blocked = <span class="literal">false</span>
+
+      <span class="keyword">while</span> dx &lt;= <span class="number">0</span>
+        dx += <span class="number">1</span>
+        X = cx + dx * xx + dy * xy
+        Y = cy + dx * yx + dy * yy
+
+        <span class="keyword">if</span> tile = <span class="property">@tileAt</span>(X, Y)
+          l_slope = (dx - <span class="number">0.5</span>) / (dy + <span class="number">0.5</span>)
+          r_slope = (dx + <span class="number">0.5</span>) / (dy - <span class="number">0.5</span>)
+
+          <span class="keyword">if</span> start &lt; r_slope
+            <span class="keyword">continue</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> end &gt; l_slope
+            <span class="keyword">break</span>
+          <span class="keyword">else</span>
+            <span class="keyword">if</span> dx * dx + dy * dy &lt; radius_squared
+              tile.lit = <span class="literal">true</span>
+              tile.unseen = <span class="literal">false</span>
+
+              <span class="property">@tiles</span>.push tile
+
+            <span class="keyword">if</span> blocked
+              <span class="keyword">if</span> map.data[X][Y].blocksSight
+                new_start = r_slope
+                <span class="keyword">continue</span>
+              <span class="keyword">else</span>
+                blocked = <span class="literal">false</span>
+                start = new_start
+            <span class="keyword">else</span>
+              <span class="keyword">if</span> tile.opaque <span class="keyword">and</span> i &lt; radius
+                blocked = <span class="literal">true</span>
+                <span class="property">@calculateOctant</span> cx, cy, i + <span class="number">1</span>, start, l_slope, radius, xx, xy, yx, yy, id + <span class="number">1</span>
+                new_start = r_slope
+
+      <span class="keyword">if</span> blocked
+        done = <span class="literal">true</span>   
+
+  <span class="comment"># sets flag lit to false on all tiles within radius of position specified</span>
+  <span class="property">@clear</span> = -&gt;
+    <span class="property">@tiles</span>.forEach (tile) -&gt;
+      tile.lit = <span class="literal">false</span>
+
+    <span class="property">@tiles</span> = []
+
+  <span class="comment"># sets flag lit to true on all tiles within radius of position specified</span>
+  <span class="property">@calculate</span> = -&gt;
+    <span class="property">@clear</span>()
+
+    [<span class="number">0.</span><span class="number">.7</span>].forEach (i) =&gt;
+      <span class="property">@calculateOctant</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y, <span class="number">1</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="property">@radius</span>, mult[<span class="number">0</span>][i], mult[<span class="number">1</span>][i], mult[<span class="number">2</span>][i], mult[<span class="number">3</span>][i], <span class="number">0</span>
+
+    tile = <span class="property">@tileAt</span> position.x, position.y
+    tile.lit = <span class="literal">true</span>
+    tile.unseen = <span class="literal">false</span>
+
+    <span class="property">@tiles</span>.push tile
+
+  <span class="comment"># update the position of the light source</span>
+  <span class="property">@update</span> = (position) -&gt;
+    <span class="property">@position</span> = position
+    <span class="property">@clear</span>()
+    <span class="property">@calculate</span>()
+
+  <span class="keyword">return</span> <span class="keyword">this</span></code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="http://strd6.github.io/interactive/v0.8.0.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script src="package.js"></script>
+</body>
+</html>

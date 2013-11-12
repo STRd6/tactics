@@ -49,6 +49,7 @@ Canvas = require <span class="string">"touch-canvas"</span>
 Sprite = require <span class="string">"./sprite"</span>
 Action = require <span class="string">"./action"</span>
 Resource = require <span class="string">"./resource"</span>
+Shadowcasting = require <span class="string">"./shadowcasting"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span>
 Geom = require <span class="string">"./lib/geom"</span>
@@ -65,6 +66,9 @@ $(<span class="string">"body"</span>).append canvas.element()
 
 canvas.fill bgColor
 
+allSprites = Object.keys(require(<span class="string">"./images"</span>)).map (name) -&gt;
+  Sprite.load(Resource.load(name))
+
 groundSprites = [<span class="string">"ground"</span>, <span class="string">"frozen"</span>, <span class="string">"stone"</span>].map (type) -&gt;
   [<span class="number">0.</span><span class="number">.7</span>].map (i) -&gt;
     Sprite.load(Resource.load(<span class="string">"<span class="subst">#{type}</span><span class="subst">#{i}</span>"</span>))
@@ -73,9 +77,8 @@ bushSprites = [<span class="number">0.</span><span class="number">.3</span>].map
   Sprite.load(Resource.load(<span class="string">"bush<span class="subst">#{i}</span>"</span>))
 
 setTimeout -&gt;
-  groundSprites.each (list, j) -&gt;
-    list.each (sprite, i) -&gt;
-      sprite.draw canvas, <span class="number">2</span> + <span class="number">36</span> * i, <span class="number">2</span> + <span class="number">36</span> * j
+  allSprites.each (sprite, i) -&gt;
+    sprite.draw canvas, (i % <span class="number">32</span>) * <span class="number">32</span>, (i / <span class="number">32</span>).floor() * <span class="number">32</span>
 , <span class="number">0</span>
 
 ui =
@@ -85,26 +88,37 @@ ui =
       icon: Resource.load(<span class="string">"new_game"</span>)
       perform: -&gt;
         grid = Grid <span class="number">32</span>, <span class="number">18</span>, -&gt;
-          groundSprites[<span class="number">0</span>].rand()
+          sprite: groundSprites[<span class="number">0</span>].rand()
+          lit: <span class="literal">false</span>
+          unseen: <span class="literal">true</span>
+          opaque: <span class="literal">false</span>
 
         canvas.fill bgColor
 
-        grid.each (sprite, x, y) -&gt;
-          sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+        fov = <span class="keyword">new</span> Shadowcasting(Point(<span class="number">10</span>, <span class="number">10</span>), <span class="number">4</span>)
+        fov.tileAt = grid.get
 
-        Geom.line Point(<span class="number">0</span>, <span class="number">0</span>), Point(<span class="number">3</span>, <span class="number">5</span>), ({x, y}) -&gt;
-          sprite = bushSprites.rand()
-          sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+        fov.calculate()
 
-        Geom.circle Point(<span class="number">15</span>, <span class="number">5</span>), <span class="number">7</span>, ({x, y}) -&gt;
-          sprite = bushSprites.rand()
-          sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+        fov.update Point(<span class="number">11</span>, <span class="number">11</span>)
+
+        grid.each ({sprite, lit, unseen}, x, y) -&gt;
+          <span class="keyword">if</span> lit
+            sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+          <span class="keyword">else</span> <span class="keyword">if</span> !unseen
+            sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+            canvas.drawRect
+              x: x * <span class="number">32</span>
+              y: y * <span class="number">32</span>
+              width: <span class="number">32</span>
+              height: <span class="number">32</span>
+              color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
     Action
       name: <span class="string">"Tutorial"</span>
       icon: Resource.load(<span class="string">"book"</span>)
       perform: -&gt;
-        alert <span class="string">"Not a chance!"</span>
+        alert <span class="string">"Experience is the only teacher."</span>
   ]
 
 $(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)</code></pre>
