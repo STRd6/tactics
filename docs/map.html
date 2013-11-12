@@ -34,8 +34,7 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Sprite = require <span class="string">"./sprite"</span>
-Resource = require <span class="string">"./resource"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 Shadowcasting = require <span class="string">"./shadowcasting"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span></code></pre>
@@ -51,25 +50,42 @@ Shadowcasting = require <span class="string">"./shadowcasting"</span>
               <p>Hold the terrain and whatnot for a level.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">allSprites = Object.keys(require(<span class="string">"./images"</span>)).map (name) -&gt;
-  Sprite.load(Resource.load(name))
+            <div class="content"><pre><code class="lang-coffeescript">global.allSprites = Object.keys(require(<span class="string">"./images"</span>)).map Resource.sprite
 
 groundSprites = [<span class="string">"ground"</span>, <span class="string">"frozen"</span>, <span class="string">"stone"</span>].map (type) -&gt;
   [<span class="number">0.</span><span class="number">.7</span>].map (i) -&gt;
-    Sprite.load(Resource.load(<span class="string">"<span class="subst">#{type}</span><span class="subst">#{i}</span>"</span>))
+    <span class="string">"<span class="subst">#{type}</span><span class="subst">#{i}</span>"</span>
+  .map Resource.sprite
 
 bushSprites = [<span class="number">0.</span><span class="number">.3</span>].map (i)-&gt;
-  Sprite.load(Resource.load(<span class="string">"bush<span class="subst">#{i}</span>"</span>))
+  Resource.sprite(<span class="string">"bush<span class="subst">#{i}</span>"</span>)
+
+wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map (i) -&gt;
+  Resource.sprite(<span class="string">"brick_vines<span class="subst">#{i}</span>"</span>)
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}) -&gt;
   Object.defaults I,
     background: <span class="string">"#222034"</span>
 
   grid = Grid <span class="number">32</span>, <span class="number">18</span>, (x, y) -&gt;
-    sprite: groundSprites[<span class="number">0</span>].rand()
-    lit: <span class="literal">false</span>
-    unseen: <span class="literal">true</span>
-    opaque: x <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> y <span class="keyword">is</span> <span class="number">12</span>
+    <span class="keyword">if</span> x <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> y &gt;= <span class="number">12</span> <span class="keyword">or</span> y <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> x &gt;= <span class="number">12</span>
+      sprite: wallSprites.rand()
+      lit: <span class="literal">false</span>
+      unseen: <span class="literal">true</span>
+      opaque: <span class="literal">true</span>
+    <span class="keyword">else</span>
+      sprite: groundSprites[<span class="number">0</span>].rand()
+      lit: <span class="literal">false</span>
+      unseen: <span class="literal">true</span>
+      opaque: <span class="literal">false</span>
+
+  duders = [
+    {x: <span class="number">11</span>, y: <span class="number">11</span>, sprite: Resource.sprite(<span class="string">"human"</span>)}
+  ]
+  <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
+    duders.filter (duder) -&gt;
+      duder.x <span class="keyword">is</span> x <span class="keyword">and</span> duder.y <span class="keyword">is</span> y
+    .first()
 
   <span class="comment"># TODO: Make each character have separate fov</span>
   fov = <span class="keyword">new</span> Shadowcasting(Point(<span class="number">10</span>, <span class="number">10</span>), <span class="number">7</span>)
@@ -83,16 +99,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     canvas.fill I.background
 
     grid.each ({sprite, lit, unseen}, x, y) -&gt;
-      <span class="keyword">if</span> lit
+      <span class="keyword">if</span> !unseen
         sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
-      <span class="keyword">else</span> <span class="keyword">if</span> !unseen
-        sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
-        canvas.drawRect
-          x: x * <span class="number">32</span>
-          y: y * <span class="number">32</span>
-          width: <span class="number">32</span>
-          height: <span class="number">32</span>
-          color: <span class="string">"rgba(0, 0, 0, 0.5)"</span></code></pre>
+        <span class="keyword">if</span> duder = duderAt(x, y)
+          duder.sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+
+        <span class="keyword">if</span> !lit
+          canvas.drawRect
+            x: x * <span class="number">32</span>
+            y: y * <span class="number">32</span>
+            width: <span class="number">32</span>
+            height: <span class="number">32</span>
+            color: <span class="string">"rgba(0, 0, 0, 0.5)"</span></code></pre>
 </div>
         </li>
         

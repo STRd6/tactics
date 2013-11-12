@@ -46,13 +46,12 @@ runtime.boot()
 runtime.applyStyleSheet(require(<span class="string">'./style'</span>))
 
 Canvas = require <span class="string">"touch-canvas"</span>
-Sprite = require <span class="string">"./sprite"</span>
 Action = require <span class="string">"./action"</span>
 Resource = require <span class="string">"./resource"</span>
 Shadowcasting = require <span class="string">"./shadowcasting"</span>
 Map = require <span class="string">"./map"</span>
 
-{Grid} = require <span class="string">"./lib/util"</span>
+{Grid, Size} = require <span class="string">"./lib/util"</span>
 Geom = require <span class="string">"./lib/geom"</span>
 
 {width, height} = require(<span class="string">"./pixie"</span>)
@@ -67,11 +66,15 @@ canvas.fill bgColor
 
 $(<span class="string">"body"</span>).append canvas.element()
 
+setTimeout -&gt;
+  allSprites.forEach (sprite, i) -&gt;
+    sprite.draw canvas, (i % <span class="number">32</span>) * <span class="number">32</span>, (i / <span class="number">32</span>).floor() * <span class="number">32</span>
+
 ui =
   actions: Observable [
     Action
       name: <span class="string">"New Game"</span>
-      icon: Resource.load(<span class="string">"new_game"</span>)
+      icon: Resource.dataURL(<span class="string">"new_game"</span>)
       perform: -&gt;
         map = Map()
 
@@ -79,7 +82,7 @@ ui =
 
     Action
       name: <span class="string">"Tutorial"</span>
-      icon: Resource.load(<span class="string">"book"</span>)
+      icon: Resource.dataURL(<span class="string">"book"</span>)
       perform: -&gt;
         alert <span class="string">"Experience is the only teacher."</span>
   ]
