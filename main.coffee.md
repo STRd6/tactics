@@ -16,13 +16,12 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     runtime.applyStyleSheet(require('./style'))
 
     Canvas = require "touch-canvas"
-    Sprite = require "./sprite"
     Action = require "./action"
     Resource = require "./resource"
     Shadowcasting = require "./shadowcasting"
     Map = require "./map"
 
-    {Grid} = require "./lib/util"
+    {Grid, Size} = require "./lib/util"
     Geom = require "./lib/geom"
 
     {width, height} = require("./pixie")
@@ -37,11 +36,15 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append canvas.element()
 
+    setTimeout ->
+      allSprites.forEach (sprite, i) ->
+        sprite.draw canvas, (i % 32) * 32, (i / 32).floor() * 32
+
     ui =
       actions: Observable [
         Action
           name: "New Game"
-          icon: Resource.load("new_game")
+          icon: Resource.dataURL("new_game")
           perform: ->
             map = Map()
             
@@ -49,7 +52,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
         Action
           name: "Tutorial"
-          icon: Resource.load("book")
+          icon: Resource.dataURL("book")
           perform: ->
             alert "Experience is the only teacher."
       ]
