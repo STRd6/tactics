@@ -19,6 +19,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Sprite = require "./sprite"
     Action = require "./action"
     Resource = require "./resource"
+    Shadowcasting = require "./shadowcasting"
 
     {Grid} = require "./lib/util"
     Geom = require "./lib/geom"
@@ -35,6 +36,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     canvas.fill bgColor
 
+    allSprites = Object.keys(require("./images")).map (name) ->
+      Sprite.load(Resource.load(name))
+
     groundSprites = ["ground", "frozen", "stone"].map (type) ->
       [0..7].map (i) ->
         Sprite.load(Resource.load("#{type}#{i}"))
@@ -43,9 +47,8 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       Sprite.load(Resource.load("bush#{i}"))
 
     setTimeout ->
-      groundSprites.each (list, j) ->
-        list.each (sprite, i) ->
-          sprite.draw canvas, 2 + 36 * i, 2 + 36 * j
+      allSprites.each (sprite, i) ->
+        sprite.draw canvas, (i % 32) * 32, (i / 32).floor() * 32
     , 0
 
     ui =
@@ -55,26 +58,37 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           icon: Resource.load("new_game")
           perform: ->
             grid = Grid 32, 18, ->
-              groundSprites[0].rand()
+              sprite: groundSprites[0].rand()
+              lit: false
+              unseen: true
+              opaque: false
 
             canvas.fill bgColor
 
-            grid.each (sprite, x, y) ->
-              sprite.draw(canvas, x * 32, y * 32)
-            
-            Geom.line Point(0, 0), Point(3, 5), ({x, y}) ->
-              sprite = bushSprites.rand()
-              sprite.draw(canvas, x * 32, y * 32)
-              
-            Geom.circle Point(15, 5), 7, ({x, y}) ->
-              sprite = bushSprites.rand()
-              sprite.draw(canvas, x * 32, y * 32)
+            fov = new Shadowcasting(Point(10, 10), 4)
+            fov.tileAt = grid.get
+
+            fov.calculate()
+
+            fov.update Point(11, 11)
+
+            grid.each ({sprite, lit, unseen}, x, y) ->
+              if lit
+                sprite.draw(canvas, x * 32, y * 32)
+              else if !unseen
+                sprite.draw(canvas, x * 32, y * 32)
+                canvas.drawRect
+                  x: x * 32
+                  y: y * 32
+                  width: 32
+                  height: 32
+                  color: "rgba(0, 0, 0, 0.5)"
 
         Action
           name: "Tutorial"
           icon: Resource.load("book")
           perform: ->
-            alert "Not a chance!"
+            alert "Experience is the only teacher."
       ]
 
     $("body").append require("./templates/ui")(ui)
