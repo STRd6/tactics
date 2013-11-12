@@ -21,8 +21,11 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Resource = require "./resource"
 
     {Grid} = require "./lib/util"
+    Geom = require "./lib/geom"
 
     {width, height} = require("./pixie")
+    
+    bgColor = "#222034"
 
     canvas = Canvas
       width: width
@@ -30,11 +33,14 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append canvas.element()
 
-    canvas.fill "#222034"
+    canvas.fill bgColor
 
     groundSprites = ["ground", "frozen", "stone"].map (type) ->
       [0..7].map (i) ->
         Sprite.load(Resource.load("#{type}#{i}"))
+
+    bushSprites = [0..3].map (i)->
+      Sprite.load(Resource.load("bush#{i}"))
 
     setTimeout ->
       groundSprites.each (list, j) ->
@@ -48,11 +54,22 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           name: "New Game"
           icon: Resource.load("new_game")
           perform: ->
-            grid = Grid 30, 10, ->
+            grid = Grid 32, 18, ->
               groundSprites[0].rand()
-            canvas.clear()
+
+            canvas.fill bgColor
+
             grid.each (sprite, x, y) ->
               sprite.draw(canvas, x * 32, y * 32)
+            
+            Geom.line Point(0, 0), Point(3, 5), ({x, y}) ->
+              sprite = bushSprites.rand()
+              sprite.draw(canvas, x * 32, y * 32)
+              
+            Geom.circle Point(15, 5), 7, ({x, y}) ->
+              sprite = bushSprites.rand()
+              sprite.draw(canvas, x * 32, y * 32)
+
         Action
           name: "Tutorial"
           icon: Resource.load("book")
