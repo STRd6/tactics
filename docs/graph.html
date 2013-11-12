@@ -78,7 +78,6 @@ uniquely identifies nodes.</p>
         openSet.push node, nodeData.g + h
 
     <span class="function"><span class="title">getPath</span></span> = (node) -&gt;
-      console.log nodes
       path = [node]
 
       <span class="keyword">while</span> (node = nodes[node].parent) != <span class="literal">null</span>
@@ -96,6 +95,50 @@ uniquely identifies nodes.</p>
 
       neighbors(current).forEach ([node, distance]) -&gt;
         push node, current, distance</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Find all the nodes accessible within the given distance.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">  accessible: ({initial, neighbors, distanceMax}) -&gt;
+    neighbors ?= -&gt; []
+    distanceMax ?= <span class="number">1</span>
+
+    <span class="comment"># Table to track our node meta-data</span>
+    nodes = {}
+
+    openSet = PriorityQueue
+      low: <span class="literal">true</span>
+
+    <span class="function"><span class="title">push</span></span> = (node, current, distance=<span class="number">1</span>) -&gt;
+      g = nodes[node]?.g ? Infinity
+
+      nodeData =
+        g: (nodes[current]?.g ? <span class="number">0</span>) + distance
+        node: node
+
+      <span class="comment"># Update if better</span>
+      <span class="keyword">if</span> nodeData.g &lt; g <span class="keyword">and</span> nodeData.g &lt;= distanceMax
+        nodes[node] = nodeData
+        openSet.push node, nodeData.g
+
+    push initial, <span class="literal">null</span>, <span class="number">0</span>
+
+    <span class="keyword">while</span> openSet.size() &gt; <span class="number">0</span>
+      current = openSet.pop()
+
+      neighbors(current).forEach ([node, distance]) -&gt;
+        push node, current, distance
+
+    Object.keys(nodes).map (key) -&gt;
+      nodes[key].node</code></pre>
 </div>
         </li>
         
