@@ -37,7 +37,6 @@ uniquely identifies nodes.
             openSet.push node, nodeData.g + h
 
         getPath = (node) ->
-          console.log nodes
           path = [node]
 
           while (node = nodes[node].parent) != null
@@ -55,3 +54,38 @@ uniquely identifies nodes.
 
           neighbors(current).forEach ([node, distance]) ->
             push node, current, distance
+
+Find all the nodes accessible within the given distance.
+
+      accessible: ({initial, neighbors, distanceMax}) ->
+        neighbors ?= -> []
+        distanceMax ?= 1
+
+        # Table to track our node meta-data
+        nodes = {}
+
+        openSet = PriorityQueue
+          low: true
+
+        push = (node, current, distance=1) ->
+          g = nodes[node]?.g ? Infinity
+
+          nodeData =
+            g: (nodes[current]?.g ? 0) + distance
+            node: node
+
+          # Update if better
+          if nodeData.g < g and nodeData.g <= distanceMax
+            nodes[node] = nodeData
+            openSet.push node, nodeData.g
+
+        push initial, null, 0
+
+        while openSet.size() > 0
+          current = openSet.pop()
+
+          neighbors(current).forEach ([node, distance]) ->
+            push node, current, distance
+
+        Object.keys(nodes).map (key) ->
+          nodes[key].node
