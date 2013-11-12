@@ -11,3 +11,4 @@ dependencies:
   compression: "STRd6/lz-string:v1.3.3"
   "touch-canvas": "STRd6/touch-canvas:v0.2.0"
   runtime: "STRd6/runtime:v0.1.1"
+  priority_queue: "STRd6/priority_queue:v2.0.0-pre"
