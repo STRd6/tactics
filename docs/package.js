@@ -49,7 +49,7 @@
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n",
       "type": "blob"
     },
     "resource.coffee.md": {
@@ -105,6 +105,12 @@
       "mode": "100644",
       "content": "Map\n===\n    Resource = require \"./resource\"\n    Shadowcasting = require \"./shadowcasting\"\n\n    {Grid} = require \"./lib/util\"\n\nHold the terrain and whatnot for a level.\n\n    global.allSprites = Object.keys(require(\"./images\")).map Resource.sprite\n\n    groundSprites = [\"ground\", \"frozen\", \"stone\"].map (type) ->\n      [0..7].map (i) ->\n        \"#{type}#{i}\"\n      .map Resource.sprite\n\n    bushSprites = [0..3].map (i)->\n      Resource.sprite(\"bush#{i}\")\n\n    wallSprites = [0..3].map (i) ->\n      Resource.sprite(\"brick_vines#{i}\")\n\n    module.exports = (I={}) ->\n      Object.defaults I,\n        background: \"#222034\"\n\n      grid = Grid 32, 18, (x, y) ->\n        if x is 12 and y >= 12 or y is 12 and x >= 12\n          sprite: wallSprites.rand()\n          lit: false\n          unseen: true\n          opaque: true\n        else\n          sprite: groundSprites[0].rand()\n          lit: false\n          unseen: true\n          opaque: false\n\n      duders = [\n        {x: 11, y: 11, sprite: Resource.sprite(\"human\")}\n      ]\n      duderAt = (x, y) ->\n        duders.filter (duder) ->\n          duder.x is x and duder.y is y\n        .first()\n\n      # TODO: Make each character have separate fov\n      fov = new Shadowcasting(Point(10, 10), 7)\n      fov.tileAt = grid.get\n\n      fov.calculate()\n\n      fov.update Point(11, 11)\n\n      render: (canvas) ->\n        canvas.fill I.background\n\n        grid.each ({sprite, lit, unseen}, x, y) ->\n          if !unseen\n            sprite.draw(canvas, x * 32, y * 32)\n            if duder = duderAt(x, y)\n              duder.sprite.draw(canvas, x * 32, y * 32)\n\n            if !lit\n              canvas.drawRect\n                x: x * 32\n                y: y * 32\n                width: 32\n                height: 32\n                color: \"rgba(0, 0, 0, 0.5)\"\n",
       "type": "blob"
+    },
+    "graph.coffee.md": {
+      "path": "graph.coffee.md",
+      "mode": "100644",
+      "content": "Graph Search\n============\n    PriorityQueue = require \"priority_queue\"\n\n    module.exports =\n      aStar: (initial, goal) ->\n",
+      "type": "blob"
     }
   },
   "distribution": {
@@ -135,7 +141,7 @@
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\"}};",
       "type": "blob"
     },
     "resource": {
@@ -181,6 +187,11 @@
     "map": {
       "path": "map",
       "content": "(function() {\n  var Grid, Resource, Shadowcasting, bushSprites, groundSprites, wallSprites;\n\n  Resource = require(\"./resource\");\n\n  Shadowcasting = require(\"./shadowcasting\");\n\n  Grid = require(\"./lib/util\").Grid;\n\n  global.allSprites = Object.keys(require(\"./images\")).map(Resource.sprite);\n\n  groundSprites = [\"ground\", \"frozen\", \"stone\"].map(function(type) {\n    return [0, 1, 2, 3, 4, 5, 6, 7].map(function(i) {\n      return \"\" + type + i;\n    }).map(Resource.sprite);\n  });\n\n  bushSprites = [0, 1, 2, 3].map(function(i) {\n    return Resource.sprite(\"bush\" + i);\n  });\n\n  wallSprites = [0, 1, 2, 3].map(function(i) {\n    return Resource.sprite(\"brick_vines\" + i);\n  });\n\n  module.exports = function(I) {\n    var duderAt, duders, fov, grid;\n    if (I == null) {\n      I = {};\n    }\n    Object.defaults(I, {\n      background: \"#222034\"\n    });\n    grid = Grid(32, 18, function(x, y) {\n      if (x === 12 && y >= 12 || y === 12 && x >= 12) {\n        return {\n          sprite: wallSprites.rand(),\n          lit: false,\n          unseen: true,\n          opaque: true\n        };\n      } else {\n        return {\n          sprite: groundSprites[0].rand(),\n          lit: false,\n          unseen: true,\n          opaque: false\n        };\n      }\n    });\n    duders = [\n      {\n        x: 11,\n        y: 11,\n        sprite: Resource.sprite(\"human\")\n      }\n    ];\n    duderAt = function(x, y) {\n      return duders.filter(function(duder) {\n        return duder.x === x && duder.y === y;\n      }).first();\n    };\n    fov = new Shadowcasting(Point(10, 10), 7);\n    fov.tileAt = grid.get;\n    fov.calculate();\n    fov.update(Point(11, 11));\n    return {\n      render: function(canvas) {\n        canvas.fill(I.background);\n        return grid.each(function(_arg, x, y) {\n          var duder, lit, sprite, unseen;\n          sprite = _arg.sprite, lit = _arg.lit, unseen = _arg.unseen;\n          if (!unseen) {\n            sprite.draw(canvas, x * 32, y * 32);\n            if (duder = duderAt(x, y)) {\n              duder.sprite.draw(canvas, x * 32, y * 32);\n            }\n            if (!lit) {\n              return canvas.drawRect({\n                x: x * 32,\n                y: y * 32,\n                width: 32,\n                height: 32,\n                color: \"rgba(0, 0, 0, 0.5)\"\n              });\n            }\n          }\n        });\n      }\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=map.coffee",
+      "type": "blob"
+    },
+    "graph": {
+      "path": "graph",
+      "content": "(function() {\n  var PriorityQueue;\n\n  PriorityQueue = require(\"priority_queue\");\n\n  module.exports = {\n    aStar: function(initial, goal) {}\n  };\n\n}).call(this);\n\n//# sourceURL=graph.coffee",
       "type": "blob"
     }
   },
@@ -964,6 +975,156 @@
         "url": "http://strd6.github.io/editor/"
       },
       "name": "runtime"
+    },
+    "priority_queue": {
+      "version": "2.0.0-pre",
+      "source": {
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "Description\n-----------\n\nA priority queue is a handy data structure with many uses. From graph search\nalgorithms to simple job queues, having this in your toolbelt will help to give\nyou a solid foundation.\n\nFeatures\n--------\n\n* Simple to use and understand.\n* Creates a single PriorityQueue constructor.\n* Instantiate via `PriorityQueue()` or `new PriorityQueue()`\n* Offers both highest first and lowest first ordering.\n* Test suite included.\n\nThe default is highest priority first, but when doing something like A* you want lowest priority first... it handles it: `queue = PriorityQueue({low: true});` Boom!\n\nExample Usage\n-------------\n\n    # Highest priority first\n    queue = PriorityQueue()\n\n    queue.push(\"b\", 5)\n    queue.push(\"a\", 10)\n\n    queue.pop() # => \"a\"\n    queue.pop() # => \"b\"\n\n    # Lowest priority first\n    queue = PriorityQueue\n      low: true\n\n    queue.push(\"x\", 5)\n    queue.push(\"y\", 10)\n\n    queue.pop() # => \"x\"\n    queue.pop() # => \"y\"\n\nLicense\n-------\n\nMIT\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Priority Queue\n==============\n\nPriorityQueue manages a queue of elements with priorities. The defaul behavior\nis to return elements with the highest priority first.\n\nIf `low` is set to `true` returns lowest first instead.\n\n    PriorityQueue = (options={}) ->\n      items = []\n      sorted = false\n\n      if options.low\n        sortStyle = prioritySortLow\n      else\n        sortStyle = prioritySortHigh\n\n      sort = ->\n        items.sort sortStyle\n        sorted = true\n\nAccessor functions need to ensure the items are sorted. This decorator wraps\nthat up nicely.\n\n      ensureSorted = (fn) ->\n        (args...) ->\n          sort() unless sorted\n          fn(args...)\n\nPublic Methods\n--------------\n\nRemoves and returns the next element in the queue. If the queue is empty returns\n`undefined`.\n\n      pop: ensureSorted ->\n        items.pop()?.object\n\nReturns but does not remove the next element in the queue. If the queue is empty\nreturns `undefined`.\n\n      top: ensureSorted ->\n        items[items.length - 1]?.object\n\nCheck if the given object is included in the priority queue. Returns true if\nit was found, false if not.\n\n      includes: (object) ->\n        items.reduce (found, item) ->\n          found or (object is item.object)\n        , false\n\nReturn the current number of elements in the queue.\n\n      size: ->\n        items.length\n\nCheck if the queue is empty. Returns true if there are no items in the queue,\nfalse otherwise.\n\n      empty: ->\n        items.length is 0\n\nPush an object onto the queue with the given priority.\n\n      push: (object, priority) ->\n        items.push\n          object: object\n          priority: priority\n\n        sorted = false\n\nHelpers\n-------\n\n    prioritySortLow = (a, b) ->\n      b.priority - a.priority\n\n    prioritySortHigh = (a, b) ->\n      a.priority - b.priority\n\nExport\n------\n\n    if module?\n      module.exports = PriorityQueue\n    else\n      window.PriorityQueue = PriorityQueue\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"2.0.0-pre\"\nentryPoint: \"main\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js?\"\n]\n",
+          "type": "blob"
+        },
+        "test/priority_queue.coffee": {
+          "path": "test/priority_queue.coffee",
+          "mode": "100644",
+          "content": "PriorityQueue = require \"../main\"\n\nok = assert\nequals = assert.equal\ntest = it\n\ndescribe \"PriorityQueue\", ->\n  test \"#push\", ->\n    queue = PriorityQueue()\n    queue.push 2, 5\n\n    ok queue.size() is 1, \"queue.size()\"\n    ok not queue.empty(), \"!queue.empty()\"\n\n  test \"#includes\", ->\n    queue = PriorityQueue()\n    queue.push 5, 0\n\n    equals queue.includes(5), true\n    equals queue.includes(0), false\n\n  test \"#empty\", ->\n    queue = PriorityQueue()\n    ok queue.size() is 0, \"queue.size() === 0\"\n    ok queue.empty(), \"queue.empty()\"\n\n  test \"#pop empty queue\", ->\n    equals PriorityQueue().pop(), undefined\n\n  test \"#pop\", ->\n    queue = PriorityQueue()\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 10\n    queue.push decent, 5\n    queue.push bad, 1\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n\n  test \"#pop with low => true\", ->\n    queue = PriorityQueue(low: true)\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 1\n    queue.push decent, 5\n    queue.push bad, 10\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var PriorityQueue, prioritySortHigh, prioritySortLow,\n    __slice = [].slice;\n\n  PriorityQueue = function(options) {\n    var ensureSorted, items, sort, sortStyle, sorted;\n    if (options == null) {\n      options = {};\n    }\n    items = [];\n    sorted = false;\n    if (options.low) {\n      sortStyle = prioritySortLow;\n    } else {\n      sortStyle = prioritySortHigh;\n    }\n    sort = function() {\n      items.sort(sortStyle);\n      return sorted = true;\n    };\n    ensureSorted = function(fn) {\n      return function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        if (!sorted) {\n          sort();\n        }\n        return fn.apply(null, args);\n      };\n    };\n    return {\n      pop: ensureSorted(function() {\n        var _ref;\n        return (_ref = items.pop()) != null ? _ref.object : void 0;\n      }),\n      top: ensureSorted(function() {\n        var _ref;\n        return (_ref = items[items.length - 1]) != null ? _ref.object : void 0;\n      }),\n      includes: function(object) {\n        return items.reduce(function(found, item) {\n          return found || (object === item.object);\n        }, false);\n      },\n      size: function() {\n        return items.length;\n      },\n      empty: function() {\n        return items.length === 0;\n      },\n      push: function(object, priority) {\n        items.push({\n          object: object,\n          priority: priority\n        });\n        return sorted = false;\n      }\n    };\n  };\n\n  prioritySortLow = function(a, b) {\n    return b.priority - a.priority;\n  };\n\n  prioritySortHigh = function(a, b) {\n    return a.priority - b.priority;\n  };\n\n  if (typeof module !== \"undefined\" && module !== null) {\n    module.exports = PriorityQueue;\n  } else {\n    window.PriorityQueue = PriorityQueue;\n  }\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"2.0.0-pre\",\"entryPoint\":\"main\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js?\"]};",
+          "type": "blob"
+        },
+        "test/priority_queue": {
+          "path": "test/priority_queue",
+          "content": "(function() {\n  var PriorityQueue, equals, ok, test;\n\n  PriorityQueue = require(\"../main\");\n\n  ok = assert;\n\n  equals = assert.equal;\n\n  test = it;\n\n  describe(\"PriorityQueue\", function() {\n    test(\"#push\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(2, 5);\n      ok(queue.size() === 1, \"queue.size()\");\n      return ok(!queue.empty(), \"!queue.empty()\");\n    });\n    test(\"#includes\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(5, 0);\n      equals(queue.includes(5), true);\n      return equals(queue.includes(0), false);\n    });\n    test(\"#empty\", function() {\n      var queue;\n      queue = PriorityQueue();\n      ok(queue.size() === 0, \"queue.size() === 0\");\n      return ok(queue.empty(), \"queue.empty()\");\n    });\n    test(\"#pop empty queue\", function() {\n      return equals(PriorityQueue().pop(), void 0);\n    });\n    test(\"#pop\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue();\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 10);\n      queue.push(decent, 5);\n      queue.push(bad, 1);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n    return test(\"#pop with low => true\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue({\n        low: true\n      });\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 1);\n      queue.push(decent, 5);\n      queue.push(bad, 10);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/priority_queue.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.2.js?"
+      ],
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 220605,
+        "name": "priority_queue",
+        "full_name": "STRd6/priority_queue",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/priority_queue",
+        "description": "A JavaScript PriorityQueue",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/priority_queue",
+        "forks_url": "https://api.github.com/repos/STRd6/priority_queue/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/priority_queue/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/priority_queue/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/priority_queue/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/priority_queue/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/priority_queue/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/priority_queue/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/priority_queue/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/priority_queue/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/priority_queue/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/priority_queue/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/priority_queue/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/priority_queue/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/priority_queue/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/priority_queue/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/priority_queue/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/priority_queue/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/priority_queue/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/priority_queue/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/priority_queue/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/priority_queue/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/priority_queue/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/priority_queue/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/priority_queue/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/priority_queue/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/priority_queue/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/priority_queue/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/priority_queue/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/priority_queue/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/priority_queue/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/priority_queue/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/priority_queue/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/priority_queue/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/priority_queue/labels{/name}",
+        "releases_url": "https://api.github.com/repos/STRd6/priority_queue/releases{/id}",
+        "created_at": "2009-06-07T01:59:36Z",
+        "updated_at": "2013-11-12T20:42:13Z",
+        "pushed_at": "2013-11-12T20:42:12Z",
+        "git_url": "git://github.com/STRd6/priority_queue.git",
+        "ssh_url": "git@github.com:STRd6/priority_queue.git",
+        "clone_url": "https://github.com/STRd6/priority_queue.git",
+        "svn_url": "https://github.com/STRd6/priority_queue",
+        "homepage": "",
+        "size": 292,
+        "stargazers_count": 17,
+        "watchers_count": 17,
+        "language": "JavaScript",
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 9,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 9,
+        "open_issues": 0,
+        "watchers": 17,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 9,
+        "subscribers_count": 2,
+        "branch": "v2.0.0-pre",
+        "defaultBranch": "master"
+      }
     }
   },
   "remoteDependencies": [
