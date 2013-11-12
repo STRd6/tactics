@@ -109,7 +109,13 @@
     "graph.coffee.md": {
       "path": "graph.coffee.md",
       "mode": "100644",
-      "content": "Graph Search\n============\n    PriorityQueue = require \"priority_queue\"\n\n    module.exports =\n      aStar: (initial, goal) ->\n",
+      "content": "Graph Search\n============\n    PriorityQueue = require \"priority_queue\"\n\n    module.exports =\n\nA* Pathfinding\n\nReturn a path from initial to goal or `undefined` if no path exists.\n\nInitial and goal are assumed to be nodes that have a toString function that\nuniquely identifies nodes.\n\n      aStar: ({initial, goal, heuristic, neighbors}) ->\n        heuristic ?= -> 0\n        neighbors ?= -> []\n\n        # Table to track our node meta-data\n        nodes = {}\n\n        openSet = PriorityQueue\n          low: true\n\n        push = (node, current, distance=1) ->\n          g = nodes[node]?.g ? Infinity\n          h = nodes[node]?.h ? heuristic(node, goal)\n\n          nodeData =\n            g: (nodes[current]?.g ? 0) + distance\n            h: h\n            parent: current\n            node: node\n\n          # Update if better\n          if nodeData.g < g\n            nodes[node] = nodeData\n            openSet.push node, nodeData.g + h\n\n        getPath = (node) ->\n          console.log nodes\n          path = [node]\n\n          while (node = nodes[node].parent) != null\n            path.push node\n\n          return path.reverse()\n\n        push initial, null, 0\n\n        while openSet.size() > 0\n          current = openSet.pop()\n\n          if current is goal\n            return getPath(goal)\n\n          neighbors(current).forEach ([node, distance]) ->\n            push node, current, distance\n",
+      "type": "blob"
+    },
+    "test/a_star.coffee": {
+      "path": "test/a_star.coffee",
+      "mode": "100644",
+      "content": "Graph = require \"../graph\"\n\ndescribe \"A*\", ->\n  it \"should find the shortest path between nodes\", ->\n    console.log Graph.aStar\n      initial:0\n      goal: 10\n      neighbors: (value) ->\n        [\n          [value - 1, 1]\n          [value + 1, 1]\n        ]\n      heuristic: (node, goal) ->\n        (goal - node).abs()\n",
       "type": "blob"
     }
   },
@@ -191,7 +197,12 @@
     },
     "graph": {
       "path": "graph",
-      "content": "(function() {\n  var PriorityQueue;\n\n  PriorityQueue = require(\"priority_queue\");\n\n  module.exports = {\n    aStar: function(initial, goal) {}\n  };\n\n}).call(this);\n\n//# sourceURL=graph.coffee",
+      "content": "(function() {\n  var PriorityQueue;\n\n  PriorityQueue = require(\"priority_queue\");\n\n  module.exports = {\n    aStar: function(_arg) {\n      var current, getPath, goal, heuristic, initial, neighbors, nodes, openSet, push;\n      initial = _arg.initial, goal = _arg.goal, heuristic = _arg.heuristic, neighbors = _arg.neighbors;\n      if (heuristic == null) {\n        heuristic = function() {\n          return 0;\n        };\n      }\n      if (neighbors == null) {\n        neighbors = function() {\n          return [];\n        };\n      }\n      nodes = {};\n      openSet = PriorityQueue({\n        low: true\n      });\n      push = function(node, current, distance) {\n        var g, h, nodeData, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;\n        if (distance == null) {\n          distance = 1;\n        }\n        g = (_ref = (_ref1 = nodes[node]) != null ? _ref1.g : void 0) != null ? _ref : Infinity;\n        h = (_ref2 = (_ref3 = nodes[node]) != null ? _ref3.h : void 0) != null ? _ref2 : heuristic(node, goal);\n        nodeData = {\n          g: ((_ref4 = (_ref5 = nodes[current]) != null ? _ref5.g : void 0) != null ? _ref4 : 0) + distance,\n          h: h,\n          parent: current,\n          node: node\n        };\n        if (nodeData.g < g) {\n          nodes[node] = nodeData;\n          return openSet.push(node, nodeData.g + h);\n        }\n      };\n      getPath = function(node) {\n        var path;\n        console.log(nodes);\n        path = [node];\n        while ((node = nodes[node].parent) !== null) {\n          path.push(node);\n        }\n        return path.reverse();\n      };\n      push(initial, null, 0);\n      while (openSet.size() > 0) {\n        current = openSet.pop();\n        if (current === goal) {\n          return getPath(goal);\n        }\n        neighbors(current).forEach(function(_arg1) {\n          var distance, node;\n          node = _arg1[0], distance = _arg1[1];\n          return push(node, current, distance);\n        });\n      }\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=graph.coffee",
+      "type": "blob"
+    },
+    "test/a_star": {
+      "path": "test/a_star",
+      "content": "(function() {\n  var Graph;\n\n  Graph = require(\"../graph\");\n\n  describe(\"A*\", function() {\n    return it(\"should find the shortest path between nodes\", function() {\n      return console.log(Graph.aStar({\n        initial: 0,\n        goal: 10,\n        neighbors: function(value) {\n          return [[value - 1, 1], [value + 1, 1]];\n        },\n        heuristic: function(node, goal) {\n          return (goal - node).abs();\n        }\n      }));\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/a_star.coffee",
       "type": "blob"
     }
   },

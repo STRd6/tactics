@@ -36,8 +36,66 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">PriorityQueue = require <span class="string">"priority_queue"</span>
 
-module.exports =
-  aStar: (initial, goal) -&gt;</code></pre>
+module.exports =</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>A* Pathfinding</p>
+<p>Return a path from initial to goal or <code>undefined</code> if no path exists.</p>
+<p>Initial and goal are assumed to be nodes that have a toString function that
+uniquely identifies nodes.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">  aStar: ({initial, goal, heuristic, neighbors}) -&gt;
+    heuristic ?= -&gt; <span class="number">0</span>
+    neighbors ?= -&gt; []
+
+    <span class="comment"># Table to track our node meta-data</span>
+    nodes = {}
+
+    openSet = PriorityQueue
+      low: <span class="literal">true</span>
+
+    <span class="function"><span class="title">push</span></span> = (node, current, distance=<span class="number">1</span>) -&gt;
+      g = nodes[node]?.g ? Infinity
+      h = nodes[node]?.h ? heuristic(node, goal)
+
+      nodeData =
+        g: (nodes[current]?.g ? <span class="number">0</span>) + distance
+        h: h
+        parent: current
+        node: node
+
+      <span class="comment"># Update if better</span>
+      <span class="keyword">if</span> nodeData.g &lt; g
+        nodes[node] = nodeData
+        openSet.push node, nodeData.g + h
+
+    <span class="function"><span class="title">getPath</span></span> = (node) -&gt;
+      console.log nodes
+      path = [node]
+
+      <span class="keyword">while</span> (node = nodes[node].parent) != <span class="literal">null</span>
+        path.push node
+
+      <span class="keyword">return</span> path.reverse()
+
+    push initial, <span class="literal">null</span>, <span class="number">0</span>
+
+    <span class="keyword">while</span> openSet.size() &gt; <span class="number">0</span>
+      current = openSet.pop()
+
+      <span class="keyword">if</span> current <span class="keyword">is</span> goal
+        <span class="keyword">return</span> getPath(goal)
+
+      neighbors(current).forEach ([node, distance]) -&gt;
+        push node, current, distance</code></pre>
 </div>
         </li>
         
