@@ -63,7 +63,7 @@ Uses shadowcasting to calculate lighting at specified position
                   @tiles.push tile
                   
                 if blocked
-                  if map.data[X][Y].blocksSight
+                  if tile.blocksSight
                     new_start = r_slope
                     continue
                   else
