@@ -50,6 +50,7 @@ Sprite = require <span class="string">"./sprite"</span>
 Action = require <span class="string">"./action"</span>
 Resource = require <span class="string">"./resource"</span>
 Shadowcasting = require <span class="string">"./shadowcasting"</span>
+Map = require <span class="string">"./map"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span>
 Geom = require <span class="string">"./lib/geom"</span>
@@ -62,24 +63,9 @@ canvas = Canvas
   width: width
   height: height
 
-$(<span class="string">"body"</span>).append canvas.element()
-
 canvas.fill bgColor
 
-allSprites = Object.keys(require(<span class="string">"./images"</span>)).map (name) -&gt;
-  Sprite.load(Resource.load(name))
-
-groundSprites = [<span class="string">"ground"</span>, <span class="string">"frozen"</span>, <span class="string">"stone"</span>].map (type) -&gt;
-  [<span class="number">0.</span><span class="number">.7</span>].map (i) -&gt;
-    Sprite.load(Resource.load(<span class="string">"<span class="subst">#{type}</span><span class="subst">#{i}</span>"</span>))
-
-bushSprites = [<span class="number">0.</span><span class="number">.3</span>].map (i)-&gt;
-  Sprite.load(Resource.load(<span class="string">"bush<span class="subst">#{i}</span>"</span>))
-
-setTimeout -&gt;
-  allSprites.each (sprite, i) -&gt;
-    sprite.draw canvas, (i % <span class="number">32</span>) * <span class="number">32</span>, (i / <span class="number">32</span>).floor() * <span class="number">32</span>
-, <span class="number">0</span>
+$(<span class="string">"body"</span>).append canvas.element()
 
 ui =
   actions: Observable [
@@ -87,32 +73,9 @@ ui =
       name: <span class="string">"New Game"</span>
       icon: Resource.load(<span class="string">"new_game"</span>)
       perform: -&gt;
-        grid = Grid <span class="number">32</span>, <span class="number">18</span>, -&gt;
-          sprite: groundSprites[<span class="number">0</span>].rand()
-          lit: <span class="literal">false</span>
-          unseen: <span class="literal">true</span>
-          opaque: <span class="literal">false</span>
+        map = Map()
 
-        canvas.fill bgColor
-
-        fov = <span class="keyword">new</span> Shadowcasting(Point(<span class="number">10</span>, <span class="number">10</span>), <span class="number">4</span>)
-        fov.tileAt = grid.get
-
-        fov.calculate()
-
-        fov.update Point(<span class="number">11</span>, <span class="number">11</span>)
-
-        grid.each ({sprite, lit, unseen}, x, y) -&gt;
-          <span class="keyword">if</span> lit
-            sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
-          <span class="keyword">else</span> <span class="keyword">if</span> !unseen
-            sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
-            canvas.drawRect
-              x: x * <span class="number">32</span>
-              y: y * <span class="number">32</span>
-              width: <span class="number">32</span>
-              height: <span class="number">32</span>
-              color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
+        map.render(canvas)
 
     Action
       name: <span class="string">"Tutorial"</span>
