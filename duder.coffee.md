@@ -12,6 +12,7 @@ Use Shadowcasting for FoV calculations.
       I.position = Point(I.position)
       I.sprite = Resource.sprite(I.sprite)
       I.sight ?= 7
+      I.move ?= 5
 
       self.attrAccessor "position", "sprite", "sight"
 

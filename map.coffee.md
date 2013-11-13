@@ -52,8 +52,11 @@ Hold the terrain and whatnot for a level.
         background: "#222034"
 
       grid = Grid 32, 18, (x, y) ->
-        if x is 12 and y >= 12 or y is 12 and x >= 12
-          wall()
+        if (x is 12 and y >= 12 or y is 12 and x >= 12)
+          if (x is 20 and y is 12)
+            ground()
+          else
+            wall()
         else
           if rand() < 0.10
             wall()
@@ -67,7 +70,14 @@ Hold the terrain and whatnot for a level.
             y: 11
           sprite: "human"
           sight: 7
+        Duder
+          position:
+            x: 20
+            y: 15
+          sprite: "goblin"
+          sight: 7
       ]
+      activeDuderIndex = 0
 
       duders.forEach (duder) ->
         duder.tileAt = grid.get
@@ -105,7 +115,8 @@ Hold the terrain and whatnot for a level.
       tileAt: grid.get
 
       moveDuder: (position) ->
-        duder = duders.first()
+        duder = duders.wrap(activeDuderIndex)
+        activeDuderIndex += 1
 
         path = Graph.aStar
           initial: duder.position()
