@@ -35,7 +35,7 @@
               
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
-Shadowcasting = require <span class="string">"./shadowcasting"</span>
+Duder = require <span class="string">"./duder"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span>
 Graph = require <span class="string">"./graph"</span></code></pre>
@@ -81,19 +81,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       opaque: <span class="literal">false</span>
 
   duders = [
-    {x: <span class="number">11</span>, y: <span class="number">11</span>, sprite: Resource.sprite(<span class="string">"human"</span>)}
+    Duder 
+      position:
+        x: <span class="number">11</span>
+        y: <span class="number">11</span>
+      sprite: <span class="string">"human"</span>
   ]
+
+  duders.forEach (duder) -&gt;
+    duder.tileAt = grid.get
+    duder.updateFOV()
+
   <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
     duders.filter (duder) -&gt;
-      duder.x <span class="keyword">is</span> x <span class="keyword">and</span> duder.y <span class="keyword">is</span> y
+      position = duder.position()
+      position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y
     .first()
-
-  <span class="comment"># TODO: Make each character have separate fov</span>
-  duders.forEach (duder) -&gt;
-    fov = <span class="keyword">new</span> Shadowcasting(duder, <span class="number">7</span>)
-    fov.tileAt = grid.get
-
-    fov.calculate()
 
   render: (canvas) -&gt;
     canvas.fill I.background
@@ -102,7 +105,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       <span class="keyword">if</span> !unseen
         sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
         <span class="keyword">if</span> duder = duderAt(x, y)
-          duder.sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+          duder.sprite().draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
 
         <span class="keyword">if</span> !lit
           canvas.drawRect
@@ -113,8 +116,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
             color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
   moveDuder: (position) -&gt;
+    duder = duders.first()
+
     path = Graph.aStar
-      initial: Point(duders.first())
+      initial: duder.position()
       goal: position
       neighbors: (position) -&gt;
         [Point(<span class="number">1</span>, <span class="number">0</span>), Point(-<span class="number">1</span>, <span class="number">0</span>), Point(<span class="number">0</span>, <span class="number">1</span>), Point(<span class="number">0</span>, -<span class="number">1</span>)].map (direction) -&gt;
@@ -125,11 +130,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         p.x + p.y <span class="comment"># Manhattan distance</span>
 
     <span class="keyword">if</span> path
-      path.forEach (position) -&gt;
-        fov = <span class="keyword">new</span> Shadowcasting(position, <span class="number">7</span>)
-        fov.tileAt = grid.get
-
-        fov.calculate()</code></pre>
+      path.forEach duder.updatePosition</code></pre>
 </div>
         </li>
         
