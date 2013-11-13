@@ -56,7 +56,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       height: height
 
     uiCanvas.on "touch", (position) ->
-      map.moveDuder position.scale(tileExtent).floor()
+      tilePosition = position.scale(tileExtent).floor()
+
+      map.moveDuder tilePosition
       map.render(canvas)
 
     $(".ui").prepend uiCanvas.element()

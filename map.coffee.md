@@ -24,7 +24,7 @@ Hold the terrain and whatnot for a level.
     wall = ->
       sprite: wallSprites.rand()
       lit: false
-      unseen: true
+      seen: false
       opaque: true
       solid: true
       features: []
@@ -34,7 +34,7 @@ Hold the terrain and whatnot for a level.
     
       sprite: groundSprites[0].rand()
       lit: false
-      unseen: true
+      seen: false
       opaque: bush
       solid: false
       features: [0...bush].map ->
@@ -81,7 +81,14 @@ Hold the terrain and whatnot for a level.
 
       duders.forEach (duder) ->
         duder.tileAt = grid.get
-        duder.updateFOV()
+
+      updateVisibleTiles = ->
+        grid.each (tile) ->
+          tile.lit = false
+
+        duders.forEach (duder) ->
+          duder.visibleTiles().forEach (tile) ->
+            tile.seen = tile.lit = true
 
       duderAt = (x, y) ->
         duders.filter (duder) ->
@@ -90,6 +97,8 @@ Hold the terrain and whatnot for a level.
         .first()
 
       render: (canvas) ->
+        updateVisibleTiles()
+
         canvas.fill I.background
 
         grid.each (tile, x, y) ->

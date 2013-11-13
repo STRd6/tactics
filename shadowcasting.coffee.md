@@ -28,22 +28,14 @@ Multipliers for transforming coordinates into other octants.
 
       "rgba(#{rgb}, 0.125)"
 
-    view = (tile) ->
-      tile.seen = tile.lit = true
-
-      return tile
-
 Uses shadowcasting to calculate lighting at specified position
 
-    module.exports = (position, radius) ->
+    module.exports = ->
       @tiles = []
-      @position = position
-      @radius = radius
 
       @calculateOctant = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
         tile = @tileAt(cx, cy)
 
-        view tile
         @tiles.push tile
 
         new_start = 0
@@ -86,8 +78,6 @@ Uses shadowcasting to calculate lighting at specified position
                 break
               else
                 if dx * dx + dy * dy < radius_squared
-                  view tile
-
                   @tiles.push tile
 
                 if blocked
@@ -110,17 +100,14 @@ Uses shadowcasting to calculate lighting at specified position
           if blocked
             done = true
 
-Clear all tiles we previously lit.
+Reset our tiles list.
 
       @clear = ->
-        @tiles.forEach (tile) ->
-          tile.lit = false
-
         @tiles = []
 
 Calculate the field of vision.
 
-      @calculate = ->
+      @calculate = (position, radius) ->
         @clear()
 
         [0..7].forEach (i) =>
@@ -129,13 +116,14 @@ Calculate the field of vision.
           yx = mult[2][i]
           yy = mult[3][i]
 
-          @calculateOctant @position.x, @position.y, 0, 1.0, 0.0, @radius,
+          @calculateOctant position.x, position.y, 0, 1.0, 0.0, radius,
             xx, xy, yx, yy, 0
 
-        tile = @tileAt @position.x, @position.y
+        tile = @tileAt position.x, position.y
 
-        view tile
         @tiles.push tile
+
+        return @tiles
 
       @debugTile = (position, message) ->
         return unless debug
@@ -158,10 +146,5 @@ Calculate the field of vision.
             height: 32
             color: colors[color]
         , 0
-
-      # update the position of the light source
-      @update = (position) ->
-        @position = position
-        @calculate()
 
       return this
