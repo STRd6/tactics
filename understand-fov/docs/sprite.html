@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>sprite</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="sprite">Sprite</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The Sprite class provides a way to load images for use in games.</p>
+<p>A sprite is a still 2d image.</p>
+<p>An animation can be created from a collection of sprites.</p>
+<p>By default, images are loaded asynchronously. A proxy object is
+returned immediately. Even though it has a draw method it will not
+draw anything to the screen until the image has been loaded.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">LoaderProxy</span></span> = -&gt;
+  draw: -&gt;
+  fill: -&gt;
+  width: <span class="literal">null</span>
+  height: <span class="literal">null</span>
+  image: <span class="literal">null</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Cache loaded images</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">spriteCache = {}
+
+<span class="function"><span class="title">Sprite</span></span> = (image, sourceX, sourceY, width, height) -&gt;
+  sourceX ||= <span class="number">0</span>
+  sourceY ||= <span class="number">0</span>
+  width ||= image.width
+  height ||= image.height</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Draw this sprite on the given canvas at the given position.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">  draw: (canvas, x, y) -&gt;
+    <span class="keyword">if</span> x.x?
+      {x, y} = x
+
+    canvas.drawImage(
+      image,
+      sourceX,
+      sourceY,
+      width,
+      height,
+      x,
+      y,
+      width,
+      height
+    )</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Draw this sprite on the given canvas tiled to the x, y,
+width, and height dimensions specified.</p>
+<p>Repeat options can be <code>repeat-x</code>, <code>repeat-y</code>, <code>no-repeat</code>, or <code>repeat</code>. Defaults to <code>repeat</code></p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">  fill: (canvas, x, y, width, height, repeat=<span class="string">"repeat"</span>) -&gt;
+    pattern = canvas.createPattern(image, repeat)
+    canvas.drawRect({x, y, width, height, color: pattern})
+
+  width: width
+  height: height
+  image: image</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Loads all sprites from a sprite sheet found in
+your images directory, specified by the name passed in.</p>
+<p>Returns an array of sprite objects which will start out empty, but be filled
+once the image has loaded.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Sprite.<span class="function"><span class="title">loadSheet</span></span> = (name, tileWidth, tileHeight) -&gt;
+  url = ResourceLoader.urlFor(<span class="string">"images"</span>, name)
+
+  sprites = []
+  image = <span class="keyword">new</span> Image()
+
+  image.<span class="function"><span class="title">onload</span></span> = -&gt;
+    imgElement = <span class="keyword">this</span>
+    (image.height / tileHeight).times (row) -&gt;
+      (image.width / tileWidth).times (col) -&gt;
+        sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))
+
+  image.src = url
+
+  <span class="keyword">return</span> sprites</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Loads a sprite from a given url.
+A second optional callback parameter may be passet wich is executeh once the
+image is loaded. The sprite proxy data is passed to it as the only parameter.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Sprite.fromURL = Sprite.<span class="function"><span class="title">load</span></span> = (url, loadedCallback) -&gt;
+  <span class="keyword">if</span> sprite = spriteCache[url]
+    loadedCallback?.defer(sprite)
+    <span class="keyword">return</span> sprite
+
+  img = <span class="keyword">new</span> Image()
+  proxy = LoaderProxy()
+
+  img.<span class="function"><span class="title">onload</span></span> = -&gt;
+    spriteCache[url] = Object.extend(proxy, Sprite(<span class="keyword">this</span>))
+
+    loadedCallback?(proxy)
+
+  img.src = url
+
+  <span class="keyword">return</span> proxy</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>A sprite that draws nothing.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Sprite.EMPTY = Sprite.NONE = LoaderProxy()</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Load a sprite with the given name. The first parameter is name The name of the
+image in your images directory. The second parameter is a callback function to
+execute once the image is loaded. The sprite proxy data is passed to this as a parameter.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Sprite.<span class="function"><span class="title">loadByName</span></span> = (name, callback) -&gt;
+  Sprite.load(ResourceLoader.urlFor(<span class="string">"images"</span>, name), callback)
+
+module.exports = Sprite</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="http://strd6.github.io/interactive/v0.8.0.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script src="package.js"></script>
+</body>
+</html>
