@@ -57,12 +57,7 @@ colors = [
     value * <span class="number">255</span>
   .join(<span class="string">","</span>)
 
-  <span class="string">"rgba(<span class="subst">#{rgb}</span>, 0.125)"</span>
-
-<span class="function"><span class="title">view</span></span> = (tile) -&gt;
-  tile.seen = tile.lit = <span class="literal">true</span>
-
-  <span class="keyword">return</span> tile</code></pre>
+  <span class="string">"rgba(<span class="subst">#{rgb}</span>, 0.125)"</span></code></pre>
 </div>
         </li>
         
@@ -75,15 +70,12 @@ colors = [
               <p>Uses shadowcasting to calculate lighting at specified position</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (position, radius) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = -&gt;
   <span class="property">@tiles</span> = []
-  <span class="property">@position</span> = position
-  <span class="property">@radius</span> = radius
 
   <span class="property">@calculateOctant</span> = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
     tile = <span class="property">@tileAt</span>(cx, cy)
 
-    view tile
     <span class="property">@tiles</span>.push tile
 
     new_start = <span class="number">0</span>
@@ -126,8 +118,6 @@ colors = [
             <span class="keyword">break</span>
           <span class="keyword">else</span>
             <span class="keyword">if</span> dx * dx + dy * dy &lt; radius_squared
-              view tile
-
               <span class="property">@tiles</span>.push tile
 
             <span class="keyword">if</span> blocked
@@ -158,13 +148,10 @@ colors = [
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Clear all tiles we previously lit.</p>
+              <p>Reset our tiles list.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">  <span class="property">@clear</span> = -&gt;
-    <span class="property">@tiles</span>.forEach (tile) -&gt;
-      tile.lit = <span class="literal">false</span>
-
     <span class="property">@tiles</span> = []</code></pre>
 </div>
         </li>
@@ -178,7 +165,7 @@ colors = [
               <p>Calculate the field of vision.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  <span class="property">@calculate</span> = -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  <span class="property">@calculate</span> = (position, radius) -&gt;
     <span class="property">@clear</span>()
 
     [<span class="number">0.</span><span class="number">.7</span>].forEach (i) =&gt;
@@ -187,13 +174,14 @@ colors = [
       yx = mult[<span class="number">2</span>][i]
       yy = mult[<span class="number">3</span>][i]
 
-      <span class="property">@calculateOctant</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="property">@radius</span>,
+      <span class="property">@calculateOctant</span> position.x, position.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, radius,
         xx, xy, yx, yy, <span class="number">0</span>
 
-    tile = <span class="property">@tileAt</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y
+    tile = <span class="property">@tileAt</span> position.x, position.y
 
-    view tile
     <span class="property">@tiles</span>.push tile
+
+    <span class="keyword">return</span> <span class="property">@tiles</span>
 
   <span class="property">@debugTile</span> = (position, message) -&gt;
     <span class="keyword">return</span> <span class="keyword">unless</span> debug
@@ -216,11 +204,6 @@ colors = [
         height: <span class="number">32</span>
         color: colors[color]
     , <span class="number">0</span>
-
-  <span class="comment"># update the position of the light source</span>
-  <span class="property">@update</span> = (position) -&gt;
-    <span class="property">@position</span> = position
-    <span class="property">@calculate</span>()
 
   <span class="keyword">return</span> <span class="keyword">this</span></code></pre>
 </div>

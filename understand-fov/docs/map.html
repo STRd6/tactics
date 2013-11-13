@@ -67,7 +67,7 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
 <span class="function"><span class="title">wall</span></span> = -&gt;
   sprite: wallSprites.rand()
   lit: <span class="literal">false</span>
-  unseen: <span class="literal">true</span>
+  seen: <span class="literal">false</span>
   opaque: <span class="literal">true</span>
   solid: <span class="literal">true</span>
   features: []
@@ -77,7 +77,7 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
 
   sprite: groundSprites[<span class="number">0</span>].rand()
   lit: <span class="literal">false</span>
-  unseen: <span class="literal">true</span>
+  seen: <span class="literal">false</span>
   opaque: bush
   solid: <span class="literal">false</span>
   features: [<span class="number">0.</span>..bush].map -&gt;
@@ -124,7 +124,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
   duders.forEach (duder) -&gt;
     duder.tileAt = grid.get
-    duder.updateFOV()
+
+  <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
+    grid.each (tile) -&gt;
+      tile.lit = <span class="literal">false</span>
+
+    duders.forEach (duder) -&gt;
+      duder.visibleTiles().forEach (tile) -&gt;
+        tile.seen = tile.lit = <span class="literal">true</span>
 
   <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
     duders.filter (duder) -&gt;
@@ -133,6 +140,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     .first()
 
   render: (canvas) -&gt;
+    updateVisibleTiles()
+
     canvas.fill I.background
 
     grid.each (tile, x, y) -&gt;

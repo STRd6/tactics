@@ -86,7 +86,9 @@ uiCanvas = Canvas
   height: height
 
 uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (position) -&gt;
-  map.moveDuder position.scale(tileExtent).floor()
+  tilePosition = position.scale(tileExtent).floor()
+
+  map.moveDuder tilePosition
   map.render(canvas)
 
 $(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>
