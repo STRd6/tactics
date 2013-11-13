@@ -42,7 +42,7 @@ Shadowcasting = require <span class="string">"./shadowcasting"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
   I.sprite = Resource.sprite(I.sprite)
-  I.sight = <span class="number">7</span>
+  I.sight ?= <span class="number">7</span>
 
   self.attrAccessor <span class="string">"position"</span>, <span class="string">"sprite"</span>, <span class="string">"sight"</span>
 
