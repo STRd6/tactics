@@ -52,9 +52,15 @@ module.exports =</code></pre>
 uniquely identifies nodes.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  aStar: ({initial, goal, heuristic, neighbors}) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  aStar: ({initial, goal, heuristic, neighbors, equals}) -&gt;
     heuristic ?= -&gt; <span class="number">0</span>
     neighbors ?= -&gt; []
+    equals ?= (a, b) -&gt;
+      a.toString() == b.toString()
+
+    <span class="comment"># Prevent hanging by capping max iterations</span>
+    iterations = <span class="number">0</span>
+    iterationsMax = <span class="number">1000</span>
 
     <span class="comment"># Table to track our node meta-data</span>
     nodes = {}
@@ -88,9 +94,12 @@ uniquely identifies nodes.</p>
     push initial, <span class="literal">null</span>, <span class="number">0</span>
 
     <span class="keyword">while</span> openSet.size() &gt; <span class="number">0</span>
+      <span class="keyword">return</span> <span class="keyword">if</span> iterations &gt;= iterationsMax
+      iterations += <span class="number">1</span>
+
       current = openSet.pop()
 
-      <span class="keyword">if</span> current <span class="keyword">is</span> goal
+      <span class="keyword">if</span> equals current, goal
         <span class="keyword">return</span> getPath(goal)
 
       neighbors(current).forEach ([node, distance]) -&gt;
