@@ -20,7 +20,7 @@ Hold the terrain and whatnot for a level.
 
     wallSprites = [0..3].map (i) ->
       Resource.sprite("brick_vines#{i}")
-    
+
     wall = ->
       sprite: wallSprites.rand()
       lit: false
@@ -36,7 +36,7 @@ Hold the terrain and whatnot for a level.
       solid: false
 
     moveDirections = [
-      Point(1, 0) 
+      Point(1, 0)
       Point(-1, 0)
       Point(0, 1)
       Point(0, -1)
@@ -61,6 +61,7 @@ Hold the terrain and whatnot for a level.
             x: 11
             y: 11
           sprite: "human"
+          sight: 13
       ]
 
       duders.forEach (duder) ->

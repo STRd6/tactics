@@ -11,7 +11,7 @@ Use Shadowcasting for FoV calculations.
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
       I.sprite = Resource.sprite(I.sprite)
-      I.sight = 7
+      I.sight ?= 7
 
       self.attrAccessor "position", "sprite", "sight"
 
