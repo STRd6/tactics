@@ -64,6 +64,20 @@ bushSprites = [<span class="number">0.</span><span class="number">.3</span>].map
 wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map (i) -&gt;
   Resource.sprite(<span class="string">"brick_vines<span class="subst">#{i}</span>"</span>)
 
+<span class="function"><span class="title">wall</span></span> = -&gt;
+  sprite: wallSprites.rand()
+  lit: <span class="literal">false</span>
+  unseen: <span class="literal">true</span>
+  opaque: <span class="literal">true</span>
+  solid: <span class="literal">true</span>
+
+<span class="function"><span class="title">ground</span></span> = -&gt;
+  sprite: groundSprites[<span class="number">0</span>].rand()
+  lit: <span class="literal">false</span>
+  unseen: <span class="literal">true</span>
+  opaque: <span class="literal">false</span>
+  solid: <span class="literal">false</span>
+
 moveDirections = [
   Point(<span class="number">1</span>, <span class="number">0</span>) 
   Point(-<span class="number">1</span>, <span class="number">0</span>)
@@ -77,17 +91,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
   grid = Grid <span class="number">32</span>, <span class="number">18</span>, (x, y) -&gt;
     <span class="keyword">if</span> x <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> y &gt;= <span class="number">12</span> <span class="keyword">or</span> y <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> x &gt;= <span class="number">12</span>
-      sprite: wallSprites.rand()
-      lit: <span class="literal">false</span>
-      unseen: <span class="literal">true</span>
-      opaque: <span class="literal">true</span>
-      solid: <span class="literal">true</span>
+      wall()
     <span class="keyword">else</span>
-      sprite: groundSprites[<span class="number">0</span>].rand()
-      lit: <span class="literal">false</span>
-      unseen: <span class="literal">true</span>
-      opaque: <span class="literal">false</span>
-      solid: <span class="literal">false</span>
+      <span class="keyword">if</span> rand() &lt; <span class="number">0.10</span>
+        wall()
+      <span class="keyword">else</span>
+        ground()
 
   duders = [
     Duder

@@ -61,7 +61,7 @@ canvas.fill bgColor
 
 $(<span class="string">"body"</span>).append canvas.element()
 
-global.map = map = Map()
+global.map = map = <span class="literal">null</span>
 
 ui =
   actions: Observable [
@@ -69,6 +69,7 @@ ui =
       name: <span class="string">"New Game"</span>
       icon: Resource.dataURL(<span class="string">"new_game"</span>)
       perform: -&gt;
+        global.map = map = Map()
         map.render(canvas)
 
     Action
