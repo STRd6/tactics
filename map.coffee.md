@@ -4,6 +4,7 @@ Map
     Shadowcasting = require "./shadowcasting"
 
     {Grid} = require "./lib/util"
+    Graph = require ".graph"
 
 Hold the terrain and whatnot for a level.
 
@@ -45,12 +46,11 @@ Hold the terrain and whatnot for a level.
         .first()
 
       # TODO: Make each character have separate fov
-      fov = new Shadowcasting(Point(10, 10), 7)
-      fov.tileAt = grid.get
-
-      fov.calculate()
-
-      fov.update Point(11, 11)
+      duders.forEach (duder) ->
+        fov = new Shadowcasting(duder, 7)
+        fov.tileAt = grid.get
+  
+        fov.calculate()
 
       render: (canvas) ->
         canvas.fill I.background
@@ -68,3 +68,22 @@ Hold the terrain and whatnot for a level.
                 width: 32
                 height: 32
                 color: "rgba(0, 0, 0, 0.5)"
+
+      moveDuder: (position) ->
+        path = Graph.aStar
+          initial: Point(duders.first())
+          goal: position
+          neighbors: (position) ->
+            [Point(1, 0), Point(-1, 0), Point(0, 1), Point(0, -1)].map (direction) ->
+              [position.add(direction), 1]
+          heuristic: (a, b) ->
+            p = b.subtract(a).abs()
+
+            p.x + p.y # Manhattan distance
+
+        if path
+          path.forEach (position) ->
+            fov = new Shadowcasting(position, 7)
+            fov.tileAt = grid.get
+      
+            fov.calculate()

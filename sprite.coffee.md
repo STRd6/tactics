@@ -31,6 +31,9 @@ Cache loaded images
 Draw this sprite on the given canvas at the given position.
 
       draw: (canvas, x, y) ->
+        if x.x?
+          {x, y} = x
+
         canvas.drawImage(
           image,
           sourceX,
@@ -45,17 +48,17 @@ Draw this sprite on the given canvas at the given position.
 
 Draw this sprite on the given canvas tiled to the x, y,
 width, and height dimensions specified.
-  
+
 Repeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`
 
       fill: (canvas, x, y, width, height, repeat="repeat") ->
         pattern = canvas.createPattern(image, repeat)
         canvas.drawRect({x, y, width, height, color: pattern})
-  
+
       width: width
       height: height
       image: image
-  
+
 Loads all sprites from a sprite sheet found in
 your images directory, specified by the name passed in.
 
@@ -64,10 +67,10 @@ once the image has loaded.
 
     Sprite.loadSheet = (name, tileWidth, tileHeight) ->
       url = ResourceLoader.urlFor("images", name)
-  
+
       sprites = []
       image = new Image()
-  
+
       image.onload = ->
         imgElement = this
         (image.height / tileHeight).times (row) ->
@@ -102,9 +105,9 @@ image is loaded. The sprite proxy data is passed to it as the only parameter.
 A sprite that draws nothing.
 
     Sprite.EMPTY = Sprite.NONE = LoaderProxy()
-    
-Load a sprite with the given name. The first parameter is name The name of the 
-image in your images directory. The second parameter is a callback function to 
+
+Load a sprite with the given name. The first parameter is name The name of the
+image in your images directory. The second parameter is a callback function to
 execute once the image is loaded. The sprite proxy data is passed to this as a parameter.
 
     Sprite.loadByName = (name, callback) ->
