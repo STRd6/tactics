@@ -11,10 +11,11 @@ Use Shadowcasting for FoV calculations.
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
       I.sprite = Resource.sprite(I.sprite)
+      I.sight = 7
 
-      self.attrAccessor "position", "sprite"
+      self.attrAccessor "position", "sprite", "sight"
 
-      fov = new Shadowcasting(self.position(), 7)
+      fov = new Shadowcasting(self.position(), self.sight())
       fov.tileAt = (args...) ->
         self.tileAt(args...)
 
