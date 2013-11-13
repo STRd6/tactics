@@ -72,6 +72,8 @@ Hold the terrain and whatnot for a level.
                 height: 32
                 color: "rgba(0, 0, 0, 0.5)"
 
+      tileAt: grid.get
+
       moveDuder: (position) ->
         duder = duders.first()
 

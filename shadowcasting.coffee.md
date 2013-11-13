@@ -93,7 +93,7 @@ Uses shadowcasting to calculate lighting at specified position
           @calculateOctant @position.x, @position.y, 0, 1.0, 0.0, @radius, 
             mult[0][i], mult[1][i], mult[2][i], mult[3][i], 0
 
-        tile = @tileAt position.x, position.y
+        tile = @tileAt @position.x, @position.y
         tile.lit = true
         tile.unseen = false
 

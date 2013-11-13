@@ -23,7 +23,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     bgColor = "#222034"
 
-    canvas = Canvas
+    global.canvas = canvas = Canvas
       width: width
       height: height
 
@@ -31,7 +31,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append canvas.element()
 
-    map = Map()
+    global.map = map = Map()
 
     ui =
       actions: Observable [
