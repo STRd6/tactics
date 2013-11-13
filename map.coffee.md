@@ -96,9 +96,9 @@ Hold the terrain and whatnot for a level.
           position.x is x and position.y is y
         .first()
 
-      render: (canvas) ->
-        updateVisibleTiles()
+      updateVisibleTiles()
 
+      render: (canvas) ->
         canvas.fill I.background
 
         grid.each (tile, x, y) ->
@@ -145,4 +145,9 @@ Hold the terrain and whatnot for a level.
             p.x + p.y # Manhattan distance
 
         if path
-          path.forEach duder.updatePosition
+          path.forEach (position) -> 
+            duder.updatePosition position
+            duder.visibleTiles().forEach (tile) ->
+              tile.seen = true
+
+        updateVisibleTiles()
