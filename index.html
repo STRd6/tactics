@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1384368150488">
+<html manifest="manifest.appcache?1384373441962">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -36,7 +36,7 @@ require('./main')
     "duder.coffee.md": {
       "path": "duder.coffee.md",
       "mode": "100644",
-      "content": "Duder\n=====\n\nThose little guys that run around.\n\nUse Shadowcasting for FoV calculations.\n\n    Resource = require \"./resource\"\n    Shadowcasting = require \"./shadowcasting\"\n\n    module.exports = (I={}, self=Core(I)) ->\n      I.position = Point(I.position)\n      I.sprite = Resource.sprite(I.sprite)\n\n      self.attrAccessor \"position\", \"sprite\"\n\n      fov = new Shadowcasting(self.position(), 7)\n      fov.tileAt = (args...) ->\n        self.tileAt(args...)\n\n      self.updateFOV = ->\n        fov.update(self.position())\n        fov.calculate()\n\n      self.updatePosition = (newPosition) ->\n        self.position newPosition\n        self.updateFOV()\n\n      return self\n",
+      "content": "Duder\n=====\n\nThose little guys that run around.\n\nUse Shadowcasting for FoV calculations.\n\n    Resource = require \"./resource\"\n    Shadowcasting = require \"./shadowcasting\"\n\n    module.exports = (I={}, self=Core(I)) ->\n      I.position = Point(I.position)\n      I.sprite = Resource.sprite(I.sprite)\n      I.sight = 7\n\n      self.attrAccessor \"position\", \"sprite\", \"sight\"\n\n      fov = new Shadowcasting(self.position(), self.sight())\n      fov.tileAt = (args...) ->\n        self.tileAt(args...)\n\n      self.updateFOV = ->\n        fov.update(self.position())\n        fov.calculate()\n\n      self.updatePosition = (newPosition) ->\n        self.position newPosition\n        self.updateFOV()\n\n      return self\n",
       "type": "blob"
     },
     "graph.coffee.md": {
@@ -150,7 +150,7 @@ require('./main')
     },
     "duder": {
       "path": "duder",
-      "content": "(function() {\n  var Resource, Shadowcasting,\n    __slice = [].slice;\n\n  Resource = require(\"./resource\");\n\n  Shadowcasting = require(\"./shadowcasting\");\n\n  module.exports = function(I, self) {\n    var fov;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    I.position = Point(I.position);\n    I.sprite = Resource.sprite(I.sprite);\n    self.attrAccessor(\"position\", \"sprite\");\n    fov = new Shadowcasting(self.position(), 7);\n    fov.tileAt = function() {\n      var args;\n      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n      return self.tileAt.apply(self, args);\n    };\n    self.updateFOV = function() {\n      fov.update(self.position());\n      return fov.calculate();\n    };\n    self.updatePosition = function(newPosition) {\n      self.position(newPosition);\n      return self.updateFOV();\n    };\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=duder.coffee",
+      "content": "(function() {\n  var Resource, Shadowcasting,\n    __slice = [].slice;\n\n  Resource = require(\"./resource\");\n\n  Shadowcasting = require(\"./shadowcasting\");\n\n  module.exports = function(I, self) {\n    var fov;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    I.position = Point(I.position);\n    I.sprite = Resource.sprite(I.sprite);\n    I.sight = 7;\n    self.attrAccessor(\"position\", \"sprite\", \"sight\");\n    fov = new Shadowcasting(self.position(), self.sight());\n    fov.tileAt = function() {\n      var args;\n      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n      return self.tileAt.apply(self, args);\n    };\n    self.updateFOV = function() {\n      fov.update(self.position());\n      return fov.calculate();\n    };\n    self.updatePosition = function(newPosition) {\n      self.position(newPosition);\n      return self.updateFOV();\n    };\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=duder.coffee",
       "type": "blob"
     },
     "graph": {
@@ -1244,14 +1244,14 @@ require('./main')
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-11-13T02:42:23Z",
-    "pushed_at": "2013-11-13T02:29:14Z",
+    "updated_at": "2013-11-13T18:42:45Z",
+    "pushed_at": "2013-11-13T18:42:45Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
     "svn_url": "https://github.com/STRd6/tactics",
     "homepage": null,
-    "size": 13332,
+    "size": 1050,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "CoffeeScript",
