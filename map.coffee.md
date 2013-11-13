@@ -1,7 +1,7 @@
 Map
 ===
     Resource = require "./resource"
-    Shadowcasting = require "./shadowcasting"
+    Duder = require "./duder"
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
@@ -38,19 +38,22 @@ Hold the terrain and whatnot for a level.
           opaque: false
 
       duders = [
-        {x: 11, y: 11, sprite: Resource.sprite("human")}
+        Duder 
+          position:
+            x: 11
+            y: 11
+          sprite: "human"
       ]
+
+      duders.forEach (duder) ->
+        duder.tileAt = grid.get
+        duder.updateFOV()
+
       duderAt = (x, y) ->
         duders.filter (duder) ->
-          duder.x is x and duder.y is y
+          position = duder.position()
+          position.x is x and position.y is y
         .first()
-
-      # TODO: Make each character have separate fov
-      duders.forEach (duder) ->
-        fov = new Shadowcasting(duder, 7)
-        fov.tileAt = grid.get
-
-        fov.calculate()
 
       render: (canvas) ->
         canvas.fill I.background
@@ -59,7 +62,7 @@ Hold the terrain and whatnot for a level.
           if !unseen
             sprite.draw(canvas, x * 32, y * 32)
             if duder = duderAt(x, y)
-              duder.sprite.draw(canvas, x * 32, y * 32)
+              duder.sprite().draw(canvas, x * 32, y * 32)
 
             if !lit
               canvas.drawRect
@@ -70,8 +73,10 @@ Hold the terrain and whatnot for a level.
                 color: "rgba(0, 0, 0, 0.5)"
 
       moveDuder: (position) ->
+        duder = duders.first()
+
         path = Graph.aStar
-          initial: Point(duders.first())
+          initial: duder.position()
           goal: position
           neighbors: (position) ->
             [Point(1, 0), Point(-1, 0), Point(0, 1), Point(0, -1)].map (direction) ->
@@ -82,8 +87,4 @@ Hold the terrain and whatnot for a level.
             p.x + p.y # Manhattan distance
 
         if path
-          path.forEach (position) ->
-            fov = new Shadowcasting(position, 7)
-            fov.tileAt = grid.get
-
-            fov.calculate()
+          path.forEach duder.updatePosition
