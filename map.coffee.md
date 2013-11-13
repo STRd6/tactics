@@ -38,7 +38,7 @@ Hold the terrain and whatnot for a level.
           opaque: false
 
       duders = [
-        Duder 
+        Duder
           position:
             x: 11
             y: 11

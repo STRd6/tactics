@@ -21,7 +21,7 @@ Use Shadowcasting for FoV calculations.
       self.updateFOV = ->
         fov.update(self.position())
         fov.calculate()
-      
+
       self.updatePosition = (newPosition) ->
         self.position newPosition
         self.updateFOV()
