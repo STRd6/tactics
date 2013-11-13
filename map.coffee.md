@@ -20,6 +20,20 @@ Hold the terrain and whatnot for a level.
 
     wallSprites = [0..3].map (i) ->
       Resource.sprite("brick_vines#{i}")
+    
+    wall = ->
+      sprite: wallSprites.rand()
+      lit: false
+      unseen: true
+      opaque: true
+      solid: true
+
+    ground = ->
+      sprite: groundSprites[0].rand()
+      lit: false
+      unseen: true
+      opaque: false
+      solid: false
 
     moveDirections = [
       Point(1, 0) 
@@ -34,17 +48,12 @@ Hold the terrain and whatnot for a level.
 
       grid = Grid 32, 18, (x, y) ->
         if x is 12 and y >= 12 or y is 12 and x >= 12
-          sprite: wallSprites.rand()
-          lit: false
-          unseen: true
-          opaque: true
-          solid: true
+          wall()
         else
-          sprite: groundSprites[0].rand()
-          lit: false
-          unseen: true
-          opaque: false
-          solid: false
+          if rand() < 0.10
+            wall()
+          else
+            ground()
 
       duders = [
         Duder
