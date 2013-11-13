@@ -61,9 +61,9 @@ Uses shadowcasting to calculate lighting at specified position
                   tile.unseen = false
 
                   @tiles.push tile
-                  
+
                 if blocked
-                  if tile.blocksSight
+                  if tile.opaque
                     new_start = r_slope
                     continue
                   else
@@ -76,7 +76,7 @@ Uses shadowcasting to calculate lighting at specified position
                     new_start = r_slope
 
           if blocked
-            done = true   
+            done = true
 
       # sets flag lit to false on all tiles within radius of position specified
       @clear = ->
@@ -90,7 +90,8 @@ Uses shadowcasting to calculate lighting at specified position
         @clear()
 
         [0..7].forEach (i) =>
-          @calculateOctant @position.x, @position.y, 1, 1.0, 0.0, @radius, mult[0][i], mult[1][i], mult[2][i], mult[3][i], 0
+          @calculateOctant @position.x, @position.y, 0, 1.0, 0.0, @radius, 
+            mult[0][i], mult[1][i], mult[2][i], mult[3][i], 0
 
         tile = @tileAt position.x, position.y
         tile.lit = true
@@ -101,7 +102,6 @@ Uses shadowcasting to calculate lighting at specified position
       # update the position of the light source
       @update = (position) ->
         @position = position
-        @clear()
         @calculate()
 
       return this
