@@ -40,7 +40,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           icon: Resource.dataURL("new_game")
           perform: ->
             global.map = map = Map()
-            map.render(canvas)
+            update()
 
         Action
           name: "Tutorial"
@@ -51,6 +51,12 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append require("./templates/ui")(ui)
 
+    accessiblePositions = null
+    update = ->
+      map.render(canvas)
+      accessiblePositions = map.accessiblePositions()
+      updateUiCanvas()
+      
     uiCanvas = Canvas
       width: width
       height: height
@@ -58,7 +64,23 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     uiCanvas.on "touch", (position) ->
       tilePosition = position.scale(tileExtent).floor()
 
-      map.moveDuder tilePosition
-      map.render(canvas)
+      inRange = accessiblePositions.reduce (found, position) ->
+        found or position.equal(tilePosition)
+      , false
+
+      if inRange
+        map.moveDuder tilePosition
+        update()
+
+    updateUiCanvas = ->
+      uiCanvas.clear()
+
+      if accessiblePositions
+        accessiblePositions.forEach (position) ->
+          uiCanvas.drawRect
+            color: "rgba(0, 0, 255, 0.25)"
+            position: position.scale(32)
+            width: 32
+            height: 32
 
     $(".ui").prepend uiCanvas.element()

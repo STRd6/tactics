@@ -62,6 +62,16 @@ Hold the terrain and whatnot for a level.
             wall()
           else
             ground()
+            
+      neighbors = (position) ->
+        # TODO: Add diagonals if both edges are passable
+        moveDirections.map (direction) ->
+          position.add(direction)
+        .filter (position) ->
+          tile = grid.get(position)
+          tile and !tile.solid
+        .map (position) ->
+          [position, 1]
 
       duders = [
         Duder
@@ -98,56 +108,62 @@ Hold the terrain and whatnot for a level.
 
       updateVisibleTiles()
 
-      render: (canvas) ->
-        canvas.fill I.background
+      self =
+        render: (canvas) ->
+          canvas.fill I.background
+  
+          grid.each (tile, x, y) ->
+            {sprite, lit, seen} = tile
+            canvasPosition = Point(x, y).scale(32)
+            
+            if seen
+              sprite.draw(canvas, canvasPosition)
+              if duder = duderAt(x, y)
+                duder.sprite().draw(canvas, canvasPosition)
+  
+              tile.features.forEach (feature) ->
+                feature.draw(canvas, canvasPosition)
+  
+              if !lit
+                canvas.drawRect
+                  x: x * 32
+                  y: y * 32
+                  width: 32
+                  height: 32
+                  color: "rgba(0, 0, 0, 0.5)"
+  
+        tileAt: grid.get
+        
+        activeDuder: ->
+          duders.wrap(activeDuderIndex)
 
-        grid.each (tile, x, y) ->
-          {sprite, lit, seen} = tile
-          canvasPosition = Point(x, y).scale(32)
-          
-          if seen
-            sprite.draw(canvas, canvasPosition)
-            if duder = duderAt(x, y)
-              duder.sprite().draw(canvas, canvasPosition)
+        accessiblePositions: ->
+          duder = self.activeDuder()
 
-            tile.features.forEach (feature) ->
-              feature.draw(canvas, canvasPosition)
+          Graph.accessible
+            initial: duder.position()
+            neighbors: neighbors
+            distanceMax: duder.movement()
 
-            if !lit
-              canvas.drawRect
-                x: x * 32
-                y: y * 32
-                width: 32
-                height: 32
-                color: "rgba(0, 0, 0, 0.5)"
+        moveDuder: (position) ->
+          duder = self.activeDuder()
+          activeDuderIndex += 1
+  
+          path = Graph.aStar
+            initial: duder.position()
+            goal: position
+            neighbors: neighbors
+            heuristic: (a, b) ->
+              p = b.subtract(a).abs()
+  
+              p.x + p.y # Manhattan distance
+  
+          if path
+            path.forEach (position) -> 
+              duder.updatePosition position
+              duder.visibleTiles().forEach (tile) ->
+                tile.seen = true
+  
+          updateVisibleTiles()
 
-      tileAt: grid.get
-
-      moveDuder: (position) ->
-        duder = duders.wrap(activeDuderIndex)
-        activeDuderIndex += 1
-
-        path = Graph.aStar
-          initial: duder.position()
-          goal: position
-          neighbors: (position) ->
-            # TODO: Add diagonals if both edges are passable
-            moveDirections.map (direction) ->
-              position.add(direction)
-            .filter (position) ->
-              tile = grid.get(position)
-              tile and !tile.solid
-            .map (position) ->
-              [position, 1]
-          heuristic: (a, b) ->
-            p = b.subtract(a).abs()
-
-            p.x + p.y # Manhattan distance
-
-        if path
-          path.forEach (position) -> 
-            duder.updatePosition position
-            duder.visibleTiles().forEach (tile) ->
-              tile.seen = true
-
-        updateVisibleTiles()
+      return self
