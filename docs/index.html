@@ -53,7 +53,7 @@ tileExtent = Size <span class="number">32</span>, <span class="number">18</span>
 
 bgColor = <span class="string">"#222034"</span>
 
-canvas = Canvas
+global.canvas = canvas = Canvas
   width: width
   height: height
 
@@ -61,7 +61,7 @@ canvas.fill bgColor
 
 $(<span class="string">"body"</span>).append canvas.element()
 
-map = Map()
+global.map = map = Map()
 
 ui =
   actions: Observable [
