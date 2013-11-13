@@ -12,6 +12,22 @@ Multipliers for transforming coordinates into other octants.
       [1, 0, 0, 1, -1, 0, 0, -1]
     ]
 
+    debug = false
+
+    colors = [
+      [1, 0, 0]
+      [0, 1, 0]
+      [0, 0, 1]
+      [1, 1, 0]
+      [0, 1, 1]
+      [1, 0, 1]
+    ].map (values) ->
+      rgb = values.map (value) ->
+        value * 255
+      .join(",")
+
+      "rgba(#{rgb}, 0.125)"
+
     view = (tile) ->
       tile.seen = tile.lit = true
 
@@ -24,7 +40,6 @@ Uses shadowcasting to calculate lighting at specified position
       @position = position
       @radius = radius
 
-      # calculates an octant. Called by the this.calculate when calculating lighting
       @calculateOctant = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
         tile = @tileAt(cx, cy)
 
@@ -34,7 +49,14 @@ Uses shadowcasting to calculate lighting at specified position
         new_start = 0
         return if start < end
         radius_squared = radius * radius
-        i = row
+
+        dx = -row
+        dy = -row
+        X = cx + dx * xx + dy * xy
+        Y = cy + dx * yx + dy * yy
+
+        if id > 0
+          @markTile(Point(X, Y), 4)
 
         return unless row <= radius
         done = false
@@ -50,6 +72,9 @@ Uses shadowcasting to calculate lighting at specified position
             dx += 1
             X = cx + dx * xx + dy * xy
             Y = cy + dx * yx + dy * yy
+
+            d = radius - Math.sqrt(dx * dx + dy * dy)
+            @debugTile(Point(X, Y), "#{d.toFixed(2)}")
 
             if tile = @tileAt(X, Y)
               l_slope = (dx - 0.5) / (dy + 0.5)
@@ -67,40 +92,72 @@ Uses shadowcasting to calculate lighting at specified position
 
                 if blocked
                   if tile.opaque
+                    @markTile(Point(X, Y), 1)
                     new_start = r_slope
                     continue
                   else
+                    @markTile(Point(X, Y), 2)
                     blocked = false
                     start = new_start
                 else
-                  if tile.opaque and i < radius
+                  if tile.opaque
+                    @markTile(Point(X, Y), 0)
                     blocked = true
-                    @calculateOctant cx, cy, i + 1, start, l_slope, radius, 
+                    @calculateOctant cx, cy, i + 1, start, l_slope, radius,
                       xx, xy, yx, yy, id + 1
                     new_start = r_slope
 
           if blocked
             done = true
 
-      # sets flag lit to false on all tiles within radius of position specified
+Clear all tiles we previously lit.
+
       @clear = ->
         @tiles.forEach (tile) ->
           tile.lit = false
 
         @tiles = []
 
-      # sets flag lit to true on all tiles within radius of position specified
+Calculate the field of vision.
+
       @calculate = ->
         @clear()
 
         [0..7].forEach (i) =>
+          xx = mult[0][i]
+          xy = mult[1][i]
+          yx = mult[2][i]
+          yy = mult[3][i]
+
           @calculateOctant @position.x, @position.y, 0, 1.0, 0.0, @radius,
-            mult[0][i], mult[1][i], mult[2][i], mult[3][i], 0
+            xx, xy, yx, yy, 0
 
         tile = @tileAt @position.x, @position.y
 
         view tile
         @tiles.push tile
+
+      @debugTile = (position, message) ->
+        return unless debug
+
+        setTimeout ->
+          message.split("\n").forEach (part, i) ->
+            canvas.centerText
+              position: position.add(Point(0.5, 0.5)).scale(32).add Point(0, i).scale(12)
+              text: part
+              color: "white"
+        , 0
+
+      @markTile = (position, color) ->
+        return unless debug
+
+        setTimeout ->
+          canvas.drawRect
+            position: position.scale(32)
+            width: 32
+            height: 32
+            color: colors[color]
+        , 0
 
       # update the position of the light source
       @update = (position) ->

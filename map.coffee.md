@@ -27,13 +27,18 @@ Hold the terrain and whatnot for a level.
       unseen: true
       opaque: true
       solid: true
+      features: []
 
     ground = ->
+      bush = rand() < 0.1
+    
       sprite: groundSprites[0].rand()
       lit: false
       unseen: true
-      opaque: false
+      opaque: bush
       solid: false
+      features: [0...bush].map ->
+        bushSprites.rand()
 
     moveDirections = [
       Point(1, 0)
@@ -61,7 +66,7 @@ Hold the terrain and whatnot for a level.
             x: 11
             y: 11
           sprite: "human"
-          sight: 13
+          sight: 7
       ]
 
       duders.forEach (duder) ->
@@ -77,11 +82,17 @@ Hold the terrain and whatnot for a level.
       render: (canvas) ->
         canvas.fill I.background
 
-        grid.each ({sprite, lit, seen}, x, y) ->
+        grid.each (tile, x, y) ->
+          {sprite, lit, seen} = tile
+          canvasPosition = Point(x, y).scale(32)
+          
           if seen
-            sprite.draw(canvas, x * 32, y * 32)
+            sprite.draw(canvas, canvasPosition)
             if duder = duderAt(x, y)
-              duder.sprite().draw(canvas, x * 32, y * 32)
+              duder.sprite().draw(canvas, canvasPosition)
+
+            tile.features.forEach (feature) ->
+              feature.draw(canvas, canvasPosition)
 
             if !lit
               canvas.drawRect
