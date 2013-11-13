@@ -106,6 +106,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       <span class="keyword">else</span>
         ground()
 
+  <span class="function"><span class="title">neighbors</span></span> = (position) -&gt;
+    <span class="comment"># TODO: Add diagonals if both edges are passable</span>
+    moveDirections.map (direction) -&gt;
+      position.add(direction)
+    .filter (position) -&gt;
+      tile = grid.get(position)
+      tile <span class="keyword">and</span> !tile.solid
+    .map (position) -&gt;
+      [position, <span class="number">1</span>]
+
   duders = [
     Duder
       position:
@@ -141,59 +151,65 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
   updateVisibleTiles()
 
-  render: (canvas) -&gt;
-    canvas.fill I.background
+  self =
+    render: (canvas) -&gt;
+      canvas.fill I.background
 
-    grid.each (tile, x, y) -&gt;
-      {sprite, lit, seen} = tile
-      canvasPosition = Point(x, y).scale(<span class="number">32</span>)
+      grid.each (tile, x, y) -&gt;
+        {sprite, lit, seen} = tile
+        canvasPosition = Point(x, y).scale(<span class="number">32</span>)
 
-      <span class="keyword">if</span> seen
-        sprite.draw(canvas, canvasPosition)
-        <span class="keyword">if</span> duder = duderAt(x, y)
-          duder.sprite().draw(canvas, canvasPosition)
+        <span class="keyword">if</span> seen
+          sprite.draw(canvas, canvasPosition)
+          <span class="keyword">if</span> duder = duderAt(x, y)
+            duder.sprite().draw(canvas, canvasPosition)
 
-        tile.features.forEach (feature) -&gt;
-          feature.draw(canvas, canvasPosition)
+          tile.features.forEach (feature) -&gt;
+            feature.draw(canvas, canvasPosition)
 
-        <span class="keyword">if</span> !lit
-          canvas.drawRect
-            x: x * <span class="number">32</span>
-            y: y * <span class="number">32</span>
-            width: <span class="number">32</span>
-            height: <span class="number">32</span>
-            color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
+          <span class="keyword">if</span> !lit
+            canvas.drawRect
+              x: x * <span class="number">32</span>
+              y: y * <span class="number">32</span>
+              width: <span class="number">32</span>
+              height: <span class="number">32</span>
+              color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
-  tileAt: grid.get
+    tileAt: grid.get
 
-  moveDuder: (position) -&gt;
-    duder = duders.wrap(activeDuderIndex)
-    activeDuderIndex += <span class="number">1</span>
+    activeDuder: -&gt;
+      duders.wrap(activeDuderIndex)
 
-    path = Graph.aStar
-      initial: duder.position()
-      goal: position
-      neighbors: (position) -&gt;
-        <span class="comment"># TODO: Add diagonals if both edges are passable</span>
-        moveDirections.map (direction) -&gt;
-          position.add(direction)
-        .filter (position) -&gt;
-          tile = grid.get(position)
-          tile <span class="keyword">and</span> !tile.solid
-        .map (position) -&gt;
-          [position, <span class="number">1</span>]
-      heuristic: (a, b) -&gt;
-        p = b.subtract(a).abs()
+    accessiblePositions: -&gt;
+      duder = self.activeDuder()
 
-        p.x + p.y <span class="comment"># Manhattan distance</span>
+      Graph.accessible
+        initial: duder.position()
+        neighbors: neighbors
+        distanceMax: duder.movement()
 
-    <span class="keyword">if</span> path
-      path.forEach (position) -&gt; 
-        duder.updatePosition position
-        duder.visibleTiles().forEach (tile) -&gt;
-          tile.seen = <span class="literal">true</span>
+    moveDuder: (position) -&gt;
+      duder = self.activeDuder()
+      activeDuderIndex += <span class="number">1</span>
 
-    updateVisibleTiles()</code></pre>
+      path = Graph.aStar
+        initial: duder.position()
+        goal: position
+        neighbors: neighbors
+        heuristic: (a, b) -&gt;
+          p = b.subtract(a).abs()
+
+          p.x + p.y <span class="comment"># Manhattan distance</span>
+
+      <span class="keyword">if</span> path
+        path.forEach (position) -&gt; 
+          duder.updatePosition position
+          duder.visibleTiles().forEach (tile) -&gt;
+            tile.seen = <span class="literal">true</span>
+
+      updateVisibleTiles()
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

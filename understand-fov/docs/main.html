@@ -70,7 +70,7 @@ ui =
       icon: Resource.dataURL(<span class="string">"new_game"</span>)
       perform: -&gt;
         global.map = map = Map()
-        map.render(canvas)
+        update()
 
     Action
       name: <span class="string">"Tutorial"</span>
@@ -81,6 +81,12 @@ ui =
 
 $(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)
 
+accessiblePositions = <span class="literal">null</span>
+<span class="function"><span class="title">update</span></span> = -&gt;
+  map.render(canvas)
+  accessiblePositions = map.accessiblePositions()
+  updateUiCanvas()
+
 uiCanvas = Canvas
   width: width
   height: height
@@ -88,8 +94,24 @@ uiCanvas = Canvas
 uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (position) -&gt;
   tilePosition = position.scale(tileExtent).floor()
 
-  map.moveDuder tilePosition
-  map.render(canvas)
+  inRange = accessiblePositions.reduce (found, position) -&gt;
+    found <span class="keyword">or</span> position.equal(tilePosition)
+  , <span class="literal">false</span>
+
+  <span class="keyword">if</span> inRange
+    map.moveDuder tilePosition
+    update()
+
+<span class="function"><span class="title">updateUiCanvas</span></span> = -&gt;
+  uiCanvas.clear()
+
+  <span class="keyword">if</span> accessiblePositions
+    accessiblePositions.forEach (position) -&gt;
+      uiCanvas.drawRect
+        color: <span class="string">"rgba(0, 0, 255, 0.25)"</span>
+        position: position.scale(<span class="number">32</span>)
+        width: <span class="number">32</span>
+        height: <span class="number">32</span>
 
 $(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>
 </div>
