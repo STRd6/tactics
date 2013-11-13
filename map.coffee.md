@@ -4,7 +4,7 @@ Map
     Shadowcasting = require "./shadowcasting"
 
     {Grid} = require "./lib/util"
-    Graph = require ".graph"
+    Graph = require "./graph"
 
 Hold the terrain and whatnot for a level.
 
@@ -49,7 +49,7 @@ Hold the terrain and whatnot for a level.
       duders.forEach (duder) ->
         fov = new Shadowcasting(duder, 7)
         fov.tileAt = grid.get
-  
+
         fov.calculate()
 
       render: (canvas) ->
@@ -85,5 +85,5 @@ Hold the terrain and whatnot for a level.
           path.forEach (position) ->
             fov = new Shadowcasting(position, 7)
             fov.tileAt = grid.get
-      
+
             fov.calculate()

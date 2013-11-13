@@ -11,9 +11,15 @@ Return a path from initial to goal or `undefined` if no path exists.
 Initial and goal are assumed to be nodes that have a toString function that
 uniquely identifies nodes.
 
-      aStar: ({initial, goal, heuristic, neighbors}) ->
+      aStar: ({initial, goal, heuristic, neighbors, equals}) ->
         heuristic ?= -> 0
         neighbors ?= -> []
+        equals ?= (a, b) ->
+          a.toString() == b.toString()
+
+        # Prevent hanging by capping max iterations
+        iterations = 0
+        iterationsMax = 1000
 
         # Table to track our node meta-data
         nodes = {}
@@ -47,9 +53,12 @@ uniquely identifies nodes.
         push initial, null, 0
 
         while openSet.size() > 0
+          return if iterations >= iterationsMax
+          iterations += 1
+
           current = openSet.pop()
 
-          if current is goal
+          if equals current, goal
             return getPath(goal)
 
           neighbors(current).forEach ([node, distance]) ->

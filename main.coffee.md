@@ -31,14 +31,14 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append canvas.element()
 
+    map = Map()
+
     ui =
       actions: Observable [
         Action
           name: "New Game"
           icon: Resource.dataURL("new_game")
           perform: ->
-            map = Map()
-            
             map.render(canvas)
 
         Action
