@@ -84,12 +84,18 @@ A 2d grid of values.
             Grid(width, height, self.get)
 
           get: (x, y) ->
+            if x.x?
+              {x, y} = x
+
             return if x < 0 or x >= width
             return if y < 0 or y >= height
 
             grid[y][x]
 
           set: (x, y, value) ->
+            if x.x?
+              {x, y} = x
+
             return if x < 0 or x >= width
             return if y < 0 or y >= height
 

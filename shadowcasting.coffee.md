@@ -32,7 +32,7 @@ Uses shadowcasting to calculate lighting at specified position
         @tiles.push tile
 
         new_start = 0
-        return  if start < end
+        return if start < end
         radius_squared = radius * radius
         i = row
 
@@ -75,7 +75,8 @@ Uses shadowcasting to calculate lighting at specified position
                 else
                   if tile.opaque and i < radius
                     blocked = true
-                    @calculateOctant cx, cy, i + 1, start, l_slope, radius, xx, xy, yx, yy, id + 1
+                    @calculateOctant cx, cy, i + 1, start, l_slope, radius, 
+                      xx, xy, yx, yy, id + 1
                     new_start = r_slope
 
           if blocked

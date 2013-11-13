@@ -21,6 +21,13 @@ Hold the terrain and whatnot for a level.
     wallSprites = [0..3].map (i) ->
       Resource.sprite("brick_vines#{i}")
 
+    moveDirections = [
+      Point(1, 0) 
+      Point(-1, 0)
+      Point(0, 1)
+      Point(0, -1)
+    ]
+
     module.exports = (I={}) ->
       Object.defaults I,
         background: "#222034"
@@ -31,11 +38,13 @@ Hold the terrain and whatnot for a level.
           lit: false
           unseen: true
           opaque: true
+          solid: true
         else
           sprite: groundSprites[0].rand()
           lit: false
           unseen: true
           opaque: false
+          solid: false
 
       duders = [
         Duder
@@ -81,8 +90,14 @@ Hold the terrain and whatnot for a level.
           initial: duder.position()
           goal: position
           neighbors: (position) ->
-            [Point(1, 0), Point(-1, 0), Point(0, 1), Point(0, -1)].map (direction) ->
-              [position.add(direction), 1]
+            # TODO: Add diagonals if both edges are passable
+            moveDirections.map (direction) ->
+              position.add(direction)
+            .filter (position) ->
+              tile = grid.get(position)
+              tile and !tile.solid
+            .map (position) ->
+              [position, 1]
           heuristic: (a, b) ->
             p = b.subtract(a).abs()
 
