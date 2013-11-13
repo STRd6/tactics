@@ -101,8 +101,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
   render: (canvas) -&gt;
     canvas.fill I.background
 
-    grid.each ({sprite, lit, unseen}, x, y) -&gt;
-      <span class="keyword">if</span> !unseen
+    grid.each ({sprite, lit, seen}, x, y) -&gt;
+      <span class="keyword">if</span> seen
         sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
         <span class="keyword">if</span> duder = duderAt(x, y)
           duder.sprite().draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)

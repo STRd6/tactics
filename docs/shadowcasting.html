@@ -41,7 +41,12 @@
   [<span class="number">0</span>, <span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>]
   [<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>]
   [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, -<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, -<span class="number">1</span>]
-]</code></pre>
+]
+
+<span class="function"><span class="title">view</span></span> = (tile) -&gt;
+  tile.seen = tile.lit = <span class="literal">true</span>
+
+  <span class="keyword">return</span> tile</code></pre>
 </div>
         </li>
         
@@ -62,9 +67,8 @@
   <span class="comment"># calculates an octant. Called by the this.calculate when calculating lighting</span>
   <span class="property">@calculateOctant</span> = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
     tile = <span class="property">@tileAt</span>(cx, cy)
-    tile.lit = <span class="literal">true</span>
-    tile.unseen = <span class="literal">false</span>
 
+    view tile
     <span class="property">@tiles</span>.push tile
 
     new_start = <span class="number">0</span>
@@ -97,8 +101,7 @@
             <span class="keyword">break</span>
           <span class="keyword">else</span>
             <span class="keyword">if</span> dx * dx + dy * dy &lt; radius_squared
-              tile.lit = <span class="literal">true</span>
-              tile.unseen = <span class="literal">false</span>
+              view tile
 
               <span class="property">@tiles</span>.push tile
 
@@ -134,9 +137,8 @@
         mult[<span class="number">0</span>][i], mult[<span class="number">1</span>][i], mult[<span class="number">2</span>][i], mult[<span class="number">3</span>][i], <span class="number">0</span>
 
     tile = <span class="property">@tileAt</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y
-    tile.lit = <span class="literal">true</span>
-    tile.unseen = <span class="literal">false</span>
 
+    view tile
     <span class="property">@tiles</span>.push tile
 
   <span class="comment"># update the position of the light source</span>
