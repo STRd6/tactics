@@ -12,6 +12,11 @@ Multipliers for transforming coordinates into other octants.
       [1, 0, 0, 1, -1, 0, 0, -1]
     ]
 
+    view = (tile) ->
+      tile.seen = tile.lit = true
+
+      return tile
+
 Uses shadowcasting to calculate lighting at specified position
 
     module.exports = (position, radius) ->
@@ -22,9 +27,8 @@ Uses shadowcasting to calculate lighting at specified position
       # calculates an octant. Called by the this.calculate when calculating lighting
       @calculateOctant = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
         tile = @tileAt(cx, cy)
-        tile.lit = true
-        tile.unseen = false
-
+        
+        view tile
         @tiles.push tile
 
         new_start = 0
@@ -57,8 +61,7 @@ Uses shadowcasting to calculate lighting at specified position
                 break
               else
                 if dx * dx + dy * dy < radius_squared
-                  tile.lit = true
-                  tile.unseen = false
+                  view tile
 
                   @tiles.push tile
 
@@ -94,9 +97,8 @@ Uses shadowcasting to calculate lighting at specified position
             mult[0][i], mult[1][i], mult[2][i], mult[3][i], 0
 
         tile = @tileAt @position.x, @position.y
-        tile.lit = true
-        tile.unseen = false
 
+        view tile
         @tiles.push tile
 
       # update the position of the light source

@@ -58,8 +58,8 @@ Hold the terrain and whatnot for a level.
       render: (canvas) ->
         canvas.fill I.background
 
-        grid.each ({sprite, lit, unseen}, x, y) ->
-          if !unseen
+        grid.each ({sprite, lit, seen}, x, y) ->
+          if seen
             sprite.draw(canvas, x * 32, y * 32)
             if duder = duderAt(x, y)
               duder.sprite().draw(canvas, x * 32, y * 32)
