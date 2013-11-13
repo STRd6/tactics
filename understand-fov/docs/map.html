@@ -139,9 +139,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y
     .first()
 
-  render: (canvas) -&gt;
-    updateVisibleTiles()
+  updateVisibleTiles()
 
+  render: (canvas) -&gt;
     canvas.fill I.background
 
     grid.each (tile, x, y) -&gt;
@@ -188,7 +188,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         p.x + p.y <span class="comment"># Manhattan distance</span>
 
     <span class="keyword">if</span> path
-      path.forEach duder.updatePosition</code></pre>
+      path.forEach (position) -&gt; 
+        duder.updatePosition position
+        duder.visibleTiles().forEach (tile) -&gt;
+          tile.seen = <span class="literal">true</span>
+
+    updateVisibleTiles()</code></pre>
 </div>
         </li>
         
