@@ -72,7 +72,7 @@
     <span class="property">@tiles</span>.push tile
 
     new_start = <span class="number">0</span>
-    <span class="keyword">return</span>  <span class="keyword">if</span> start &lt; end
+    <span class="keyword">return</span> <span class="keyword">if</span> start &lt; end
     radius_squared = radius * radius
     i = row
 
@@ -115,7 +115,8 @@
             <span class="keyword">else</span>
               <span class="keyword">if</span> tile.opaque <span class="keyword">and</span> i &lt; radius
                 blocked = <span class="literal">true</span>
-                <span class="property">@calculateOctant</span> cx, cy, i + <span class="number">1</span>, start, l_slope, radius, xx, xy, yx, yy, id + <span class="number">1</span>
+                <span class="property">@calculateOctant</span> cx, cy, i + <span class="number">1</span>, start, l_slope, radius, 
+                  xx, xy, yx, yy, id + <span class="number">1</span>
                 new_start = r_slope
 
       <span class="keyword">if</span> blocked
@@ -133,7 +134,7 @@
     <span class="property">@clear</span>()
 
     [<span class="number">0.</span><span class="number">.7</span>].forEach (i) =&gt;
-      <span class="property">@calculateOctant</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="property">@radius</span>, 
+      <span class="property">@calculateOctant</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, <span class="property">@radius</span>,
         mult[<span class="number">0</span>][i], mult[<span class="number">1</span>][i], mult[<span class="number">2</span>][i], mult[<span class="number">3</span>][i], <span class="number">0</span>
 
     tile = <span class="property">@tileAt</span> <span class="property">@position</span>.x, <span class="property">@position</span>.y

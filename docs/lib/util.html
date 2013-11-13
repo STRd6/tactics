@@ -207,12 +207,18 @@ Size.prototype =
         Grid(width, height, self.get)
 
       get: (x, y) -&gt;
+        <span class="keyword">if</span> x.x?
+          {x, y} = x
+
         <span class="keyword">return</span> <span class="keyword">if</span> x &lt; <span class="number">0</span> <span class="keyword">or</span> x &gt;= width
         <span class="keyword">return</span> <span class="keyword">if</span> y &lt; <span class="number">0</span> <span class="keyword">or</span> y &gt;= height
 
         grid[y][x]
 
       set: (x, y, value) -&gt;
+        <span class="keyword">if</span> x.x?
+          {x, y} = x
+
         <span class="keyword">return</span> <span class="keyword">if</span> x &lt; <span class="number">0</span> <span class="keyword">or</span> x &gt;= width
         <span class="keyword">return</span> <span class="keyword">if</span> y &lt; <span class="number">0</span> <span class="keyword">or</span> y &gt;= height
 

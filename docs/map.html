@@ -64,6 +64,13 @@ bushSprites = [<span class="number">0.</span><span class="number">.3</span>].map
 wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map (i) -&gt;
   Resource.sprite(<span class="string">"brick_vines<span class="subst">#{i}</span>"</span>)
 
+moveDirections = [
+  Point(<span class="number">1</span>, <span class="number">0</span>) 
+  Point(-<span class="number">1</span>, <span class="number">0</span>)
+  Point(<span class="number">0</span>, <span class="number">1</span>)
+  Point(<span class="number">0</span>, -<span class="number">1</span>)
+]
+
 module.<span class="function"><span class="title">exports</span></span> = (I={}) -&gt;
   Object.defaults I,
     background: <span class="string">"#222034"</span>
@@ -74,14 +81,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       lit: <span class="literal">false</span>
       unseen: <span class="literal">true</span>
       opaque: <span class="literal">true</span>
+      solid: <span class="literal">true</span>
     <span class="keyword">else</span>
       sprite: groundSprites[<span class="number">0</span>].rand()
       lit: <span class="literal">false</span>
       unseen: <span class="literal">true</span>
       opaque: <span class="literal">false</span>
+      solid: <span class="literal">false</span>
 
   duders = [
-    Duder 
+    Duder
       position:
         x: <span class="number">11</span>
         y: <span class="number">11</span>
@@ -124,8 +133,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       initial: duder.position()
       goal: position
       neighbors: (position) -&gt;
-        [Point(<span class="number">1</span>, <span class="number">0</span>), Point(-<span class="number">1</span>, <span class="number">0</span>), Point(<span class="number">0</span>, <span class="number">1</span>), Point(<span class="number">0</span>, -<span class="number">1</span>)].map (direction) -&gt;
-          [position.add(direction), <span class="number">1</span>]
+        <span class="comment"># TODO: Add diagonals if both edges are passable</span>
+        moveDirections.map (direction) -&gt;
+          position.add(direction)
+        .filter (position) -&gt;
+          tile = grid.get(position)
+          tile <span class="keyword">and</span> !tile.solid
+        .map (position) -&gt;
+          [position, <span class="number">1</span>]
       heuristic: (a, b) -&gt;
         p = b.subtract(a).abs()
 
