@@ -37,24 +37,19 @@
 <p>Will you conquer the world? Will they all die? That&#39;s between you and the RNG.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># For debug purposes</span>
-global.PACKAGE = PACKAGE
-global.require = require
-
-runtime = require(<span class="string">"runtime"</span>)(PACKAGE)
-runtime.boot()
-runtime.applyStyleSheet(require(<span class="string">'./style'</span>))
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
 
 Canvas = require <span class="string">"touch-canvas"</span>
 Action = require <span class="string">"./action"</span>
 Resource = require <span class="string">"./resource"</span>
-Shadowcasting = require <span class="string">"./shadowcasting"</span>
 Map = require <span class="string">"./map"</span>
 
 {Grid, Size} = require <span class="string">"./lib/util"</span>
 Geom = require <span class="string">"./lib/geom"</span>
 
 {width, height} = require(<span class="string">"./pixie"</span>)
+
+tileExtent = Size <span class="number">32</span>, <span class="number">18</span>
 
 bgColor = <span class="string">"#222034"</span>
 
@@ -65,10 +60,6 @@ canvas = Canvas
 canvas.fill bgColor
 
 $(<span class="string">"body"</span>).append canvas.element()
-
-setTimeout -&gt;
-  allSprites.forEach (sprite, i) -&gt;
-    sprite.draw canvas, (i % <span class="number">32</span>) * <span class="number">32</span>, (i / <span class="number">32</span>).floor() * <span class="number">32</span>
 
 ui =
   actions: Observable [
@@ -87,7 +78,16 @@ ui =
         alert <span class="string">"Experience is the only teacher."</span>
   ]
 
-$(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)</code></pre>
+$(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)
+
+uiCanvas = Canvas
+  width: width
+  height: height
+
+uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (position) -&gt;
+  map.moveDuder position.scale(tileExtent).floor()
+
+$(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>
 </div>
         </li>
         

@@ -37,7 +37,8 @@
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 Shadowcasting = require <span class="string">"./shadowcasting"</span>
 
-{Grid} = require <span class="string">"./lib/util"</span></code></pre>
+{Grid} = require <span class="string">"./lib/util"</span>
+Graph = require <span class="string">".graph"</span></code></pre>
 </div>
         </li>
         
@@ -88,12 +89,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     .first()
 
   <span class="comment"># TODO: Make each character have separate fov</span>
-  fov = <span class="keyword">new</span> Shadowcasting(Point(<span class="number">10</span>, <span class="number">10</span>), <span class="number">7</span>)
-  fov.tileAt = grid.get
+  duders.forEach (duder) -&gt;
+    fov = <span class="keyword">new</span> Shadowcasting(duder, <span class="number">7</span>)
+    fov.tileAt = grid.get
 
-  fov.calculate()
-
-  fov.update Point(<span class="number">11</span>, <span class="number">11</span>)
+    fov.calculate()
 
   render: (canvas) -&gt;
     canvas.fill I.background
@@ -110,7 +110,26 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
             y: y * <span class="number">32</span>
             width: <span class="number">32</span>
             height: <span class="number">32</span>
-            color: <span class="string">"rgba(0, 0, 0, 0.5)"</span></code></pre>
+            color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
+
+  moveDuder: (position) -&gt;
+    path = Graph.aStar
+      initial: Point(duders.first())
+      goal: position
+      neighbors: (position) -&gt;
+        [Point(<span class="number">1</span>, <span class="number">0</span>), Point(-<span class="number">1</span>, <span class="number">0</span>), Point(<span class="number">0</span>, <span class="number">1</span>), Point(<span class="number">0</span>, -<span class="number">1</span>)].map (direction) -&gt;
+          [position.add(direction), <span class="number">1</span>]
+      heuristic: (a, b) -&gt;
+        p = b.subtract(a).abs()
+
+        p.x + p.y <span class="comment"># Manhattan distance</span>
+
+    <span class="keyword">if</span> path
+      path.forEach (position) -&gt;
+        fov = <span class="keyword">new</span> Shadowcasting(position, <span class="number">7</span>)
+        fov.tileAt = grid.get
+
+        fov.calculate()</code></pre>
 </div>
         </li>
         

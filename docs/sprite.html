@@ -78,6 +78,9 @@ draw anything to the screen until the image has been loaded.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">  draw: (canvas, x, y) -&gt;
+    <span class="keyword">if</span> x.x?
+      {x, y} = x
+
     canvas.drawImage(
       image,
       sourceX,
@@ -192,8 +195,8 @@ image is loaded. The sprite proxy data is passed to it as the only parameter.</p
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Load a sprite with the given name. The first parameter is name The name of the 
-image in your images directory. The second parameter is a callback function to 
+              <p>Load a sprite with the given name. The first parameter is name The name of the
+image in your images directory. The second parameter is a callback function to
 execute once the image is loaded. The sprite proxy data is passed to this as a parameter.</p>
 
             </div>
