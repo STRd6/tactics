@@ -202,6 +202,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         neighbors: neighborsVisible
         distanceMax: duder.movement()
 
+    updateDuder: -&gt;
+      duder = self.activeDuder()
+
+      <span class="keyword">if</span> duder.actions() <span class="keyword">is</span> <span class="number">0</span>
+        activeDuderIndex += <span class="number">1</span>
+
+        <span class="comment"># TODO: Maybe move this into a separate ready step for each squad</span>
+        duder.ready()
+
     moveDuder: (position) -&gt;
       duder = self.activeDuder()
 
@@ -222,9 +231,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
         duder.move path.last()
 
-        <span class="keyword">if</span> duder.actions() <span class="keyword">is</span> <span class="number">0</span>
-          activeDuderIndex += <span class="number">1</span>
-          duder.ready()
+        self.updateDuder()
 
       updateVisibleTiles()
 

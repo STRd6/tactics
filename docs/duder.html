@@ -38,6 +38,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 Shadowcasting = require <span class="string">"./shadowcasting"</span>
+Action = require <span class="string">"./action"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
@@ -47,7 +48,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     sight: <span class="number">7</span>
     movement: <span class="number">4</span>
     health: <span class="number">3</span>
-    healthMax: <span class="number">4</span>
+    healthMax: <span class="number">3</span>
     actions: <span class="number">2</span>
 
   self.attrAccessor(
@@ -88,6 +89,20 @@ any status effects.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript">  self.<span class="function"><span class="title">ready</span></span> = -&gt;
     I.actions = <span class="number">2</span>
+
+  self.<span class="function"><span class="title">uiActions</span></span> = -&gt;
+    [
+      Action
+        name: <span class="string">"Move"</span>
+        icon: <span class="string">"boots"</span>
+        perform: -&gt;
+          <span class="comment"># TODO</span>
+      Action
+        name: <span class="string">"Wait"</span>
+        icon: <span class="string">"hourglass"</span>
+        perform: -&gt;
+          I.actions = <span class="number">0</span>
+    ]
 
   <span class="keyword">return</span> self</code></pre>
 </div>

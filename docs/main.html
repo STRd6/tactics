@@ -68,27 +68,33 @@ ui =
   actions: Observable [
     Action
       name: <span class="string">"New Game"</span>
-      icon: Resource.dataURL(<span class="string">"new_game"</span>)
+      icon: <span class="string">"new_game"</span>
       perform: -&gt;
         global.map = map = Map()
         update()
 
     Action
       name: <span class="string">"Tutorial"</span>
-      icon: Resource.dataURL(<span class="string">"book"</span>)
+      icon: <span class="string">"book"</span>
       perform: -&gt;
         alert <span class="string">"Experience is the only teacher."</span>
   ]
+  actionPerformed: -&gt;
+    update()
 
 $(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)
 
 accessiblePositions = <span class="literal">null</span>
 activeCharacter = <span class="literal">null</span>
+
 <span class="function"><span class="title">update</span></span> = -&gt;
-  map.render(canvas)
-  accessiblePositions = map.accessiblePositions()
-  activeCharacter = map.activeDuder()
-  updateUiCanvas()
+  <span class="keyword">if</span> map
+    map.updateDuder()
+    map.render(canvas)
+    accessiblePositions = map.accessiblePositions()
+    activeCharacter = map.activeDuder()
+    updateUiCanvas()
+    ui.actions activeCharacter.uiActions()
 
 uiCanvas = Canvas
   width: width
