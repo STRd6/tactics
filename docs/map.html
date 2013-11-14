@@ -113,6 +113,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     .filter (position) -&gt;
       tile = grid.get(position)
       tile <span class="keyword">and</span> !tile.solid
+    .filter ({x, y}) -&gt;
+      !duderAt(x, y)
     .map (position) -&gt;
       [position, <span class="number">1</span>]
 
@@ -123,6 +125,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     .filter (position) -&gt;
       tile = grid.get(position)
       tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit
+    .filter ({x, y}) -&gt;
+      !duderAt(x, y)
     .map (position) -&gt;
       [position, <span class="number">1</span>]
 
