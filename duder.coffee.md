@@ -12,19 +12,18 @@ Use Shadowcasting for FoV calculations.
       I.position = Point(I.position)
       I.sprite = Resource.sprite(I.sprite)
       I.sight ?= 7
+      I.movement ?= 5
 
-      self.attrAccessor "position", "sprite", "sight"
+      self.attrAccessor "position", "sprite", "sight", "movement"
 
-      fov = new Shadowcasting(self.position(), self.sight())
+      fov = new Shadowcasting()
       fov.tileAt = (args...) ->
         self.tileAt(args...)
 
-      self.updateFOV = ->
-        fov.update(self.position())
-        fov.calculate()
+      self.visibleTiles = ->
+        fov.calculate(self.position(), self.sight())
 
       self.updatePosition = (newPosition) ->
         self.position newPosition
-        self.updateFOV()
 
       return self

@@ -24,16 +24,21 @@ Hold the terrain and whatnot for a level.
     wall = ->
       sprite: wallSprites.rand()
       lit: false
-      unseen: true
+      seen: false
       opaque: true
       solid: true
+      features: []
 
     ground = ->
+      bush = rand() < 0.1
+    
       sprite: groundSprites[0].rand()
       lit: false
-      unseen: true
-      opaque: false
+      seen: false
+      opaque: bush
       solid: false
+      features: [0...bush].map ->
+        bushSprites.rand()
 
     moveDirections = [
       Point(1, 0)
@@ -47,13 +52,26 @@ Hold the terrain and whatnot for a level.
         background: "#222034"
 
       grid = Grid 32, 18, (x, y) ->
-        if x is 12 and y >= 12 or y is 12 and x >= 12
-          wall()
+        if (x is 12 and y >= 12 or y is 12 and x >= 12)
+          if (x is 20 and y is 12)
+            ground()
+          else
+            wall()
         else
           if rand() < 0.10
             wall()
           else
             ground()
+            
+      neighbors = (position) ->
+        # TODO: Add diagonals if both edges are passable
+        moveDirections.map (direction) ->
+          position.add(direction)
+        .filter (position) ->
+          tile = grid.get(position)
+          tile and !tile.solid
+        .map (position) ->
+          [position, 1]
 
       duders = [
         Duder
@@ -61,12 +79,26 @@ Hold the terrain and whatnot for a level.
             x: 11
             y: 11
           sprite: "human"
-          sight: 13
+          sight: 7
+        Duder
+          position:
+            x: 20
+            y: 15
+          sprite: "goblin"
+          sight: 7
       ]
+      activeDuderIndex = 0
 
       duders.forEach (duder) ->
         duder.tileAt = grid.get
-        duder.updateFOV()
+
+      updateVisibleTiles = ->
+        grid.each (tile) ->
+          tile.lit = false
+
+        duders.forEach (duder) ->
+          duder.visibleTiles().forEach (tile) ->
+            tile.seen = tile.lit = true
 
       duderAt = (x, y) ->
         duders.filter (duder) ->
@@ -74,44 +106,64 @@ Hold the terrain and whatnot for a level.
           position.x is x and position.y is y
         .first()
 
-      render: (canvas) ->
-        canvas.fill I.background
+      updateVisibleTiles()
 
-        grid.each ({sprite, lit, seen}, x, y) ->
-          if seen
-            sprite.draw(canvas, x * 32, y * 32)
-            if duder = duderAt(x, y)
-              duder.sprite().draw(canvas, x * 32, y * 32)
+      self =
+        render: (canvas) ->
+          canvas.fill I.background
+  
+          grid.each (tile, x, y) ->
+            {sprite, lit, seen} = tile
+            canvasPosition = Point(x, y).scale(32)
+            
+            if seen
+              sprite.draw(canvas, canvasPosition)
+              if duder = duderAt(x, y)
+                duder.sprite().draw(canvas, canvasPosition)
+  
+              tile.features.forEach (feature) ->
+                feature.draw(canvas, canvasPosition)
+  
+              if !lit
+                canvas.drawRect
+                  x: x * 32
+                  y: y * 32
+                  width: 32
+                  height: 32
+                  color: "rgba(0, 0, 0, 0.5)"
+  
+        tileAt: grid.get
+        
+        activeDuder: ->
+          duders.wrap(activeDuderIndex)
 
-            if !lit
-              canvas.drawRect
-                x: x * 32
-                y: y * 32
-                width: 32
-                height: 32
-                color: "rgba(0, 0, 0, 0.5)"
+        accessiblePositions: ->
+          duder = self.activeDuder()
 
-      tileAt: grid.get
+          Graph.accessible
+            initial: duder.position()
+            neighbors: neighbors
+            distanceMax: duder.movement()
 
-      moveDuder: (position) ->
-        duder = duders.first()
+        moveDuder: (position) ->
+          duder = self.activeDuder()
+          activeDuderIndex += 1
+  
+          path = Graph.aStar
+            initial: duder.position()
+            goal: position
+            neighbors: neighbors
+            heuristic: (a, b) ->
+              p = b.subtract(a).abs()
+  
+              p.x + p.y # Manhattan distance
+  
+          if path
+            path.forEach (position) -> 
+              duder.updatePosition position
+              duder.visibleTiles().forEach (tile) ->
+                tile.seen = true
+  
+          updateVisibleTiles()
 
-        path = Graph.aStar
-          initial: duder.position()
-          goal: position
-          neighbors: (position) ->
-            # TODO: Add diagonals if both edges are passable
-            moveDirections.map (direction) ->
-              position.add(direction)
-            .filter (position) ->
-              tile = grid.get(position)
-              tile and !tile.solid
-            .map (position) ->
-              [position, 1]
-          heuristic: (a, b) ->
-            p = b.subtract(a).abs()
-
-            p.x + p.y # Manhattan distance
-
-        if path
-          path.forEach duder.updatePosition
+      return self
