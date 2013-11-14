@@ -70,6 +70,8 @@ Hold the terrain and whatnot for a level.
         .filter (position) ->
           tile = grid.get(position)
           tile and !tile.solid
+        .filter ({x, y}) ->
+          !duderAt(x, y)
         .map (position) ->
           [position, 1]
 
@@ -80,6 +82,8 @@ Hold the terrain and whatnot for a level.
         .filter (position) ->
           tile = grid.get(position)
           tile and !tile.solid and tile.lit
+        .filter ({x, y}) ->
+          !duderAt(x, y)
         .map (position) ->
           [position, 1]
 
