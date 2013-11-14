@@ -31,7 +31,7 @@ Hold the terrain and whatnot for a level.
 
     ground = ->
       bush = rand() < 0.1
-    
+
       sprite: groundSprites[0].rand()
       lit: false
       seen: false
@@ -62,7 +62,7 @@ Hold the terrain and whatnot for a level.
             wall()
           else
             ground()
-            
+
       neighbors = (position) ->
         # TODO: Add diagonals if both edges are passable
         moveDirections.map (direction) ->
@@ -70,6 +70,16 @@ Hold the terrain and whatnot for a level.
         .filter (position) ->
           tile = grid.get(position)
           tile and !tile.solid
+        .map (position) ->
+          [position, 1]
+
+      neighborsVisible = (position) ->
+        # TODO: Add diagonals if both edges are passable
+        moveDirections.map (direction) ->
+          position.add(direction)
+        .filter (position) ->
+          tile = grid.get(position)
+          tile and !tile.solid and tile.lit
         .map (position) ->
           [position, 1]
 
@@ -111,19 +121,19 @@ Hold the terrain and whatnot for a level.
       self =
         render: (canvas) ->
           canvas.fill I.background
-  
+
           grid.each (tile, x, y) ->
             {sprite, lit, seen} = tile
             canvasPosition = Point(x, y).scale(32)
-            
+
             if seen
               sprite.draw(canvas, canvasPosition)
               if duder = duderAt(x, y)
                 duder.sprite().draw(canvas, canvasPosition)
-  
+
               tile.features.forEach (feature) ->
                 feature.draw(canvas, canvasPosition)
-  
+
               if !lit
                 canvas.drawRect
                   x: x * 32
@@ -131,9 +141,9 @@ Hold the terrain and whatnot for a level.
                   width: 32
                   height: 32
                   color: "rgba(0, 0, 0, 0.5)"
-  
+
         tileAt: grid.get
-        
+
         activeDuder: ->
           duders.wrap(activeDuderIndex)
 
@@ -142,28 +152,33 @@ Hold the terrain and whatnot for a level.
 
           Graph.accessible
             initial: duder.position()
-            neighbors: neighbors
+            neighbors: neighborsVisible
             distanceMax: duder.movement()
 
         moveDuder: (position) ->
           duder = self.activeDuder()
-          activeDuderIndex += 1
-  
+
           path = Graph.aStar
             initial: duder.position()
             goal: position
-            neighbors: neighbors
+            neighbors: neighborsVisible
             heuristic: (a, b) ->
               p = b.subtract(a).abs()
-  
+
               p.x + p.y # Manhattan distance
-  
+
           if path
-            path.forEach (position) -> 
+            path.forEach (position) ->
               duder.updatePosition position
               duder.visibleTiles().forEach (tile) ->
                 tile.seen = true
-  
+
+            duder.move path.last()
+
+            if duder.actions() is 0
+              activeDuderIndex += 1
+              duder.ready()
+
           updateVisibleTiles()
 
       return self

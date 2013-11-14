@@ -13,6 +13,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Action = require "./action"
     Resource = require "./resource"
     Map = require "./map"
+    CharacterUI = require "./character_ui"
 
     {Grid, Size} = require "./lib/util"
     Geom = require "./lib/geom"
@@ -52,9 +53,11 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     $("body").append require("./templates/ui")(ui)
 
     accessiblePositions = null
+    activeCharacter = null
     update = ->
       map.render(canvas)
       accessiblePositions = map.accessiblePositions()
+      activeCharacter = map.activeDuder()
       updateUiCanvas()
 
     uiCanvas = Canvas
@@ -70,7 +73,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
       if inRange
         map.moveDuder tilePosition
-        update()
+        update()      
 
     updateUiCanvas = ->
       uiCanvas.clear()
@@ -78,9 +81,13 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       if accessiblePositions
         accessiblePositions.forEach (position) ->
           uiCanvas.drawRect
-            color: "rgba(0, 0, 255, 0.25)"
+            stroke:
+              color: "#00F"
             position: position.scale(32)
             width: 32
             height: 32
+
+      if activeCharacter
+        CharacterUI.tactical(uiCanvas, activeCharacter)
 
     $(".ui").prepend uiCanvas.element()
