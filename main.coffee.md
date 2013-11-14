@@ -56,7 +56,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       map.render(canvas)
       accessiblePositions = map.accessiblePositions()
       updateUiCanvas()
-      
+
     uiCanvas = Canvas
       width: width
       height: height
