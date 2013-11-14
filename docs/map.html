@@ -116,6 +116,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     .map (position) -&gt;
       [position, <span class="number">1</span>]
 
+  <span class="function"><span class="title">neighborsVisible</span></span> = (position) -&gt;
+    <span class="comment"># TODO: Add diagonals if both edges are passable</span>
+    moveDirections.map (direction) -&gt;
+      position.add(direction)
+    .filter (position) -&gt;
+      tile = grid.get(position)
+      tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit
+    .map (position) -&gt;
+      [position, <span class="number">1</span>]
+
   duders = [
     Duder
       position:
@@ -185,27 +195,32 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
       Graph.accessible
         initial: duder.position()
-        neighbors: neighbors
+        neighbors: neighborsVisible
         distanceMax: duder.movement()
 
     moveDuder: (position) -&gt;
       duder = self.activeDuder()
-      activeDuderIndex += <span class="number">1</span>
 
       path = Graph.aStar
         initial: duder.position()
         goal: position
-        neighbors: neighbors
+        neighbors: neighborsVisible
         heuristic: (a, b) -&gt;
           p = b.subtract(a).abs()
 
           p.x + p.y <span class="comment"># Manhattan distance</span>
 
       <span class="keyword">if</span> path
-        path.forEach (position) -&gt; 
+        path.forEach (position) -&gt;
           duder.updatePosition position
           duder.visibleTiles().forEach (tile) -&gt;
             tile.seen = <span class="literal">true</span>
+
+        duder.move path.last()
+
+        <span class="keyword">if</span> duder.actions() <span class="keyword">is</span> <span class="number">0</span>
+          activeDuderIndex += <span class="number">1</span>
+          duder.ready()
 
       updateVisibleTiles()
 

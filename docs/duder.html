@@ -42,10 +42,21 @@ Shadowcasting = require <span class="string">"./shadowcasting"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
   I.sprite = Resource.sprite(I.sprite)
-  I.sight ?= <span class="number">7</span>
-  I.movement ?= <span class="number">5</span>
 
-  self.attrAccessor <span class="string">"position"</span>, <span class="string">"sprite"</span>, <span class="string">"sight"</span>, <span class="string">"movement"</span>
+  Object.defaults I,
+    sight: <span class="number">7</span>
+    movement: <span class="number">4</span>
+    health: <span class="number">3</span>
+    healthMax: <span class="number">3</span>
+    actions: <span class="number">2</span>
+
+  self.attrAccessor(
+    <span class="string">"actions"</span>
+    <span class="string">"movement"</span>
+    <span class="string">"position"</span>
+    <span class="string">"sprite"</span>
+    <span class="string">"sight"</span>
+  )
 
   fov = <span class="keyword">new</span> Shadowcasting()
   fov.<span class="function"><span class="title">tileAt</span></span> = (args...) -&gt;
@@ -54,8 +65,27 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.<span class="function"><span class="title">visibleTiles</span></span> = -&gt;
     fov.calculate(self.position(), self.sight())
 
-  self.<span class="function"><span class="title">updatePosition</span></span> = (newPosition) -&gt;
+  self.<span class="function"><span class="title">move</span></span> = (newPosition) -&gt;
+    I.actions -= <span class="number">1</span>
     self.position newPosition
+
+  self.<span class="function"><span class="title">updatePosition</span></span> = (newPosition) -&gt;
+    self.position newPosition</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Ready is called at the beginning of each turn. It resets the actions and processes
+any status effects.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">  self.<span class="function"><span class="title">ready</span></span> = -&gt;
+    I.actions = <span class="number">2</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>
