@@ -16,11 +16,13 @@ Use Shadowcasting for FoV calculations.
         sight: 7
         movement: 4
         health: 3
-        healthMax: 3
+        healthMax: 4
         actions: 2
 
       self.attrAccessor(
         "actions"
+        "health"
+        "healthMax"
         "movement"
         "position"
         "sprite"

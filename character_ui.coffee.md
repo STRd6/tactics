@@ -3,9 +3,21 @@ Character UI
 
 Methods for drawing components of the character ui.
 
+    Resource = require "./resource"
     {Size} = require "./lib/util"
 
     tileSize = Size(32, 32)
+
+    heartSprite = Resource.sprite("heart")
+    heartEmptySprite = Resource.sprite("heart_empty")
+
+    drawHealth = (canvas, health, max) ->
+      max.times (i) ->
+        x = i * 10
+        if i < health
+          heartSprite.draw(canvas, x, 0)
+        else
+          heartEmptySprite.draw(canvas, x, 0)
 
     drawActions = (canvas, n) ->
       n.times (i) ->
@@ -31,3 +43,4 @@ Draw the tactical overlay, indicating actions, health, max health.
 
         canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) ->
           drawActions(canvas, character.actions())
+          drawHealth(canvas, character.health(), character.healthMax())
