@@ -38,7 +38,7 @@ Draw the tactical overlay, indicating actions, health, max health.
       tactical: (canvas, character, color="blue") ->
         position = character.position()
         canvasPosition = position.scale(tileSize)
-        
+
         console.log canvasPosition
 
         canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) ->

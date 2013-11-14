@@ -1,10 +1,19 @@
 Map
 ===
+    Ability = require "./ability"
     Resource = require "./resource"
     Duder = require "./duder"
+    MapSearch = require "./map_search"
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
+    
+    moveDirections = [
+      Point(1, 0)
+      Point(-1, 0)
+      Point(0, 1)
+      Point(0, -1)
+    ]
 
 Hold the terrain and whatnot for a level.
 
@@ -40,13 +49,6 @@ Hold the terrain and whatnot for a level.
       features: [0...bush].map ->
         bushSprites.rand()
 
-    moveDirections = [
-      Point(1, 0)
-      Point(-1, 0)
-      Point(0, 1)
-      Point(0, -1)
-    ]
-
     module.exports = (I={}) ->
       Object.defaults I,
         background: "#222034"
@@ -62,30 +64,6 @@ Hold the terrain and whatnot for a level.
             wall()
           else
             ground()
-
-      neighbors = (position) ->
-        # TODO: Add diagonals if both edges are passable
-        moveDirections.map (direction) ->
-          position.add(direction)
-        .filter (position) ->
-          tile = grid.get(position)
-          tile and !tile.solid
-        .filter ({x, y}) ->
-          !duderAt(x, y)
-        .map (position) ->
-          [position, 1]
-
-      neighborsVisible = (position) ->
-        # TODO: Add diagonals if both edges are passable
-        moveDirections.map (direction) ->
-          position.add(direction)
-        .filter (position) ->
-          tile = grid.get(position)
-          tile and !tile.solid and tile.lit
-        .filter ({x, y}) ->
-          !duderAt(x, y)
-        .map (position) ->
-          [position, 1]
 
       duders = [
         Duder
@@ -115,12 +93,17 @@ Hold the terrain and whatnot for a level.
             tile.seen = tile.lit = true
 
       duderAt = (x, y) ->
+        if x.x?
+          {x, y} = x
+
         duders.filter (duder) ->
           position = duder.position()
           position.x is x and position.y is y
         .first()
 
       updateVisibleTiles()
+
+      search = MapSearch(grid.get, duderAt)
 
       self =
         render: (canvas) ->
@@ -146,18 +129,13 @@ Hold the terrain and whatnot for a level.
                   height: 32
                   color: "rgba(0, 0, 0, 0.5)"
 
-        tileAt: grid.get
-
         activeDuder: ->
           duders.wrap(activeDuderIndex)
 
         accessiblePositions: ->
           duder = self.activeDuder()
 
-          Graph.accessible
-            initial: duder.position()
-            neighbors: neighborsVisible
-            distanceMax: duder.movement()
+          search.accessible(duder)
 
         updateDuder: ->
           duder = self.activeDuder()
@@ -171,14 +149,7 @@ Hold the terrain and whatnot for a level.
         moveDuder: (position) ->
           duder = self.activeDuder()
 
-          path = Graph.aStar
-            initial: duder.position()
-            goal: position
-            neighbors: neighborsVisible
-            heuristic: (a, b) ->
-              p = b.subtract(a).abs()
-
-              p.x + p.y # Manhattan distance
+          path = search.movementPath(duder, position)
 
           if path
             path.forEach (position) ->

@@ -79,7 +79,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
       if inRange
         map.moveDuder tilePosition
-        update()      
+        update()
 
     updateUiCanvas = ->
       uiCanvas.clear()

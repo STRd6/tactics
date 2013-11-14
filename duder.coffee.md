@@ -8,6 +8,7 @@ Use Shadowcasting for FoV calculations.
     Resource = require "./resource"
     Shadowcasting = require "./shadowcasting"
     Action = require "./action"
+    Ability = require "./ability"
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
@@ -41,6 +42,8 @@ Use Shadowcasting for FoV calculations.
         I.actions -= 1
         self.position newPosition
 
+      self.targettingAbility = Observable()
+
       self.updatePosition = (newPosition) ->
         self.position newPosition
 
@@ -50,18 +53,36 @@ any status effects.
       self.ready = ->
         I.actions = 2
 
+      abilities = [
+        Ability
+          name: "Move"
+          iconName: "boots"
+          range: (character) ->
+            character.movement()
+          actionCost: 1
+          targetType: Ability.TARGET_TYPE.MOVEMENT
+          perform: () ->
+
+        Ability
+          name: "Wait"
+          iconName: "hourglass"
+          actionCost: 1
+          costType: Ability.COST_TYPE.REST
+          targetType: Ability.TARGET_TYPE.SELF
+          perform: (self) ->
+
+      ]
+
       self.uiActions = ->
-        [
+        abilities.map (ability) ->
           Action
-            name: "Move"
-            icon: "boots"
+            name: ability.name()
+            icon: ability.iconName()
             perform: ->
-              # TODO
-          Action
-            name: "Wait"
-            icon: "hourglass"
-            perform: ->
-              I.actions = 0
-        ]
+              switch ability.targetType
+                when TARGET_TYPE.SELF
+                  ability.perform(self)
+                when TARGET_TYPE.MOVEMENT
+                  ; # TODO
 
       return self
