@@ -7,7 +7,7 @@ Map
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
-    
+
     moveDirections = [
       Point(1, 0)
       Point(-1, 0)
