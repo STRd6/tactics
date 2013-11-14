@@ -159,6 +159,15 @@ Hold the terrain and whatnot for a level.
             neighbors: neighborsVisible
             distanceMax: duder.movement()
 
+        updateDuder: ->
+          duder = self.activeDuder()
+
+          if duder.actions() is 0
+            activeDuderIndex += 1
+
+            # TODO: Maybe move this into a separate ready step for each squad
+            duder.ready()
+
         moveDuder: (position) ->
           duder = self.activeDuder()
 
@@ -179,9 +188,7 @@ Hold the terrain and whatnot for a level.
 
             duder.move path.last()
 
-            if duder.actions() is 0
-              activeDuderIndex += 1
-              duder.ready()
+            self.updateDuder()
 
           updateVisibleTiles()
 

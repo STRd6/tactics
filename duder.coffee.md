@@ -7,6 +7,7 @@ Use Shadowcasting for FoV calculations.
 
     Resource = require "./resource"
     Shadowcasting = require "./shadowcasting"
+    Action = require "./action"
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
@@ -16,7 +17,7 @@ Use Shadowcasting for FoV calculations.
         sight: 7
         movement: 4
         health: 3
-        healthMax: 4
+        healthMax: 3
         actions: 2
 
       self.attrAccessor(
@@ -48,5 +49,19 @@ any status effects.
 
       self.ready = ->
         I.actions = 2
+
+      self.uiActions = ->
+        [
+          Action
+            name: "Move"
+            icon: "boots"
+            perform: ->
+              # TODO
+          Action
+            name: "Wait"
+            icon: "hourglass"
+            perform: ->
+              I.actions = 0
+        ]
 
       return self

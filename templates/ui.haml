@@ -1,6 +1,9 @@
 .ui
   .actions
+    - ui = this
     - each @actions, (action) ->
       .action(style="background-image: url(#{action.icon})")
         = action.name
-        - on "click", action.perform
+        - on "click", ->
+          - action.perform()
+          - ui.actionPerformed()

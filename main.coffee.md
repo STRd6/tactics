@@ -38,27 +38,33 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       actions: Observable [
         Action
           name: "New Game"
-          icon: Resource.dataURL("new_game")
+          icon: "new_game"
           perform: ->
             global.map = map = Map()
             update()
 
         Action
           name: "Tutorial"
-          icon: Resource.dataURL("book")
+          icon: "book"
           perform: ->
             alert "Experience is the only teacher."
       ]
+      actionPerformed: ->
+        update()
 
     $("body").append require("./templates/ui")(ui)
 
     accessiblePositions = null
     activeCharacter = null
+
     update = ->
-      map.render(canvas)
-      accessiblePositions = map.accessiblePositions()
-      activeCharacter = map.activeDuder()
-      updateUiCanvas()
+      if map
+        map.updateDuder()
+        map.render(canvas)
+        accessiblePositions = map.accessiblePositions()
+        activeCharacter = map.activeDuder()
+        updateUiCanvas()
+        ui.actions activeCharacter.uiActions()
 
     uiCanvas = Canvas
       width: width
