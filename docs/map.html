@@ -34,11 +34,20 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
+Resource = require <span class="string">"./resource"</span>
 Duder = require <span class="string">"./duder"</span>
+MapSearch = require <span class="string">"./map_search"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span>
-Graph = require <span class="string">"./graph"</span></code></pre>
+Graph = require <span class="string">"./graph"</span>
+
+moveDirections = [
+  Point(<span class="number">1</span>, <span class="number">0</span>)
+  Point(-<span class="number">1</span>, <span class="number">0</span>)
+  Point(<span class="number">0</span>, <span class="number">1</span>)
+  Point(<span class="number">0</span>, -<span class="number">1</span>)
+]</code></pre>
 </div>
         </li>
         
@@ -83,13 +92,6 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
   features: [<span class="number">0.</span>..bush].map -&gt;
     bushSprites.rand()
 
-moveDirections = [
-  Point(<span class="number">1</span>, <span class="number">0</span>)
-  Point(-<span class="number">1</span>, <span class="number">0</span>)
-  Point(<span class="number">0</span>, <span class="number">1</span>)
-  Point(<span class="number">0</span>, -<span class="number">1</span>)
-]
-
 module.<span class="function"><span class="title">exports</span></span> = (I={}) -&gt;
   Object.defaults I,
     background: <span class="string">"#222034"</span>
@@ -105,30 +107,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         wall()
       <span class="keyword">else</span>
         ground()
-
-  <span class="function"><span class="title">neighbors</span></span> = (position) -&gt;
-    <span class="comment"># TODO: Add diagonals if both edges are passable</span>
-    moveDirections.map (direction) -&gt;
-      position.add(direction)
-    .filter (position) -&gt;
-      tile = grid.get(position)
-      tile <span class="keyword">and</span> !tile.solid
-    .filter ({x, y}) -&gt;
-      !duderAt(x, y)
-    .map (position) -&gt;
-      [position, <span class="number">1</span>]
-
-  <span class="function"><span class="title">neighborsVisible</span></span> = (position) -&gt;
-    <span class="comment"># TODO: Add diagonals if both edges are passable</span>
-    moveDirections.map (direction) -&gt;
-      position.add(direction)
-    .filter (position) -&gt;
-      tile = grid.get(position)
-      tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit
-    .filter ({x, y}) -&gt;
-      !duderAt(x, y)
-    .map (position) -&gt;
-      [position, <span class="number">1</span>]
 
   duders = [
     Duder
@@ -158,12 +136,17 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         tile.seen = tile.lit = <span class="literal">true</span>
 
   <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
+    <span class="keyword">if</span> x.x?
+      {x, y} = x
+
     duders.filter (duder) -&gt;
       position = duder.position()
       position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y
     .first()
 
   updateVisibleTiles()
+
+  search = MapSearch(grid.get, duderAt)
 
   self =
     render: (canvas) -&gt;
@@ -189,18 +172,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
               height: <span class="number">32</span>
               color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
-    tileAt: grid.get
-
     activeDuder: -&gt;
       duders.wrap(activeDuderIndex)
 
     accessiblePositions: -&gt;
       duder = self.activeDuder()
 
-      Graph.accessible
-        initial: duder.position()
-        neighbors: neighborsVisible
-        distanceMax: duder.movement()
+      search.accessible(duder)
 
     updateDuder: -&gt;
       duder = self.activeDuder()
@@ -214,14 +192,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     moveDuder: (position) -&gt;
       duder = self.activeDuder()
 
-      path = Graph.aStar
-        initial: duder.position()
-        goal: position
-        neighbors: neighborsVisible
-        heuristic: (a, b) -&gt;
-          p = b.subtract(a).abs()
-
-          p.x + p.y <span class="comment"># Manhattan distance</span>
+      path = search.movementPath(duder, position)
 
       <span class="keyword">if</span> path
         path.forEach (position) -&gt;

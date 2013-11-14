@@ -39,6 +39,7 @@
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 Shadowcasting = require <span class="string">"./shadowcasting"</span>
 Action = require <span class="string">"./action"</span>
+Ability = require <span class="string">"./ability"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
@@ -72,6 +73,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     I.actions -= <span class="number">1</span>
     self.position newPosition
 
+  self.targettingAbility = Observable()
+
   self.<span class="function"><span class="title">updatePosition</span></span> = (newPosition) -&gt;
     self.position newPosition</code></pre>
 </div>
@@ -90,19 +93,37 @@ any status effects.</p>
             <div class="content"><pre><code class="lang-coffeescript">  self.<span class="function"><span class="title">ready</span></span> = -&gt;
     I.actions = <span class="number">2</span>
 
+  abilities = [
+    Ability
+      name: <span class="string">"Move"</span>
+      iconName: <span class="string">"boots"</span>
+      range: (character) -&gt;
+        character.movement()
+      actionCost: <span class="number">1</span>
+      targetType: Ability.TARGET_TYPE.MOVEMENT
+      perform: () -&gt;
+
+    Ability
+      name: <span class="string">"Wait"</span>
+      iconName: <span class="string">"hourglass"</span>
+      actionCost: <span class="number">1</span>
+      costType: Ability.COST_TYPE.REST
+      targetType: Ability.TARGET_TYPE.SELF
+      perform: (self) -&gt;
+
+  ]
+
   self.<span class="function"><span class="title">uiActions</span></span> = -&gt;
-    [
+    abilities.map (ability) -&gt;
       Action
-        name: <span class="string">"Move"</span>
-        icon: <span class="string">"boots"</span>
+        name: ability.name()
+        icon: ability.iconName()
         perform: -&gt;
-          <span class="comment"># TODO</span>
-      Action
-        name: <span class="string">"Wait"</span>
-        icon: <span class="string">"hourglass"</span>
-        perform: -&gt;
-          I.actions = <span class="number">0</span>
-    ]
+          <span class="keyword">switch</span> ability.targetType
+            <span class="keyword">when</span> TARGET_TYPE.SELF
+              ability.perform(self)
+            <span class="keyword">when</span> TARGET_TYPE.MOVEMENT
+              ; <span class="comment"># TODO</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

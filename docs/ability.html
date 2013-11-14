@@ -50,10 +50,13 @@ tile.</p>
 <p>Some abilities may be situational (like Force Door being only available targetting the door adjacent to the character)</p>
 <p>Some cool abilities that should be in the game</p>
 <ul>
+<li>Movement</li>
 <li>Ranged Attacks</li>
 <li>Melee Attacks</li>
+<li>Overwatch</li>
 <li>Heal</li>
 <li>Dig</li>
+<li>Teleport</li>
 <li>Fireball</li>
 <li>Buffs</li>
 <li>Debuffs</li>
@@ -62,16 +65,58 @@ tile.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
-    range: <span class="number">1</span>
+    range: (character) -&gt;
+      character.movement()
     actionCost: <span class="number">1</span>
-    name: <span class="string">"Strike"</span>
-    costType: Ability.COST_TYPE.REST
+    name: <span class="string">"Move"</span>
+    costType: Ability.COST_TYPE.FIXED
 
-Ability.TARGET_TYPE =
-  SELF: <span class="number">1</span>
-  LOS: <span class="number">2</span>
-  VISIBLE: <span class="number">3</span>
-  ANY: <span class="number">4</span>
+  self.attrAccessor(
+    <span class="string">"actionCost"</span>
+    <span class="string">"actionType"</span>
+    <span class="string">"costType"</span>
+    <span class="string">"iconName"</span>
+    <span class="string">"name"</span>
+    <span class="string">"range"</span>
+  )
+
+  Object.extend self,
+    payCosts: (owner) -&gt;
+      <span class="keyword">switch</span> self.costType()
+        <span class="keyword">when</span> COST_TYPE.REST
+          owner.actions(<span class="number">0</span>)
+        <span class="keyword">when</span> COST_TYPE.FIXED
+          owner.actions owner.actions() - self.actionCost()
+        <span class="keyword">else</span>
+          <span class="keyword">throw</span> <span class="string">"Unknown action cost type"</span>
+
+    validTargets: (owner, tileAt) -&gt;
+
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Wherever possible we should reduce complexity and compose simpler actions rather
+than special case complex ones. For example: A knight&#39;s charging attack could
+be handled as a triggered ability that the knight get&#39;s a melee attack after
+moving adjacent to an enemy, rather than having a special movement style ability
+that target&#39;s an enemy, but has movement range and connectedness constraints.</p>
+<p>Should there be range types too? Connected, any, passable, etc?</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Ability.TARGET_TYPE =
+  SELF: <span class="number">1</span> <span class="comment"># The character itself, skips targetting step</span>
+  LOS: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
+  VISIBLE: <span class="number">3</span> <span class="comment"># Any tile visible to squad within range</span>
+  ANY: <span class="number">4</span> <span class="comment"># Any tile within range</span>
+  MOVEMENT: <span class="number">5</span> <span class="comment"># Visible, passable, connected</span>
 
 Ability.COST_TYPE =
   FIXED: <span class="number">1</span>
