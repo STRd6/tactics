@@ -35,9 +35,21 @@
               <p>Methods for drawing components of the character ui.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{Size} = require <span class="string">"./lib/util"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
+{Size} = require <span class="string">"./lib/util"</span>
 
 tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
+
+heartSprite = Resource.sprite(<span class="string">"heart"</span>)
+heartEmptySprite = Resource.sprite(<span class="string">"heart_empty"</span>)
+
+<span class="function"><span class="title">drawHealth</span></span> = (canvas, health, max) -&gt;
+  max.times (i) -&gt;
+    x = i * <span class="number">10</span>
+    <span class="keyword">if</span> i &lt; health
+      heartSprite.draw(canvas, x, <span class="number">0</span>)
+    <span class="keyword">else</span>
+      heartEmptySprite.draw(canvas, x, <span class="number">0</span>)
 
 <span class="function"><span class="title">drawActions</span></span> = (canvas, n) -&gt;
   n.times (i) -&gt;
@@ -71,7 +83,8 @@ module.exports =</code></pre>
     console.log canvasPosition
 
     canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) -&gt;
-      drawActions(canvas, character.actions())</code></pre>
+      drawActions(canvas, character.actions())
+      drawHealth(canvas, character.health(), character.healthMax())</code></pre>
 </div>
         </li>
         
