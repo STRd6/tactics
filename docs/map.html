@@ -67,16 +67,21 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
 <span class="function"><span class="title">wall</span></span> = -&gt;
   sprite: wallSprites.rand()
   lit: <span class="literal">false</span>
-  unseen: <span class="literal">true</span>
+  seen: <span class="literal">false</span>
   opaque: <span class="literal">true</span>
   solid: <span class="literal">true</span>
+  features: []
 
 <span class="function"><span class="title">ground</span></span> = -&gt;
+  bush = rand() &lt; <span class="number">0.1</span>
+
   sprite: groundSprites[<span class="number">0</span>].rand()
   lit: <span class="literal">false</span>
-  unseen: <span class="literal">true</span>
-  opaque: <span class="literal">false</span>
+  seen: <span class="literal">false</span>
+  opaque: bush
   solid: <span class="literal">false</span>
+  features: [<span class="number">0.</span>..bush].map -&gt;
+    bushSprites.rand()
 
 moveDirections = [
   Point(<span class="number">1</span>, <span class="number">0</span>)
@@ -90,13 +95,26 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     background: <span class="string">"#222034"</span>
 
   grid = Grid <span class="number">32</span>, <span class="number">18</span>, (x, y) -&gt;
-    <span class="keyword">if</span> x <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> y &gt;= <span class="number">12</span> <span class="keyword">or</span> y <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> x &gt;= <span class="number">12</span>
-      wall()
+    <span class="keyword">if</span> (x <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> y &gt;= <span class="number">12</span> <span class="keyword">or</span> y <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> x &gt;= <span class="number">12</span>)
+      <span class="keyword">if</span> (x <span class="keyword">is</span> <span class="number">20</span> <span class="keyword">and</span> y <span class="keyword">is</span> <span class="number">12</span>)
+        ground()
+      <span class="keyword">else</span>
+        wall()
     <span class="keyword">else</span>
       <span class="keyword">if</span> rand() &lt; <span class="number">0.10</span>
         wall()
       <span class="keyword">else</span>
         ground()
+
+  <span class="function"><span class="title">neighbors</span></span> = (position) -&gt;
+    <span class="comment"># TODO: Add diagonals if both edges are passable</span>
+    moveDirections.map (direction) -&gt;
+      position.add(direction)
+    .filter (position) -&gt;
+      tile = grid.get(position)
+      tile <span class="keyword">and</span> !tile.solid
+    .map (position) -&gt;
+      [position, <span class="number">1</span>]
 
   duders = [
     Duder
@@ -104,12 +122,26 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         x: <span class="number">11</span>
         y: <span class="number">11</span>
       sprite: <span class="string">"human"</span>
-      sight: <span class="number">13</span>
+      sight: <span class="number">7</span>
+    Duder
+      position:
+        x: <span class="number">20</span>
+        y: <span class="number">15</span>
+      sprite: <span class="string">"goblin"</span>
+      sight: <span class="number">7</span>
   ]
+  activeDuderIndex = <span class="number">0</span>
 
   duders.forEach (duder) -&gt;
     duder.tileAt = grid.get
-    duder.updateFOV()
+
+  <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
+    grid.each (tile) -&gt;
+      tile.lit = <span class="literal">false</span>
+
+    duders.forEach (duder) -&gt;
+      duder.visibleTiles().forEach (tile) -&gt;
+        tile.seen = tile.lit = <span class="literal">true</span>
 
   <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
     duders.filter (duder) -&gt;
@@ -117,47 +149,67 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y
     .first()
 
-  render: (canvas) -&gt;
-    canvas.fill I.background
+  updateVisibleTiles()
 
-    grid.each ({sprite, lit, seen}, x, y) -&gt;
-      <span class="keyword">if</span> seen
-        sprite.draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
-        <span class="keyword">if</span> duder = duderAt(x, y)
-          duder.sprite().draw(canvas, x * <span class="number">32</span>, y * <span class="number">32</span>)
+  self =
+    render: (canvas) -&gt;
+      canvas.fill I.background
 
-        <span class="keyword">if</span> !lit
-          canvas.drawRect
-            x: x * <span class="number">32</span>
-            y: y * <span class="number">32</span>
-            width: <span class="number">32</span>
-            height: <span class="number">32</span>
-            color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
+      grid.each (tile, x, y) -&gt;
+        {sprite, lit, seen} = tile
+        canvasPosition = Point(x, y).scale(<span class="number">32</span>)
 
-  tileAt: grid.get
+        <span class="keyword">if</span> seen
+          sprite.draw(canvas, canvasPosition)
+          <span class="keyword">if</span> duder = duderAt(x, y)
+            duder.sprite().draw(canvas, canvasPosition)
 
-  moveDuder: (position) -&gt;
-    duder = duders.first()
+          tile.features.forEach (feature) -&gt;
+            feature.draw(canvas, canvasPosition)
 
-    path = Graph.aStar
-      initial: duder.position()
-      goal: position
-      neighbors: (position) -&gt;
-        <span class="comment"># TODO: Add diagonals if both edges are passable</span>
-        moveDirections.map (direction) -&gt;
-          position.add(direction)
-        .filter (position) -&gt;
-          tile = grid.get(position)
-          tile <span class="keyword">and</span> !tile.solid
-        .map (position) -&gt;
-          [position, <span class="number">1</span>]
-      heuristic: (a, b) -&gt;
-        p = b.subtract(a).abs()
+          <span class="keyword">if</span> !lit
+            canvas.drawRect
+              x: x * <span class="number">32</span>
+              y: y * <span class="number">32</span>
+              width: <span class="number">32</span>
+              height: <span class="number">32</span>
+              color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
-        p.x + p.y <span class="comment"># Manhattan distance</span>
+    tileAt: grid.get
 
-    <span class="keyword">if</span> path
-      path.forEach duder.updatePosition</code></pre>
+    activeDuder: -&gt;
+      duders.wrap(activeDuderIndex)
+
+    accessiblePositions: -&gt;
+      duder = self.activeDuder()
+
+      Graph.accessible
+        initial: duder.position()
+        neighbors: neighbors
+        distanceMax: duder.movement()
+
+    moveDuder: (position) -&gt;
+      duder = self.activeDuder()
+      activeDuderIndex += <span class="number">1</span>
+
+      path = Graph.aStar
+        initial: duder.position()
+        goal: position
+        neighbors: neighbors
+        heuristic: (a, b) -&gt;
+          p = b.subtract(a).abs()
+
+          p.x + p.y <span class="comment"># Manhattan distance</span>
+
+      <span class="keyword">if</span> path
+        path.forEach (position) -&gt; 
+          duder.updatePosition position
+          duder.visibleTiles().forEach (tile) -&gt;
+            tile.seen = <span class="literal">true</span>
+
+      updateVisibleTiles()
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

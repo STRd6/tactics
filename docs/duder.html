@@ -43,20 +43,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   I.position = Point(I.position)
   I.sprite = Resource.sprite(I.sprite)
   I.sight ?= <span class="number">7</span>
+  I.movement ?= <span class="number">5</span>
 
-  self.attrAccessor <span class="string">"position"</span>, <span class="string">"sprite"</span>, <span class="string">"sight"</span>
+  self.attrAccessor <span class="string">"position"</span>, <span class="string">"sprite"</span>, <span class="string">"sight"</span>, <span class="string">"movement"</span>
 
-  fov = <span class="keyword">new</span> Shadowcasting(self.position(), self.sight())
+  fov = <span class="keyword">new</span> Shadowcasting()
   fov.<span class="function"><span class="title">tileAt</span></span> = (args...) -&gt;
     self.tileAt(args...)
 
-  self.<span class="function"><span class="title">updateFOV</span></span> = -&gt;
-    fov.update(self.position())
-    fov.calculate()
+  self.<span class="function"><span class="title">visibleTiles</span></span> = -&gt;
+    fov.calculate(self.position(), self.sight())
 
   self.<span class="function"><span class="title">updatePosition</span></span> = (newPosition) -&gt;
     self.position newPosition
-    self.updateFOV()
 
   <span class="keyword">return</span> self</code></pre>
 </div>
