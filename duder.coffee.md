@@ -65,11 +65,19 @@ any status effects.
           targetType: Ability.TARGET_TYPE.MOVEMENT
 
         Ability
+          name: "Attack"
+          iconName: "sword"
+          range: 1
+          actionCost: 1
+          costType: Ability.COST_TYPE.REST
+          targetType: Ability.TARGET_TYPE.LOS
+
+        Ability
           name: "Wait"
           iconName: "hourglass"
           actionCost: 1
           costType: Ability.COST_TYPE.REST
-          targetType: Ability.TARGET_TYPE.SELF            
+          targetType: Ability.TARGET_TYPE.SELF
       ]
 
       actions = abilities.map (ability) ->

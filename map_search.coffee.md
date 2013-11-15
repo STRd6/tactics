@@ -36,7 +36,7 @@ may query its properties and figure out what to do.
         [position, 1]
 
     strategy = (pattern, getTile, getEntities) ->
-      (position) -> 
+      (position) ->
         pattern(position, getTile, getEntities)
 
     module.exports = (getTile, getEntities) ->
@@ -44,11 +44,11 @@ may query its properties and figure out what to do.
 Returns a list of all positions accessible to the duder by normal movement
 through tiles.
 
-      accessible: (duder) ->
+      accessible: (duder, range) ->
         Graph.accessible
           initial: duder.position()
           neighbors: strategy neighborsVisible, getTile, getEntities
-          distanceMax: duder.movement()
+          distanceMax: range or duder.movement()
 
       movementPath: (duder, target) ->
         Graph.aStar

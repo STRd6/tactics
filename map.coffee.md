@@ -7,7 +7,7 @@ Map
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
-    
+
     moveDirections = [
       Point(1, 0)
       Point(-1, 0)
@@ -145,8 +145,11 @@ Hold the terrain and whatnot for a level.
               self.updateDuder()
 
               return
-            else
+            else if ability.targetType() is Ability.TARGET_TYPE.MOVEMENT
               search.accessible(duder)
+            else if ability.targetType() is Ability.TARGET_TYPE.LOS
+              # TODO: Real LOS not these mad hacks
+              search.accessible(duder, 1)
 
         updateDuder: ->
           duder = self.activeDuder()
