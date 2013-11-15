@@ -86,7 +86,7 @@ may query its properties and figure out what to do.</p>
     [position, <span class="number">1</span>]
 
 <span class="function"><span class="title">strategy</span></span> = (pattern, getTile, getEntities) -&gt;
-  (position) -&gt; 
+  (position) -&gt;
     pattern(position, getTile, getEntities)
 
 module.<span class="function"><span class="title">exports</span></span> = (getTile, getEntities) -&gt;</code></pre>
@@ -103,11 +103,11 @@ module.<span class="function"><span class="title">exports</span></span> = (getTi
 through tiles.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  accessible: (duder) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  accessible: (duder, range) -&gt;
     Graph.accessible
       initial: duder.position()
       neighbors: strategy neighborsVisible, getTile, getEntities
-      distanceMax: duder.movement()
+      distanceMax: range <span class="keyword">or</span> duder.movement()
 
   movementPath: (duder, target) -&gt;
     Graph.aStar

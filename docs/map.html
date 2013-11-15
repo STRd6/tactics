@@ -188,8 +188,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
           self.updateDuder()
 
           <span class="keyword">return</span>
-        <span class="keyword">else</span>
+        <span class="keyword">else</span> <span class="keyword">if</span> ability.targetType() <span class="keyword">is</span> Ability.TARGET_TYPE.MOVEMENT
           search.accessible(duder)
+        <span class="keyword">else</span> <span class="keyword">if</span> ability.targetType() <span class="keyword">is</span> Ability.TARGET_TYPE.LOS
+          <span class="comment"># TODO: Real LOS not these mad hacks</span>
+          search.accessible(duder, <span class="number">1</span>)
 
     updateDuder: -&gt;
       duder = self.activeDuder()
