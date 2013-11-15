@@ -45,6 +45,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
   Object.defaults self, I,
     name: <span class="string">"Action"</span>
 
+  self.active = Observable <span class="literal">false</span>
   self.icon = Resource.dataURL(I.icon)
 
   <span class="keyword">return</span> self</code></pre>

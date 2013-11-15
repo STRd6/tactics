@@ -25,7 +25,7 @@
     "action.coffee.md": {
       "path": "action.coffee.md",
       "mode": "100644",
-      "content": "Action\n======\n\nThe only thing persons can do in the game are actions.\n\nThey live in a little menu that changes based on the context.\n\nClicking on them makes them happen.\n\n    Resource = require \"./resource\"\n\n    module.exports = (I={}) ->\n      self = {}\n\n      Object.defaults self, I,\n        name: \"Action\"\n\n      self.icon = Resource.dataURL(I.icon)\n\n      return self\n",
+      "content": "Action\n======\n\nThe only thing persons can do in the game are actions.\n\nThey live in a little menu that changes based on the context.\n\nClicking on them makes them happen.\n\n    Resource = require \"./resource\"\n\n    module.exports = (I={}) ->\n      self = {}\n\n      Object.defaults self, I,\n        name: \"Action\"\n\n      self.active = Observable false\n      self.icon = Resource.dataURL(I.icon)\n\n      return self\n",
       "type": "blob"
     },
     "character_ui.coffee.md": {
@@ -127,7 +127,7 @@
     "templates/ui.haml": {
       "path": "templates/ui.haml",
       "mode": "100644",
-      "content": ".ui\n  .actions\n    - ui = this\n    - each @actions, (action) ->\n      .action(style=\"background-image: url(#{action.icon})\")\n        = action.name\n        - on \"click\", ->\n          - action.perform()\n          - ui.actionPerformed()\n",
+      "content": ".ui\n  .actions\n    - ui = this\n    - each @actions, (action) ->\n      - activeClass = -> \"active\" if action.active()\n      .action(class=activeClass style=\"background-image: url(#{action.icon})\")\n        = action.name\n        - on \"click\", ->\n          - action.perform()\n          - ui.actionPerformed()\n",
       "type": "blob"
     },
     "test/a_star.coffee": {
@@ -157,7 +157,7 @@
     },
     "action": {
       "path": "action",
-      "content": "(function() {\n  var Resource;\n\n  Resource = require(\"./resource\");\n\n  module.exports = function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {};\n    Object.defaults(self, I, {\n      name: \"Action\"\n    });\n    self.icon = Resource.dataURL(I.icon);\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=action.coffee",
+      "content": "(function() {\n  var Resource;\n\n  Resource = require(\"./resource\");\n\n  module.exports = function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {};\n    Object.defaults(self, I, {\n      name: \"Action\"\n    });\n    self.active = Observable(false);\n    self.icon = Resource.dataURL(I.icon);\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=action.coffee",
       "type": "blob"
     },
     "character_ui": {
@@ -242,7 +242,7 @@
     },
     "templates/ui": {
       "path": "templates/ui",
-      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\".ui\\n  .actions\\n    - ui = this\\n    - each @actions, (action) ->\\n      .action(style=\\\"background-image: url(#{action.icon})\\\")\\n        = action.name\\n        - on \\\"click\\\", ->\\n          - action.perform()\\n          - ui.actionPerformed()\\n\", {compiler: CoffeeScript}))()",
+      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\".ui\\n  .actions\\n    - ui = this\\n    - each @actions, (action) ->\\n      - activeClass = -> \\\"active\\\" if action.active()\\n      .action(class=activeClass style=\\\"background-image: url(#{action.icon})\\\")\\n        = action.name\\n        - on \\\"click\\\", ->\\n          - action.perform()\\n          - ui.actionPerformed()\\n\", {compiler: CoffeeScript}))()",
       "type": "blob"
     },
     "test/a_star": {
