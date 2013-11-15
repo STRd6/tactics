@@ -121,7 +121,7 @@
     "style.styl": {
       "path": "style.styl",
       "mode": "100644",
-      "content": "html, body\n  margin: 0\n  height: 100%\n  user-select:none\n\nbody\n  font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif\n  font-weight: 300\n  font-size: 12px\n\n  canvas, .ui\n    position: absolute\n    top: 0\n    bottom: 0\n    left: 0\n    right: 0\n    margin: auto\n\n  .ui\n    height: 100%\n\n    canvas\n      position: absolute\n      top: 0\n      bottom: 0\n      left: 0\n      right: 0\n      margin: auto\n\n  .actions\n    position: absolute\n    bottom: 0\n    padding: 0 64px\n    pointer-events: none\n\n    .action\n      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.4)\n      background-color: #9BADB7\n      background-position: 50% 70%\n      background-repeat: no-repeat\n      border: 1px solid black\n      border-radius: 4px\n      border-right: none\n      display: inline-block\n      padding: 4px\n      pointer-events: auto\n      width: 64px\n      height: 64px\n      text-align: center\n      text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4)\n      vertical-align: bottom\n\n      &:last-child\n        border-right: 1px solid\n\n      &:active\n        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6)\n",
+      "content": "html, body\n  margin: 0\n  height: 100%\n  user-select:none\n\nbody\n  font-family: \"HelveticaNeue-Light\", \"Helvetica Neue Light\", \"Helvetica Neue\", Helvetica, Arial, \"Lucida Grande\", sans-serif\n  font-weight: 300\n  font-size: 12px\n\n  canvas, .ui\n    position: absolute\n    top: 0\n    bottom: 0\n    left: 0\n    right: 0\n    margin: auto\n\n  .ui\n    height: 100%\n\n    canvas\n      position: absolute\n      top: 0\n      bottom: 0\n      left: 0\n      right: 0\n      margin: auto\n\n  .actions\n    position: absolute\n    bottom: 0\n    padding: 0 64px\n    pointer-events: none\n\n    .action\n      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.4)\n      background-color: #9BADB7\n      background-position: 50% 70%\n      background-repeat: no-repeat\n      border: 1px solid black\n      border-radius: 4px\n      border-right: none\n      display: inline-block\n      padding: 4px\n      pointer-events: auto\n      width: 64px\n      height: 64px\n      text-align: center\n      text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4)\n      vertical-align: bottom\n\n      &:last-child\n        border-right: 1px solid\n\n      &:active, &.active\n        background-color: #696A6A\n        box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6)\n",
       "type": "blob"
     },
     "templates/ui.haml": {
@@ -237,7 +237,7 @@
     },
     "style": {
       "path": "style",
-      "content": "module.exports = \"html,\\nbody {\\n  margin: 0;\\n  height: 100%;\\n  -ms-user-select: none;\\n  -moz-user-select: none;\\n  -webkit-user-select: none;\\n  user-select: none;\\n}\\n\\nbody {\\n  font-family: \\\"HelveticaNeue-Light\\\", \\\"Helvetica Neue Light\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, \\\"Lucida Grande\\\", sans-serif;\\n  font-weight: 300;\\n  font-size: 12px;\\n}\\n\\nbody canvas,\\nbody .ui {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\nbody .ui canvas {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\nbody .ui {\\n  height: 100%;\\n}\\n\\nbody .actions .action:last-child {\\n  border-right: 1px solid;\\n}\\n\\nbody .actions .action:active {\\n  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);\\n}\\n\\nbody .actions .action {\\n  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.4);\\n  background-color: #9BADB7;\\n  background-position: 50% 70%;\\n  background-repeat: no-repeat;\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  border-right: none;\\n  display: inline-block;\\n  padding: 4px;\\n  pointer-events: auto;\\n  width: 64px;\\n  height: 64px;\\n  text-align: center;\\n  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4);\\n  vertical-align: bottom;\\n}\\n\\nbody .actions {\\n  position: absolute;\\n  bottom: 0;\\n  padding: 0 64px;\\n  pointer-events: none;\\n}\";",
+      "content": "module.exports = \"html,\\nbody {\\n  margin: 0;\\n  height: 100%;\\n  -ms-user-select: none;\\n  -moz-user-select: none;\\n  -webkit-user-select: none;\\n  user-select: none;\\n}\\n\\nbody {\\n  font-family: \\\"HelveticaNeue-Light\\\", \\\"Helvetica Neue Light\\\", \\\"Helvetica Neue\\\", Helvetica, Arial, \\\"Lucida Grande\\\", sans-serif;\\n  font-weight: 300;\\n  font-size: 12px;\\n}\\n\\nbody canvas,\\nbody .ui {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\nbody .ui canvas {\\n  position: absolute;\\n  top: 0;\\n  bottom: 0;\\n  left: 0;\\n  right: 0;\\n  margin: auto;\\n}\\n\\nbody .ui {\\n  height: 100%;\\n}\\n\\nbody .actions .action:last-child {\\n  border-right: 1px solid;\\n}\\n\\nbody .actions .action:active,\\nbody .actions .action.active {\\n  background-color: #696A6A;\\n  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);\\n}\\n\\nbody .actions .action {\\n  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 1px rgba(0, 0, 0, 0.4);\\n  background-color: #9BADB7;\\n  background-position: 50% 70%;\\n  background-repeat: no-repeat;\\n  border: 1px solid black;\\n  border-radius: 4px;\\n  border-right: none;\\n  display: inline-block;\\n  padding: 4px;\\n  pointer-events: auto;\\n  width: 64px;\\n  height: 64px;\\n  text-align: center;\\n  text-shadow: 0 -1px 0 rgba(255, 255, 255, 0.4);\\n  vertical-align: bottom;\\n}\\n\\nbody .actions {\\n  position: absolute;\\n  bottom: 0;\\n  padding: 0 64px;\\n  pointer-events: none;\\n}\";",
       "type": "blob"
     },
     "templates/ui": {
@@ -1209,7 +1209,7 @@
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://1.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -1266,14 +1266,14 @@
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-11-14T20:41:23Z",
-    "pushed_at": "2013-11-14T20:41:23Z",
+    "updated_at": "2013-11-14T23:28:31Z",
+    "pushed_at": "2013-11-14T23:28:30Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
     "svn_url": "https://github.com/STRd6/tactics",
     "homepage": null,
-    "size": 688,
+    "size": 705,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "CoffeeScript",
