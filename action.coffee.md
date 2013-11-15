@@ -15,6 +15,7 @@ Clicking on them makes them happen.
       Object.defaults self, I,
         name: "Action"
 
+      self.active = Observable false
       self.icon = Resource.dataURL(I.icon)
 
       return self
