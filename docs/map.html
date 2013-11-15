@@ -178,7 +178,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     accessiblePositions: -&gt;
       duder = self.activeDuder()
 
-      search.accessible(duder)
+      <span class="keyword">if</span> ability = duder.targettingAbility()
+        <span class="keyword">if</span> ability.targetType() <span class="keyword">is</span> Ability.TARGET_TYPE.SELF
+          ability.perform duder,
+            position: duder.position()
+            character: duder
+
+          duder.resetTargetting()
+          self.updateDuder()
+
+          <span class="keyword">return</span>
+        <span class="keyword">else</span>
+          search.accessible(duder)
 
     updateDuder: -&gt;
       duder = self.activeDuder()
@@ -202,6 +213,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
         duder.move path.last()
 
+        duder.resetTargetting()
         self.updateDuder()
 
       updateVisibleTiles()

@@ -41,6 +41,8 @@ Shadowcasting = require <span class="string">"./shadowcasting"</span>
 Action = require <span class="string">"./action"</span>
 Ability = require <span class="string">"./ability"</span>
 
+{TARGET_TYPE} = Ability
+
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
   I.sprite = Resource.sprite(I.sprite)
@@ -101,29 +103,32 @@ any status effects.</p>
         character.movement()
       actionCost: <span class="number">1</span>
       targetType: Ability.TARGET_TYPE.MOVEMENT
-      perform: () -&gt;
 
     Ability
       name: <span class="string">"Wait"</span>
       iconName: <span class="string">"hourglass"</span>
       actionCost: <span class="number">1</span>
       costType: Ability.COST_TYPE.REST
-      targetType: Ability.TARGET_TYPE.SELF
-      perform: (self) -&gt;
-
+      targetType: Ability.TARGET_TYPE.SELF            
   ]
 
+  actions = abilities.map (ability) -&gt;
+    action = Action
+      name: ability.name()
+      icon: ability.iconName()
+      perform: -&gt;
+        self.targettingAbility(ability)
+
+    action.active = Observable -&gt;
+      ability <span class="keyword">is</span> self.targettingAbility()
+
+    <span class="keyword">return</span> action
+
   self.<span class="function"><span class="title">uiActions</span></span> = -&gt;
-    abilities.map (ability) -&gt;
-      Action
-        name: ability.name()
-        icon: ability.iconName()
-        perform: -&gt;
-          <span class="keyword">switch</span> ability.targetType
-            <span class="keyword">when</span> TARGET_TYPE.SELF
-              ability.perform(self)
-            <span class="keyword">when</span> TARGET_TYPE.MOVEMENT
-              ; <span class="comment"># TODO</span>
+    actions
+
+  self.<span class="function"><span class="title">resetTargetting</span></span> = -&gt;
+    self.targettingAbility <span class="literal">null</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

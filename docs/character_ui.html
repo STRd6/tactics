@@ -80,8 +80,6 @@ module.exports =</code></pre>
     position = character.position()
     canvasPosition = position.scale(tileSize)
 
-    console.log canvasPosition
-
     canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) -&gt;
       drawActions(canvas, character.actions())
       drawHealth(canvas, character.health(), character.healthMax())</code></pre>

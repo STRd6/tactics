@@ -78,6 +78,7 @@ tile.</p>
     <span class="string">"iconName"</span>
     <span class="string">"name"</span>
     <span class="string">"range"</span>
+    <span class="string">"targetType"</span>
   )
 
   Object.extend self,
@@ -92,6 +93,11 @@ tile.</p>
 
     validTargets: (owner, tileAt) -&gt;
 
+    perform: (owner, target) -&gt;
+      self.payCosts(owner)
+
+      <span class="comment"># TODO: Execute ability</span>
+      <span class="comment"># self._?(target)</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>
@@ -111,14 +117,14 @@ that target&#39;s an enemy, but has movement range and connectedness constraints
 <p>Should there be range types too? Connected, any, passable, etc?</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Ability.TARGET_TYPE =
+            <div class="content"><pre><code class="lang-coffeescript">Ability.TARGET_TYPE = TARGET_TYPE =
   SELF: <span class="number">1</span> <span class="comment"># The character itself, skips targetting step</span>
   LOS: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
   VISIBLE: <span class="number">3</span> <span class="comment"># Any tile visible to squad within range</span>
   ANY: <span class="number">4</span> <span class="comment"># Any tile within range</span>
   MOVEMENT: <span class="number">5</span> <span class="comment"># Visible, passable, connected</span>
 
-Ability.COST_TYPE =
+Ability.COST_TYPE = COST_TYPE =
   FIXED: <span class="number">1</span>
   REST: <span class="number">2</span>
 
