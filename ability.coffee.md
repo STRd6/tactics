@@ -53,6 +53,7 @@ Some cool abilities that should be in the game
         "iconName"
         "name"
         "range"
+        "targetType"
       )
 
       Object.extend self,
@@ -67,7 +68,12 @@ Some cool abilities that should be in the game
 
         validTargets: (owner, tileAt) ->
 
-          
+        perform: (owner, target) ->
+          self.payCosts(owner)
+
+          # TODO: Execute ability
+          # self._?(target)
+
       return self
 
 Wherever possible we should reduce complexity and compose simpler actions rather
@@ -78,14 +84,14 @@ that target's an enemy, but has movement range and connectedness constraints.
 
 Should there be range types too? Connected, any, passable, etc?
 
-    Ability.TARGET_TYPE =
+    Ability.TARGET_TYPE = TARGET_TYPE =
       SELF: 1 # The character itself, skips targetting step
       LOS: 2 # Any tile within character's line of sight and within range
       VISIBLE: 3 # Any tile visible to squad within range
       ANY: 4 # Any tile within range
       MOVEMENT: 5 # Visible, passable, connected
 
-    Ability.COST_TYPE =
+    Ability.COST_TYPE = COST_TYPE =
       FIXED: 1
       REST: 2
 

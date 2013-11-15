@@ -88,7 +88,8 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         accessiblePositions.forEach (position) ->
           uiCanvas.drawRect
             stroke:
-              color: "#00F"
+              color: "blue"
+              width: 1
             position: position.scale(32)
             width: 32
             height: 32

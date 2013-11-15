@@ -7,7 +7,7 @@ Map
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
-
+    
     moveDirections = [
       Point(1, 0)
       Point(-1, 0)
@@ -135,7 +135,18 @@ Hold the terrain and whatnot for a level.
         accessiblePositions: ->
           duder = self.activeDuder()
 
-          search.accessible(duder)
+          if ability = duder.targettingAbility()
+            if ability.targetType() is Ability.TARGET_TYPE.SELF
+              ability.perform duder,
+                position: duder.position()
+                character: duder
+
+              duder.resetTargetting()
+              self.updateDuder()
+
+              return
+            else
+              search.accessible(duder)
 
         updateDuder: ->
           duder = self.activeDuder()
@@ -159,6 +170,7 @@ Hold the terrain and whatnot for a level.
 
             duder.move path.last()
 
+            duder.resetTargetting()
             self.updateDuder()
 
           updateVisibleTiles()

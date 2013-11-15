@@ -10,6 +10,8 @@ Use Shadowcasting for FoV calculations.
     Action = require "./action"
     Ability = require "./ability"
 
+    {TARGET_TYPE} = Ability
+
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
       I.sprite = Resource.sprite(I.sprite)
@@ -61,28 +63,31 @@ any status effects.
             character.movement()
           actionCost: 1
           targetType: Ability.TARGET_TYPE.MOVEMENT
-          perform: () ->
 
         Ability
           name: "Wait"
           iconName: "hourglass"
           actionCost: 1
           costType: Ability.COST_TYPE.REST
-          targetType: Ability.TARGET_TYPE.SELF
-          perform: (self) ->
-
+          targetType: Ability.TARGET_TYPE.SELF            
       ]
 
+      actions = abilities.map (ability) ->
+        action = Action
+          name: ability.name()
+          icon: ability.iconName()
+          perform: ->
+            self.targettingAbility(ability)
+
+        action.active = Observable ->
+          ability is self.targettingAbility()
+
+        return action
+
       self.uiActions = ->
-        abilities.map (ability) ->
-          Action
-            name: ability.name()
-            icon: ability.iconName()
-            perform: ->
-              switch ability.targetType
-                when TARGET_TYPE.SELF
-                  ability.perform(self)
-                when TARGET_TYPE.MOVEMENT
-                  ; # TODO
+        actions
+
+      self.resetTargetting = ->
+        self.targettingAbility null
 
       return self
