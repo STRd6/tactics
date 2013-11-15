@@ -42,6 +42,7 @@ tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
 
 heartSprite = Resource.sprite(<span class="string">"heart"</span>)
 heartEmptySprite = Resource.sprite(<span class="string">"heart_empty"</span>)
+actionBarSprite = Resource.sprite(<span class="string">"action_bar"</span>)
 
 <span class="function"><span class="title">drawHealth</span></span> = (canvas, health, max) -&gt;
   max.times (i) -&gt;
@@ -53,15 +54,7 @@ heartEmptySprite = Resource.sprite(<span class="string">"heart_empty"</span>)
 
 <span class="function"><span class="title">drawActions</span></span> = (canvas, n) -&gt;
   n.times (i) -&gt;
-    canvas.drawRect
-      x: i * <span class="number">16</span> + <span class="number">1</span>
-      y: <span class="number">32</span>
-      width: <span class="number">14</span>
-      height: <span class="number">4</span>
-      color: <span class="string">"blue"</span>
-      stroke:
-        width: <span class="number">1</span>
-        color: <span class="string">"white"</span>
+    actionBarSprite.draw canvas, i * <span class="number">16</span> + <span class="number">1</span>, <span class="number">32</span>
 
 module.exports =</code></pre>
 </div>

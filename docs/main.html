@@ -111,20 +111,16 @@ uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p
     map.moveDuder tilePosition
     update()
 
+gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)
+
 <span class="function"><span class="title">updateUiCanvas</span></span> = -&gt;
   uiCanvas.clear()
 
-  <span class="keyword">if</span> accessiblePositions
-    accessiblePositions.forEach (position) -&gt;
-      uiCanvas.drawRect
-        stroke:
-          color: <span class="string">"blue"</span>
-          width: <span class="number">1</span>
-        position: position.scale(<span class="number">32</span>)
-        width: <span class="number">32</span>
-        height: <span class="number">32</span>
-
   <span class="keyword">if</span> activeCharacter
+    <span class="keyword">if</span> accessiblePositions
+      accessiblePositions.forEach (position) -&gt;
+        gridSprite.draw uiCanvas, position.scale(<span class="number">32</span>)
+
     CharacterUI.tactical(uiCanvas, activeCharacter)
 
 $(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>

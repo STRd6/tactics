@@ -151,7 +151,10 @@ Size.prototype =
   <span class="keyword">if</span> isObject(scalar)
     Point(<span class="property">@x</span> * scalar.width, <span class="property">@y</span> * scalar.height)
   <span class="keyword">else</span>
-    Point(<span class="property">@x</span> * scalar, <span class="property">@y</span> * scalar)</code></pre>
+    Point(<span class="property">@x</span> * scalar, <span class="property">@y</span> * scalar)
+
+Point.prototype.<span class="function"><span class="title">sign</span></span> = -&gt;
+  Point(<span class="property">@x</span>.sign(), <span class="property">@y</span>.sign())</code></pre>
 </div>
         </li>
         
