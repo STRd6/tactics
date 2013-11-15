@@ -103,13 +103,14 @@ uiCanvas = Canvas
 uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (position) -&gt;
   tilePosition = position.scale(tileExtent).floor()
 
-  inRange = accessiblePositions.reduce (found, position) -&gt;
-    found <span class="keyword">or</span> position.equal(tilePosition)
-  , <span class="literal">false</span>
+  <span class="keyword">if</span> accessiblePositions
+    inRange = accessiblePositions.reduce (found, position) -&gt;
+      found <span class="keyword">or</span> position.equal(tilePosition)
+    , <span class="literal">false</span>
 
-  <span class="keyword">if</span> inRange
-    map.moveDuder tilePosition
-    update()
+    <span class="keyword">if</span> inRange
+      map.moveDuder tilePosition
+      update()
 
 gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)
 
