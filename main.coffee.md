@@ -81,20 +81,16 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         map.moveDuder tilePosition
         update()
 
+    gridSprite = Resource.sprite("grid_blue")
+
     updateUiCanvas = ->
       uiCanvas.clear()
 
-      if accessiblePositions
-        accessiblePositions.forEach (position) ->
-          uiCanvas.drawRect
-            stroke:
-              color: "blue"
-              width: 1
-            position: position.scale(32)
-            width: 32
-            height: 32
-
       if activeCharacter
+        if accessiblePositions
+          accessiblePositions.forEach (position) ->
+            gridSprite.draw uiCanvas, position.scale(32)
+
         CharacterUI.tactical(uiCanvas, activeCharacter)
 
     $(".ui").prepend uiCanvas.element()

@@ -48,6 +48,9 @@ Point Extensions
       else
         Point(@x * scalar, @y * scalar)
 
+    Point.prototype.sign = ->
+      Point(@x.sign(), @y.sign())
+
 Extra utilities that may be broken out into separate libraries.
 
     module.exports =

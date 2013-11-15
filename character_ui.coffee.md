@@ -10,6 +10,7 @@ Methods for drawing components of the character ui.
 
     heartSprite = Resource.sprite("heart")
     heartEmptySprite = Resource.sprite("heart_empty")
+    actionBarSprite = Resource.sprite("action_bar")
 
     drawHealth = (canvas, health, max) ->
       max.times (i) ->
@@ -21,15 +22,7 @@ Methods for drawing components of the character ui.
 
     drawActions = (canvas, n) ->
       n.times (i) ->
-        canvas.drawRect
-          x: i * 16 + 1
-          y: 32
-          width: 14
-          height: 4
-          color: "blue"
-          stroke:
-            width: 1
-            color: "white"
+        actionBarSprite.draw canvas, i * 16 + 1, 32
 
     module.exports =
 
