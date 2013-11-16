@@ -186,7 +186,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
           <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
-            performAbility(duder, ability, duder.position())
+            self.performAbility(duder, ability, duder.position())
 
             <span class="keyword">return</span>
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
