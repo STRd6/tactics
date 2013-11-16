@@ -63,11 +63,14 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     update = ->
       if map
         map.stateBasedActions()
-        map.render(canvas)
         accessiblePositions = map.accessiblePositions()
         activeCharacter = map.activeCharacter()
         updateUiCanvas()
         ui.actions activeCharacter.uiActions()
+
+    setInterval ->
+      map?.render(canvas)
+    , 33.3333333
 
     uiCanvas = Canvas
       width: width
@@ -91,7 +94,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       uiCanvas.clear()
 
       if map
-        map.characters().forEach (duder) ->
+        map.visibleCharacters().forEach (duder) ->
           if duder is activeCharacter
             CharacterUI.activeTactical(uiCanvas, duder)
           else

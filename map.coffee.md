@@ -59,6 +59,8 @@ Hold the terrain and whatnot for a level.
         else
           ground()
 
+      tileAt = grid.get
+
       updateVisibleTiles = ->
         grid.each (tile) ->
           tile.lit = []
@@ -101,6 +103,11 @@ Hold the terrain and whatnot for a level.
             squad.characters()
           .flatten()
 
+        visibleCharacters: ->
+          index = activeSquadIndex()
+          self.characters().filter (character) ->
+            tileAt(character.position()).lit[index]
+
         render: (canvas) ->
           canvas.fill I.background
 
@@ -127,7 +134,7 @@ Hold the terrain and whatnot for a level.
                   color: "rgba(0, 0, 0, 0.5)"
 
         activeCharacter: ->
-          activeSquad().activeCharacter()
+          activeSquad()?.activeCharacter()
 
         targettingAbility: ->
           if character = self.activeCharacter()

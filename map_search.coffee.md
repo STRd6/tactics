@@ -49,6 +49,8 @@ may query its properties and figure out what to do.
       .filter (position) ->
         # Filter out any impassible or unlit tiles
         tile = getTile(position)
+        # BUG:
+        # TODO: Use activeSquad lit tiles
         tile and !tile.solid and tile.lit
       .filter (position) ->
         # Filter out any tiles with peeps on them

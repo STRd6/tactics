@@ -26,6 +26,8 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           self.characters.forEach (character) ->
             character.ready()
 
+          debugger
+
           self.activeCharacter nextActivatableCharacter()
 
       # TODO: Load characters from data
