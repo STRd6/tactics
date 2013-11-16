@@ -147,6 +147,18 @@
       "mode": "100644",
       "content": "Array Helpers\n=============\n\nA bunch of array helpers that will work with Points and other objects that\nimplement an `.equal` method.\n\nReturns the index of the element in the array if present, undefined if not.\n\n    indexOf = (array, item) ->\n      for element, index in array\n        return index if element.equal(item)\n\n      return\n\n    without = (array, values...) ->\n      array.reject (element) ->\n        indexOf(values, element)?\n\n    unique = (array) ->\n      array.reduce (results, element) ->\n        results.push element unless indexOf(results, element)\n        results\n      , []\n\n    intersection = (array, others...) ->\n      unique(array).filter (item) ->\n        others.every (array) ->\n          indexOf(array, item)\n\n    module.exports = {\n      indexOf\n      intersection\n      unique\n      without\n    }\n",
       "type": "blob"
+    },
+    "TODO.md": {
+      "path": "TODO.md",
+      "mode": "100644",
+      "content": "TODO\n====\n\nHandle 2 teams on map.\n\n4 characters in each team\n\nHandle winning and losing.\n\nRanged attacks\n\nRemove characters with zero health in SBEs\n\nRandom Level Generation\n\nOverwold Map\n------------\nStart with one screen where you can choose quests/missions\n\nAI\n--\nAnything at all\n\n",
+      "type": "blob"
+    },
+    "glossary.md": {
+      "path": "glossary.md",
+      "mode": "100644",
+      "content": "Glossary\n========\n\nSBEs\n----\n\nState based effects are triggers that are checked every time the game state changes.\n\nFor example: characters dying when they have zero health, a team winning when\nthere are no more opponents, etc.\n",
+      "type": "blob"
     }
   },
   "distribution": {
