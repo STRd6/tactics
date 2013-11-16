@@ -162,13 +162,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
         <span class="keyword">if</span> seen[index]
           sprite.draw(canvas, canvasPosition)
-          <span class="keyword">if</span> duder = characterAt(x, y)
-            duder.sprite().draw(canvas, canvasPosition)
+
+          <span class="keyword">if</span> lit[index]
+            <span class="keyword">if</span> duder = characterAt(x, y)
+              duder.sprite().draw(canvas, canvasPosition)
 
           tile.features.forEach (feature) -&gt;
             feature.draw(canvas, canvasPosition)
 
           <span class="keyword">if</span> !lit[index]
+            <span class="comment"># Draw fog of war</span>
             canvas.drawRect
               x: x * <span class="number">32</span>
               y: y * <span class="number">32</span>
@@ -193,7 +196,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
             <span class="keyword">return</span>
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
-            search.accessible(duder, duder.movement())
+            search.accessible(duder, duder.movement(), activeSquadIndex())
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
             <span class="comment"># TODO: Intersect results with character line of sight</span>
             search.adjacent(duder, ability.range())
@@ -233,7 +236,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     moveDuder: (position) -&gt;
       duder = self.activeCharacter()
 
-      path = search.movementPath(duder, position)
+      path = search.movementPath(duder, position, activeSquadIndex())
 
       <span class="keyword">if</span> path
         index = activeSquadIndex()

@@ -92,16 +92,14 @@ be reached immediately from the given position.</p>
 may query its properties and figure out what to do.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">neighborsVisible</span></span> = (position, getTile, getEntities) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">neighborsVisible</span></span> = (position, getTile, getEntities, index) -&gt;
   <span class="comment"># TODO: Add diagonals if both edges are passable</span>
   cardinalDirections.map (direction) -&gt;
     position.add(direction)
   .filter (position) -&gt;
     <span class="comment"># Filter out any impassible or unlit tiles</span>
     tile = getTile(position)
-    <span class="comment"># BUG:</span>
-    <span class="comment"># TODO: Use activeSquad lit tiles</span>
-    tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit
+    tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit[index]
   .filter (position) -&gt;
     <span class="comment"># Filter out any tiles with peeps on them</span>
     <span class="comment"># TODO: Pass through friendly peeps</span>
@@ -113,9 +111,9 @@ may query its properties and figure out what to do.</p>
   directionsWithCosts.map ([direction, cost]) -&gt;
     [position.add(direction), cost]
 
-<span class="function"><span class="title">strategy</span></span> = (pattern, getTile, getEntities) -&gt;
+<span class="function"><span class="title">strategy</span></span> = (pattern, getTile, getEntities, index) -&gt;
   (position) -&gt;
-    pattern(position, getTile, getEntities)
+    pattern(position, getTile, getEntities, index)
 
 module.<span class="function"><span class="title">exports</span></span> = (getTile, getEntities) -&gt;</code></pre>
 </div>
@@ -131,10 +129,10 @@ module.<span class="function"><span class="title">exports</span></span> = (getTi
 through tiles.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  accessible: (duder, range) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  accessible: (duder, range, squadIndex) -&gt;
     Graph.accessible
       initial: duder.position()
-      neighbors: strategy neighborsVisible, getTile, getEntities
+      neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
       distanceMax: range
 
   adjacent: (duder, range=sqrt(<span class="number">2</span>)) -&gt;
@@ -143,11 +141,11 @@ through tiles.</p>
       neighbors: adjacentPositions
       distanceMax: range
 
-  movementPath: (duder, target) -&gt;
+  movementPath: (duder, target, squadIndex) -&gt;
     Graph.aStar
       initial: duder.position()
       goal: target
-      neighbors: strategy neighborsVisible, getTile, getEntities
+      neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
       heuristic: (a, b) -&gt;
         {x, y} = b.subtract(a).abs()
 
