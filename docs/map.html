@@ -175,18 +175,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     activeDuder: -&gt;
       duders.wrap(activeDuderIndex)
 
+    targettingAbility: -&gt;
+      self.activeDuder().targettingAbility()
+
     accessiblePositions: -&gt;
       duder = self.activeDuder()
 
-      <span class="keyword">if</span> ability = duder.targettingAbility()
+      <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
           <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
-            ability.perform duder,
-              position: duder.position()
-              character: duder
-
-            duder.resetTargetting()
-            self.updateDuder()
+            performAbility(duder, ability, duder.position())
 
             <span class="keyword">return</span>
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
@@ -195,7 +193,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
             <span class="comment"># TODO: Intersect results with character line of sight</span>
             search.adjacent(duder, ability.range())
 
-    updateDuder: -&gt;
+    stateBasedEffects: -&gt;
       duder = self.activeDuder()
 
       <span class="keyword">if</span> duder.actions() <span class="keyword">is</span> <span class="number">0</span>
@@ -204,21 +202,30 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         <span class="comment"># TODO: Maybe move this into a separate ready step for each squad</span>
         duder.ready()
 
+    performAbility: (owner, ability, targetPosition, path) -&gt;
+      ability.perform owner,
+        position: targetPosition
+        character: duderAt targetPosition
+        path: path
+
+      self.stateBasedEffects()
+
+    selectTarget: (position) -&gt;
+      ability = self.targettingAbility()
+
+      <span class="keyword">switch</span> ability.targetZone()
+        <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
+          self.moveDuder(position)
+        <span class="keyword">else</span>
+          self.performAbility(self.activeDuder(), ability, position)
+
     moveDuder: (position) -&gt;
       duder = self.activeDuder()
 
       path = search.movementPath(duder, position)
 
       <span class="keyword">if</span> path
-        path.forEach (position) -&gt;
-          duder.updatePosition position
-          duder.visibleTiles().forEach (tile) -&gt;
-            tile.seen = <span class="literal">true</span>
-
-        duder.move path.last()
-
-        duder.resetTargetting()
-        self.updateDuder()
+        self.performAbility(duder, self.targettingAbility(), position, path)
 
       updateVisibleTiles()
 

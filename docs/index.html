@@ -89,7 +89,7 @@ activeCharacter = <span class="literal">null</span>
 
 <span class="function"><span class="title">update</span></span> = -&gt;
   <span class="keyword">if</span> map
-    map.updateDuder()
+    map.stateBasedEffects()
     map.render(canvas)
     accessiblePositions = map.accessiblePositions()
     activeCharacter = map.activeDuder()
@@ -109,7 +109,7 @@ uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p
     , <span class="literal">false</span>
 
     <span class="keyword">if</span> inRange
-      map.moveDuder tilePosition
+      map.selectTarget tilePosition
       update()
 
 gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)

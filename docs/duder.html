@@ -74,10 +74,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     visibleTiles: -&gt;
       fov.calculate(self.position(), self.sight())
 
-    move: (newPosition) -&gt;
-      I.actions -= <span class="number">1</span>
-      self.position newPosition
-
     targettingAbility: Observable()
 
     updatePosition: (newPosition) -&gt;
@@ -104,6 +100,11 @@ any status effects.</p>
       iconName: <span class="string">"boots"</span>
       actionCost: <span class="number">1</span>
       targetZone: TARGET_ZONE.MOVEMENT
+      perform: (owner, {path}) -&gt;
+        path.forEach (position) -&gt;
+          self.updatePosition position
+          self.visibleTiles().forEach (tile) -&gt;
+            tile.seen = <span class="literal">true</span>
 
     Ability
       name: <span class="string">"Attack"</span>
@@ -112,6 +113,9 @@ any status effects.</p>
       actionCost: <span class="number">1</span>
       costType: COST_TYPE.REST
       targetZone: TARGET_ZONE.LINE_OF_SIGHT
+      perform: (owner, {position, character}) -&gt;
+        <span class="keyword">if</span> character
+          character.I.health -=<span class="number">1</span>
 
     Ability
       name: <span class="string">"Wait"</span>

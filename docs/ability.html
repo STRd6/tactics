@@ -65,10 +65,9 @@ tile.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
-    range: (character) -&gt;
-      character.movement()
+    range: <span class="number">1</span>
     actionCost: <span class="number">1</span>
-    name: <span class="string">"Move"</span>
+    name: <span class="string">"?"</span>
     costType: Ability.COST_TYPE.FIXED
 
   self.attrAccessor(
@@ -97,8 +96,10 @@ tile.</p>
     perform: (owner, target) -&gt;
       self.payCosts(owner)
 
-      <span class="comment"># TODO: Execute ability</span>
-      <span class="comment"># self._?(target)</span>
+      <span class="comment"># TODO: Not sure if this should be on I</span>
+      I.perform(owner, target)
+
+      owner.resetTargetting()
 
   <span class="keyword">return</span> self</code></pre>
 </div>
