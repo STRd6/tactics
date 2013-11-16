@@ -119,13 +119,16 @@ Hold the terrain and whatnot for a level.
 
             if seen[index]
               sprite.draw(canvas, canvasPosition)
-              if duder = characterAt(x, y)
-                duder.sprite().draw(canvas, canvasPosition)
+
+              if lit[index]
+                if duder = characterAt(x, y)
+                  duder.sprite().draw(canvas, canvasPosition)
 
               tile.features.forEach (feature) ->
                 feature.draw(canvas, canvasPosition)
 
               if !lit[index]
+                # Draw fog of war
                 canvas.drawRect
                   x: x * 32
                   y: y * 32
@@ -150,7 +153,7 @@ Hold the terrain and whatnot for a level.
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT
-                search.accessible(duder, duder.movement())
+                search.accessible(duder, duder.movement(), activeSquadIndex())
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 # TODO: Intersect results with character line of sight
                 search.adjacent(duder, ability.range())
@@ -190,7 +193,7 @@ Hold the terrain and whatnot for a level.
         moveDuder: (position) ->
           duder = self.activeCharacter()
 
-          path = search.movementPath(duder, position)
+          path = search.movementPath(duder, position, activeSquadIndex())
 
           if path
             index = activeSquadIndex()

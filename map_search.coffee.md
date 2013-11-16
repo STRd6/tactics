@@ -42,16 +42,14 @@ be reached immediately from the given position.
 The passed in `get` function returns the tile for a given position so that we
 may query its properties and figure out what to do.
 
-    neighborsVisible = (position, getTile, getEntities) ->
+    neighborsVisible = (position, getTile, getEntities, index) ->
       # TODO: Add diagonals if both edges are passable
       cardinalDirections.map (direction) ->
         position.add(direction)
       .filter (position) ->
         # Filter out any impassible or unlit tiles
         tile = getTile(position)
-        # BUG:
-        # TODO: Use activeSquad lit tiles
-        tile and !tile.solid and tile.lit
+        tile and !tile.solid and tile.lit[index]
       .filter (position) ->
         # Filter out any tiles with peeps on them
         # TODO: Pass through friendly peeps
@@ -63,19 +61,19 @@ may query its properties and figure out what to do.
       directionsWithCosts.map ([direction, cost]) ->
         [position.add(direction), cost]
 
-    strategy = (pattern, getTile, getEntities) ->
+    strategy = (pattern, getTile, getEntities, index) ->
       (position) ->
-        pattern(position, getTile, getEntities)
+        pattern(position, getTile, getEntities, index)
 
     module.exports = (getTile, getEntities) ->
 
 Returns a list of all positions accessible to the duder by normal movement
 through tiles.
 
-      accessible: (duder, range) ->
+      accessible: (duder, range, squadIndex) ->
         Graph.accessible
           initial: duder.position()
-          neighbors: strategy neighborsVisible, getTile, getEntities
+          neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
           distanceMax: range
 
       adjacent: (duder, range=sqrt(2)) ->
@@ -84,11 +82,11 @@ through tiles.
           neighbors: adjacentPositions
           distanceMax: range
 
-      movementPath: (duder, target) ->
+      movementPath: (duder, target, squadIndex) ->
         Graph.aStar
           initial: duder.position()
           goal: target
-          neighbors: strategy neighborsVisible, getTile, getEntities
+          neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
           heuristic: (a, b) ->
             {x, y} = b.subtract(a).abs()
 
