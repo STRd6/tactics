@@ -6,6 +6,10 @@ Squad
 A team of 4-6 characters who battle it out with other squads in tactical combat.
 
     module.exports = Squad = (I={}) ->
+      Object.defaults I,
+        sprite: "human"
+        x: 5
+    
       nextActivatableCharacter = ->
         self.characters.filter (character) ->
           character.actions() > 0
@@ -18,29 +22,29 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           if character = self.activeCharacter()
             if character.actions() is 0
               self.activeCharacter nextActivatableCharacter()
+        ready: ->
+          self.characters.forEach (character) ->
+            character.ready()
+
+          self.activeCharacter nextActivatableCharacter()
 
       # TODO: Load characters from data
       self.characters [
         Duder
           position:
-            x: 3
+            x: I.x - 1
             y: 7
-          sprite: "human"
+          sprite: I.sprite
         Duder
           position:
-            x: 3
+            x: I.x - 2
             y: 10
-          sprite: "human"
+          sprite: I.sprite
         Duder
           position:
-            x: 1
+            x: I.x - 4
             y: 13
-          sprite: "human"
-        Duder
-          position:
-            x: 5
-            y: 15
-          sprite: "human"
+          sprite: I.sprite
       ]
 
       self.activeCharacter self.characters.first()

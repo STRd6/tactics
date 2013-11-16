@@ -91,7 +91,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       uiCanvas.clear()
 
       if map
-        map.duders.forEach (duder) ->
+        map.characters().forEach (duder) ->
           if duder is activeCharacter
             CharacterUI.activeTactical(uiCanvas, duder)
           else

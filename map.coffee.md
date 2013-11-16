@@ -32,8 +32,8 @@ Hold the terrain and whatnot for a level.
 
     wall = ->
       sprite: wallSprites.rand()
-      lit: false
-      seen: false
+      lit: []
+      seen: []
       opaque: true
       solid: true
       features: []
@@ -42,8 +42,8 @@ Hold the terrain and whatnot for a level.
       bush = rand() < 0.1
 
       sprite: groundSprites[0].rand()
-      lit: false
-      seen: false
+      lit: []
+      seen: []
       opaque: bush
       solid: false
       features: [0...bush].map ->
@@ -54,49 +54,52 @@ Hold the terrain and whatnot for a level.
         background: "#222034"
 
       grid = Grid 32, 18, (x, y) ->
-        if (x is 12 and y >= 12 or y is 12 and x >= 12)
-          if (x is 20 and y is 12)
-            ground()
-          else
-            wall()
+        if rand() < 0.10
+          wall()
         else
-          if rand() < 0.10
-            wall()
-          else
-            ground()
+          ground()
 
       updateVisibleTiles = ->
         grid.each (tile) ->
-          tile.lit = false
+          tile.lit = []
 
-        duders.forEach (duder) ->
-          duder.visibleTiles(grid.get).forEach (tile) ->
-            tile.seen = tile.lit = true
+        squads.forEach (squad, i) ->
+          squad.characters().forEach (duder) ->
+            duder.visibleTiles(grid.get).forEach (tile) ->
+              tile.seen[i] = tile.lit[i] = true
 
       squads = [
         Squad()
+        Squad
+          sprite: "goblin"
+          x: 30
       ]
 
-      activeSquad = ->
-        squads.first()
+      activeSquad = Observable squads.first()
+      activeSquadIndex = ->
+        squads.indexOf activeSquad()
 
-      duders = squads.first().characters
+      nextActivatableSquad = ->
+        squads.filter (squad) ->
+          squad.activeCharacter()
+        .first()
 
-      duderAt = (x, y) ->
+      characterAt = (x, y) ->
         if x.x?
           {x, y} = x
 
-        duders.filter (duder) ->
-          position = duder.position()
+        self.characters().filter (character) ->
+          position = character.position()
           position.x is x and position.y is y
         .first()
 
-      updateVisibleTiles()
-
-      search = MapSearch(grid.get, duderAt)
+      search = MapSearch(grid.get, characterAt)
 
       self =
-        duders: Observable duders
+        characters: Observable ->
+          squads.map (squad) ->
+            squad.characters()
+          .flatten()
 
         render: (canvas) ->
           canvas.fill I.background
@@ -104,16 +107,18 @@ Hold the terrain and whatnot for a level.
           grid.each (tile, x, y) ->
             {sprite, lit, seen} = tile
             canvasPosition = Point(x, y).scale(32)
+            
+            index = activeSquadIndex()
 
-            if seen
+            if seen[index]
               sprite.draw(canvas, canvasPosition)
-              if duder = duderAt(x, y)
+              if duder = characterAt(x, y)
                 duder.sprite().draw(canvas, canvasPosition)
 
               tile.features.forEach (feature) ->
                 feature.draw(canvas, canvasPosition)
 
-              if !lit
+              if !lit[index]
                 canvas.drawRect
                   x: x * 32
                   y: y * 32
@@ -147,12 +152,22 @@ Hold the terrain and whatnot for a level.
           squads.forEach (squad) ->
             squad.stateBasedActions()
 
-        performAbility: (owner, ability, targetPosition, path) ->
+          activeSquad nextActivatableSquad()
+
+          unless self.activeCharacter()
+            # Refresh all squads
+            squads.forEach (squad) ->
+              squad.ready()
+
+            activeSquad nextActivatableSquad()
+
+            unless activeSquad()
+              ;# No survivors
+
+        performAbility: (owner, ability, targetPosition) ->
           ability.perform owner,
             position: targetPosition
-            character: duderAt targetPosition
-            path: path
-            tileAt: grid.get # TODO: this is weird here
+            character: characterAt targetPosition
 
           self.stateBasedActions()
 
@@ -171,8 +186,16 @@ Hold the terrain and whatnot for a level.
           path = search.movementPath(duder, position)
 
           if path
-            self.performAbility(duder, self.targettingAbility(), position, path)
+            index = activeSquadIndex()
+
+            path.forEach (position) ->
+              duder.visibleTiles(grid.get).forEach (tile) ->
+                tile.seen[index] = true
+
+            self.performAbility(duder, self.targettingAbility(), position)
 
           updateVisibleTiles()
+
+      updateVisibleTiles()
 
       return self

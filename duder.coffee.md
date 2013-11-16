@@ -55,11 +55,8 @@ any status effects.
           iconName: "boots"
           actionCost: 1
           targetZone: TARGET_ZONE.MOVEMENT
-          perform: (owner, {path, tileAt}) -> # TODO: tileAt is weird here
-            path.forEach (position) ->
-              self.updatePosition position
-              self.visibleTiles(tileAt).forEach (tile) -> # TODO: Maybe this should be an entered(position) callback?
-                tile.seen = true
+          perform: (owner, {position}) ->
+            self.updatePosition position
 
         Ability
           name: "Attack"
