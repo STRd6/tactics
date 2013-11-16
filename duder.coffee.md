@@ -6,9 +6,9 @@ Those little guys that run around.
 Use Shadowcasting for FoV calculations.
 
     Resource = require "./resource"
-    Shadowcasting = require "./shadowcasting"
     Action = require "./action"
     Ability = require "./ability"
+    FOV = require "./shadowcasting"
 
     {TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
     {sqrt} = Math
@@ -34,14 +34,9 @@ Use Shadowcasting for FoV calculations.
         "sight"
       )
 
-      fov = new Shadowcasting()
-      # TODO: Disentangle this tileAt dependency
-      fov.tileAt = (args...) ->
-        self.tileAt(args...)
-
       Object.extend self,
-        visibleTiles: ->
-          fov.calculate(self.position(), self.sight())
+        visibleTiles: (tileAt) ->
+          FOV.calculate(tileAt, self.position(), self.sight())
 
         targettingAbility: Observable()
 
@@ -60,10 +55,10 @@ any status effects.
           iconName: "boots"
           actionCost: 1
           targetZone: TARGET_ZONE.MOVEMENT
-          perform: (owner, {path}) ->
+          perform: (owner, {path, tileAt}) -> # TODO: tileAt is weird here
             path.forEach (position) ->
               self.updatePosition position
-              self.visibleTiles().forEach (tile) ->
+              self.visibleTiles(tileAt).forEach (tile) -> # TODO: Maybe this should be an entered(position) callback?
                 tile.seen = true
 
         Ability

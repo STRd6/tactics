@@ -62,10 +62,10 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     update = ->
       if map
-        map.stateBasedEffects()
+        map.stateBasedActions()
         map.render(canvas)
         accessiblePositions = map.accessiblePositions()
-        activeCharacter = map.activeDuder()
+        activeCharacter = map.activeCharacter()
         updateUiCanvas()
         ui.actions activeCharacter.uiActions()
 

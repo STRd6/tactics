@@ -30,85 +30,84 @@ Multipliers for transforming coordinates into other octants.
 
 Uses shadowcasting to calculate lighting at specified position
 
-    module.exports = ->
-      @tiles = []
+`calculateOctant` is the meat of the algorithm. I basically understand it, but the
+code isn't really in a position to be modified easily yet.
 
-      @calculateOctant = (cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
-        tile = @tileAt(cx, cy)
+http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting explains it fairly well.
 
-        @tiles.push tile
+    calculateOctant = (tiles, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
+      tile = tileAt(cx, cy)
 
-        new_start = 0
-        return if start < end
-        radius_squared = radius * radius
+      tiles.push tile
 
-        dx = -row
-        dy = -row
-        X = cx + dx * xx + dy * xy
-        Y = cy + dx * yx + dy * yy
+      new_start = 0
+      return if start < end
+      radius_squared = radius * radius
 
-        if id > 0
-          @markTile(Point(X, Y), 4)
+      dx = -row
+      dy = -row
+      X = cx + dx * xx + dy * xy
+      Y = cy + dx * yx + dy * yy
 
-        return unless row <= radius
-        done = false
+      if id > 0
+        markTile(Point(X, Y), 4)
 
-        [row..radius].forEach (i) =>
-          return if done
+      return unless row <= radius
+      done = false
 
-          dx = -i - 1
-          dy = -i
-          blocked = false
+      [row..radius].forEach (i) =>
+        return if done
 
-          while dx <= 0
-            dx += 1
-            X = cx + dx * xx + dy * xy
-            Y = cy + dx * yx + dy * yy
+        dx = -i - 1
+        dy = -i
+        blocked = false
 
-            d = radius - Math.sqrt(dx * dx + dy * dy)
-            @debugTile(Point(X, Y), "#{d.toFixed(2)}")
+        while dx <= 0
+          dx += 1
+          X = cx + dx * xx + dy * xy
+          Y = cy + dx * yx + dy * yy
 
-            if tile = @tileAt(X, Y)
-              l_slope = (dx - 0.5) / (dy + 0.5)
-              r_slope = (dx + 0.5) / (dy - 0.5)
+          d = radius - Math.sqrt(dx * dx + dy * dy)
+          debugTile(Point(X, Y), "#{d.toFixed(2)}")
 
-              if start < r_slope
-                continue
-              else if end > l_slope
-                break
-              else
-                if dx * dx + dy * dy < radius_squared
-                  @tiles.push tile
+          if tile = tileAt(X, Y)
+            l_slope = (dx - 0.5) / (dy + 0.5)
+            r_slope = (dx + 0.5) / (dy - 0.5)
 
-                if blocked
-                  if tile.opaque
-                    @markTile(Point(X, Y), 1)
-                    new_start = r_slope
-                    continue
-                  else
-                    @markTile(Point(X, Y), 2)
-                    blocked = false
-                    start = new_start
+            if start < r_slope
+              continue
+            else if end > l_slope
+              break
+            else
+              if dx * dx + dy * dy < radius_squared
+                tiles.push tile
+
+              if blocked
+                if tile.opaque
+                  markTile(Point(X, Y), 1)
+                  new_start = r_slope
+                  continue
                 else
-                  if tile.opaque
-                    @markTile(Point(X, Y), 0)
-                    blocked = true
-                    @calculateOctant cx, cy, i + 1, start, l_slope, radius,
-                      xx, xy, yx, yy, id + 1
-                    new_start = r_slope
+                  markTile(Point(X, Y), 2)
+                  blocked = false
+                  start = new_start
+              else
+                if tile.opaque
+                  markTile(Point(X, Y), 0)
+                  blocked = true
+                  calculateOctant tiles, tileAt, cx, cy, i + 1, start, l_slope, radius,
+                    xx, xy, yx, yy, id + 1
+                  new_start = r_slope
 
-          if blocked
-            done = true
+        if blocked
+          done = true
 
-Reset our tiles list.
-
-      @clear = ->
-        @tiles = []
+    module.exports =
 
 Calculate the field of vision.
 
-      @calculate = (position, radius) ->
-        @clear()
+      calculate: (tileAt, position, radius) ->
+        tiles = []
 
         [0..7].forEach (i) =>
           xx = mult[0][i]
@@ -116,35 +115,37 @@ Calculate the field of vision.
           yx = mult[2][i]
           yy = mult[3][i]
 
-          @calculateOctant position.x, position.y, 0, 1.0, 0.0, radius,
+          calculateOctant tiles, tileAt, position.x, position.y, 0, 1.0, 0.0, radius,
             xx, xy, yx, yy, 0
 
-        tile = @tileAt position.x, position.y
+        tile = tileAt position.x, position.y
 
-        @tiles.push tile
+        tiles.push tile
 
-        return @tiles
+        return tiles
 
-      @debugTile = (position, message) ->
-        return unless debug
+Debug Helpers
+-------------
 
-        setTimeout ->
-          message.split("\n").forEach (part, i) ->
-            canvas.centerText
-              position: position.add(Point(0.5, 0.5)).scale(32).add Point(0, i).scale(12)
-              text: part
-              color: "white"
-        , 0
+    debugTile = (position, message) ->
+      return unless debug
 
-      @markTile = (position, color) ->
-        return unless debug
+      setTimeout ->
+        message.split("\n").forEach (part, i) ->
+          canvas.centerText
+            position: position.add(Point(0.5, 0.5)).scale(32).add Point(0, i).scale(12)
+            text: part
+            color: "white"
+      , 0
 
-        setTimeout ->
-          canvas.drawRect
-            position: position.scale(32)
-            width: 32
-            height: 32
-            color: colors[color]
-        , 0
+    markTile = (position, color) ->
+      return unless debug
 
-      return this
+      setTimeout ->
+        canvas.drawRect
+          position: position.scale(32)
+          width: 32
+          height: 32
+          color: colors[color]
+      , 0
+

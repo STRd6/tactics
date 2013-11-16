@@ -5,11 +5,15 @@ Handle 2 teams on map.
 
 4 characters in each team
 
+Next Character / Previous Character Buttons
+
 Handle winning and losing.
 
 Ranged attacks
 
 Remove characters with zero health in SBEs
+
+Map Scrolling
 
 Random Level Generation
 

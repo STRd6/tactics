@@ -2,8 +2,8 @@ Map
 ===
     Ability = require "./ability"
     Resource = require "./resource"
-    Duder = require "./duder"
     MapSearch = require "./map_search"
+    Squad = require "./squad"
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
@@ -65,32 +65,22 @@ Hold the terrain and whatnot for a level.
           else
             ground()
 
-      duders = [
-        Duder
-          position:
-            x: 11
-            y: 11
-          sprite: "human"
-          sight: 7
-        Duder
-          position:
-            x: 20
-            y: 15
-          sprite: "goblin"
-          sight: 7
-      ]
-      activeDuderIndex = 0
-
-      duders.forEach (duder) ->
-        duder.tileAt = grid.get
-
       updateVisibleTiles = ->
         grid.each (tile) ->
           tile.lit = false
 
         duders.forEach (duder) ->
-          duder.visibleTiles().forEach (tile) ->
+          duder.visibleTiles(grid.get).forEach (tile) ->
             tile.seen = tile.lit = true
+
+      squads = [
+        Squad()
+      ]
+
+      activeSquad = ->
+        squads.first()
+
+      duders = squads.first().characters
 
       duderAt = (x, y) ->
         if x.x?
@@ -131,14 +121,15 @@ Hold the terrain and whatnot for a level.
                   height: 32
                   color: "rgba(0, 0, 0, 0.5)"
 
-        activeDuder: ->
-          duders.wrap(activeDuderIndex)
-        
+        activeCharacter: ->
+          activeSquad().activeCharacter()
+
         targettingAbility: ->
-          self.activeDuder().targettingAbility()
+          if character = self.activeCharacter()
+            character.targettingAbility()
 
         accessiblePositions: ->
-          duder = self.activeDuder()
+          duder = self.activeCharacter()
 
           if ability = self.targettingAbility()
             switch ability.targetZone()
@@ -152,22 +143,18 @@ Hold the terrain and whatnot for a level.
                 # TODO: Intersect results with character line of sight
                 search.adjacent(duder, ability.range())
 
-        stateBasedEffects: ->
-          duder = self.activeDuder()
-
-          if duder.actions() is 0
-            activeDuderIndex += 1
-
-            # TODO: Maybe move this into a separate ready step for each squad
-            duder.ready()
+        stateBasedActions: ->
+          squads.forEach (squad) ->
+            squad.stateBasedActions()
 
         performAbility: (owner, ability, targetPosition, path) ->
           ability.perform owner,
             position: targetPosition
             character: duderAt targetPosition
             path: path
+            tileAt: grid.get # TODO: this is weird here
 
-          self.stateBasedEffects()
+          self.stateBasedActions()
 
         selectTarget: (position) ->
           ability = self.targettingAbility()
@@ -176,10 +163,10 @@ Hold the terrain and whatnot for a level.
             when Ability.TARGET_ZONE.MOVEMENT
               self.moveDuder(position)
             else
-              self.performAbility(self.activeDuder(), ability, position)
+              self.performAbility(self.activeCharacter(), ability, position)
 
         moveDuder: (position) ->
-          duder = self.activeDuder()
+          duder = self.activeCharacter()
 
           path = search.movementPath(duder, position)
 
