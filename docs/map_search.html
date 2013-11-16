@@ -34,7 +34,15 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Graph = require <span class="string">"./graph"</span></code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">Graph = require <span class="string">"./graph"</span>
+{sqrt} = Math
+
+{
+  indexOf
+  intersection
+  unique
+  without
+} = require <span class="string">"./array_helpers"</span></code></pre>
 </div>
         </li>
         
@@ -50,11 +58,25 @@ abstract graph searching and our concrete implementation.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">cardinalDirections = [
-  Point(<span class="number">1</span>, <span class="number">0</span>)
-  Point(-<span class="number">1</span>, <span class="number">0</span>)
-  Point(<span class="number">0</span>, <span class="number">1</span>)
   Point(<span class="number">0</span>, -<span class="number">1</span>)
-]</code></pre>
+  Point(<span class="number">1</span>, <span class="number">0</span>)
+  Point(<span class="number">0</span>, <span class="number">1</span>)
+  Point(-<span class="number">1</span>, <span class="number">0</span>)
+]
+
+<span class="function"><span class="title">calculateDiagonals</span></span> = (directions) -&gt;
+  results = []
+  directions.eachPair (a, b) -&gt;
+    results.push a.add(b)
+
+  without(unique(results), Point.ZERO)
+
+ordinalDirections = calculateDiagonals(cardinalDirections)
+
+directionsWithCosts = cardinalDirections.map (direction) -&gt;
+  [direction, <span class="number">1</span>]
+.concat ordinalDirections.map (direction) -&gt;
+  [direction, sqrt(<span class="number">2</span>)]</code></pre>
 </div>
         </li>
         
@@ -85,6 +107,10 @@ may query its properties and figure out what to do.</p>
   .map (position) -&gt;
     [position, <span class="number">1</span>]
 
+<span class="function"><span class="title">adjacentPositions</span></span> = (position) -&gt;
+  directionsWithCosts.map ([direction, cost]) -&gt;
+    [position.add(direction), cost]
+
 <span class="function"><span class="title">strategy</span></span> = (pattern, getTile, getEntities) -&gt;
   (position) -&gt;
     pattern(position, getTile, getEntities)
@@ -107,7 +133,13 @@ through tiles.</p>
     Graph.accessible
       initial: duder.position()
       neighbors: strategy neighborsVisible, getTile, getEntities
-      distanceMax: range <span class="keyword">or</span> duder.movement()
+      distanceMax: range
+
+  adjacent: (duder, range=sqrt(<span class="number">2</span>)) -&gt;
+    Graph.accessible
+      initial: duder.position()
+      neighbors: adjacentPositions
+      distanceMax: range
 
   movementPath: (duder, target) -&gt;
     Graph.aStar

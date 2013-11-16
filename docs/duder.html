@@ -41,7 +41,8 @@ Shadowcasting = require <span class="string">"./shadowcasting"</span>
 Action = require <span class="string">"./action"</span>
 Ability = require <span class="string">"./ability"</span>
 
-{TARGET_TYPE} = Ability
+{TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
+{sqrt} = Math
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
@@ -65,20 +66,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   )
 
   fov = <span class="keyword">new</span> Shadowcasting()
+  <span class="comment"># TODO: Disentangle this tileAt dependency</span>
   fov.<span class="function"><span class="title">tileAt</span></span> = (args...) -&gt;
     self.tileAt(args...)
 
-  self.<span class="function"><span class="title">visibleTiles</span></span> = -&gt;
-    fov.calculate(self.position(), self.sight())
+  Object.extend self,
+    visibleTiles: -&gt;
+      fov.calculate(self.position(), self.sight())
 
-  self.<span class="function"><span class="title">move</span></span> = (newPosition) -&gt;
-    I.actions -= <span class="number">1</span>
-    self.position newPosition
+    move: (newPosition) -&gt;
+      I.actions -= <span class="number">1</span>
+      self.position newPosition
 
-  self.targettingAbility = Observable()
+    targettingAbility: Observable()
 
-  self.<span class="function"><span class="title">updatePosition</span></span> = (newPosition) -&gt;
-    self.position newPosition</code></pre>
+    updatePosition: (newPosition) -&gt;
+      self.position newPosition</code></pre>
 </div>
         </li>
         
@@ -92,32 +95,30 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 any status effects.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  self.<span class="function"><span class="title">ready</span></span> = -&gt;
-    I.actions = <span class="number">2</span>
+            <div class="content"><pre><code class="lang-coffeescript">    ready: -&gt;
+      I.actions = <span class="number">2</span>
 
   abilities = [
     Ability
       name: <span class="string">"Move"</span>
       iconName: <span class="string">"boots"</span>
-      range: (character) -&gt;
-        character.movement()
       actionCost: <span class="number">1</span>
-      targetType: Ability.TARGET_TYPE.MOVEMENT
+      targetZone: TARGET_ZONE.MOVEMENT
 
     Ability
       name: <span class="string">"Attack"</span>
       iconName: <span class="string">"sword"</span>
-      range: <span class="number">1</span>
+      range: sqrt(<span class="number">2</span>)
       actionCost: <span class="number">1</span>
-      costType: Ability.COST_TYPE.REST
-      targetType: Ability.TARGET_TYPE.LOS
+      costType: COST_TYPE.REST
+      targetZone: TARGET_ZONE.LINE_OF_SIGHT
 
     Ability
       name: <span class="string">"Wait"</span>
       iconName: <span class="string">"hourglass"</span>
       actionCost: <span class="number">1</span>
-      costType: Ability.COST_TYPE.REST
-      targetType: Ability.TARGET_TYPE.SELF
+      costType: COST_TYPE.REST
+      targetZone: TARGET_ZONE.SELF
   ]
 
   actions = abilities.map (ability) -&gt;

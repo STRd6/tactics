@@ -79,6 +79,7 @@ tile.</p>
     <span class="string">"name"</span>
     <span class="string">"range"</span>
     <span class="string">"targetType"</span>
+    <span class="string">"targetZone"</span>
   )
 
   Object.extend self,
@@ -117,12 +118,19 @@ that target&#39;s an enemy, but has movement range and connectedness constraints
 <p>Should there be range types too? Connected, any, passable, etc?</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Ability.TARGET_TYPE = TARGET_TYPE =
+            <div class="content"><pre><code class="lang-coffeescript">Ability.TARGET_ZONE = TARGET_ZONE =
   SELF: <span class="number">1</span> <span class="comment"># The character itself, skips targetting step</span>
-  LOS: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
+  LINE_OF_SIGHT: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
   VISIBLE: <span class="number">3</span> <span class="comment"># Any tile visible to squad within range</span>
-  ANY: <span class="number">4</span> <span class="comment"># Any tile within range</span>
-  MOVEMENT: <span class="number">5</span> <span class="comment"># Visible, passable, connected</span>
+  MOVEMENT: <span class="number">4</span> <span class="comment"># Visible, passable, connected, movement penalties and bonuses apply</span>
+  ANY: <span class="number">15</span> <span class="comment"># Any tile within range</span>
+
+Ability.TARGET_TYPE = TARGET_TYPE =
+  FRIENDLY: <span class="number">1</span>
+  ENEMY: <span class="number">2</span>
+  OPEN: <span class="number">3</span>
+  WALL: <span class="number">4</span>
+  ANY: <span class="number">15</span>
 
 Ability.COST_TYPE = COST_TYPE =
   FIXED: <span class="number">1</span>

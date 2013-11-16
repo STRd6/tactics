@@ -179,20 +179,21 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       duder = self.activeDuder()
 
       <span class="keyword">if</span> ability = duder.targettingAbility()
-        <span class="keyword">if</span> ability.targetType() <span class="keyword">is</span> Ability.TARGET_TYPE.SELF
-          ability.perform duder,
-            position: duder.position()
-            character: duder
+        <span class="keyword">switch</span> ability.targetZone()
+          <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
+            ability.perform duder,
+              position: duder.position()
+              character: duder
 
-          duder.resetTargetting()
-          self.updateDuder()
+            duder.resetTargetting()
+            self.updateDuder()
 
-          <span class="keyword">return</span>
-        <span class="keyword">else</span> <span class="keyword">if</span> ability.targetType() <span class="keyword">is</span> Ability.TARGET_TYPE.MOVEMENT
-          search.accessible(duder)
-        <span class="keyword">else</span> <span class="keyword">if</span> ability.targetType() <span class="keyword">is</span> Ability.TARGET_TYPE.LOS
-          <span class="comment"># TODO: Real LOS not these mad hacks</span>
-          search.accessible(duder, <span class="number">1</span>)
+            <span class="keyword">return</span>
+          <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
+            search.accessible(duder, duder.movement())
+          <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
+            <span class="comment"># TODO: Intersect results with character line of sight</span>
+            search.adjacent(duder, ability.range())
 
     updateDuder: -&gt;
       duder = self.activeDuder()
