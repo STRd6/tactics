@@ -92,10 +92,10 @@ activeCharacter = <span class="literal">null</span>
 
 <span class="function"><span class="title">update</span></span> = -&gt;
   <span class="keyword">if</span> map
-    map.stateBasedEffects()
+    map.stateBasedActions()
     map.render(canvas)
     accessiblePositions = map.accessiblePositions()
-    activeCharacter = map.activeDuder()
+    activeCharacter = map.activeCharacter()
     updateUiCanvas()
     ui.actions activeCharacter.uiActions()
 

@@ -36,8 +36,8 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Resource = require <span class="string">"./resource"</span>
-Duder = require <span class="string">"./duder"</span>
 MapSearch = require <span class="string">"./map_search"</span>
+Squad = require <span class="string">"./squad"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span>
 Graph = require <span class="string">"./graph"</span>
@@ -108,32 +108,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       <span class="keyword">else</span>
         ground()
 
-  duders = [
-    Duder
-      position:
-        x: <span class="number">11</span>
-        y: <span class="number">11</span>
-      sprite: <span class="string">"human"</span>
-      sight: <span class="number">7</span>
-    Duder
-      position:
-        x: <span class="number">20</span>
-        y: <span class="number">15</span>
-      sprite: <span class="string">"goblin"</span>
-      sight: <span class="number">7</span>
-  ]
-  activeDuderIndex = <span class="number">0</span>
-
-  duders.forEach (duder) -&gt;
-    duder.tileAt = grid.get
-
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
     grid.each (tile) -&gt;
       tile.lit = <span class="literal">false</span>
 
     duders.forEach (duder) -&gt;
-      duder.visibleTiles().forEach (tile) -&gt;
+      duder.visibleTiles(grid.get).forEach (tile) -&gt;
         tile.seen = tile.lit = <span class="literal">true</span>
+
+  squads = [
+    Squad()
+  ]
+
+  <span class="function"><span class="title">activeSquad</span></span> = -&gt;
+    squads.first()
+
+  duders = squads.first().characters
 
   <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
@@ -174,14 +164,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
               height: <span class="number">32</span>
               color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
-    activeDuder: -&gt;
-      duders.wrap(activeDuderIndex)
+    activeCharacter: -&gt;
+      activeSquad().activeCharacter()
 
     targettingAbility: -&gt;
-      self.activeDuder().targettingAbility()
+      <span class="keyword">if</span> character = self.activeCharacter()
+        character.targettingAbility()
 
     accessiblePositions: -&gt;
-      duder = self.activeDuder()
+      duder = self.activeCharacter()
 
       <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
@@ -195,22 +186,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
             <span class="comment"># TODO: Intersect results with character line of sight</span>
             search.adjacent(duder, ability.range())
 
-    stateBasedEffects: -&gt;
-      duder = self.activeDuder()
-
-      <span class="keyword">if</span> duder.actions() <span class="keyword">is</span> <span class="number">0</span>
-        activeDuderIndex += <span class="number">1</span>
-
-        <span class="comment"># TODO: Maybe move this into a separate ready step for each squad</span>
-        duder.ready()
+    stateBasedActions: -&gt;
+      squads.forEach (squad) -&gt;
+        squad.stateBasedActions()
 
     performAbility: (owner, ability, targetPosition, path) -&gt;
       ability.perform owner,
         position: targetPosition
         character: duderAt targetPosition
         path: path
+        tileAt: grid.get <span class="comment"># TODO: this is weird here</span>
 
-      self.stateBasedEffects()
+      self.stateBasedActions()
 
     selectTarget: (position) -&gt;
       ability = self.targettingAbility()
@@ -219,10 +206,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
           self.moveDuder(position)
         <span class="keyword">else</span>
-          self.performAbility(self.activeDuder(), ability, position)
+          self.performAbility(self.activeCharacter(), ability, position)
 
     moveDuder: (position) -&gt;
-      duder = self.activeDuder()
+      duder = self.activeCharacter()
 
       path = search.movementPath(duder, position)
 

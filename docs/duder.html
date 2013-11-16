@@ -37,9 +37,9 @@
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
-Shadowcasting = require <span class="string">"./shadowcasting"</span>
 Action = require <span class="string">"./action"</span>
 Ability = require <span class="string">"./ability"</span>
+FOV = require <span class="string">"./shadowcasting"</span>
 
 {TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
 {sqrt} = Math
@@ -65,14 +65,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"sight"</span>
   )
 
-  fov = <span class="keyword">new</span> Shadowcasting()
-  <span class="comment"># TODO: Disentangle this tileAt dependency</span>
-  fov.<span class="function"><span class="title">tileAt</span></span> = (args...) -&gt;
-    self.tileAt(args...)
-
   Object.extend self,
-    visibleTiles: -&gt;
-      fov.calculate(self.position(), self.sight())
+    visibleTiles: (tileAt) -&gt;
+      FOV.calculate(tileAt, self.position(), self.sight())
 
     targettingAbility: Observable()
 
@@ -100,10 +95,10 @@ any status effects.</p>
       iconName: <span class="string">"boots"</span>
       actionCost: <span class="number">1</span>
       targetZone: TARGET_ZONE.MOVEMENT
-      perform: (owner, {path}) -&gt;
+      perform: (owner, {path, tileAt}) -&gt; <span class="comment"># TODO: tileAt is weird here</span>
         path.forEach (position) -&gt;
           self.updatePosition position
-          self.visibleTiles().forEach (tile) -&gt;
+          self.visibleTiles(tileAt).forEach (tile) -&gt; <span class="comment"># TODO: Maybe this should be an entered(position) callback?</span>
             tile.seen = <span class="literal">true</span>
 
     Ability
