@@ -143,7 +143,7 @@ Hold the terrain and whatnot for a level.
           if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
-                performAbility(duder, ability, duder.position())
+                self.performAbility(duder, ability, duder.position())
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT

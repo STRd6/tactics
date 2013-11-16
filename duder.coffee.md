@@ -83,6 +83,7 @@ any status effects.
           actionCost: 1
           costType: COST_TYPE.REST
           targetZone: TARGET_ZONE.SELF
+          perform: ->
       ]
 
       actions = abilities.map (ability) ->
