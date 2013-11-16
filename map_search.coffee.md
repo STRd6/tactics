@@ -2,17 +2,39 @@ Map Search
 ==========
 
     Graph = require "./graph"
+    {sqrt} = Math
+
+    {
+      indexOf
+      intersection
+      unique
+      without
+    } = require "./array_helpers"
 
 Here's a dumping ground for all the specifics of how we use A* and other graph
 search algorithms with our tile data objects. It's the glue between
 abstract graph searching and our concrete implementation.
 
     cardinalDirections = [
-      Point(1, 0)
-      Point(-1, 0)
-      Point(0, 1)
       Point(0, -1)
+      Point(1, 0)
+      Point(0, 1)
+      Point(-1, 0)
     ]
+
+    calculateDiagonals = (directions) ->
+      results = []
+      directions.eachPair (a, b) ->
+        results.push a.add(b)
+
+      without(unique(results), Point.ZERO)
+
+    ordinalDirections = calculateDiagonals(cardinalDirections)
+
+    directionsWithCosts = cardinalDirections.map (direction) ->
+      [direction, 1]
+    .concat ordinalDirections.map (direction) ->
+      [direction, sqrt(2)]
 
 Return an array of [position, cost] pairs that represents locations that can
 be reached immediately from the given position.
@@ -35,6 +57,10 @@ may query its properties and figure out what to do.
       .map (position) ->
         [position, 1]
 
+    adjacentPositions = (position) ->
+      directionsWithCosts.map ([direction, cost]) ->
+        [position.add(direction), cost]
+
     strategy = (pattern, getTile, getEntities) ->
       (position) ->
         pattern(position, getTile, getEntities)
@@ -48,7 +74,13 @@ through tiles.
         Graph.accessible
           initial: duder.position()
           neighbors: strategy neighborsVisible, getTile, getEntities
-          distanceMax: range or duder.movement()
+          distanceMax: range
+
+      adjacent: (duder, range=sqrt(2)) ->
+        Graph.accessible
+          initial: duder.position()
+          neighbors: adjacentPositions
+          distanceMax: range
 
       movementPath: (duder, target) ->
         Graph.aStar

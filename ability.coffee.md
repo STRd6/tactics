@@ -54,6 +54,7 @@ Some cool abilities that should be in the game
         "name"
         "range"
         "targetType"
+        "targetZone"
       )
 
       Object.extend self,
@@ -84,12 +85,19 @@ that target's an enemy, but has movement range and connectedness constraints.
 
 Should there be range types too? Connected, any, passable, etc?
 
-    Ability.TARGET_TYPE = TARGET_TYPE =
+    Ability.TARGET_ZONE = TARGET_ZONE =
       SELF: 1 # The character itself, skips targetting step
-      LOS: 2 # Any tile within character's line of sight and within range
+      LINE_OF_SIGHT: 2 # Any tile within character's line of sight and within range
       VISIBLE: 3 # Any tile visible to squad within range
-      ANY: 4 # Any tile within range
-      MOVEMENT: 5 # Visible, passable, connected
+      MOVEMENT: 4 # Visible, passable, connected, movement penalties and bonuses apply
+      ANY: 15 # Any tile within range
+
+    Ability.TARGET_TYPE = TARGET_TYPE =
+      FRIENDLY: 1
+      ENEMY: 2
+      OPEN: 3
+      WALL: 4
+      ANY: 15
 
     Ability.COST_TYPE = COST_TYPE =
       FIXED: 1

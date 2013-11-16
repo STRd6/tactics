@@ -10,7 +10,8 @@ Use Shadowcasting for FoV calculations.
     Action = require "./action"
     Ability = require "./ability"
 
-    {TARGET_TYPE} = Ability
+    {TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
+    {sqrt} = Math
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
@@ -34,50 +35,50 @@ Use Shadowcasting for FoV calculations.
       )
 
       fov = new Shadowcasting()
+      # TODO: Disentangle this tileAt dependency
       fov.tileAt = (args...) ->
         self.tileAt(args...)
 
-      self.visibleTiles = ->
-        fov.calculate(self.position(), self.sight())
+      Object.extend self,
+        visibleTiles: ->
+          fov.calculate(self.position(), self.sight())
 
-      self.move = (newPosition) ->
-        I.actions -= 1
-        self.position newPosition
+        move: (newPosition) ->
+          I.actions -= 1
+          self.position newPosition
 
-      self.targettingAbility = Observable()
+        targettingAbility: Observable()
 
-      self.updatePosition = (newPosition) ->
-        self.position newPosition
+        updatePosition: (newPosition) ->
+          self.position newPosition
 
 Ready is called at the beginning of each turn. It resets the actions and processes
 any status effects.
 
-      self.ready = ->
-        I.actions = 2
+        ready: ->
+          I.actions = 2
 
       abilities = [
         Ability
           name: "Move"
           iconName: "boots"
-          range: (character) ->
-            character.movement()
           actionCost: 1
-          targetType: Ability.TARGET_TYPE.MOVEMENT
+          targetZone: TARGET_ZONE.MOVEMENT
 
         Ability
           name: "Attack"
           iconName: "sword"
-          range: 1
+          range: sqrt(2)
           actionCost: 1
-          costType: Ability.COST_TYPE.REST
-          targetType: Ability.TARGET_TYPE.LOS
+          costType: COST_TYPE.REST
+          targetZone: TARGET_ZONE.LINE_OF_SIGHT
 
         Ability
           name: "Wait"
           iconName: "hourglass"
           actionCost: 1
-          costType: Ability.COST_TYPE.REST
-          targetType: Ability.TARGET_TYPE.SELF
+          costType: COST_TYPE.REST
+          targetZone: TARGET_ZONE.SELF
       ]
 
       actions = abilities.map (ability) ->

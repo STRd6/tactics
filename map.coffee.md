@@ -136,20 +136,21 @@ Hold the terrain and whatnot for a level.
           duder = self.activeDuder()
 
           if ability = duder.targettingAbility()
-            if ability.targetType() is Ability.TARGET_TYPE.SELF
-              ability.perform duder,
-                position: duder.position()
-                character: duder
+            switch ability.targetZone()
+              when Ability.TARGET_ZONE.SELF
+                ability.perform duder,
+                  position: duder.position()
+                  character: duder
 
-              duder.resetTargetting()
-              self.updateDuder()
+                duder.resetTargetting()
+                self.updateDuder()
 
-              return
-            else if ability.targetType() is Ability.TARGET_TYPE.MOVEMENT
-              search.accessible(duder)
-            else if ability.targetType() is Ability.TARGET_TYPE.LOS
-              # TODO: Real LOS not these mad hacks
-              search.accessible(duder, 1)
+                return
+              when Ability.TARGET_ZONE.MOVEMENT
+                search.accessible(duder, duder.movement())
+              when Ability.TARGET_ZONE.LINE_OF_SIGHT
+                # TODO: Intersect results with character line of sight
+                search.adjacent(duder, ability.range())
 
         updateDuder: ->
           duder = self.activeDuder()
