@@ -95,11 +95,8 @@ any status effects.</p>
       iconName: <span class="string">"boots"</span>
       actionCost: <span class="number">1</span>
       targetZone: TARGET_ZONE.MOVEMENT
-      perform: (owner, {path, tileAt}) -&gt; <span class="comment"># TODO: tileAt is weird here</span>
-        path.forEach (position) -&gt;
-          self.updatePosition position
-          self.visibleTiles(tileAt).forEach (tile) -&gt; <span class="comment"># TODO: Maybe this should be an entered(position) callback?</span>
-            tile.seen = <span class="literal">true</span>
+      perform: (owner, {position}) -&gt;
+        self.updatePosition position
 
     Ability
       name: <span class="string">"Attack"</span>

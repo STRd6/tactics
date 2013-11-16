@@ -48,6 +48,10 @@
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Squad</span></span> = (I={}) -&gt;
+  Object.defaults I,
+    sprite: <span class="string">"human"</span>
+    x: <span class="number">5</span>
+
   <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
     self.characters.filter (character) -&gt;
       character.actions() &gt; <span class="number">0</span>
@@ -60,29 +64,29 @@
       <span class="keyword">if</span> character = self.activeCharacter()
         <span class="keyword">if</span> character.actions() <span class="keyword">is</span> <span class="number">0</span>
           self.activeCharacter nextActivatableCharacter()
+    ready: -&gt;
+      self.characters.forEach (character) -&gt;
+        character.ready()
+
+      self.activeCharacter nextActivatableCharacter()
 
   <span class="comment"># TODO: Load characters from data</span>
   self.characters [
     Duder
       position:
-        x: <span class="number">3</span>
+        x: I.x - <span class="number">1</span>
         y: <span class="number">7</span>
-      sprite: <span class="string">"human"</span>
+      sprite: I.sprite
     Duder
       position:
-        x: <span class="number">3</span>
+        x: I.x - <span class="number">2</span>
         y: <span class="number">10</span>
-      sprite: <span class="string">"human"</span>
+      sprite: I.sprite
     Duder
       position:
-        x: <span class="number">1</span>
+        x: I.x - <span class="number">4</span>
         y: <span class="number">13</span>
-      sprite: <span class="string">"human"</span>
-    Duder
-      position:
-        x: <span class="number">5</span>
-        y: <span class="number">15</span>
-      sprite: <span class="string">"human"</span>
+      sprite: I.sprite
   ]
 
   self.activeCharacter self.characters.first()

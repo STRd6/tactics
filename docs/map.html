@@ -75,8 +75,8 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
 
 <span class="function"><span class="title">wall</span></span> = -&gt;
   sprite: wallSprites.rand()
-  lit: <span class="literal">false</span>
-  seen: <span class="literal">false</span>
+  lit: []
+  seen: []
   opaque: <span class="literal">true</span>
   solid: <span class="literal">true</span>
   features: []
@@ -85,8 +85,8 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
   bush = rand() &lt; <span class="number">0.1</span>
 
   sprite: groundSprites[<span class="number">0</span>].rand()
-  lit: <span class="literal">false</span>
-  seen: <span class="literal">false</span>
+  lit: []
+  seen: []
   opaque: bush
   solid: <span class="literal">false</span>
   features: [<span class="number">0.</span>..bush].map -&gt;
@@ -97,49 +97,52 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     background: <span class="string">"#222034"</span>
 
   grid = Grid <span class="number">32</span>, <span class="number">18</span>, (x, y) -&gt;
-    <span class="keyword">if</span> (x <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> y &gt;= <span class="number">12</span> <span class="keyword">or</span> y <span class="keyword">is</span> <span class="number">12</span> <span class="keyword">and</span> x &gt;= <span class="number">12</span>)
-      <span class="keyword">if</span> (x <span class="keyword">is</span> <span class="number">20</span> <span class="keyword">and</span> y <span class="keyword">is</span> <span class="number">12</span>)
-        ground()
-      <span class="keyword">else</span>
-        wall()
+    <span class="keyword">if</span> rand() &lt; <span class="number">0.10</span>
+      wall()
     <span class="keyword">else</span>
-      <span class="keyword">if</span> rand() &lt; <span class="number">0.10</span>
-        wall()
-      <span class="keyword">else</span>
-        ground()
+      ground()
 
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
     grid.each (tile) -&gt;
-      tile.lit = <span class="literal">false</span>
+      tile.lit = []
 
-    duders.forEach (duder) -&gt;
-      duder.visibleTiles(grid.get).forEach (tile) -&gt;
-        tile.seen = tile.lit = <span class="literal">true</span>
+    squads.forEach (squad, i) -&gt;
+      squad.characters().forEach (duder) -&gt;
+        duder.visibleTiles(grid.get).forEach (tile) -&gt;
+          tile.seen[i] = tile.lit[i] = <span class="literal">true</span>
 
   squads = [
     Squad()
+    Squad
+      sprite: <span class="string">"goblin"</span>
+      x: <span class="number">30</span>
   ]
 
-  <span class="function"><span class="title">activeSquad</span></span> = -&gt;
-    squads.first()
+  activeSquad = Observable squads.first()
+  <span class="function"><span class="title">activeSquadIndex</span></span> = -&gt;
+    squads.indexOf activeSquad()
 
-  duders = squads.first().characters
+  <span class="function"><span class="title">nextActivatableSquad</span></span> = -&gt;
+    squads.filter (squad) -&gt;
+      squad.activeCharacter()
+    .first()
 
-  <span class="function"><span class="title">duderAt</span></span> = (x, y) -&gt;
+  <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
       {x, y} = x
 
-    duders.filter (duder) -&gt;
-      position = duder.position()
+    self.characters().filter (character) -&gt;
+      position = character.position()
       position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y
     .first()
 
-  updateVisibleTiles()
-
-  search = MapSearch(grid.get, duderAt)
+  search = MapSearch(grid.get, characterAt)
 
   self =
-    duders: Observable duders
+    characters: Observable -&gt;
+      squads.map (squad) -&gt;
+        squad.characters()
+      .flatten()
 
     render: (canvas) -&gt;
       canvas.fill I.background
@@ -148,15 +151,17 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         {sprite, lit, seen} = tile
         canvasPosition = Point(x, y).scale(<span class="number">32</span>)
 
-        <span class="keyword">if</span> seen
+        index = activeSquadIndex()
+
+        <span class="keyword">if</span> seen[index]
           sprite.draw(canvas, canvasPosition)
-          <span class="keyword">if</span> duder = duderAt(x, y)
+          <span class="keyword">if</span> duder = characterAt(x, y)
             duder.sprite().draw(canvas, canvasPosition)
 
           tile.features.forEach (feature) -&gt;
             feature.draw(canvas, canvasPosition)
 
-          <span class="keyword">if</span> !lit
+          <span class="keyword">if</span> !lit[index]
             canvas.drawRect
               x: x * <span class="number">32</span>
               y: y * <span class="number">32</span>
@@ -190,12 +195,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       squads.forEach (squad) -&gt;
         squad.stateBasedActions()
 
-    performAbility: (owner, ability, targetPosition, path) -&gt;
+      activeSquad nextActivatableSquad()
+
+      <span class="keyword">unless</span> self.activeCharacter()
+        <span class="comment"># Refresh all squads</span>
+        squads.forEach (squad) -&gt;
+          squad.ready()
+
+        activeSquad nextActivatableSquad()
+
+        <span class="keyword">unless</span> activeSquad()
+          ;<span class="comment"># No survivors</span>
+
+    performAbility: (owner, ability, targetPosition) -&gt;
       ability.perform owner,
         position: targetPosition
-        character: duderAt targetPosition
-        path: path
-        tileAt: grid.get <span class="comment"># TODO: this is weird here</span>
+        character: characterAt targetPosition
 
       self.stateBasedActions()
 
@@ -214,9 +229,17 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       path = search.movementPath(duder, position)
 
       <span class="keyword">if</span> path
-        self.performAbility(duder, self.targettingAbility(), position, path)
+        index = activeSquadIndex()
+
+        path.forEach (position) -&gt;
+          duder.visibleTiles(grid.get).forEach (tile) -&gt;
+            tile.seen[index] = <span class="literal">true</span>
+
+        self.performAbility(duder, self.targettingAbility(), position)
 
       updateVisibleTiles()
+
+  updateVisibleTiles()
 
   <span class="keyword">return</span> self</code></pre>
 </div>
