@@ -1,6 +1,10 @@
+- ui = this
+
 .ui
+  %pre.messages
+    - each @messages, (message) ->
+      = message
   .actions
-    - ui = this
     - each @actions, (action) ->
       - activeClass = -> "active" if action.active()
       .action(class=activeClass style="background-image: url(#{action.icon})")

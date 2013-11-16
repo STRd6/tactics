@@ -35,6 +35,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     global.map = map = null
 
     ui =
+      messages: Observable [
+        "Hello\n"
+      ]
       actions: Observable [
         Action
           name: "New Game"
