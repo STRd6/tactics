@@ -106,6 +106,8 @@ Hold the terrain and whatnot for a level.
       search = MapSearch(grid.get, duderAt)
 
       self =
+        duders: Observable duders
+
         render: (canvas) ->
           canvas.fill I.background
 

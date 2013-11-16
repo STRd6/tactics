@@ -24,14 +24,24 @@ Methods for drawing components of the character ui.
       n.times (i) ->
         actionBarSprite.draw canvas, i * 16 + 1, 32
 
-    module.exports =
+    module.exports = CharacterUI =
 
-Draw the tactical overlay, indicating actions, health, max health.
+Draw tactical and include actions remaining.
 
-      tactical: (canvas, character, color="blue") ->
+      activeTactical: (canvas, character) ->
+        CharacterUI.tactical(canvas, character)
+        
         position = character.position()
         canvasPosition = position.scale(tileSize)
 
         canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) ->
           drawActions(canvas, character.actions())
+
+Draw the tactical overlay, status, health, max health.
+
+      tactical: (canvas, character) ->
+        position = character.position()
+        canvasPosition = position.scale(tileSize)
+
+        canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) ->
           drawHealth(canvas, character.health(), character.healthMax())

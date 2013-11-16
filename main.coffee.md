@@ -87,11 +87,15 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     updateUiCanvas = ->
       uiCanvas.clear()
 
-      if activeCharacter
+      if map
+        map.duders.forEach (duder) ->
+          if duder is activeCharacter
+            CharacterUI.activeTactical(uiCanvas, duder)
+          else
+            CharacterUI.tactical(uiCanvas, duder)
+
         if accessiblePositions
           accessiblePositions.forEach (position) ->
             gridSprite.draw uiCanvas, position.scale(32)
-
-        CharacterUI.tactical(uiCanvas, activeCharacter)
 
     $(".ui").prepend uiCanvas.element()
