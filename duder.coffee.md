@@ -43,10 +43,6 @@ Use Shadowcasting for FoV calculations.
         visibleTiles: ->
           fov.calculate(self.position(), self.sight())
 
-        move: (newPosition) ->
-          I.actions -= 1
-          self.position newPosition
-
         targettingAbility: Observable()
 
         updatePosition: (newPosition) ->
@@ -64,6 +60,11 @@ any status effects.
           iconName: "boots"
           actionCost: 1
           targetZone: TARGET_ZONE.MOVEMENT
+          perform: (owner, {path}) ->
+            path.forEach (position) ->
+              self.updatePosition position
+              self.visibleTiles().forEach (tile) ->
+                tile.seen = true
 
         Ability
           name: "Attack"
@@ -72,6 +73,9 @@ any status effects.
           actionCost: 1
           costType: COST_TYPE.REST
           targetZone: TARGET_ZONE.LINE_OF_SIGHT
+          perform: (owner, {position, character}) ->
+            if character
+              character.I.health -=1
 
         Ability
           name: "Wait"

@@ -40,10 +40,9 @@ Some cool abilities that should be in the game
 
     Ability = (I={}, self=Core(I)) ->
       Object.defaults I,
-        range: (character) ->
-          character.movement()
+        range: 1
         actionCost: 1
-        name: "Move"
+        name: "?"
         costType: Ability.COST_TYPE.FIXED
 
       self.attrAccessor(
@@ -72,8 +71,10 @@ Some cool abilities that should be in the game
         perform: (owner, target) ->
           self.payCosts(owner)
 
-          # TODO: Execute ability
-          # self._?(target)
+          # TODO: Not sure if this should be on I
+          I.perform(owner, target)
+
+          owner.resetTargetting()
 
       return self
 

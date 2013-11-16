@@ -131,19 +131,17 @@ Hold the terrain and whatnot for a level.
 
         activeDuder: ->
           duders.wrap(activeDuderIndex)
+        
+        targettingAbility: ->
+          self.activeDuder().targettingAbility()
 
         accessiblePositions: ->
           duder = self.activeDuder()
 
-          if ability = duder.targettingAbility()
+          if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
-                ability.perform duder,
-                  position: duder.position()
-                  character: duder
-
-                duder.resetTargetting()
-                self.updateDuder()
+                performAbility(duder, ability, duder.position())
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT
@@ -152,7 +150,7 @@ Hold the terrain and whatnot for a level.
                 # TODO: Intersect results with character line of sight
                 search.adjacent(duder, ability.range())
 
-        updateDuder: ->
+        stateBasedEffects: ->
           duder = self.activeDuder()
 
           if duder.actions() is 0
@@ -161,21 +159,30 @@ Hold the terrain and whatnot for a level.
             # TODO: Maybe move this into a separate ready step for each squad
             duder.ready()
 
+        performAbility: (owner, ability, targetPosition, path) ->
+          ability.perform owner,
+            position: targetPosition
+            character: duderAt targetPosition
+            path: path
+
+          self.stateBasedEffects()
+
+        selectTarget: (position) ->
+          ability = self.targettingAbility()
+
+          switch ability.targetZone()
+            when Ability.TARGET_ZONE.MOVEMENT
+              self.moveDuder(position)
+            else
+              self.performAbility(self.activeDuder(), ability, position)
+
         moveDuder: (position) ->
           duder = self.activeDuder()
 
           path = search.movementPath(duder, position)
 
           if path
-            path.forEach (position) ->
-              duder.updatePosition position
-              duder.visibleTiles().forEach (tile) ->
-                tile.seen = true
-
-            duder.move path.last()
-
-            duder.resetTargetting()
-            self.updateDuder()
+            self.performAbility(duder, self.targettingAbility(), position, path)
 
           updateVisibleTiles()
 

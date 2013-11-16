@@ -59,7 +59,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     update = ->
       if map
-        map.updateDuder()
+        map.stateBasedEffects()
         map.render(canvas)
         accessiblePositions = map.accessiblePositions()
         activeCharacter = map.activeDuder()
@@ -79,7 +79,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         , false
 
         if inRange
-          map.moveDuder tilePosition
+          map.selectTarget tilePosition
           update()
 
     gridSprite = Resource.sprite("grid_blue")
