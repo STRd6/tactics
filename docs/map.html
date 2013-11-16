@@ -102,6 +102,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     <span class="keyword">else</span>
       ground()
 
+  tileAt = grid.get
+
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
     grid.each (tile) -&gt;
       tile.lit = []
@@ -144,6 +146,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         squad.characters()
       .flatten()
 
+    visibleCharacters: -&gt;
+      index = activeSquadIndex()
+      self.characters().filter (character) -&gt;
+        tileAt(character.position()).lit[index]
+
     render: (canvas) -&gt;
       canvas.fill I.background
 
@@ -170,7 +177,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
               color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
     activeCharacter: -&gt;
-      activeSquad().activeCharacter()
+      activeSquad()?.activeCharacter()
 
     targettingAbility: -&gt;
       <span class="keyword">if</span> character = self.activeCharacter()

@@ -93,11 +93,14 @@ activeCharacter = <span class="literal">null</span>
 <span class="function"><span class="title">update</span></span> = -&gt;
   <span class="keyword">if</span> map
     map.stateBasedActions()
-    map.render(canvas)
     accessiblePositions = map.accessiblePositions()
     activeCharacter = map.activeCharacter()
     updateUiCanvas()
     ui.actions activeCharacter.uiActions()
+
+setInterval -&gt;
+  map?.render(canvas)
+, <span class="number">33.3333333</span>
 
 uiCanvas = Canvas
   width: width
@@ -121,7 +124,7 @@ gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)
   uiCanvas.clear()
 
   <span class="keyword">if</span> map
-    map.characters().forEach (duder) -&gt;
+    map.visibleCharacters().forEach (duder) -&gt;
       <span class="keyword">if</span> duder <span class="keyword">is</span> activeCharacter
         CharacterUI.activeTactical(uiCanvas, duder)
       <span class="keyword">else</span>

@@ -99,6 +99,8 @@ may query its properties and figure out what to do.</p>
   .filter (position) -&gt;
     <span class="comment"># Filter out any impassible or unlit tiles</span>
     tile = getTile(position)
+    <span class="comment"># BUG:</span>
+    <span class="comment"># TODO: Use activeSquad lit tiles</span>
     tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit
   .filter (position) -&gt;
     <span class="comment"># Filter out any tiles with peeps on them</span>
