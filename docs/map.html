@@ -149,6 +149,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
   search = MapSearch(grid.get, duderAt)
 
   self =
+    duders: Observable duders
+
     render: (canvas) -&gt;
       canvas.fill I.background
 

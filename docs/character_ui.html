@@ -56,7 +56,7 @@ actionBarSprite = Resource.sprite(<span class="string">"action_bar"</span>)
   n.times (i) -&gt;
     actionBarSprite.draw canvas, i * <span class="number">16</span> + <span class="number">1</span>, <span class="number">32</span>
 
-module.exports =</code></pre>
+module.exports = CharacterUI =</code></pre>
 </div>
         </li>
         
@@ -66,15 +66,34 @@ module.exports =</code></pre>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Draw the tactical overlay, indicating actions, health, max health.</p>
+              <p>Draw tactical and include actions remaining.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  tactical: (canvas, character, color=<span class="string">"blue"</span>) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  activeTactical: (canvas, character) -&gt;
+    CharacterUI.tactical(canvas, character)
+
     position = character.position()
     canvasPosition = position.scale(tileSize)
 
     canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) -&gt;
-      drawActions(canvas, character.actions())
+      drawActions(canvas, character.actions())</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Draw the tactical overlay, status, health, max health.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">  tactical: (canvas, character) -&gt;
+    position = character.position()
+    canvasPosition = position.scale(tileSize)
+
+    canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) -&gt;
       drawHealth(canvas, character.health(), character.healthMax())</code></pre>
 </div>
         </li>
