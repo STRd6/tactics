@@ -1,21 +1,30 @@
 TODO
 ====
 
+Tactical
+--------
 Cancel action targetting
 
 Passable allies
 
 Next Character / Previous Character Buttons
 
-Handle winning and losing.
+Handle winning and losing
 
+Smooth transitions
+
+Random Level Generation
+
+Abilities
+---------
 Ranged attacks
 
-Remove characters with zero health in SBEs
+Blink
+
+Fireball
 
 Map Scrolling
 
-Random Level Generation
 
 Overwold Map
 ------------
@@ -26,8 +35,12 @@ AI
 Anything at all
 
 Done
-----
+====
 
+Tactical
+--------
 Handle 2 squads on map
 
 4 characters in each squad
+
+Remove characters with zero health in SBEs
