@@ -38,6 +38,13 @@ Some cool abilities that should be in the game
   - Buffs
   - Debuffs
 
+    {sqrt} = Math
+    Search = require "./map_search"
+    Effect = require "./effect"
+
+    # TODO we don't have tileAt, so we can't do all searches
+    search = Search()
+
     Ability = (I={}, self=Core(I)) ->
       Object.defaults I,
         range: 1
@@ -103,5 +110,62 @@ Should there be range types too? Connected, any, passable, etc?
     Ability.COST_TYPE = COST_TYPE =
       FIXED: 1
       REST: 2
+
+    Ability.Abilities =
+      Move: Ability
+        name: "Move"
+        iconName: "boots"
+        actionCost: 1
+        targetZone: TARGET_ZONE.MOVEMENT
+        perform: (owner, {position}) ->
+          owner.updatePosition position
+
+      Melee: Ability
+        name: "Attack"
+        iconName: "sword"
+        range: sqrt(2)
+        actionCost: 1
+        costType: COST_TYPE.REST
+        targetZone: TARGET_ZONE.LINE_OF_SIGHT
+        perform: (owner, {position, character}) ->
+          if character
+            character.damage 1
+
+      Ranged: Ability
+        name: "Ranged Attack"
+        iconName: "longbow"
+        range: 6
+        actionCost: 1
+        costType: COST_TYPE.REST
+        targetZone: TARGET_ZONE.LINE_OF_SIGHT
+        perform: (owner, {position, character}) ->
+          if character
+            character.damage 1
+
+      Fireball: Ability
+        name: "Fireball"
+        iconName: "fireball"
+        range: 7
+        actionCost: 2
+        costType: COST_TYPE.REST
+        targetZone: TARGET_ZONE.LINE_OF_SIGHT
+        perform: (owner, {position, addEffect}) ->
+          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
+            addEffect(Effect(), position)
+
+      Wait: Ability
+        name: "Wait"
+        iconName: "hourglass"
+        actionCost: 1
+        costType: COST_TYPE.REST
+        targetZone: TARGET_ZONE.SELF
+        perform: ->
+
+      Cancel: Ability
+        name: "Cancel"
+        actionCost: 0
+        targetZone: TARGET_ZONE.SELF
+        perform: (owner, {position, character}) ->
+          owner.targettingAbility null
 
     module.exports = Ability

@@ -194,10 +194,18 @@ Hold the terrain and whatnot for a level.
             unless activeSquad()
               ;# No survivors
 
+        addEffect: (effect, position) ->
+          effect.perform
+            characterAt: characterAt
+            position: position
+            tileAt: tileAt
+            message: -> #TODO Hook up to messages
+
         performAbility: (owner, ability, targetPosition) ->
           ability.perform owner,
             position: targetPosition
             character: characterAt targetPosition
+            addEffect: self.addEffect
 
           self.stateBasedActions()
 

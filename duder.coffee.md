@@ -9,26 +9,28 @@ Use Shadowcasting for FoV calculations.
     Action = require "./action"
     Ability = require "./ability"
     FOV = require "./shadowcasting"
+    Names = require "./names"
 
     {TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
-    {sqrt} = Math
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
       I.sprite = Resource.sprite(I.sprite)
 
       Object.defaults I,
-        sight: 7
-        movement: 4
+        actions: 2
         health: 3
         healthMax: 3
-        actions: 2
+        movement: 4
+        name: Names.male.rand()
+        sight: 7
 
       self.attrAccessor(
         "actions"
         "health"
         "healthMax"
         "movement"
+        "name"
         "position"
         "sprite"
         "sight"
@@ -59,62 +61,14 @@ any status effects.
         ready: ->
           I.actions = 2
 
+      {Move, Melee, Cancel, Ranged, Fireball, Wait} = Ability.Abilities
       abilities = [
-        Ability
-          name: "Move"
-          iconName: "boots"
-          actionCost: 1
-          targetZone: TARGET_ZONE.MOVEMENT
-          perform: (owner, {position}) ->
-            owner.updatePosition position
-
-        Ability
-          name: "Attack"
-          iconName: "sword"
-          range: sqrt(2)
-          actionCost: 1
-          costType: COST_TYPE.REST
-          targetZone: TARGET_ZONE.LINE_OF_SIGHT
-          perform: (owner, {position, character}) ->
-            if character
-              character.damage 1
-
-        Ability
-          name: "Ranged Attack"
-          iconName: "longbow"
-          range: 6
-          actionCost: 1
-          costType: COST_TYPE.REST
-          targetZone: TARGET_ZONE.LINE_OF_SIGHT
-          perform: (owner, {position, character}) ->
-            if character
-              character.damage 1
-
-        Ability
-          name: "Fireball"
-          iconName: "fireball"
-          range: 7
-          actionCost: 2
-          costType: COST_TYPE.REST
-          targetZone: TARGET_ZONE.LINE_OF_SIGHT
-          perform: (owner, {position, addEffect}) ->
-            
-            addEffect()
-
-        Ability
-          name: "Wait"
-          iconName: "hourglass"
-          actionCost: 1
-          costType: COST_TYPE.REST
-          targetZone: TARGET_ZONE.SELF
-          perform: ->
-
-        Ability
-          name: "Cancel"
-          actionCost: 0
-          targetZone: TARGET_ZONE.SELF
-          perform: (owner, {position, character}) ->
-            owner.targettingAbility null
+        Move
+        Melee
+        Ranged
+        Fireball
+        Wait
+        Cancel
       ]
 
       actions = abilities.map (ability) ->

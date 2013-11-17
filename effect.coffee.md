@@ -3,8 +3,6 @@ Effect
 
     Resource = require "./resource"
 
-    
-
     lavaSprites = [0..11].map (n) ->
       Resource.sprite("lava#{n}")
 
@@ -17,7 +15,7 @@ electricity, I don't know yet.
         tile = tileAt(position)
 
         # Fireball Effect
-        Object.extend tile
+        Object.extend tile,
           opaque: false
           solid: false
           features: []
