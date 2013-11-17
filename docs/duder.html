@@ -55,6 +55,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     movement: <span class="number">4</span>
     name: Names.male.rand()
     sight: <span class="number">7</span>
+    abilities: [
+      <span class="string">"Melee"</span>
+    ]
 
   self.attrAccessor(
     <span class="string">"actions"</span>
@@ -101,15 +104,8 @@ any status effects.</p>
             <div class="content"><pre><code class="lang-coffeescript">    ready: -&gt;
       I.actions = <span class="number">2</span>
 
-  {Move, Melee, Cancel, Ranged, Fireball, Wait} = Ability.Abilities
-  abilities = [
-    Move
-    Melee
-    Ranged
-    Fireball
-    Wait
-    Cancel
-  ]
+  abilities = I.abilities.concat(<span class="string">"Move"</span>, <span class="string">"Wait"</span>, <span class="string">"Cancel"</span>).map (name) -&gt; 
+    Ability.Abilities[name]
 
   actions = abilities.map (ability) -&gt;
     action = Action
