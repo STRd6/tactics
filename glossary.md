@@ -11,6 +11,11 @@ Characters can gain active and passive abilities.
 
 When characters die it is permanent*.
 
+Squad
+-----
+
+A group of 2-6 characters that represent a single team in the tactical combat.
+
 State Based Actions
 -------------------
 

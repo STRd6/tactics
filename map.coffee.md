@@ -19,6 +19,8 @@ Hold the terrain and whatnot for a level.
 
     global.allSprites = Object.keys(require("./images")).map Resource.sprite
 
+    skeletonSprite = Resource.sprite "skeleton"
+
     groundSprites = ["ground", "frozen", "stone"].map (type) ->
       [0..7].map (i) ->
         "#{type}#{i}"
@@ -66,7 +68,9 @@ Hold the terrain and whatnot for a level.
           tile.lit = []
 
         squads.forEach (squad, i) ->
-          squad.characters().forEach (duder) ->
+          squad.characters().filter (character) ->
+            character.alive()
+          .forEach (duder) ->
             duder.visibleTiles(grid.get).forEach (tile) ->
               tile.seen[i] = tile.lit[i] = true
 
@@ -122,7 +126,10 @@ Hold the terrain and whatnot for a level.
 
               if lit[index]
                 if duder = characterAt(x, y)
-                  duder.sprite().draw(canvas, canvasPosition)
+                  if duder.alive()
+                    duder.sprite().draw(canvas, canvasPosition)
+                  else
+                    skeletonSprite.draw(canvas, canvasPosition)
 
               tile.features.forEach (feature) ->
                 feature.draw(canvas, canvasPosition)
@@ -136,7 +143,11 @@ Hold the terrain and whatnot for a level.
                   height: 32
                   color: "rgba(0, 0, 0, 0.5)"
 
-        activeCharacter: ->
+        activeCharacter: Observable ->
+          # Dependencies for observable
+          squads.forEach (squad) ->
+            squad.activeCharacter()
+
           activeSquad()?.activeCharacter()
 
         targettingAbility: ->
@@ -189,6 +200,9 @@ Hold the terrain and whatnot for a level.
               self.moveDuder(position)
             else
               self.performAbility(self.activeCharacter(), ability, position)
+
+        touch: (position) ->
+          activeSquad()?.activateCharacterAt(position)
 
         moveDuder: (position) ->
           duder = self.activeCharacter()

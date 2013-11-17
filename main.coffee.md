@@ -33,6 +33,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     $("body").append canvas.element()
 
     global.map = map = null
+    activeCharacter = Observable()
 
     ui =
       messages: Observable [
@@ -44,6 +45,15 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           icon: "new_game"
           perform: ->
             global.map = map = Map()
+            activeCharacter = map.activeCharacter
+            activeCharacter.observe (character) ->
+              if character
+                ui.actions character.uiActions()
+              else
+                ui.actions []
+
+            ui.actions activeCharacter().uiActions()
+
             update()
 
         Action
@@ -58,18 +68,15 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     $("body").append require("./templates/ui")(ui)
 
     accessiblePositions = null
-    activeCharacter = null
 
     update = ->
       if map
         map.stateBasedActions()
         accessiblePositions = map.accessiblePositions()
-        activeCharacter = map.activeCharacter()
-        updateUiCanvas()
-        ui.actions activeCharacter.uiActions()
 
     setInterval ->
       map?.render(canvas)
+      updateUiCanvas()
     , 33.3333333
 
     uiCanvas = Canvas
@@ -87,6 +94,8 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         if inRange
           map.selectTarget tilePosition
           update()
+      else
+        map.touch tilePosition
 
     gridSprite = Resource.sprite("grid_blue")
 
@@ -95,9 +104,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
       if map
         map.visibleCharacters().forEach (duder) ->
-          if duder is activeCharacter
+          if duder is activeCharacter()
             CharacterUI.activeTactical(uiCanvas, duder)
-          else
+          else if duder.alive()
             CharacterUI.tactical(uiCanvas, duder)
 
         if accessiblePositions

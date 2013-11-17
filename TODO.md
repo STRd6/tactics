@@ -1,9 +1,9 @@
 TODO
 ====
 
-Handle 2 teams on map.
+Cancel action targetting
 
-4 characters in each team
+Passable allies
 
 Next Character / Previous Character Buttons
 
@@ -25,3 +25,9 @@ AI
 --
 Anything at all
 
+Done
+----
+
+Handle 2 squads on map
+
+4 characters in each squad

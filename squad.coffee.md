@@ -9,16 +9,29 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
       Object.defaults I,
         sprite: "human"
         x: 5
-    
-      nextActivatableCharacter = ->
+
+      activatableCharacters = ->
         self.characters.filter (character) ->
           character.actions() > 0
-        .first()
+
+      nextActivatableCharacter = ->
+        activatableCharacters().first()
 
       self =
+        activateCharacterAt: (position) ->
+          character = activatableCharacters().filter (character) ->
+            character.position().equal position
+          .first()
+
+          if character
+            self.activeCharacter(character)
+
         activeCharacter: Observable null
         characters: Observable []
         stateBasedActions: ->
+          self.characters.forEach (character) ->
+            character.stateBasedActions()
+
           if character = self.activeCharacter()
             if character.actions() is 0
               self.activeCharacter nextActivatableCharacter()

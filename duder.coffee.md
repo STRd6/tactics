@@ -35,6 +35,16 @@ Use Shadowcasting for FoV calculations.
       )
 
       Object.extend self,
+        alive: ->
+          I.health > 0
+
+        damage: (amount) ->
+          I.health -= amount
+
+        stateBasedActions: ->
+          if I.health <= 0
+            I.actions = 0
+
         visibleTiles: (tileAt) ->
           FOV.calculate(tileAt, self.position(), self.sight())
 

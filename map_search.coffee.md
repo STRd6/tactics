@@ -53,6 +53,7 @@ may query its properties and figure out what to do.
       .filter (position) ->
         # Filter out any tiles with peeps on them
         # TODO: Pass through friendly peeps
+        # TODO: Pass through dead peeps
         !getEntities(position)
       .map (position) ->
         [position, 1]
