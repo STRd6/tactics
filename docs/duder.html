@@ -126,6 +126,13 @@ any status effects.</p>
       costType: COST_TYPE.REST
       targetZone: TARGET_ZONE.SELF
       perform: -&gt;
+
+    Ability
+      name: <span class="string">"Cancel"</span>
+      actionCost: <span class="number">0</span>
+      targetZone: TARGET_ZONE.SELF
+      perform: (owner, {position, character}) -&gt;
+        owner.targettingAbility <span class="literal">null</span>
   ]
 
   actions = abilities.map (ability) -&gt;
