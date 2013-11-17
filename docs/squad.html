@@ -52,15 +52,28 @@
     sprite: <span class="string">"human"</span>
     x: <span class="number">5</span>
 
-  <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
+  <span class="function"><span class="title">activatableCharacters</span></span> = -&gt;
     self.characters.filter (character) -&gt;
       character.actions() &gt; <span class="number">0</span>
-    .first()
+
+  <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
+    activatableCharacters().first()
 
   self =
+    activateCharacterAt: (position) -&gt;
+      character = activatableCharacters().filter (character) -&gt;
+        character.position().equal position
+      .first()
+
+      <span class="keyword">if</span> character
+        self.activeCharacter(character)
+
     activeCharacter: Observable <span class="literal">null</span>
     characters: Observable []
     stateBasedActions: -&gt;
+      self.characters.forEach (character) -&gt;
+        character.stateBasedActions()
+
       <span class="keyword">if</span> character = self.activeCharacter()
         <span class="keyword">if</span> character.actions() <span class="keyword">is</span> <span class="number">0</span>
           self.activeCharacter nextActivatableCharacter()

@@ -103,6 +103,7 @@ may query its properties and figure out what to do.</p>
   .filter (position) -&gt;
     <span class="comment"># Filter out any tiles with peeps on them</span>
     <span class="comment"># TODO: Pass through friendly peeps</span>
+    <span class="comment"># TODO: Pass through dead peeps</span>
     !getEntities(position)
   .map (position) -&gt;
     [position, <span class="number">1</span>]

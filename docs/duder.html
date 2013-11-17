@@ -66,6 +66,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   )
 
   Object.extend self,
+    alive: -&gt;
+      I.health &gt; <span class="number">0</span>
+
+    damage: (amount) -&gt;
+      I.health -= amount
+
+    stateBasedActions: -&gt;
+      <span class="keyword">if</span> I.health &lt;= <span class="number">0</span>
+        I.actions = <span class="number">0</span>
+
     visibleTiles: (tileAt) -&gt;
       FOV.calculate(tileAt, self.position(), self.sight())
 

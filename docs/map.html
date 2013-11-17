@@ -62,6 +62,8 @@ moveDirections = [
             </div>
             <div class="content"><pre><code class="lang-coffeescript">global.allSprites = Object.keys(require(<span class="string">"./images"</span>)).map Resource.sprite
 
+skeletonSprite = Resource.sprite <span class="string">"skeleton"</span>
+
 groundSprites = [<span class="string">"ground"</span>, <span class="string">"frozen"</span>, <span class="string">"stone"</span>].map (type) -&gt;
   [<span class="number">0.</span><span class="number">.7</span>].map (i) -&gt;
     <span class="string">"<span class="subst">#{type}</span><span class="subst">#{i}</span>"</span>
@@ -109,7 +111,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       tile.lit = []
 
     squads.forEach (squad, i) -&gt;
-      squad.characters().forEach (duder) -&gt;
+      squad.characters().filter (character) -&gt;
+        character.alive()
+      .forEach (duder) -&gt;
         duder.visibleTiles(grid.get).forEach (tile) -&gt;
           tile.seen[i] = tile.lit[i] = <span class="literal">true</span>
 
@@ -165,7 +169,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
           <span class="keyword">if</span> lit[index]
             <span class="keyword">if</span> duder = characterAt(x, y)
-              duder.sprite().draw(canvas, canvasPosition)
+              <span class="keyword">if</span> duder.alive()
+                duder.sprite().draw(canvas, canvasPosition)
+              <span class="keyword">else</span>
+                skeletonSprite.draw(canvas, canvasPosition)
 
           tile.features.forEach (feature) -&gt;
             feature.draw(canvas, canvasPosition)
@@ -179,7 +186,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
               height: <span class="number">32</span>
               color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
-    activeCharacter: -&gt;
+    activeCharacter: Observable -&gt;
+      <span class="comment"># Dependencies for observable</span>
+      squads.forEach (squad) -&gt;
+        squad.activeCharacter()
+
       activeSquad()?.activeCharacter()
 
     targettingAbility: -&gt;
@@ -232,6 +243,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
           self.moveDuder(position)
         <span class="keyword">else</span>
           self.performAbility(self.activeCharacter(), ability, position)
+
+    touch: (position) -&gt;
+      activeSquad()?.activateCharacterAt(position)
 
     moveDuder: (position) -&gt;
       duder = self.activeCharacter()

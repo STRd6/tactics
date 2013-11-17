@@ -63,6 +63,7 @@ canvas.fill bgColor
 $(<span class="string">"body"</span>).append canvas.element()
 
 global.map = map = <span class="literal">null</span>
+activeCharacter = Observable()
 
 ui =
   messages: Observable [
@@ -74,6 +75,15 @@ ui =
       icon: <span class="string">"new_game"</span>
       perform: -&gt;
         global.map = map = Map()
+        activeCharacter = map.activeCharacter
+        activeCharacter.observe (character) -&gt;
+          <span class="keyword">if</span> character
+            ui.actions character.uiActions()
+          <span class="keyword">else</span>
+            ui.actions []
+
+        ui.actions activeCharacter().uiActions()
+
         update()
 
     Action
@@ -88,18 +98,15 @@ ui =
 $(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)
 
 accessiblePositions = <span class="literal">null</span>
-activeCharacter = <span class="literal">null</span>
 
 <span class="function"><span class="title">update</span></span> = -&gt;
   <span class="keyword">if</span> map
     map.stateBasedActions()
     accessiblePositions = map.accessiblePositions()
-    activeCharacter = map.activeCharacter()
-    updateUiCanvas()
-    ui.actions activeCharacter.uiActions()
 
 setInterval -&gt;
   map?.render(canvas)
+  updateUiCanvas()
 , <span class="number">33.3333333</span>
 
 uiCanvas = Canvas
@@ -117,6 +124,8 @@ uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p
     <span class="keyword">if</span> inRange
       map.selectTarget tilePosition
       update()
+  <span class="keyword">else</span>
+    map.touch tilePosition
 
 gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)
 
@@ -125,9 +134,9 @@ gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)
 
   <span class="keyword">if</span> map
     map.visibleCharacters().forEach (duder) -&gt;
-      <span class="keyword">if</span> duder <span class="keyword">is</span> activeCharacter
+      <span class="keyword">if</span> duder <span class="keyword">is</span> activeCharacter()
         CharacterUI.activeTactical(uiCanvas, duder)
-      <span class="keyword">else</span>
+      <span class="keyword">else</span> <span class="keyword">if</span> duder.alive()
         CharacterUI.tactical(uiCanvas, duder)
 
     <span class="keyword">if</span> accessiblePositions
