@@ -86,6 +86,13 @@ any status effects.
           costType: COST_TYPE.REST
           targetZone: TARGET_ZONE.SELF
           perform: ->
+        
+        Ability
+          name: "Cancel"
+          actionCost: 0
+          targetZone: TARGET_ZONE.SELF
+          perform: (owner, {position, character}) ->
+            owner.targettingAbility null
       ]
 
       actions = abilities.map (ability) ->
