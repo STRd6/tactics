@@ -8,6 +8,10 @@ Map
     {Grid} = require "./lib/util"
     Graph = require "./graph"
 
+    {
+      intersection
+    } = require "./array_helpers"
+
     moveDirections = [
       Point(1, 0)
       Point(-1, 0)
@@ -71,7 +75,7 @@ Hold the terrain and whatnot for a level.
           squad.characters().filter (character) ->
             character.alive()
           .forEach (duder) ->
-            duder.visibleTiles(grid.get).forEach (tile) ->
+            duder.visiblePositions(tileAt).map(tileAt).forEach (tile) ->
               tile.seen[i] = tile.lit[i] = true
 
       squads = [
@@ -166,8 +170,13 @@ Hold the terrain and whatnot for a level.
               when Ability.TARGET_ZONE.MOVEMENT
                 search.accessible(duder, duder.movement(), activeSquadIndex())
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
-                # TODO: Intersect results with character line of sight
-                search.adjacent(duder, ability.range())
+                visiblePositions = duder.visiblePositions(tileAt)
+                positionsInRange = search.adjacent(duder, ability.range())
+
+                intersection (
+                  visiblePositions
+                  #positionsInRange
+                )
 
         stateBasedActions: ->
           squads.forEach (squad) ->
@@ -213,7 +222,7 @@ Hold the terrain and whatnot for a level.
             index = activeSquadIndex()
 
             path.forEach (position) ->
-              duder.visibleTiles(grid.get).forEach (tile) ->
+              duder.visiblePositions(tileAt).map(tileAt).forEach (tile) ->
                 tile.seen[index] = true
 
             self.performAbility(duder, self.targettingAbility(), position)

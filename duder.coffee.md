@@ -45,7 +45,7 @@ Use Shadowcasting for FoV calculations.
           if I.health <= 0
             I.actions = 0
 
-        visibleTiles: (tileAt) ->
+        visiblePositions: (tileAt) ->
           FOV.calculate(tileAt, self.position(), self.sight())
 
         targettingAbility: Observable()
@@ -66,7 +66,7 @@ any status effects.
           actionCost: 1
           targetZone: TARGET_ZONE.MOVEMENT
           perform: (owner, {position}) ->
-            self.updatePosition position
+            owner.updatePosition position
 
         Ability
           name: "Attack"
@@ -77,7 +77,18 @@ any status effects.
           targetZone: TARGET_ZONE.LINE_OF_SIGHT
           perform: (owner, {position, character}) ->
             if character
-              character.I.health -=1
+              character.damage 1
+
+        Ability
+          name: "Ranged Attack"
+          iconName: "longbow"
+          range: 6
+          actionCost: 1
+          costType: COST_TYPE.REST
+          targetZone: TARGET_ZONE.LINE_OF_SIGHT
+          perform: (owner, {position, character}) ->
+            if character
+              character.damage 1
 
         Ability
           name: "Wait"

@@ -13,6 +13,8 @@ Smooth transitions
 
 Random Level Generation
 
+Map Scrolling
+
 Abilities
 ---------
 Ranged attacks
@@ -20,9 +22,6 @@ Ranged attacks
 Blink
 
 Fireball
-
-Map Scrolling
-
 
 Overwold Map
 ------------

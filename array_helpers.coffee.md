@@ -25,7 +25,7 @@ Returns the index of the element in the array if present, undefined if not.
     intersection = (array, others...) ->
       unique(array).filter (item) ->
         others.every (array) ->
-          indexOf(array, item)
+          indexOf(array, item)?
 
     module.exports = {
       indexOf

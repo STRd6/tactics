@@ -35,10 +35,10 @@ code isn't really in a position to be modified easily yet.
 
 http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting explains it fairly well.
 
-    calculateOctant = (tiles, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
+    calculateOctant = (positions, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
       tile = tileAt(cx, cy)
 
-      tiles.push tile
+      positions.push Point(cx, cy)
 
       new_start = 0
       return if start < end
@@ -80,7 +80,7 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
               break
             else
               if dx * dx + dy * dy < radius_squared
-                tiles.push tile
+                positions.push Point(X, Y)
 
               if blocked
                 if tile.opaque
@@ -95,7 +95,7 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
                 if tile.opaque
                   markTile(Point(X, Y), 0)
                   blocked = true
-                  calculateOctant tiles, tileAt, cx, cy, i + 1, start, l_slope, radius,
+                  calculateOctant positions, tileAt, cx, cy, i + 1, start, l_slope, radius,
                     xx, xy, yx, yy, id + 1
                   new_start = r_slope
 
@@ -107,7 +107,7 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
 Calculate the field of vision.
 
       calculate: (tileAt, position, radius) ->
-        tiles = []
+        positions = []
 
         [0..7].forEach (i) =>
           xx = mult[0][i]
@@ -115,14 +115,14 @@ Calculate the field of vision.
           yx = mult[2][i]
           yy = mult[3][i]
 
-          calculateOctant tiles, tileAt, position.x, position.y, 0, 1.0, 0.0, radius,
+          calculateOctant positions, tileAt, position.x, position.y, 0, 1.0, 0.0, radius,
             xx, xy, yx, yy, 0
 
         tile = tileAt position.x, position.y
 
-        tiles.push tile
+        positions.push position
 
-        return tiles
+        return positions
 
 Debug Helpers
 -------------
