@@ -151,7 +151,7 @@
     "TODO.md": {
       "path": "TODO.md",
       "mode": "100644",
-      "content": "TODO\n====\n\nCancel action targetting\n\nPassable allies\n\nNext Character / Previous Character Buttons\n\nHandle winning and losing.\n\nRanged attacks\n\nRemove characters with zero health in SBEs\n\nMap Scrolling\n\nRandom Level Generation\n\nOverwold Map\n------------\nStart with one screen where you can choose quests/missions\n\nAI\n--\nAnything at all\n\nDone\n----\n\nHandle 2 squads on map\n\n4 characters in each squad\n",
+      "content": "TODO\n====\n\nTactical\n--------\nCancel action targetting\n\nPassable allies\n\nNext Character / Previous Character Buttons\n\nHandle winning and losing\n\nSmooth transitions\n\nRandom Level Generation\n\nAbilities\n---------\nRanged attacks\n\nBlink\n\nFireball\n\nMap Scrolling\n\n\nOverwold Map\n------------\nStart with one screen where you can choose quests/missions\n\nAI\n--\nAnything at all\n\nDone\n====\n\nTactical\n--------\nHandle 2 squads on map\n\n4 characters in each squad\n\nRemove characters with zero health in SBEs\n",
       "type": "blob"
     },
     "glossary.md": {
