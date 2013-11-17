@@ -211,10 +211,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
             <span class="keyword">return</span>
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
-            search.accessible(duder, duder.movement(), activeSquadIndex())
+            search.accessible(duder.position(), duder.movement(), activeSquadIndex())
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
             visiblePositions = duder.visiblePositions(tileAt)
-            positionsInRange = search.adjacent(duder, ability.range())
+            positionsInRange = search.adjacent(duder.position(), ability.range())
 
             intersection(
               visiblePositions
@@ -259,7 +259,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     moveDuder: (position) -&gt;
       duder = self.activeCharacter()
 
-      path = search.movementPath(duder, position, activeSquadIndex())
+      path = search.movementPath(duder.position(), position, activeSquadIndex())
 
       <span class="keyword">if</span> path
         index = activeSquadIndex()

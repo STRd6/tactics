@@ -131,6 +131,17 @@ any status effects.</p>
           character.damage <span class="number">1</span>
 
     Ability
+      name: <span class="string">"Fireball"</span>
+      iconName: <span class="string">"fireball"</span>
+      range: <span class="number">7</span>
+      actionCost: <span class="number">2</span>
+      costType: COST_TYPE.REST
+      targetZone: TARGET_ZONE.LINE_OF_SIGHT
+      perform: (owner, {position, addEffect}) -&gt;
+
+        addEffect()
+
+    Ability
       name: <span class="string">"Wait"</span>
       iconName: <span class="string">"hourglass"</span>
       actionCost: <span class="number">1</span>

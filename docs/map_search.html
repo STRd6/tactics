@@ -130,21 +130,21 @@ module.<span class="function"><span class="title">exports</span></span> = (getTi
 through tiles.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  accessible: (duder, range, squadIndex) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  accessible: (position, range, squadIndex) -&gt;
     Graph.accessible
-      initial: duder.position()
+      initial: position
       neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
       distanceMax: range
 
-  adjacent: (duder, range=sqrt(<span class="number">2</span>)) -&gt;
+  adjacent: (position, range=sqrt(<span class="number">2</span>)) -&gt;
     Graph.accessible
-      initial: duder.position()
+      initial: position
       neighbors: adjacentPositions
       distanceMax: range
 
-  movementPath: (duder, target, squadIndex) -&gt;
+  movementPath: (position, target, squadIndex) -&gt;
     Graph.aStar
-      initial: duder.position()
+      initial: position
       goal: target
       neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
       heuristic: (a, b) -&gt;
