@@ -81,7 +81,7 @@ Hold the terrain and whatnot for a level.
       squads = [
         Squad()
         Squad
-          sprite: "goblin"
+          race: "goblin"
           x: 30
       ]
 

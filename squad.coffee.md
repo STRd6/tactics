@@ -7,7 +7,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
 
     module.exports = Squad = (I={}) ->
       Object.defaults I,
-        sprite: "human"
+        race: "human"
         x: 5
 
       activatableCharacters = ->
@@ -44,23 +44,52 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           self.activeCharacter nextActivatableCharacter()
 
       # TODO: Load characters from data
-      self.characters [
-        Duder
-          position:
-            x: I.x - 1
-            y: 7
-          sprite: I.sprite
-        Duder
-          position:
-            x: I.x - 2
-            y: 10
-          sprite: I.sprite
-        Duder
-          position:
-            x: I.x - 4
-            y: 13
-          sprite: I.sprite
-      ]
+      if I.race is "human"
+        self.characters [
+          Duder
+            position:
+              x: I.x - 1
+              y: 7
+            health: 4
+            healthMax: 4
+            sprite: "human"
+          Duder
+            position:
+              x: I.x - 2
+              y: 10
+            health: 2
+            healthMax: 2
+            sprite: "wizard"
+            abilities: [
+              "Fireball"
+            ]
+          Duder
+            position:
+              x: I.x - 4
+              y: 13
+            sprite: "elf_archer"
+            abilities: [
+              "Ranged"
+            ]
+        ]
+      else
+        self.characters [
+          Duder
+            position:
+              x: I.x - 1
+              y: 7
+            sprite: "goblin"
+          Duder
+            position:
+              x: I.x - 2
+              y: 10
+            sprite: "goblin"
+          Duder
+            position:
+              x: I.x - 4
+              y: 13
+            sprite: "goblin"
+        ]
 
       self.activeCharacter self.characters.first()
 

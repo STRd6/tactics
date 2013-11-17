@@ -24,6 +24,9 @@ Use Shadowcasting for FoV calculations.
         movement: 4
         name: Names.male.rand()
         sight: 7
+        abilities: [
+          "Melee"
+        ]
 
       self.attrAccessor(
         "actions"
@@ -61,15 +64,8 @@ any status effects.
         ready: ->
           I.actions = 2
 
-      {Move, Melee, Cancel, Ranged, Fireball, Wait} = Ability.Abilities
-      abilities = [
-        Move
-        Melee
-        Ranged
-        Fireball
-        Wait
-        Cancel
-      ]
+      abilities = I.abilities.concat("Move", "Wait", "Cancel").map (name) -> 
+        Ability.Abilities[name]
 
       actions = abilities.map (ability) ->
         action = Action
