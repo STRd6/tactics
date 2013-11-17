@@ -36,8 +36,6 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 
-
-
 lavaSprites = [<span class="number">0.</span><span class="number">.11</span>].map (n) -&gt;
   Resource.sprite(<span class="string">"lava<span class="subst">#{n}</span>"</span>)</code></pre>
 </div>
@@ -59,7 +57,7 @@ electricity, I don&#39;t know yet.</p>
     tile = tileAt(position)
 
     <span class="comment"># Fireball Effect</span>
-    Object.extend tile
+    Object.extend tile,
       opaque: <span class="literal">false</span>
       solid: <span class="literal">false</span>
       features: []

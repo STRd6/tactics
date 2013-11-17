@@ -63,7 +63,14 @@ tile.</p>
 </ul>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">{sqrt} = Math
+Search = require <span class="string">"./map_search"</span>
+Effect = require <span class="string">"./effect"</span>
+
+<span class="comment"># TODO we don't have tileAt, so we can't do all searches</span>
+search = Search()
+
+<span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     range: <span class="number">1</span>
     actionCost: <span class="number">1</span>
@@ -136,6 +143,63 @@ Ability.TARGET_TYPE = TARGET_TYPE =
 Ability.COST_TYPE = COST_TYPE =
   FIXED: <span class="number">1</span>
   REST: <span class="number">2</span>
+
+Ability.Abilities =
+  Move: Ability
+    name: <span class="string">"Move"</span>
+    iconName: <span class="string">"boots"</span>
+    actionCost: <span class="number">1</span>
+    targetZone: TARGET_ZONE.MOVEMENT
+    perform: (owner, {position}) -&gt;
+      owner.updatePosition position
+
+  Melee: Ability
+    name: <span class="string">"Attack"</span>
+    iconName: <span class="string">"sword"</span>
+    range: sqrt(<span class="number">2</span>)
+    actionCost: <span class="number">1</span>
+    costType: COST_TYPE.REST
+    targetZone: TARGET_ZONE.LINE_OF_SIGHT
+    perform: (owner, {position, character}) -&gt;
+      <span class="keyword">if</span> character
+        character.damage <span class="number">1</span>
+
+  Ranged: Ability
+    name: <span class="string">"Ranged Attack"</span>
+    iconName: <span class="string">"longbow"</span>
+    range: <span class="number">6</span>
+    actionCost: <span class="number">1</span>
+    costType: COST_TYPE.REST
+    targetZone: TARGET_ZONE.LINE_OF_SIGHT
+    perform: (owner, {position, character}) -&gt;
+      <span class="keyword">if</span> character
+        character.damage <span class="number">1</span>
+
+  Fireball: Ability
+    name: <span class="string">"Fireball"</span>
+    iconName: <span class="string">"fireball"</span>
+    range: <span class="number">7</span>
+    actionCost: <span class="number">2</span>
+    costType: COST_TYPE.REST
+    targetZone: TARGET_ZONE.LINE_OF_SIGHT
+    perform: (owner, {position, addEffect}) -&gt;
+      search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
+        addEffect(Effect(), position)
+
+  Wait: Ability
+    name: <span class="string">"Wait"</span>
+    iconName: <span class="string">"hourglass"</span>
+    actionCost: <span class="number">1</span>
+    costType: COST_TYPE.REST
+    targetZone: TARGET_ZONE.SELF
+    perform: -&gt;
+
+  Cancel: Ability
+    name: <span class="string">"Cancel"</span>
+    actionCost: <span class="number">0</span>
+    targetZone: TARGET_ZONE.SELF
+    perform: (owner, {position, character}) -&gt;
+      owner.targettingAbility <span class="literal">null</span>
 
 module.exports = Ability</code></pre>
 </div>

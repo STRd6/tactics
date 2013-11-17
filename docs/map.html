@@ -237,10 +237,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         <span class="keyword">unless</span> activeSquad()
           ;<span class="comment"># No survivors</span>
 
+    addEffect: (effect, position) -&gt;
+      effect.perform
+        characterAt: characterAt
+        position: position
+        tileAt: tileAt
+        message: -&gt; <span class="comment">#TODO Hook up to messages</span>
+
     performAbility: (owner, ability, targetPosition) -&gt;
       ability.perform owner,
         position: targetPosition
         character: characterAt targetPosition
+        addEffect: self.addEffect
 
       self.stateBasedActions()
 
