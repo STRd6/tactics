@@ -76,7 +76,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">if</span> I.health &lt;= <span class="number">0</span>
         I.actions = <span class="number">0</span>
 
-    visibleTiles: (tileAt) -&gt;
+    visiblePositions: (tileAt) -&gt;
       FOV.calculate(tileAt, self.position(), self.sight())
 
     targettingAbility: Observable()
@@ -106,7 +106,7 @@ any status effects.</p>
       actionCost: <span class="number">1</span>
       targetZone: TARGET_ZONE.MOVEMENT
       perform: (owner, {position}) -&gt;
-        self.updatePosition position
+        owner.updatePosition position
 
     Ability
       name: <span class="string">"Attack"</span>
@@ -117,7 +117,18 @@ any status effects.</p>
       targetZone: TARGET_ZONE.LINE_OF_SIGHT
       perform: (owner, {position, character}) -&gt;
         <span class="keyword">if</span> character
-          character.I.health -=<span class="number">1</span>
+          character.damage <span class="number">1</span>
+
+    Ability
+      name: <span class="string">"Ranged Attack"</span>
+      iconName: <span class="string">"longbow"</span>
+      range: <span class="number">6</span>
+      actionCost: <span class="number">1</span>
+      costType: COST_TYPE.REST
+      targetZone: TARGET_ZONE.LINE_OF_SIGHT
+      perform: (owner, {position, character}) -&gt;
+        <span class="keyword">if</span> character
+          character.damage <span class="number">1</span>
 
     Ability
       name: <span class="string">"Wait"</span>
@@ -162,7 +173,15 @@ any status effects.</p>
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
-<script src="http://strd6.github.io/interactive/v0.8.0.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script src="package.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
 </body>
 </html>

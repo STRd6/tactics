@@ -42,6 +42,10 @@ Squad = require <span class="string">"./squad"</span>
 {Grid} = require <span class="string">"./lib/util"</span>
 Graph = require <span class="string">"./graph"</span>
 
+{
+  intersection
+} = require <span class="string">"./array_helpers"</span>
+
 moveDirections = [
   Point(<span class="number">1</span>, <span class="number">0</span>)
   Point(-<span class="number">1</span>, <span class="number">0</span>)
@@ -114,7 +118,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       squad.characters().filter (character) -&gt;
         character.alive()
       .forEach (duder) -&gt;
-        duder.visibleTiles(grid.get).forEach (tile) -&gt;
+        duder.visiblePositions(tileAt).map(tileAt).forEach (tile) -&gt;
           tile.seen[i] = tile.lit[i] = <span class="literal">true</span>
 
   squads = [
@@ -209,8 +213,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
             search.accessible(duder, duder.movement(), activeSquadIndex())
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
-            <span class="comment"># TODO: Intersect results with character line of sight</span>
-            search.adjacent(duder, ability.range())
+            visiblePositions = duder.visiblePositions(tileAt)
+            positionsInRange = search.adjacent(duder, ability.range())
+
+            intersection(
+              visiblePositions
+              positionsInRange
+            )
 
     stateBasedActions: -&gt;
       squads.forEach (squad) -&gt;
@@ -256,7 +265,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         index = activeSquadIndex()
 
         path.forEach (position) -&gt;
-          duder.visibleTiles(grid.get).forEach (tile) -&gt;
+          duder.visiblePositions(tileAt).map(tileAt).forEach (tile) -&gt;
             tile.seen[index] = <span class="literal">true</span>
 
         self.performAbility(duder, self.targettingAbility(), position)
@@ -274,7 +283,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
-<script src="http://strd6.github.io/interactive/v0.8.0.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script src="package.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
 </body>
 </html>

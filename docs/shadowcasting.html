@@ -73,10 +73,10 @@ code isn&#39;t really in a position to be modified easily yet.</p>
 <p><a href="http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting">http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting</a> explains it fairly well.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">calculateOctant</span></span> = (tiles, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">calculateOctant</span></span> = (positions, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
   tile = tileAt(cx, cy)
 
-  tiles.push tile
+  positions.push Point(cx, cy)
 
   new_start = <span class="number">0</span>
   <span class="keyword">return</span> <span class="keyword">if</span> start &lt; end
@@ -118,7 +118,7 @@ code isn&#39;t really in a position to be modified easily yet.</p>
           <span class="keyword">break</span>
         <span class="keyword">else</span>
           <span class="keyword">if</span> dx * dx + dy * dy &lt; radius_squared
-            tiles.push tile
+            positions.push Point(X, Y)
 
           <span class="keyword">if</span> blocked
             <span class="keyword">if</span> tile.opaque
@@ -133,7 +133,7 @@ code isn&#39;t really in a position to be modified easily yet.</p>
             <span class="keyword">if</span> tile.opaque
               markTile(Point(X, Y), <span class="number">0</span>)
               blocked = <span class="literal">true</span>
-              calculateOctant tiles, tileAt, cx, cy, i + <span class="number">1</span>, start, l_slope, radius,
+              calculateOctant positions, tileAt, cx, cy, i + <span class="number">1</span>, start, l_slope, radius,
                 xx, xy, yx, yy, id + <span class="number">1</span>
               new_start = r_slope
 
@@ -154,7 +154,7 @@ module.exports =</code></pre>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">  calculate: (tileAt, position, radius) -&gt;
-    tiles = []
+    positions = []
 
     [<span class="number">0.</span><span class="number">.7</span>].forEach (i) =&gt;
       xx = mult[<span class="number">0</span>][i]
@@ -162,14 +162,14 @@ module.exports =</code></pre>
       yx = mult[<span class="number">2</span>][i]
       yy = mult[<span class="number">3</span>][i]
 
-      calculateOctant tiles, tileAt, position.x, position.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, radius,
+      calculateOctant positions, tileAt, position.x, position.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, radius,
         xx, xy, yx, yy, <span class="number">0</span>
 
     tile = tileAt position.x, position.y
 
-    tiles.push tile
+    positions.push position
 
-    <span class="keyword">return</span> tiles</code></pre>
+    <span class="keyword">return</span> positions</code></pre>
 </div>
         </li>
         
@@ -224,7 +224,15 @@ module.exports =</code></pre>
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
-<script src="http://strd6.github.io/interactive/v0.8.0.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script src="package.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
 </body>
 </html>
