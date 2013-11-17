@@ -122,7 +122,7 @@ Hold the terrain and whatnot for a level.
           grid.each (tile, x, y) ->
             {sprite, lit, seen} = tile
             canvasPosition = Point(x, y).scale(32)
-            
+
             index = activeSquadIndex()
 
             if seen[index]
@@ -173,9 +173,9 @@ Hold the terrain and whatnot for a level.
                 visiblePositions = duder.visiblePositions(tileAt)
                 positionsInRange = search.adjacent(duder, ability.range())
 
-                intersection (
+                intersection(
                   visiblePositions
-                  #positionsInRange
+                  positionsInRange
                 )
 
         stateBasedActions: ->
