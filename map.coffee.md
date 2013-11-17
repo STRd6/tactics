@@ -168,10 +168,10 @@ Hold the terrain and whatnot for a level.
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT
-                search.accessible(duder, duder.movement(), activeSquadIndex())
+                search.accessible(duder.position(), duder.movement(), activeSquadIndex())
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = duder.visiblePositions(tileAt)
-                positionsInRange = search.adjacent(duder, ability.range())
+                positionsInRange = search.adjacent(duder.position(), ability.range())
 
                 intersection(
                   visiblePositions
@@ -216,7 +216,7 @@ Hold the terrain and whatnot for a level.
         moveDuder: (position) ->
           duder = self.activeCharacter()
 
-          path = search.movementPath(duder, position, activeSquadIndex())
+          path = search.movementPath(duder.position(), position, activeSquadIndex())
 
           if path
             index = activeSquadIndex()

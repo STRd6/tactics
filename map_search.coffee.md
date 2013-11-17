@@ -71,21 +71,21 @@ may query its properties and figure out what to do.
 Returns a list of all positions accessible to the duder by normal movement
 through tiles.
 
-      accessible: (duder, range, squadIndex) ->
+      accessible: (position, range, squadIndex) ->
         Graph.accessible
-          initial: duder.position()
+          initial: position
           neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
           distanceMax: range
 
-      adjacent: (duder, range=sqrt(2)) ->
+      adjacent: (position, range=sqrt(2)) ->
         Graph.accessible
-          initial: duder.position()
+          initial: position
           neighbors: adjacentPositions
           distanceMax: range
 
-      movementPath: (duder, target, squadIndex) ->
+      movementPath: (position, target, squadIndex) ->
         Graph.aStar
-          initial: duder.position()
+          initial: position
           goal: target
           neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
           heuristic: (a, b) ->

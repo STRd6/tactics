@@ -91,13 +91,24 @@ any status effects.
               character.damage 1
 
         Ability
+          name: "Fireball"
+          iconName: "fireball"
+          range: 7
+          actionCost: 2
+          costType: COST_TYPE.REST
+          targetZone: TARGET_ZONE.LINE_OF_SIGHT
+          perform: (owner, {position, addEffect}) ->
+            
+            addEffect()
+
+        Ability
           name: "Wait"
           iconName: "hourglass"
           actionCost: 1
           costType: COST_TYPE.REST
           targetZone: TARGET_ZONE.SELF
           perform: ->
-        
+
         Ability
           name: "Cancel"
           actionCost: 0
