@@ -202,14 +202,19 @@ Hold the terrain and whatnot for a level.
 
           unless self.activeCharacter()
             # End of Round
-            # Refresh all squads
-            squads.forEach (squad) ->
-              squad.ready()
+            self.ready()
 
-            activeSquad nextActivatableSquad()
+        ready: ->
+          # Refresh all squads
+          squads.forEach (squad) ->
+            squad.ready()
 
-            unless activeSquad()
-              ;# No survivors
+          activeSquad nextActivatableSquad()
+
+          if activeSquad()
+            self.stateBasedActions()
+          else
+            ;# No survivors
 
         addEffect: (effect, position) ->
           effect.perform

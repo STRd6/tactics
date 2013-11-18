@@ -49,12 +49,14 @@ Some cool abilities that should be in the game
       Object.defaults I,
         range: 1
         actionCost: 1
+        cooldown: 0
         name: "?"
         costType: Ability.COST_TYPE.FIXED
 
       self.attrAccessor(
         "actionCost"
         "actionType"
+        "cooldown"
         "costType"
         "iconName"
         "name"
@@ -64,7 +66,13 @@ Some cool abilities that should be in the game
       )
 
       Object.extend self,
+        canPay: (owner) ->
+          (owner.actions() >= self.actionCost()) and
+          (owner.cooldown(self) is 0)
+
         payCosts: (owner) ->
+          owner.setCooldown(self)
+
           switch self.costType()
             when COST_TYPE.REST
               owner.actions(0)
@@ -156,6 +164,7 @@ Should there be range types too? Connected, any, passable, etc?
         iconName: "fireball"
         range: 7
         actionCost: 2
+        cooldown: 3
         costType: COST_TYPE.REST
         targetZone: TARGET_ZONE.LINE_OF_SIGHT
         perform: (owner, {position, addEffect}) ->

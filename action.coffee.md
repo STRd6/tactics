@@ -16,6 +16,7 @@ Clicking on them makes them happen.
         name: "Action"
 
       self.active = Observable false
+      self.disabled = Observable false
       self.icon = Resource.dataURL(I.icon)
 
       return self

@@ -4,6 +4,10 @@ TODO
 Tactical
 --------
 
+Disable Ability if can't pay cost
+
+Ability Cooldowns
+
 Display Squad Overview, Click to Activate and Center
 
 Handle winning and losing

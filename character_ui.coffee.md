@@ -30,7 +30,7 @@ Draw tactical and include actions remaining.
 
       activeTactical: (canvas, character) ->
         CharacterUI.tactical(canvas, character)
-        
+
         position = character.position()
         canvasPosition = position.scale(tileSize)
 

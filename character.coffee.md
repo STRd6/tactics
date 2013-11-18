@@ -14,6 +14,7 @@ Those little guys that run around.
 
       Object.defaults I,
         actions: 2
+        cooldowns: {}
         health: 3
         healthMax: 3
         movement: 4
@@ -44,12 +45,27 @@ Those little guys that run around.
         heal: (amount) ->
           I.health += amount
 
+        cooldown: (ability) ->
+          I.cooldowns[ability.name()] or 0
+        
+        setCooldown: (ability) ->
+          I.cooldowns[ability.name()] = ability.cooldown()
+
         stateBasedActions: ->
           if I.health > I.healthMax
             I.health = I.healthMax
 
+          # Clamping actions and cooldowns
           if I.health <= 0
             I.actions = 0
+
+          Object.keys(I.cooldowns).forEach (name) ->
+            if I.cooldowns[name] < 0
+              I.cooldowns[name] = 0
+
+          # Reset action statuses
+          actions.forEach (action) ->
+            action.disabled !action.ability.canPay(self)
 
         targettingAbility: Observable()
 
@@ -60,6 +76,9 @@ Ready is called at the beginning of each turn. It resets the actions and process
 any status effects.
 
         ready: ->
+          Object.keys(I.cooldowns).forEach (name) ->
+            I.cooldowns[name] -= 1
+
           I.actions = 2
 
       abilities = I.abilities.concat("Move", "Wait", "Cancel").map (name) ->
@@ -71,6 +90,10 @@ any status effects.
           icon: ability.iconName()
           perform: ->
             self.targettingAbility(ability)
+
+        # TODO: Mayb be a cleaner way to do this
+        # but it's needed for updating enabled/disabled status
+        action.ability = ability
 
         action.active = Observable ->
           ability is self.targettingAbility()
