@@ -16,6 +16,15 @@ Squad
 
 A group of 2-6 characters that represent a single team in the tactical combat.
 
+Tribe
+-----
+
+The player controls a tribe throughout the game. The tribe is composed of characters.
+
+The characters in a tribe can be arranged into squads.
+
+The tribe has a home base.
+
 State Based Actions
 -------------------
 
