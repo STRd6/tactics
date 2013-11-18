@@ -126,7 +126,7 @@ that target&#39;s an enemy, but has movement range and connectedness constraints
 <p>Should there be range types too? Connected, any, passable, etc?</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Ability.TARGET_ZONE = TARGET_ZONE =
+            <div class="content"><pre><code class="lang-coffeescript">{SELF, MOVEMENT, LINE_OF_SIGHT} = Ability.TARGET_ZONE = TARGET_ZONE =
   SELF: <span class="number">1</span> <span class="comment"># The character itself, skips targetting step</span>
   LINE_OF_SIGHT: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
   VISIBLE: <span class="number">3</span> <span class="comment"># Any tile visible to squad within range</span>
@@ -140,7 +140,7 @@ Ability.TARGET_TYPE = TARGET_TYPE =
   WALL: <span class="number">4</span>
   ANY: <span class="number">15</span>
 
-Ability.COST_TYPE = COST_TYPE =
+{FIXED, REST} = Ability.COST_TYPE = COST_TYPE =
   FIXED: <span class="number">1</span>
   REST: <span class="number">2</span>
 
@@ -149,7 +149,7 @@ Ability.Abilities =
     name: <span class="string">"Move"</span>
     iconName: <span class="string">"boots"</span>
     actionCost: <span class="number">1</span>
-    targetZone: TARGET_ZONE.MOVEMENT
+    targetZone: MOVEMENT
     perform: (owner, {position}) -&gt;
       owner.updatePosition position
 
@@ -158,22 +158,31 @@ Ability.Abilities =
     iconName: <span class="string">"sword"</span>
     range: sqrt(<span class="number">2</span>)
     actionCost: <span class="number">1</span>
-    costType: COST_TYPE.REST
-    targetZone: TARGET_ZONE.LINE_OF_SIGHT
+    costType: REST
+    targetZone: LINE_OF_SIGHT
     perform: (owner, {position, character}) -&gt;
       <span class="keyword">if</span> character
         character.damage <span class="number">1</span>
 
   Ranged: Ability
-    name: <span class="string">"Ranged Attack"</span>
+    name: <span class="string">"Attack"</span>
     iconName: <span class="string">"longbow"</span>
     range: <span class="number">6</span>
     actionCost: <span class="number">1</span>
-    costType: COST_TYPE.REST
-    targetZone: TARGET_ZONE.LINE_OF_SIGHT
+    costType: REST
+    targetZone: LINE_OF_SIGHT
     perform: (owner, {position, character}) -&gt;
       <span class="keyword">if</span> character
         character.damage <span class="number">1</span>
+
+  Regeneration: Ability
+    name: <span class="string">"Regeneration"</span>
+    iconName: <span class="string">"regeneration"</span>
+    actionCost: <span class="number">1</span>
+    costType: REST
+    targetZone: SELF
+    perform: (owner) -&gt;
+      owner.heal(<span class="number">1</span>)
 
   Fireball: Ability
     name: <span class="string">"Fireball"</span>
