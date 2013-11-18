@@ -94,13 +94,23 @@ Hold the terrain and whatnot for a level.
           squad.activeCharacter()
         .first()
 
+      characterPassable = (character) ->
+        (position) ->
+          if tile = tileAt(position)
+            if occupant = characterAt(position)
+              occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)
+            else
+              occupantPassable = true
+
+            !tile.solid and tile.lit[activeSquadIndex()] and occupantPassable
+
       characterAt = (x, y) ->
         if x.x?
           {x, y} = x
 
         self.characters().filter (character) ->
           position = character.position()
-          position.x is x and position.y is y
+          character.alive() and (position.x is x and position.y is y)
         .first()
 
       search = MapSearch(grid.get, characterAt)
@@ -168,7 +178,8 @@ Hold the terrain and whatnot for a level.
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT
-                search.accessible(character.position(), character.movement(), activeSquadIndex())
+                # TODO: Remove passable, but occupied tiles
+                search.accessible(character.position(), character.movement(), characterPassable(character))
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = search.visible(character.position(), character.sight())
                 positionsInRange = search.adjacent(character.position(), ability.range())
@@ -227,11 +238,14 @@ Hold the terrain and whatnot for a level.
         moveDuder: (position) ->
           character = self.activeCharacter()
 
-          path = search.movementPath(character.position(), position, activeSquadIndex())
+          path = search.movementPath(
+            character.position(),
+            position, 
+            characterPassable(character)
+          )
 
           if path
             index = activeSquadIndex()
-
             path.forEach (position) ->
               search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) ->
                 tile.seen[index] = true

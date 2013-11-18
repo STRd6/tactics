@@ -16,14 +16,20 @@ Squad
 
 A group of 2-6 characters that represent a single team in the tactical combat.
 
-Tribe
+Mission
+-------
+
+A mission is a tactical combat engagement using one squad from the player's tribe.
+
+Races
 -----
 
-The player controls a tribe throughout the game. The tribe is composed of characters.
-
-The characters in a tribe can be arranged into squads.
-
-The tribe has a home base.
+- Humans
+- Elves
+- Dwarves
+- Goblins
+- Serpent Men
+- Undead
 
 State Based Actions
 -------------------
@@ -34,3 +40,12 @@ For example: characters dying when they have zero health, a team winning when
 there are no more opponents, etc.
 
 Basically inspired by MtG.
+
+Tribe
+-----
+
+The player controls a tribe throughout the game. The tribe is composed of characters.
+
+The characters in a tribe can be arranged into squads.
+
+The tribe has a home base.

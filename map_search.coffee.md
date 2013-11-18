@@ -44,19 +44,11 @@ be reached immediately from the given position.
 The passed in `get` function returns the tile for a given position so that we
 may query its properties and figure out what to do.
 
-    neighborsVisible = (position, getTile, getEntities, index) ->
+    neighborsVisible = (position, getTile, getEntities, passable) ->
       # TODO: Add diagonals if both edges are passable
       cardinalDirections.map (direction) ->
         position.add(direction)
-      .filter (position) ->
-        # Filter out any impassible or unlit tiles
-        tile = getTile(position)
-        tile and !tile.solid and tile.lit[index]
-      .filter (position) ->
-        # Filter out any tiles with peeps on them
-        # TODO: Pass through friendly peeps
-        # TODO: Pass through dead peeps
-        !getEntities(position)
+      .filter(passable)
       .map (position) ->
         [position, 1]
 
@@ -73,10 +65,10 @@ may query its properties and figure out what to do.
 Returns a list of all positions accessible to the duder by normal movement
 through tiles.
 
-      accessible: (position, range, squadIndex) ->
+      accessible: (position, range, passable) ->
         Graph.accessible
           initial: position
-          neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
+          neighbors: strategy neighborsVisible, getTile, getEntities, passable
           distanceMax: range
 
       adjacent: (position, range=sqrt(2)) ->
@@ -88,11 +80,11 @@ through tiles.
       visible: (position, range=1) ->
         FOV.calculate(getTile, position, range)
 
-      movementPath: (position, target, squadIndex) ->
+      movementPath: (position, target, passable) ->
         Graph.aStar
           initial: position
           goal: target
-          neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
+          neighbors: strategy neighborsVisible, getTile, getEntities, passable
           heuristic: (a, b) ->
             {x, y} = b.subtract(a).abs()
 
