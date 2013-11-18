@@ -178,8 +178,11 @@ Hold the terrain and whatnot for a level.
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT
-                # TODO: Remove passable, but occupied tiles
-                search.accessible(character.position(), character.movement(), characterPassable(character))
+                accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
+
+                accessiblePositions.reject (position) ->
+                  characterAt(position)
+
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = search.visible(character.position(), character.sight())
                 positionsInRange = search.adjacent(character.position(), ability.range())

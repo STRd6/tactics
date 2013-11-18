@@ -3,7 +3,6 @@ TODO
 
 Tactical
 --------
-Passable allies
 
 Next Character / Previous Character Buttons
 
@@ -36,6 +35,8 @@ Done
 
 Tactical
 --------
+Passable allies
+
 Cancel action targetting
 
 Handle 2 squads on map
