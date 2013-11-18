@@ -38,7 +38,6 @@
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 Action = require <span class="string">"./action"</span>
 Ability = require <span class="string">"./ability"</span>
-FOV = require <span class="string">"./field_of_vision"</span>
 Names = require <span class="string">"./names"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
@@ -83,9 +82,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
       <span class="keyword">if</span> I.health &lt;= <span class="number">0</span>
         I.actions = <span class="number">0</span>
-
-    visiblePositions: (tileAt) -&gt;
-      FOV.calculate(tileAt, self.position(), self.sight())
 
     targettingAbility: Observable()
 

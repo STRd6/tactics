@@ -118,7 +118,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       squad.characters().filter (character) -&gt;
         character.alive()
       .forEach (duder) -&gt;
-        duder.visiblePositions(tileAt).map(tileAt).forEach (tile) -&gt;
+        search.visible(duder.position(), duder.sight()).map(tileAt).forEach (tile) -&gt;
           tile.seen[i] = tile.lit[i] = <span class="literal">true</span>
 
   squads = [
@@ -202,19 +202,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         character.targettingAbility()
 
     accessiblePositions: -&gt;
-      duder = self.activeCharacter()
+      character = self.activeCharacter()
 
       <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
           <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
-            self.performAbility(duder, ability, duder.position())
+            self.performAbility(character, ability, character.position())
 
             <span class="keyword">return</span>
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
-            search.accessible(duder.position(), duder.movement(), activeSquadIndex())
+            search.accessible(character.position(), character.movement(), activeSquadIndex())
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
-            visiblePositions = duder.visiblePositions(tileAt)
-            positionsInRange = search.adjacent(duder.position(), ability.range())
+            visiblePositions = search.visible(character.position(), character.sight())
+            positionsInRange = search.adjacent(character.position(), ability.range())
 
             intersection(
               visiblePositions
@@ -227,7 +227,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
       activeSquad nextActivatableSquad()
 
+      updateVisibleTiles()
+
       <span class="keyword">unless</span> self.activeCharacter()
+        <span class="comment"># End of Round</span>
         <span class="comment"># Refresh all squads</span>
         squads.forEach (squad) -&gt;
           squad.ready()
@@ -265,20 +268,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       activeSquad()?.activateCharacterAt(position)
 
     moveDuder: (position) -&gt;
-      duder = self.activeCharacter()
+      character = self.activeCharacter()
 
-      path = search.movementPath(duder.position(), position, activeSquadIndex())
+      path = search.movementPath(character.position(), position, activeSquadIndex())
 
       <span class="keyword">if</span> path
         index = activeSquadIndex()
 
         path.forEach (position) -&gt;
-          duder.visiblePositions(tileAt).map(tileAt).forEach (tile) -&gt;
+          search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) -&gt;
             tile.seen[index] = <span class="literal">true</span>
 
-        self.performAbility(duder, self.targettingAbility(), position)
-
-      updateVisibleTiles()
+        self.performAbility(character, self.targettingAbility(), position)
 
   updateVisibleTiles()
 

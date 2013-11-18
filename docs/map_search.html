@@ -35,6 +35,8 @@
               
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Graph = require <span class="string">"./graph"</span>
+FOV = require <span class="string">"./field_of_vision"</span>
+
 {sqrt} = Math
 
 {
@@ -141,6 +143,9 @@ through tiles.</p>
       initial: position
       neighbors: adjacentPositions
       distanceMax: range
+
+  visible: (position, range=<span class="number">1</span>) -&gt;
+    FOV.calculate(getTile, position, range)
 
   movementPath: (position, target, squadIndex) -&gt;
     Graph.aStar
