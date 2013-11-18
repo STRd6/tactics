@@ -245,14 +245,19 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
       <span class="keyword">unless</span> self.activeCharacter()
         <span class="comment"># End of Round</span>
-        <span class="comment"># Refresh all squads</span>
-        squads.forEach (squad) -&gt;
-          squad.ready()
+        self.ready()
 
-        activeSquad nextActivatableSquad()
+    ready: -&gt;
+      <span class="comment"># Refresh all squads</span>
+      squads.forEach (squad) -&gt;
+        squad.ready()
 
-        <span class="keyword">unless</span> activeSquad()
-          ;<span class="comment"># No survivors</span>
+      activeSquad nextActivatableSquad()
+
+      <span class="keyword">if</span> activeSquad()
+        self.stateBasedActions()
+      <span class="keyword">else</span>
+        ;<span class="comment"># No survivors</span>
 
     addEffect: (effect, position) -&gt;
       effect.perform

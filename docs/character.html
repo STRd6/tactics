@@ -46,6 +46,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   Object.defaults I,
     actions: <span class="number">2</span>
+    cooldowns: {}
     health: <span class="number">3</span>
     healthMax: <span class="number">3</span>
     movement: <span class="number">4</span>
@@ -76,12 +77,27 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     heal: (amount) -&gt;
       I.health += amount
 
+    cooldown: (ability) -&gt;
+      I.cooldowns[ability.name()] <span class="keyword">or</span> <span class="number">0</span>
+
+    setCooldown: (ability) -&gt;
+      I.cooldowns[ability.name()] = ability.cooldown()
+
     stateBasedActions: -&gt;
       <span class="keyword">if</span> I.health &gt; I.healthMax
         I.health = I.healthMax
 
+      <span class="comment"># Clamping actions and cooldowns</span>
       <span class="keyword">if</span> I.health &lt;= <span class="number">0</span>
         I.actions = <span class="number">0</span>
+
+      Object.keys(I.cooldowns).forEach (name) -&gt;
+        <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>
+          I.cooldowns[name] = <span class="number">0</span>
+
+      <span class="comment"># Reset action statuses</span>
+      actions.forEach (action) -&gt;
+        action.disabled !action.ability.canPay(self)
 
     targettingAbility: Observable()
 
@@ -101,6 +117,9 @@ any status effects.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">    ready: -&gt;
+      Object.keys(I.cooldowns).forEach (name) -&gt;
+        I.cooldowns[name] -= <span class="number">1</span>
+
       I.actions = <span class="number">2</span>
 
   abilities = I.abilities.concat(<span class="string">"Move"</span>, <span class="string">"Wait"</span>, <span class="string">"Cancel"</span>).map (name) -&gt;
@@ -112,6 +131,10 @@ any status effects.</p>
       icon: ability.iconName()
       perform: -&gt;
         self.targettingAbility(ability)
+
+    <span class="comment"># TODO: Mayb be a cleaner way to do this</span>
+    <span class="comment"># but it's needed for updating enabled/disabled status</span>
+    action.ability = ability
 
     action.active = Observable -&gt;
       ability <span class="keyword">is</span> self.targettingAbility()

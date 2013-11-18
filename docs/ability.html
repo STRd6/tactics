@@ -74,12 +74,14 @@ search = Search()
   Object.defaults I,
     range: <span class="number">1</span>
     actionCost: <span class="number">1</span>
+    cooldown: <span class="number">0</span>
     name: <span class="string">"?"</span>
     costType: Ability.COST_TYPE.FIXED
 
   self.attrAccessor(
     <span class="string">"actionCost"</span>
     <span class="string">"actionType"</span>
+    <span class="string">"cooldown"</span>
     <span class="string">"costType"</span>
     <span class="string">"iconName"</span>
     <span class="string">"name"</span>
@@ -89,7 +91,13 @@ search = Search()
   )
 
   Object.extend self,
+    canPay: (owner) -&gt;
+      (owner.actions() &gt;= self.actionCost()) <span class="keyword">and</span>
+      (owner.cooldown(self) <span class="keyword">is</span> <span class="number">0</span>)
+
     payCosts: (owner) -&gt;
+      owner.setCooldown(self)
+
       <span class="keyword">switch</span> self.costType()
         <span class="keyword">when</span> COST_TYPE.REST
           owner.actions(<span class="number">0</span>)
@@ -189,6 +197,7 @@ Ability.Abilities =
     iconName: <span class="string">"fireball"</span>
     range: <span class="number">7</span>
     actionCost: <span class="number">2</span>
+    cooldown: <span class="number">3</span>
     costType: COST_TYPE.REST
     targetZone: TARGET_ZONE.LINE_OF_SIGHT
     perform: (owner, {position, addEffect}) -&gt;
