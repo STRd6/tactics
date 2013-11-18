@@ -19,7 +19,7 @@
     "TODO.md": {
       "path": "TODO.md",
       "mode": "100644",
-      "content": "TODO\n====\n\nTactical\n--------\n\nNext Character / Previous Character Buttons\n\nHandle winning and losing\n\nSmooth transitions\n\nRandom Level Generation\n\nDisplay Messages\n\nMap Scrolling\n\nAbilities\n---------\nHealing\n\nBlink\n\nOverwold Map\n------------\nStart with one screen where you can choose quests/missions\n\nAI\n--\nAnything at all\n\nDone\n====\n\nTactical\n--------\nPassable allies\n\nCancel action targetting\n\nHandle 2 squads on map\n\n4 characters in each squad\n\nRemove characters with zero health in SBEs\n\nAbilities\n---------\nRanged attacks\n\nFireball\n\nRegeneration\n",
+      "content": "TODO\n====\n\nTactical\n--------\n\nDisplay Squad Overview, Click to Activate and Center\n\nHandle winning and losing\n\nSimple Ability Animations\n\nSmooth transitions\n\nRandom Level Generation\n\nDisplay Messages\n\nMap Scrolling\n\nAbilities\n---------\nHealing\n\nBlink\n\nOverwold Map\n------------\nStart with one screen where you can choose quests/missions\n\nAI\n--\nAnything at all\n\nDone\n====\n\nTactical\n--------\nPassable allies\n\nCancel action targetting\n\nHandle 2 squads on map\n\n4 characters in each squad\n\nRemove characters with zero health in SBEs\n\nAbilities\n---------\nRanged attacks\n\nFireball\n\nRegeneration\n",
       "type": "blob"
     },
     "ability.coffee.md": {
