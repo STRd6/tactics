@@ -33,16 +33,13 @@
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
               <p>Those little guys that run around.</p>
-<p>Use Shadowcasting for FoV calculations.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
 Action = require <span class="string">"./action"</span>
 Ability = require <span class="string">"./ability"</span>
-FOV = require <span class="string">"./shadowcasting"</span>
+FOV = require <span class="string">"./field_of_vision"</span>
 Names = require <span class="string">"./names"</span>
-
-{TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
