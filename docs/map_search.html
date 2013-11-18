@@ -94,19 +94,11 @@ be reached immediately from the given position.</p>
 may query its properties and figure out what to do.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">neighborsVisible</span></span> = (position, getTile, getEntities, index) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">neighborsVisible</span></span> = (position, getTile, getEntities, passable) -&gt;
   <span class="comment"># TODO: Add diagonals if both edges are passable</span>
   cardinalDirections.map (direction) -&gt;
     position.add(direction)
-  .filter (position) -&gt;
-    <span class="comment"># Filter out any impassible or unlit tiles</span>
-    tile = getTile(position)
-    tile <span class="keyword">and</span> !tile.solid <span class="keyword">and</span> tile.lit[index]
-  .filter (position) -&gt;
-    <span class="comment"># Filter out any tiles with peeps on them</span>
-    <span class="comment"># TODO: Pass through friendly peeps</span>
-    <span class="comment"># TODO: Pass through dead peeps</span>
-    !getEntities(position)
+  .filter(passable)
   .map (position) -&gt;
     [position, <span class="number">1</span>]
 
@@ -132,10 +124,10 @@ module.<span class="function"><span class="title">exports</span></span> = (getTi
 through tiles.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  accessible: (position, range, squadIndex) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  accessible: (position, range, passable) -&gt;
     Graph.accessible
       initial: position
-      neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
+      neighbors: strategy neighborsVisible, getTile, getEntities, passable
       distanceMax: range
 
   adjacent: (position, range=sqrt(<span class="number">2</span>)) -&gt;
@@ -147,11 +139,11 @@ through tiles.</p>
   visible: (position, range=<span class="number">1</span>) -&gt;
     FOV.calculate(getTile, position, range)
 
-  movementPath: (position, target, squadIndex) -&gt;
+  movementPath: (position, target, passable) -&gt;
     Graph.aStar
       initial: position
       goal: target
-      neighbors: strategy neighborsVisible, getTile, getEntities, squadIndex
+      neighbors: strategy neighborsVisible, getTile, getEntities, passable
       heuristic: (a, b) -&gt;
         {x, y} = b.subtract(a).abs()
 

@@ -137,13 +137,23 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       squad.activeCharacter()
     .first()
 
+  <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
+    (position) -&gt;
+      <span class="keyword">if</span> tile = tileAt(position)
+        <span class="keyword">if</span> occupant = characterAt(position)
+          occupantPassable = (activeSquad().characters.indexOf(occupant) != -<span class="number">1</span>)
+        <span class="keyword">else</span>
+          occupantPassable = <span class="literal">true</span>
+
+        !tile.solid <span class="keyword">and</span> tile.lit[activeSquadIndex()] <span class="keyword">and</span> occupantPassable
+
   <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
       {x, y} = x
 
     self.characters().filter (character) -&gt;
       position = character.position()
-      position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y
+      character.alive() <span class="keyword">and</span> (position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y)
     .first()
 
   search = MapSearch(grid.get, characterAt)
@@ -211,7 +221,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
             <span class="keyword">return</span>
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
-            search.accessible(character.position(), character.movement(), activeSquadIndex())
+            <span class="comment"># TODO: Remove passable, but occupied tiles</span>
+            search.accessible(character.position(), character.movement(), characterPassable(character))
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
             visiblePositions = search.visible(character.position(), character.sight())
             positionsInRange = search.adjacent(character.position(), ability.range())
@@ -270,11 +281,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
     moveDuder: (position) -&gt;
       character = self.activeCharacter()
 
-      path = search.movementPath(character.position(), position, activeSquadIndex())
+      path = search.movementPath(
+        character.position(),
+        position, 
+        characterPassable(character)
+      )
 
       <span class="keyword">if</span> path
         index = activeSquadIndex()
-
         path.forEach (position) -&gt;
           search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) -&gt;
             tile.seen[index] = <span class="literal">true</span>
