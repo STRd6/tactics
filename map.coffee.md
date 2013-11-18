@@ -75,7 +75,7 @@ Hold the terrain and whatnot for a level.
           squad.characters().filter (character) ->
             character.alive()
           .forEach (duder) ->
-            duder.visiblePositions(tileAt).map(tileAt).forEach (tile) ->
+            search.visible(duder.position(), duder.sight()).map(tileAt).forEach (tile) ->
               tile.seen[i] = tile.lit[i] = true
 
       squads = [
@@ -159,19 +159,19 @@ Hold the terrain and whatnot for a level.
             character.targettingAbility()
 
         accessiblePositions: ->
-          duder = self.activeCharacter()
+          character = self.activeCharacter()
 
           if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
-                self.performAbility(duder, ability, duder.position())
+                self.performAbility(character, ability, character.position())
 
                 return
               when Ability.TARGET_ZONE.MOVEMENT
-                search.accessible(duder.position(), duder.movement(), activeSquadIndex())
+                search.accessible(character.position(), character.movement(), activeSquadIndex())
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
-                visiblePositions = duder.visiblePositions(tileAt)
-                positionsInRange = search.adjacent(duder.position(), ability.range())
+                visiblePositions = search.visible(character.position(), character.sight())
+                positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
                   visiblePositions
@@ -184,7 +184,10 @@ Hold the terrain and whatnot for a level.
 
           activeSquad nextActivatableSquad()
 
+          updateVisibleTiles()
+
           unless self.activeCharacter()
+            # End of Round
             # Refresh all squads
             squads.forEach (squad) ->
               squad.ready()
@@ -222,20 +225,18 @@ Hold the terrain and whatnot for a level.
           activeSquad()?.activateCharacterAt(position)
 
         moveDuder: (position) ->
-          duder = self.activeCharacter()
+          character = self.activeCharacter()
 
-          path = search.movementPath(duder.position(), position, activeSquadIndex())
+          path = search.movementPath(character.position(), position, activeSquadIndex())
 
           if path
             index = activeSquadIndex()
 
             path.forEach (position) ->
-              duder.visiblePositions(tileAt).map(tileAt).forEach (tile) ->
+              search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) ->
                 tile.seen[index] = true
 
-            self.performAbility(duder, self.targettingAbility(), position)
-
-          updateVisibleTiles()
+            self.performAbility(character, self.targettingAbility(), position)
 
       updateVisibleTiles()
 

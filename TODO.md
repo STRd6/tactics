@@ -13,6 +13,8 @@ Smooth transitions
 
 Random Level Generation
 
+Display Messages
+
 Map Scrolling
 
 Abilities

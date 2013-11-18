@@ -6,7 +6,6 @@ Those little guys that run around.
     Resource = require "./resource"
     Action = require "./action"
     Ability = require "./ability"
-    FOV = require "./field_of_vision"
     Names = require "./names"
 
     module.exports = (I={}, self=Core(I)) ->
@@ -51,9 +50,6 @@ Those little guys that run around.
 
           if I.health <= 0
             I.actions = 0
-
-        visiblePositions: (tileAt) ->
-          FOV.calculate(tileAt, self.position(), self.sight())
 
         targettingAbility: Observable()
 

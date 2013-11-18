@@ -2,6 +2,8 @@ Map Search
 ==========
 
     Graph = require "./graph"
+    FOV = require "./field_of_vision"
+
     {sqrt} = Math
 
     {
@@ -82,6 +84,9 @@ through tiles.
           initial: position
           neighbors: adjacentPositions
           distanceMax: range
+
+      visible: (position, range=1) ->
+        FOV.calculate(getTile, position, range)
 
       movementPath: (position, target, squadIndex) ->
         Graph.aStar
