@@ -47,3 +47,5 @@ Abilities
 Ranged attacks
 
 Fireball
+
+Regeneration

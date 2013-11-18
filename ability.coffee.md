@@ -93,7 +93,7 @@ that target's an enemy, but has movement range and connectedness constraints.
 
 Should there be range types too? Connected, any, passable, etc?
 
-    Ability.TARGET_ZONE = TARGET_ZONE =
+    {SELF, MOVEMENT, LINE_OF_SIGHT} = Ability.TARGET_ZONE = TARGET_ZONE =
       SELF: 1 # The character itself, skips targetting step
       LINE_OF_SIGHT: 2 # Any tile within character's line of sight and within range
       VISIBLE: 3 # Any tile visible to squad within range
@@ -107,7 +107,7 @@ Should there be range types too? Connected, any, passable, etc?
       WALL: 4
       ANY: 15
 
-    Ability.COST_TYPE = COST_TYPE =
+    {FIXED, REST} = Ability.COST_TYPE = COST_TYPE =
       FIXED: 1
       REST: 2
 
@@ -116,7 +116,7 @@ Should there be range types too? Connected, any, passable, etc?
         name: "Move"
         iconName: "boots"
         actionCost: 1
-        targetZone: TARGET_ZONE.MOVEMENT
+        targetZone: MOVEMENT
         perform: (owner, {position}) ->
           owner.updatePosition position
 
@@ -125,22 +125,31 @@ Should there be range types too? Connected, any, passable, etc?
         iconName: "sword"
         range: sqrt(2)
         actionCost: 1
-        costType: COST_TYPE.REST
-        targetZone: TARGET_ZONE.LINE_OF_SIGHT
+        costType: REST
+        targetZone: LINE_OF_SIGHT
         perform: (owner, {position, character}) ->
           if character
             character.damage 1
 
       Ranged: Ability
-        name: "Ranged Attack"
+        name: "Attack"
         iconName: "longbow"
         range: 6
         actionCost: 1
-        costType: COST_TYPE.REST
-        targetZone: TARGET_ZONE.LINE_OF_SIGHT
+        costType: REST
+        targetZone: LINE_OF_SIGHT
         perform: (owner, {position, character}) ->
           if character
             character.damage 1
+
+      Regeneration: Ability
+        name: "Regeneration"
+        iconName: "regeneration"
+        actionCost: 1
+        costType: REST
+        targetZone: SELF
+        perform: (owner) ->
+          owner.heal(1)
 
       Fireball: Ability
         name: "Fireball"

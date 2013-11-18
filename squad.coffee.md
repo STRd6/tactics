@@ -1,7 +1,7 @@
 Squad
 =====
 
-    Duder = require "./duder"
+    Character = require "./character"
 
 A team of 4-6 characters who battle it out with other squads in tactical combat.
 
@@ -46,14 +46,14 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
       # TODO: Load characters from data
       if I.race is "human"
         self.characters [
-          Duder
+          Character
             position:
               x: I.x - 1
               y: 7
             health: 4
             healthMax: 4
             sprite: "human"
-          Duder
+          Character
             position:
               x: I.x - 2
               y: 10
@@ -63,7 +63,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             abilities: [
               "Fireball"
             ]
-          Duder
+          Character
             position:
               x: I.x - 4
               y: 13
@@ -74,21 +74,33 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         ]
       else
         self.characters [
-          Duder
+          Character
             position:
               x: I.x - 1
               y: 7
             sprite: "goblin"
-          Duder
+            abilities: [
+              "Melee"
+              "Regeneration"
+            ]
+          Character
             position:
               x: I.x - 2
               y: 10
             sprite: "goblin"
-          Duder
+            abilities: [
+              "Melee"
+              "Regeneration"
+            ]
+          Character
             position:
               x: I.x - 4
               y: 13
             sprite: "goblin"
+            abilities: [
+              "Melee"
+              "Regeneration"
+            ]
         ]
 
       self.activeCharacter self.characters.first()

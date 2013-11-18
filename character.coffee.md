@@ -1,4 +1,4 @@
-Duder
+Character
 =====
 
 Those little guys that run around.
@@ -46,7 +46,13 @@ Use Shadowcasting for FoV calculations.
         damage: (amount) ->
           I.health -= amount
 
+        heal: (amount) ->
+          I.health += amount
+
         stateBasedActions: ->
+          if I.health > I.healthMax
+            I.health = I.healthMax
+
           if I.health <= 0
             I.actions = 0
 
@@ -64,7 +70,7 @@ any status effects.
         ready: ->
           I.actions = 2
 
-      abilities = I.abilities.concat("Move", "Wait", "Cancel").map (name) -> 
+      abilities = I.abilities.concat("Move", "Wait", "Cancel").map (name) ->
         Ability.Abilities[name]
 
       actions = abilities.map (ability) ->
