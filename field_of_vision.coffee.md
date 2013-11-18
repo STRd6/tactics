@@ -1,5 +1,5 @@
-Shadowcasting
-=============
+Field Of Vision
+===============
 
 Based on https://gist.github.com/ebonneville/4200578
 

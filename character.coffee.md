@@ -1,17 +1,13 @@
 Character
-=====
+=========
 
 Those little guys that run around.
-
-Use Shadowcasting for FoV calculations.
 
     Resource = require "./resource"
     Action = require "./action"
     Ability = require "./ability"
-    FOV = require "./shadowcasting"
+    FOV = require "./field_of_vision"
     Names = require "./names"
-
-    {TARGET_TYPE, TARGET_ZONE, COST_TYPE} = Ability
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
