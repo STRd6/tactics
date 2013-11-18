@@ -17,11 +17,9 @@ Map Scrolling
 
 Abilities
 ---------
-Ranged attacks
+Healing
 
 Blink
-
-Fireball
 
 Overwold Map
 ------------
@@ -43,3 +41,9 @@ Handle 2 squads on map
 4 characters in each squad
 
 Remove characters with zero health in SBEs
+
+Abilities
+---------
+Ranged attacks
+
+Fireball
