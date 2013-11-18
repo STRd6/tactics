@@ -4,9 +4,11 @@ TODO
 Tactical
 --------
 
-Next Character / Previous Character Buttons
+Display Squad Overview, Click to Activate and Center
 
 Handle winning and losing
+
+Simple Ability Animations
 
 Smooth transitions
 
