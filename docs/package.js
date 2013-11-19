@@ -4,6 +4,12 @@
 })({
   "version": "0.1.0",
   "source": {
+    "GLOSSARY.md": {
+      "path": "GLOSSARY.md",
+      "mode": "100644",
+      "content": "Glossary\n========\n\nCharacter\n---------\n\nA character is a unit that engages in actions during tactical combat. It also\nexists during the overworld game.\n\nCharacters can gain active and passive abilities.\n\nWhen characters die it is permanent*.\n\nSquad\n-----\n\nA group of 2-6 characters that represent a single team in the tactical combat.\n\nMission\n-------\n\nA mission is a tactical combat engagement using one squad from the player's tribe.\n\nRaces\n-----\n\n- Humans\n- Elves\n- Dwarves\n- Goblins\n- Serpent Men\n- Undead\n\nState Based Actions\n-------------------\n\nState based actions are triggers that are checked every time the game state changes.\n\nFor example: characters dying when they have zero health, a team winning when\nthere are no more opponents, etc.\n\nBasically inspired by MtG.\n\nTribe\n-----\n\nThe player controls a tribe throughout the game. The tribe is composed of characters.\n\nThe characters in a tribe can be arranged into squads.\n\nThe tribe has a home base.",
+      "type": "blob"
+    },
     "LICENSE": {
       "path": "LICENSE",
       "mode": "100644",
@@ -32,12 +38,6 @@
       "path": "action.coffee.md",
       "mode": "100644",
       "content": "Action\n======\n\nThe only thing persons can do in the game are actions.\n\nThey live in a little menu that changes based on the context.\n\nClicking on them makes them happen.\n\n    Resource = require \"./resource\"\n\n    module.exports = (I={}) ->\n      self = {}\n\n      Object.defaults self, I,\n        name: \"Action\"\n\n      self.active = Observable false\n      self.disabled = Observable false\n      self.icon = Resource.dataURL(I.icon)\n\n      return self\n",
-      "type": "blob"
-    },
-    "app_cache.coffee.md": {
-      "path": "app_cache.coffee.md",
-      "mode": "100644",
-      "content": "App Cache\n=========\n\nSome helpers for working with HTML5 application cache.\n\nhttp://www.html5rocks.com/en/tutorials/appcache/beginner/\n\n    applicationCache = window.applicationCache\n    \n    applicationCache.addEventListener 'updateready', (e) ->\n      if applicationCache.status is applicationCache.UPDATEREADY\n        # Browser downloaded a new app cache.\n        if confirm('A new version of this site is available. Load it?')\n          window.location.reload()\n    , false\n",
       "type": "blob"
     },
     "array_helpers.coffee.md": {
@@ -121,7 +121,7 @@
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  appcache: \"STRd6/appcache:v0.1.0\"\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n",
       "type": "blob"
     },
     "resource.coffee.md": {
@@ -133,7 +133,7 @@
     "setup.coffee.md": {
       "path": "setup.coffee.md",
       "mode": "100644",
-      "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    # Updating Application Cache and prompting for new version\n    require \"./app_cache\"\n",
+      "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    # Updating Application Cache and prompting for new version\n    require \"appcache\"\n",
       "type": "blob"
     },
     "sprite.coffee.md": {
@@ -171,12 +171,6 @@
       "mode": "100644",
       "content": "{intersection, indexOf} = require \"../array_helpers\"\n\nNumber::equal = (other) ->\n  (this + 0) == other\n\ndescribe \"Array Helpers\", ->\n  it \"indexOf\", ->\n    assert indexOf([1, 2, 3], 2) is 1\n\n  it \"intersection\", ->\n    result = intersection [Point(1, 1), Point(2, 1), Point(3, 1)], [Point(1, 1)]\n\n    assert result.length is 1\n",
       "type": "blob"
-    },
-    "GLOSSARY.md": {
-      "path": "GLOSSARY.md",
-      "mode": "100644",
-      "content": "Glossary\n========\n\nCharacter\n---------\n\nA character is a unit that engages in actions during tactical combat. It also\nexists during the overworld game.\n\nCharacters can gain active and passive abilities.\n\nWhen characters die it is permanent*.\n\nSquad\n-----\n\nA group of 2-6 characters that represent a single team in the tactical combat.\n\nMission\n-------\n\nA mission is a tactical combat engagement using one squad from the player's tribe.\n\nRaces\n-----\n\n- Humans\n- Elves\n- Dwarves\n- Goblins\n- Serpent Men\n- Undead\n\nState Based Actions\n-------------------\n\nState based actions are triggers that are checked every time the game state changes.\n\nFor example: characters dying when they have zero health, a team winning when\nthere are no more opponents, etc.\n\nBasically inspired by MtG.\n\nTribe\n-----\n\nThe player controls a tribe throughout the game. The tribe is composed of characters.\n\nThe characters in a tribe can be arranged into squads.\n\nThe tribe has a home base.",
-      "type": "blob"
     }
   },
   "distribution": {
@@ -188,11 +182,6 @@
     "action": {
       "path": "action",
       "content": "(function() {\n  var Resource;\n\n  Resource = require(\"./resource\");\n\n  module.exports = function(I) {\n    var self;\n    if (I == null) {\n      I = {};\n    }\n    self = {};\n    Object.defaults(self, I, {\n      name: \"Action\"\n    });\n    self.active = Observable(false);\n    self.disabled = Observable(false);\n    self.icon = Resource.dataURL(I.icon);\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=action.coffee",
-      "type": "blob"
-    },
-    "app_cache": {
-      "path": "app_cache",
-      "content": "(function() {\n  var applicationCache;\n\n  applicationCache = window.applicationCache;\n\n  applicationCache.addEventListener('updateready', function(e) {\n    if (applicationCache.status === applicationCache.UPDATEREADY) {\n      if (confirm('A new version of this site is available. Load it?')) {\n        return window.location.reload();\n      }\n    }\n  }, false);\n\n}).call(this);\n\n//# sourceURL=app_cache.coffee",
       "type": "blob"
     },
     "array_helpers": {
@@ -262,7 +251,7 @@
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"appcache\":\"STRd6/appcache:v0.1.0\",\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\"}};",
       "type": "blob"
     },
     "resource": {
@@ -272,7 +261,7 @@
     },
     "setup": {
       "path": "setup",
-      "content": "(function() {\n  var runtime;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  require(\"./app_cache\");\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
+      "content": "(function() {\n  var runtime;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  require(\"appcache\");\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
       "type": "blob"
     },
     "sprite": {
@@ -308,6 +297,148 @@
   },
   "entryPoint": "main",
   "dependencies": {
+    "appcache": {
+      "version": "0.1.0",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "appcache\n========\n\nHTML5 AppCache Helpers\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "App Cache\n=========\n\nSome helpers for working with HTML5 application cache.\n\nhttp://www.html5rocks.com/en/tutorials/appcache/beginner/\n\n    applicationCache = window.applicationCache\n\n    applicationCache.addEventListener 'updateready', (e) ->\n      if applicationCache.status is applicationCache.UPDATEREADY\n        # Browser downloaded a new app cache.\n        if confirm('A new version of this site is available. Load it?')\n          window.location.reload()\n    , false\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.0\"\nentryPoint: \"main\"\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var applicationCache;\n\n  applicationCache = window.applicationCache;\n\n  applicationCache.addEventListener('updateready', function(e) {\n    if (applicationCache.status === applicationCache.UPDATEREADY) {\n      if (confirm('A new version of this site is available. Load it?')) {\n        return window.location.reload();\n      }\n    }\n  }, false);\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.0\",\"entryPoint\":\"main\"};",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 14539483,
+        "name": "appcache",
+        "full_name": "STRd6/appcache",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/appcache",
+        "description": "HTML5 AppCache Helpers",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/appcache",
+        "forks_url": "https://api.github.com/repos/STRd6/appcache/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/appcache/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/appcache/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/appcache/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/appcache/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/appcache/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/appcache/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/appcache/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/appcache/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/appcache/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/appcache/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/appcache/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/appcache/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/appcache/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/appcache/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/appcache/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/appcache/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/appcache/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/appcache/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/appcache/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/appcache/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/appcache/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/appcache/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/appcache/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/appcache/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/appcache/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/appcache/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/appcache/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/appcache/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/appcache/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/appcache/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/appcache/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/appcache/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/appcache/labels{/name}",
+        "releases_url": "https://api.github.com/repos/STRd6/appcache/releases{/id}",
+        "created_at": "2013-11-19T22:09:16Z",
+        "updated_at": "2013-11-19T22:09:16Z",
+        "pushed_at": "2013-11-19T22:09:16Z",
+        "git_url": "git://github.com/STRd6/appcache.git",
+        "ssh_url": "git@github.com:STRd6/appcache.git",
+        "clone_url": "https://github.com/STRd6/appcache.git",
+        "svn_url": "https://github.com/STRd6/appcache",
+        "homepage": null,
+        "size": 0,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 0,
+        "subscribers_count": 1,
+        "branch": "v0.1.0",
+        "defaultBranch": "master"
+      }
+    },
     "compression": {
       "version": "1.3.3",
       "source": {
@@ -1311,14 +1442,14 @@
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-11-18T19:53:23Z",
-    "pushed_at": "2013-11-18T19:53:23Z",
+    "updated_at": "2013-11-18T23:40:25Z",
+    "pushed_at": "2013-11-18T23:40:25Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
     "svn_url": "https://github.com/STRd6/tactics",
     "homepage": null,
-    "size": 1021,
+    "size": 1967,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "CoffeeScript",
