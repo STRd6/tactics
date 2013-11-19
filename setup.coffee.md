@@ -12,4 +12,4 @@ Set up our runtime styles and expose some stuff for debugging.
     runtime.applyStyleSheet(require('./style'))
 
     # Updating Application Cache and prompting for new version
-    require "./app_cache"
+    require "appcache"
