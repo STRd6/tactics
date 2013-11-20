@@ -17,13 +17,13 @@ Drawing the map data on the screen.
     drawFeatures = (tiles, canvas) ->
       tiles.forEach ([{features}, position]) ->
         features.forEach (feature) ->
-          feature.draw canvas, 
+          feature.draw canvas, position.scale(tileSize)
 
-    drawCharacters = (tiles, canvas) ->
+    drawCharacters = (tiles, characterAt, canvas) ->
       tiles.forEach ([_, position]) ->
         canvasPosition = position.scale(tileSize)
 
-        if character = self.characterAt(x, y)
+        if character = characterAt(position)
           if character.alive()
             character.sprite().draw(canvas, canvasPosition)
           else
@@ -60,6 +60,6 @@ Drawing the map data on the screen.
           [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
             tile.lit[index]
 
-          drawCharacters(litTiles, canvas)
+          drawCharacters(litTiles, self.characterAt, canvas)
           drawFeatures(seenTiles, canvas)
           drawFog(unlitTiles, canvas)

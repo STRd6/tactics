@@ -95,7 +95,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           map.selectTarget tilePosition
           update()
       else
-        map.touch tilePosition
+        map?.touch tilePosition
 
     gridSprite = Resource.sprite("grid_blue")
 
