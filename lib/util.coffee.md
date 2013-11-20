@@ -39,6 +39,19 @@ A 2d extent.
           [0...@width].forEach (x) ->
             iterator(x, y)
 
+Bounds
+------
+
+    Bounds = ({x, y}, {width, height}) ->
+      x: x
+      y: y
+      width: width
+      height: height
+    
+    Bounds.prototype = 
+      toString: ->
+        "Bounds({#{@x}, #{@y}}, {#{@width}, #{@height}})"
+
 Point Extensions
 ----------------
 
@@ -54,7 +67,7 @@ Point Extensions
 Extra utilities that may be broken out into separate libraries.
 
     module.exports =
-
+      Bounds: Bounds
       Size: Size
 
 A 2d grid of values.
