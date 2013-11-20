@@ -21,7 +21,7 @@ Drawing the map data on the screen.
 
     drawCharacters = (tiles, characterAt, canvas, t) ->
       tiles.forEach ([_, position]) ->
-        bounce = Point(Math.cos(Math.TAU * t / 12), 0).scale(3).floor()
+        bounce = Point(Math.cos(Math.TAU * t / 12), 0).scale(2).floor()
         canvasPosition = position.scale(tileSize).add(bounce)
 
         if character = characterAt(position)
