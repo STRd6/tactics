@@ -53,7 +53,7 @@ tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
 
 <span class="function"><span class="title">drawCharacters</span></span> = (tiles, characterAt, canvas, t) -&gt;
   tiles.forEach ([_, position]) -&gt;
-    bounce = Point(Math.cos(Math.TAU * t / <span class="number">12</span>), <span class="number">0</span>).scale(<span class="number">3</span>).floor()
+    bounce = Point(Math.cos(Math.TAU * t / <span class="number">12</span>), <span class="number">0</span>).scale(<span class="number">2</span>).floor()
     canvasPosition = position.scale(tileSize).add(bounce)
 
     <span class="keyword">if</span> character = characterAt(position)
