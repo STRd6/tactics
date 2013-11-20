@@ -19,9 +19,10 @@ Drawing the map data on the screen.
         features.forEach (feature) ->
           feature.draw canvas, position.scale(tileSize)
 
-    drawCharacters = (tiles, characterAt, canvas) ->
+    drawCharacters = (tiles, characterAt, canvas, t) ->
       tiles.forEach ([_, position]) ->
-        canvasPosition = position.scale(tileSize)
+        bounce = Point(Math.cos(Math.TAU * t / 12), 0).scale(3).floor()
+        canvasPosition = position.scale(tileSize).add(bounce)
 
         if character = characterAt(position)
           if character.alive()
@@ -49,7 +50,7 @@ Drawing the map data on the screen.
 
           results
 
-        render: (canvas) ->
+        render: (canvas, t) ->
           canvas.fill I.backgroundColor
 
           index = self.activeSquadIndex()
@@ -60,6 +61,6 @@ Drawing the map data on the screen.
           [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
             tile.lit[index]
 
-          drawCharacters(litTiles, self.characterAt, canvas)
+          drawCharacters(litTiles, self.characterAt, canvas, t)
           drawFeatures(seenTiles, canvas)
           drawFog(unlitTiles, canvas)

@@ -74,8 +74,11 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         map.stateBasedActions()
         accessiblePositions = map.accessiblePositions()
 
+    t = 0
     setInterval ->
-      map?.render(canvas)
+      t += 0.3333333
+
+      map?.render(canvas, t)
       updateUiCanvas()
     , 33.3333333
 
