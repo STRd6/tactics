@@ -54,18 +54,17 @@ electricity, I don&#39;t know yet.</p>
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
 
   perform: ({position, tileAt, characterAt, message}) -&gt;
-    tile = tileAt(position)
+    <span class="keyword">if</span> tile = tileAt(position)
+      <span class="comment"># Fireball Effect</span>
+      Object.extend tile,
+        opaque: <span class="literal">false</span>
+        solid: <span class="literal">false</span>
+        features: []
+        sprite: lavaSprites.rand()
 
-    <span class="comment"># Fireball Effect</span>
-    Object.extend tile,
-      opaque: <span class="literal">false</span>
-      solid: <span class="literal">false</span>
-      features: []
-      sprite: lavaSprites.rand()
-
-    <span class="keyword">if</span> character = characterAt(position)
-      message(<span class="string">"<span class="subst">#{character.name()}</span> is burned!"</span>)
-      character.damage(<span class="number">2</span>)</code></pre>
+      <span class="keyword">if</span> character = characterAt(position)
+        message(<span class="string">"<span class="subst">#{character.name()}</span> is burned!"</span>)
+        character.damage(<span class="number">2</span>)</code></pre>
 </div>
         </li>
         

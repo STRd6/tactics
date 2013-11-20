@@ -66,8 +66,6 @@ moveDirections = [
             </div>
             <div class="content"><pre><code class="lang-coffeescript">global.allSprites = Object.keys(require(<span class="string">"./images"</span>)).map Resource.sprite
 
-skeletonSprite = Resource.sprite <span class="string">"skeleton"</span>
-
 groundSprites = [<span class="string">"ground"</span>, <span class="string">"frozen"</span>, <span class="string">"stone"</span>].map (type) -&gt;
   [<span class="number">0.</span><span class="number">.7</span>].map (i) -&gt;
     <span class="string">"<span class="subst">#{type}</span><span class="subst">#{i}</span>"</span>
