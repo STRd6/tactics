@@ -51,9 +51,10 @@ tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
     features.forEach (feature) -&gt;
       feature.draw canvas, position.scale(tileSize)
 
-<span class="function"><span class="title">drawCharacters</span></span> = (tiles, characterAt, canvas) -&gt;
+<span class="function"><span class="title">drawCharacters</span></span> = (tiles, characterAt, canvas, t) -&gt;
   tiles.forEach ([_, position]) -&gt;
-    canvasPosition = position.scale(tileSize)
+    bounce = Point(Math.cos(Math.TAU * t / <span class="number">12</span>), <span class="number">0</span>).scale(<span class="number">3</span>).floor()
+    canvasPosition = position.scale(tileSize).add(bounce)
 
     <span class="keyword">if</span> character = characterAt(position)
       <span class="keyword">if</span> character.alive()
@@ -81,7 +82,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
       results
 
-    render: (canvas) -&gt;
+    render: (canvas, t) -&gt;
       canvas.fill I.backgroundColor
 
       index = self.activeSquadIndex()
@@ -92,7 +93,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       [litTiles, unlitTiles] = seenTiles.partition ([tile]) -&gt;
         tile.lit[index]
 
-      drawCharacters(litTiles, self.characterAt, canvas)
+      drawCharacters(litTiles, self.characterAt, canvas, t)
       drawFeatures(seenTiles, canvas)
       drawFog(unlitTiles, canvas)</code></pre>
 </div>

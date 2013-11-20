@@ -104,8 +104,11 @@ accessiblePositions = <span class="literal">null</span>
     map.stateBasedActions()
     accessiblePositions = map.accessiblePositions()
 
+t = <span class="number">0</span>
 setInterval -&gt;
-  map?.render(canvas)
+  t += <span class="number">0.3333333</span>
+
+  map?.render(canvas, t)
   updateUiCanvas()
 , <span class="number">33.3333333</span>
 
