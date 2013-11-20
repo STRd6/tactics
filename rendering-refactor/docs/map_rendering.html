@@ -84,8 +84,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     render: (canvas) -&gt;
       canvas.fill I.backgroundColor
 
-      index = activeSquadIndex()
-      seenTiles = self.seenTiles()
+      index = self.activeSquadIndex()
+      seenTiles = self.seenTiles(index)
 
       drawGround(seenTiles, canvas)
 

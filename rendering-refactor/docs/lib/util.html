@@ -264,7 +264,7 @@ Point.prototype.<span class="function"><span class="title">sign</span></span> = 
       each: (iterator) -&gt;
         grid.forEach (row, y) -&gt;
           row.forEach (value, x) -&gt;
-            iterator(value, x, y)
+            iterator(value, Point(x, y), self)
 
         <span class="keyword">return</span> self
 
