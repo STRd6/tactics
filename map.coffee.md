@@ -55,9 +55,8 @@ Hold the terrain and whatnot for a level.
       features: [0...bush].map ->
         bushSprites.rand()
 
-    module.exports = (I={}) ->
-      Object.defaults I,
-        background: "#222034"
+    module.exports = (I={}, self) ->
+      self ?= Core(I)
 
       grid = Grid 32, 18, (x, y) ->
         if rand() < 0.10
@@ -85,9 +84,7 @@ Hold the terrain and whatnot for a level.
           x: 30
       ]
 
-      activeSquad = Observable squads.first()
-      activeSquadIndex = ->
-        squads.indexOf activeSquad()
+      activeSquad = Observable squads.first()        
 
       nextActivatableSquad = ->
         squads.filter (squad) ->
@@ -102,7 +99,7 @@ Hold the terrain and whatnot for a level.
             else
               occupantPassable = true
 
-            !tile.solid and tile.lit[activeSquadIndex()] and occupantPassable
+            !tile.solid and tile.lit[self.activeSquadIndex()] and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -115,47 +112,23 @@ Hold the terrain and whatnot for a level.
 
       search = MapSearch(grid.get, characterAt)
 
-      self =
+      Object.extend self,
+        activeSquadIndex: ->
+          squads.indexOf activeSquad()
+
         characters: Observable ->
           squads.map (squad) ->
             squad.characters()
           .flatten()
 
+        characterAt: characterAt
+
+        eachTile: grid.each
+
         visibleCharacters: ->
-          index = activeSquadIndex()
+          index = self.activeSquadIndex()
           self.characters().filter (character) ->
             tileAt(character.position()).lit[index]
-
-        render: (canvas) ->
-          canvas.fill I.background
-
-          grid.each (tile, x, y) ->
-            {sprite, lit, seen} = tile
-            canvasPosition = Point(x, y).scale(32)
-
-            index = activeSquadIndex()
-
-            if seen[index]
-              sprite.draw(canvas, canvasPosition)
-
-              if lit[index]
-                if duder = characterAt(x, y)
-                  if duder.alive()
-                    duder.sprite().draw(canvas, canvasPosition)
-                  else
-                    skeletonSprite.draw(canvas, canvasPosition)
-
-              tile.features.forEach (feature) ->
-                feature.draw(canvas, canvasPosition)
-
-              if !lit[index]
-                # Draw fog of war
-                canvas.drawRect
-                  x: x * 32
-                  y: y * 32
-                  width: 32
-                  height: 32
-                  color: "rgba(0, 0, 0, 0.5)"
 
         activeCharacter: Observable ->
           # Dependencies for observable
@@ -248,12 +221,12 @@ Hold the terrain and whatnot for a level.
 
           path = search.movementPath(
             character.position(),
-            position, 
+            position,
             characterPassable(character)
           )
 
           if path
-            index = activeSquadIndex()
+            index = self.activeSquadIndex()
             path.forEach (position) ->
               search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) ->
                 tile.seen[index] = true
@@ -261,5 +234,7 @@ Hold the terrain and whatnot for a level.
             self.performAbility(character, self.targettingAbility(), position)
 
       updateVisibleTiles()
+
+      self.include require("./map_rendering")
 
       return self
