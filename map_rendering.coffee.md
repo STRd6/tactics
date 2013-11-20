@@ -52,8 +52,8 @@ Drawing the map data on the screen.
         render: (canvas) ->
           canvas.fill I.backgroundColor
 
-          index = activeSquadIndex()
-          seenTiles = self.seenTiles()
+          index = self.activeSquadIndex()
+          seenTiles = self.seenTiles(index)
           
           drawGround(seenTiles, canvas)
           

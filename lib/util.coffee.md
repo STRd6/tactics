@@ -120,7 +120,7 @@ A 2d grid of values.
           each: (iterator) ->
             grid.forEach (row, y) ->
               row.forEach (value, x) ->
-                iterator(value, x, y)
+                iterator(value, Point(x, y), self)
 
             return self
 
