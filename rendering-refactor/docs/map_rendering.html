@@ -49,13 +49,13 @@ tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
 <span class="function"><span class="title">drawFeatures</span></span> = (tiles, canvas) -&gt;
   tiles.forEach ([{features}, position]) -&gt;
     features.forEach (feature) -&gt;
-      feature.draw canvas, 
+      feature.draw canvas, position.scale(tileSize)
 
-<span class="function"><span class="title">drawCharacters</span></span> = (tiles, canvas) -&gt;
+<span class="function"><span class="title">drawCharacters</span></span> = (tiles, characterAt, canvas) -&gt;
   tiles.forEach ([_, position]) -&gt;
     canvasPosition = position.scale(tileSize)
 
-    <span class="keyword">if</span> character = self.characterAt(x, y)
+    <span class="keyword">if</span> character = characterAt(position)
       <span class="keyword">if</span> character.alive()
         character.sprite().draw(canvas, canvasPosition)
       <span class="keyword">else</span>
@@ -92,7 +92,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       [litTiles, unlitTiles] = seenTiles.partition ([tile]) -&gt;
         tile.lit[index]
 
-      drawCharacters(litTiles, canvas)
+      drawCharacters(litTiles, self.characterAt, canvas)
       drawFeatures(seenTiles, canvas)
       drawFog(unlitTiles, canvas)</code></pre>
 </div>
