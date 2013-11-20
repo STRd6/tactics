@@ -23,8 +23,6 @@ Hold the terrain and whatnot for a level.
 
     global.allSprites = Object.keys(require("./images")).map Resource.sprite
 
-    skeletonSprite = Resource.sprite "skeleton"
-
     groundSprites = ["ground", "frozen", "stone"].map (type) ->
       [0..7].map (i) ->
         "#{type}#{i}"

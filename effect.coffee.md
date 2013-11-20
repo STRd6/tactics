@@ -12,15 +12,14 @@ electricity, I don't know yet.
     module.exports = (I={}, self=Core(I)) ->
 
       perform: ({position, tileAt, characterAt, message}) ->
-        tile = tileAt(position)
+        if tile = tileAt(position)
+          # Fireball Effect
+          Object.extend tile,
+            opaque: false
+            solid: false
+            features: []
+            sprite: lavaSprites.rand()
 
-        # Fireball Effect
-        Object.extend tile,
-          opaque: false
-          solid: false
-          features: []
-          sprite: lavaSprites.rand()
-
-        if character = characterAt(position)
-          message("#{character.name()} is burned!")
-          character.damage(2)
+          if character = characterAt(position)
+            message("#{character.name()} is burned!")
+            character.damage(2)
