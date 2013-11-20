@@ -98,9 +98,8 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
   features: [<span class="number">0.</span>..bush].map -&gt;
     bushSprites.rand()
 
-module.<span class="function"><span class="title">exports</span></span> = (I={}) -&gt;
-  Object.defaults I,
-    background: <span class="string">"#222034"</span>
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  self ?= Core(I)
 
   grid = Grid <span class="number">32</span>, <span class="number">18</span>, (x, y) -&gt;
     <span class="keyword">if</span> rand() &lt; <span class="number">0.10</span>
@@ -128,9 +127,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
       x: <span class="number">30</span>
   ]
 
-  activeSquad = Observable squads.first()
-  <span class="function"><span class="title">activeSquadIndex</span></span> = -&gt;
-    squads.indexOf activeSquad()
+  activeSquad = Observable squads.first()        
 
   <span class="function"><span class="title">nextActivatableSquad</span></span> = -&gt;
     squads.filter (squad) -&gt;
@@ -145,7 +142,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         <span class="keyword">else</span>
           occupantPassable = <span class="literal">true</span>
 
-        !tile.solid <span class="keyword">and</span> tile.lit[activeSquadIndex()] <span class="keyword">and</span> occupantPassable
+        !tile.solid <span class="keyword">and</span> tile.lit[self.activeSquadIndex()] <span class="keyword">and</span> occupantPassable
 
   <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
@@ -158,47 +155,23 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
   search = MapSearch(grid.get, characterAt)
 
-  self =
+  Object.extend self,
+    activeSquadIndex: -&gt;
+      squads.indexOf activeSquad()
+
     characters: Observable -&gt;
       squads.map (squad) -&gt;
         squad.characters()
       .flatten()
 
+    characterAt: characterAt
+
+    eachTile: grid.each
+
     visibleCharacters: -&gt;
-      index = activeSquadIndex()
+      index = self.activeSquadIndex()
       self.characters().filter (character) -&gt;
         tileAt(character.position()).lit[index]
-
-    render: (canvas) -&gt;
-      canvas.fill I.background
-
-      grid.each (tile, x, y) -&gt;
-        {sprite, lit, seen} = tile
-        canvasPosition = Point(x, y).scale(<span class="number">32</span>)
-
-        index = activeSquadIndex()
-
-        <span class="keyword">if</span> seen[index]
-          sprite.draw(canvas, canvasPosition)
-
-          <span class="keyword">if</span> lit[index]
-            <span class="keyword">if</span> duder = characterAt(x, y)
-              <span class="keyword">if</span> duder.alive()
-                duder.sprite().draw(canvas, canvasPosition)
-              <span class="keyword">else</span>
-                skeletonSprite.draw(canvas, canvasPosition)
-
-          tile.features.forEach (feature) -&gt;
-            feature.draw(canvas, canvasPosition)
-
-          <span class="keyword">if</span> !lit[index]
-            <span class="comment"># Draw fog of war</span>
-            canvas.drawRect
-              x: x * <span class="number">32</span>
-              y: y * <span class="number">32</span>
-              width: <span class="number">32</span>
-              height: <span class="number">32</span>
-              color: <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
     activeCharacter: Observable -&gt;
       <span class="comment"># Dependencies for observable</span>
@@ -291,12 +264,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
 
       path = search.movementPath(
         character.position(),
-        position, 
+        position,
         characterPassable(character)
       )
 
       <span class="keyword">if</span> path
-        index = activeSquadIndex()
+        index = self.activeSquadIndex()
         path.forEach (position) -&gt;
           search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) -&gt;
             tile.seen[index] = <span class="literal">true</span>
@@ -304,6 +277,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
         self.performAbility(character, self.targettingAbility(), position)
 
   updateVisibleTiles()
+
+  self.include require(<span class="string">"./map_rendering"</span>)
 
   <span class="keyword">return</span> self</code></pre>
 </div>
