@@ -1,16 +1,168 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1385253135812">
+<html manifest="manifest.appcache?1385326592759">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script>
-<script src="http://strd6.github.io/require/v0.2.2.js"></script>
 </head>
 <body>
 <script>
 ;(function(PACKAGE) {
+var oldRequire = window.Require;
+(function() {
+  var cacheFor, circularGuard, defaultEntryPoint, fileSeparator, generateRequireFn, global, isPackage, loadModule, loadPackage, loadPath, normalizePath, rootModule, startsWith,
+    __slice = [].slice;
+
+  fileSeparator = '/';
+
+  global = window;
+
+  defaultEntryPoint = "main";
+
+  circularGuard = {};
+
+  rootModule = {
+    path: ""
+  };
+
+  loadPath = function(parentModule, pkg, path) {
+    var cache, localPath, module, normalizedPath;
+    if (startsWith(path, '/')) {
+      localPath = [];
+    } else {
+      localPath = parentModule.path.split(fileSeparator);
+    }
+    normalizedPath = normalizePath(path, localPath);
+    cache = cacheFor(pkg);
+    if (module = cache[normalizedPath]) {
+      if (module === circularGuard) {
+        throw "Circular dependency detected when requiring " + normalizedPath;
+      }
+    } else {
+      cache[normalizedPath] = circularGuard;
+      try {
+        cache[normalizedPath] = module = loadModule(pkg, normalizedPath);
+      } finally {
+        if (cache[normalizedPath] === circularGuard) {
+          delete cache[normalizedPath];
+        }
+      }
+    }
+    return module.exports;
+  };
+
+  normalizePath = function(path, base) {
+    var piece, result;
+    if (base == null) {
+      base = [];
+    }
+    base = base.concat(path.split(fileSeparator));
+    result = [];
+    while (base.length) {
+      switch (piece = base.shift()) {
+        case "..":
+          result.pop();
+          break;
+        case "":
+        case ".":
+          break;
+        default:
+          result.push(piece);
+      }
+    }
+    return result.join(fileSeparator);
+  };
+
+  loadPackage = function(parentModule, pkg, path) {
+    path || (path = pkg.entryPoint || defaultEntryPoint);
+    return loadPath(parentModule, pkg, path);
+  };
+
+  loadModule = function(pkg, path) {
+    var args, context, dirname, file, module, program, values;
+    if (!(file = pkg.distribution[path])) {
+      throw "Could not find file at " + path + " in " + pkg.name;
+    }
+    program = file.content;
+    dirname = path.split(fileSeparator).slice(0, -1).join(fileSeparator);
+    module = {
+      path: dirname,
+      exports: {}
+    };
+    context = {
+      require: generateRequireFn(pkg, module),
+      global: global,
+      module: module,
+      exports: module.exports,
+      PACKAGE: pkg,
+      __filename: path,
+      __dirname: dirname
+    };
+    args = Object.keys(context);
+    values = args.map(function(name) {
+      return context[name];
+    });
+    Function.apply(null, __slice.call(args).concat([program])).apply(module, values);
+    return module;
+  };
+
+  isPackage = function(path) {
+    if (!(startsWith(path, fileSeparator) || startsWith(path, "." + fileSeparator) || startsWith(path, ".." + fileSeparator))) {
+      return path.split(fileSeparator)[0];
+    } else {
+      return false;
+    }
+  };
+
+  generateRequireFn = function(pkg, module) {
+    if (module == null) {
+      module = rootModule;
+    }
+    return function(path) {
+      var otherPackage, otherPackageName, packagePath;
+      if (otherPackageName = isPackage(path)) {
+        packagePath = path.replace(otherPackageName, "");
+        if (!(otherPackage = pkg.dependencies[otherPackageName])) {
+          throw "Package: " + otherPackageName + " not found.";
+        }
+        if (otherPackage.name == null) {
+          otherPackage.name = otherPackageName;
+        }
+        return loadPackage(rootModule, otherPackage, packagePath);
+      } else {
+        return loadPath(module, pkg, path);
+      }
+    };
+  };
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.generateFor = generateRequireFn;
+  } else {
+    global.Require = {
+      generateFor: generateRequireFn
+    };
+  }
+
+  startsWith = function(string, prefix) {
+    return string.lastIndexOf(prefix, 0) === 0;
+  };
+
+  cacheFor = function(pkg) {
+    if (pkg.cache) {
+      return pkg.cache;
+    }
+    Object.defineProperty(pkg, "cache", {
+      value: {}
+    });
+    return pkg.cache;
+  };
+
+}).call(this);
+
+//# sourceURL=main.coffee
 var require = Require.generateFor(PACKAGE);
+window.Require = oldRequire;
 require('./main')
 })({
   "version": "0.1.0",
@@ -138,25 +290,19 @@ require('./main')
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  appcache: \"STRd6/appcache:v0.1.0\"\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"\n]\ndependencies:\n  appcache: \"STRd6/appcache:v0.1.0\"\n  compression: \"STRd6/lz-string:v1.3.3\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  sprite: \"distri/sprite:v0.1.1\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n",
       "type": "blob"
     },
     "resource.coffee.md": {
       "path": "resource.coffee.md",
       "mode": "100644",
-      "content": "Resource\n========\n\nA loader for resources in games and stuff.\n\nWe primarily want to load resources from localStorage or resource packfiles\nbundled with the page or downloaded from the internet.\n\nI don't know what packfiles are yet, but the seem like a good way to package up\nresources.\n\nLocally we can look up pngs by name and return data-urls.\n\nWe may even want to store the data-urls as compressed data, but that seems\nexcessive.\n\n    Sprite = require \"./sprite\"\n    cache = require \"./images\"\n\n    Resource =\n      dataURL: (name) ->\n        cache[name]\n      sprite: (name) ->\n        Sprite.load cache[name]\n\n    module.exports = Resource\n",
+      "content": "Resource\n========\n\nA loader for resources in games and stuff.\n\nWe primarily want to load resources from localStorage or resource packfiles\nbundled with the page or downloaded from the internet.\n\nI don't know what packfiles are yet, but the seem like a good way to package up\nresources.\n\nLocally we can look up pngs by name and return data-urls.\n\nWe may even want to store the data-urls as compressed data, but that seems\nexcessive.\n\n    Sprite = require \"sprite\"\n    images = require \"./images\"\n\n    Resource =\n      dataURL: (name) ->\n        images[name]\n      sprite: (name) ->\n        Sprite.load images[name]\n\n    module.exports = Resource\n",
       "type": "blob"
     },
     "setup.coffee.md": {
       "path": "setup.coffee.md",
       "mode": "100644",
       "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    # Updating Application Cache and prompting for new version\n    require \"appcache\"\n",
-      "type": "blob"
-    },
-    "sprite.coffee.md": {
-      "path": "sprite.coffee.md",
-      "mode": "100644",
-      "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        if x.x?\n          {x, y} = x\n\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n\nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n\n      width: width\n      height: height\n      image: image\n\nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n\n      sprites = []\n      image = new Image()\n\n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        loadedCallback?.defer(sprite)\n        return sprite\n\n      img = new Image()\n      proxy = LoaderProxy()\n\n      img.onload = ->\n        spriteCache[url] = Object.extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n\nLoad a sprite with the given name. The first parameter is name The name of the\nimage in your images directory. The second parameter is a callback function to\nexecute once the image is loaded. The sprite proxy data is passed to this as a parameter.\n\n    Sprite.loadByName = (name, callback) ->\n      Sprite.load(ResourceLoader.urlFor(\"images\", name), callback)\n\n    module.exports = Sprite\n",
       "type": "blob"
     },
     "squad.coffee.md": {
@@ -273,22 +419,17 @@ require('./main')
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"appcache\":\"STRd6/appcache:v0.1.0\",\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"],\"dependencies\":{\"appcache\":\"STRd6/appcache:v0.1.0\",\"compression\":\"STRd6/lz-string:v1.3.3\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"sprite\":\"distri/sprite:v0.1.1\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\"}};",
       "type": "blob"
     },
     "resource": {
       "path": "resource",
-      "content": "(function() {\n  var Resource, Sprite, cache;\n\n  Sprite = require(\"./sprite\");\n\n  cache = require(\"./images\");\n\n  Resource = {\n    dataURL: function(name) {\n      return cache[name];\n    },\n    sprite: function(name) {\n      return Sprite.load(cache[name]);\n    }\n  };\n\n  module.exports = Resource;\n\n}).call(this);\n\n//# sourceURL=resource.coffee",
+      "content": "(function() {\n  var Resource, Sprite, images;\n\n  Sprite = require(\"sprite\");\n\n  images = require(\"./images\");\n\n  Resource = {\n    dataURL: function(name) {\n      return images[name];\n    },\n    sprite: function(name) {\n      return Sprite.load(images[name]);\n    }\n  };\n\n  module.exports = Resource;\n\n}).call(this);\n\n//# sourceURL=resource.coffee",
       "type": "blob"
     },
     "setup": {
       "path": "setup",
       "content": "(function() {\n  var runtime;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  require(\"appcache\");\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
-      "type": "blob"
-    },
-    "sprite": {
-      "path": "sprite",
-      "content": "(function() {\n  var LoaderProxy, Sprite, spriteCache;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        var _ref;\n        if (x.x != null) {\n          _ref = x, x = _ref.x, y = _ref.y;\n        }\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        loadedCallback.defer(sprite);\n      }\n      return sprite;\n    }\n    img = new Image();\n    proxy = LoaderProxy();\n    img.onload = function() {\n      spriteCache[url] = Object.extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  Sprite.loadByName = function(name, callback) {\n    return Sprite.load(ResourceLoader.urlFor(\"images\", name), callback);\n  };\n\n  module.exports = Sprite;\n\n}).call(this);\n\n//# sourceURL=sprite.coffee",
       "type": "blob"
     },
     "squad": {
@@ -796,6 +937,484 @@ require('./main')
         "defaultBranch": "master"
       }
     },
+    "priority_queue": {
+      "version": "2.0.0-pre",
+      "source": {
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "Description\n-----------\n\nA priority queue is a handy data structure with many uses. From graph search\nalgorithms to simple job queues, having this in your toolbelt will help to give\nyou a solid foundation.\n\nFeatures\n--------\n\n* Simple to use and understand.\n* Creates a single PriorityQueue constructor.\n* Instantiate via `PriorityQueue()` or `new PriorityQueue()`\n* Offers both highest first and lowest first ordering.\n* Test suite included.\n\nThe default is highest priority first, but when doing something like A* you want lowest priority first... it handles it: `queue = PriorityQueue({low: true});` Boom!\n\nExample Usage\n-------------\n\n    # Highest priority first\n    queue = PriorityQueue()\n\n    queue.push(\"b\", 5)\n    queue.push(\"a\", 10)\n\n    queue.pop() # => \"a\"\n    queue.pop() # => \"b\"\n\n    # Lowest priority first\n    queue = PriorityQueue\n      low: true\n\n    queue.push(\"x\", 5)\n    queue.push(\"y\", 10)\n\n    queue.pop() # => \"x\"\n    queue.pop() # => \"y\"\n\nLicense\n-------\n\nMIT\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Priority Queue\n==============\n\nPriorityQueue manages a queue of elements with priorities. The defaul behavior\nis to return elements with the highest priority first.\n\nIf `low` is set to `true` returns lowest first instead.\n\n    PriorityQueue = (options={}) ->\n      items = []\n      sorted = false\n\n      if options.low\n        sortStyle = prioritySortLow\n      else\n        sortStyle = prioritySortHigh\n\n      sort = ->\n        items.sort sortStyle\n        sorted = true\n\nAccessor functions need to ensure the items are sorted. This decorator wraps\nthat up nicely.\n\n      ensureSorted = (fn) ->\n        (args...) ->\n          sort() unless sorted\n          fn(args...)\n\nPublic Methods\n--------------\n\nRemoves and returns the next element in the queue. If the queue is empty returns\n`undefined`.\n\n      pop: ensureSorted ->\n        items.pop()?.object\n\nReturns but does not remove the next element in the queue. If the queue is empty\nreturns `undefined`.\n\n      top: ensureSorted ->\n        items[items.length - 1]?.object\n\nCheck if the given object is included in the priority queue. Returns true if\nit was found, false if not.\n\n      includes: (object) ->\n        items.reduce (found, item) ->\n          found or (object is item.object)\n        , false\n\nReturn the current number of elements in the queue.\n\n      size: ->\n        items.length\n\nCheck if the queue is empty. Returns true if there are no items in the queue,\nfalse otherwise.\n\n      empty: ->\n        items.length is 0\n\nPush an object onto the queue with the given priority.\n\n      push: (object, priority) ->\n        items.push\n          object: object\n          priority: priority\n\n        sorted = false\n\nHelpers\n-------\n\n    prioritySortLow = (a, b) ->\n      b.priority - a.priority\n\n    prioritySortHigh = (a, b) ->\n      a.priority - b.priority\n\nExport\n------\n\n    if module?\n      module.exports = PriorityQueue\n    else\n      window.PriorityQueue = PriorityQueue\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"2.0.0-pre\"\nentryPoint: \"main\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js?\"\n]\n",
+          "type": "blob"
+        },
+        "test/priority_queue.coffee": {
+          "path": "test/priority_queue.coffee",
+          "mode": "100644",
+          "content": "PriorityQueue = require \"../main\"\n\nok = assert\nequals = assert.equal\ntest = it\n\ndescribe \"PriorityQueue\", ->\n  test \"#push\", ->\n    queue = PriorityQueue()\n    queue.push 2, 5\n\n    ok queue.size() is 1, \"queue.size()\"\n    ok not queue.empty(), \"!queue.empty()\"\n\n  test \"#includes\", ->\n    queue = PriorityQueue()\n    queue.push 5, 0\n\n    equals queue.includes(5), true\n    equals queue.includes(0), false\n\n  test \"#empty\", ->\n    queue = PriorityQueue()\n    ok queue.size() is 0, \"queue.size() === 0\"\n    ok queue.empty(), \"queue.empty()\"\n\n  test \"#pop empty queue\", ->\n    equals PriorityQueue().pop(), undefined\n\n  test \"#pop\", ->\n    queue = PriorityQueue()\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 10\n    queue.push decent, 5\n    queue.push bad, 1\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n\n  test \"#pop with low => true\", ->\n    queue = PriorityQueue(low: true)\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 1\n    queue.push decent, 5\n    queue.push bad, 10\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var PriorityQueue, prioritySortHigh, prioritySortLow,\n    __slice = [].slice;\n\n  PriorityQueue = function(options) {\n    var ensureSorted, items, sort, sortStyle, sorted;\n    if (options == null) {\n      options = {};\n    }\n    items = [];\n    sorted = false;\n    if (options.low) {\n      sortStyle = prioritySortLow;\n    } else {\n      sortStyle = prioritySortHigh;\n    }\n    sort = function() {\n      items.sort(sortStyle);\n      return sorted = true;\n    };\n    ensureSorted = function(fn) {\n      return function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        if (!sorted) {\n          sort();\n        }\n        return fn.apply(null, args);\n      };\n    };\n    return {\n      pop: ensureSorted(function() {\n        var _ref;\n        return (_ref = items.pop()) != null ? _ref.object : void 0;\n      }),\n      top: ensureSorted(function() {\n        var _ref;\n        return (_ref = items[items.length - 1]) != null ? _ref.object : void 0;\n      }),\n      includes: function(object) {\n        return items.reduce(function(found, item) {\n          return found || (object === item.object);\n        }, false);\n      },\n      size: function() {\n        return items.length;\n      },\n      empty: function() {\n        return items.length === 0;\n      },\n      push: function(object, priority) {\n        items.push({\n          object: object,\n          priority: priority\n        });\n        return sorted = false;\n      }\n    };\n  };\n\n  prioritySortLow = function(a, b) {\n    return b.priority - a.priority;\n  };\n\n  prioritySortHigh = function(a, b) {\n    return a.priority - b.priority;\n  };\n\n  if (typeof module !== \"undefined\" && module !== null) {\n    module.exports = PriorityQueue;\n  } else {\n    window.PriorityQueue = PriorityQueue;\n  }\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"2.0.0-pre\",\"entryPoint\":\"main\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js?\"]};",
+          "type": "blob"
+        },
+        "test/priority_queue": {
+          "path": "test/priority_queue",
+          "content": "(function() {\n  var PriorityQueue, equals, ok, test;\n\n  PriorityQueue = require(\"../main\");\n\n  ok = assert;\n\n  equals = assert.equal;\n\n  test = it;\n\n  describe(\"PriorityQueue\", function() {\n    test(\"#push\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(2, 5);\n      ok(queue.size() === 1, \"queue.size()\");\n      return ok(!queue.empty(), \"!queue.empty()\");\n    });\n    test(\"#includes\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(5, 0);\n      equals(queue.includes(5), true);\n      return equals(queue.includes(0), false);\n    });\n    test(\"#empty\", function() {\n      var queue;\n      queue = PriorityQueue();\n      ok(queue.size() === 0, \"queue.size() === 0\");\n      return ok(queue.empty(), \"queue.empty()\");\n    });\n    test(\"#pop empty queue\", function() {\n      return equals(PriorityQueue().pop(), void 0);\n    });\n    test(\"#pop\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue();\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 10);\n      queue.push(decent, 5);\n      queue.push(bad, 1);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n    return test(\"#pop with low => true\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue({\n        low: true\n      });\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 1);\n      queue.push(decent, 5);\n      queue.push(bad, 10);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/priority_queue.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.2.js?"
+      ],
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 220605,
+        "name": "priority_queue",
+        "full_name": "STRd6/priority_queue",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/priority_queue",
+        "description": "A JavaScript PriorityQueue",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/priority_queue",
+        "forks_url": "https://api.github.com/repos/STRd6/priority_queue/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/priority_queue/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/priority_queue/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/priority_queue/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/priority_queue/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/priority_queue/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/priority_queue/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/priority_queue/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/priority_queue/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/priority_queue/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/priority_queue/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/priority_queue/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/priority_queue/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/priority_queue/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/priority_queue/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/priority_queue/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/priority_queue/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/priority_queue/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/priority_queue/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/priority_queue/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/priority_queue/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/priority_queue/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/priority_queue/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/priority_queue/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/priority_queue/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/priority_queue/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/priority_queue/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/priority_queue/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/priority_queue/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/priority_queue/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/priority_queue/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/priority_queue/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/priority_queue/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/priority_queue/labels{/name}",
+        "releases_url": "https://api.github.com/repos/STRd6/priority_queue/releases{/id}",
+        "created_at": "2009-06-07T01:59:36Z",
+        "updated_at": "2013-11-12T20:42:13Z",
+        "pushed_at": "2013-11-12T20:42:12Z",
+        "git_url": "git://github.com/STRd6/priority_queue.git",
+        "ssh_url": "git@github.com:STRd6/priority_queue.git",
+        "clone_url": "https://github.com/STRd6/priority_queue.git",
+        "svn_url": "https://github.com/STRd6/priority_queue",
+        "homepage": "",
+        "size": 292,
+        "stargazers_count": 17,
+        "watchers_count": 17,
+        "language": "JavaScript",
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 9,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 9,
+        "open_issues": 0,
+        "watchers": 17,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 9,
+        "subscribers_count": 2,
+        "branch": "v2.0.0-pre",
+        "defaultBranch": "master"
+      }
+    },
+    "runtime": {
+      "version": "0.1.1",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "runtime\n=======\n",
+          "type": "blob"
+        },
+        "runtime.coffee.md": {
+          "path": "runtime.coffee.md",
+          "mode": "100644",
+          "content": "The runtime holds utilities to assist with an apps running environment.\n\nIt should me moved into it's own component one day.\n\n    Runtime = (pkg) ->\n\nHold on to a reference to our root node.\n\n      root = null\n\nReturns the node that is the parent of the script element that contains the code\nthat calls this function. If `document.write` has been called before this then the\nresults may not be accurate. Therefore be sure to call currentNode before\nwriting anything to the document.\n\n      currentNode = ->\n        target = document.documentElement\n\n        while (target.childNodes.length and target.lastChild.nodeType == 1)\n          target = target.lastChild\n\n        return target.parentNode\n\nDisplay a promo in the console linking back to the creator of this app.\n\n      promo = ->\n        console.log(\"%c You should meet my creator #{pkg.progenitor.url}\", \"\"\"\n          background: #000;\n          color: white;\n          font-size: 2em;\n          line-height: 2em;\n          padding: 10px 100px;\n          margin-bottom: 1em;\n          text-shadow:\n            0 0 0.05em #fff,\n            0 0 0.1em #fff,\n            0 0 0.15em #fff,\n            0 0 0.2em #ff00de,\n            0 0 0.35em #ff00de,\n            0 0 0.4em #ff00de,\n            0 0 0.5em #ff00de,\n            0 0 0.75em #ff00de;'\n        \"\"\")\n\nCall on start to boot up the runtime, get the root node, add styles, display a\npromo.\n\n      boot: ->\n        root = currentNode()\n\n        promo()\n\n        return root\n\nApply the stylesheet to the root node.\n\n      applyStyleSheet: (style) ->\n        styleNode = document.createElement(\"style\")\n        styleNode.innerHTML = style\n\n        root.appendChild(styleNode)\n\nExport\n\n    module.exports = Runtime\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.1\"\nentryPoint: \"runtime\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.0.js\"\n]\n",
+          "type": "blob"
+        },
+        "test/runtime.coffee": {
+          "path": "test/runtime.coffee",
+          "mode": "100644",
+          "content": "Runtime = require \"../runtime\"\n\ndescribe \"Runtime\", ->\n  it \"should be created from a package and provide a boot method\", ->\n    assert Runtime(PACKAGE).boot\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "runtime": {
+          "path": "runtime",
+          "content": "(function() {\n  var Runtime;\n\n  Runtime = function(pkg) {\n    var currentNode, promo, root;\n    root = null;\n    currentNode = function() {\n      var target;\n      target = document.documentElement;\n      while (target.childNodes.length && target.lastChild.nodeType === 1) {\n        target = target.lastChild;\n      }\n      return target.parentNode;\n    };\n    promo = function() {\n      return console.log(\"%c You should meet my creator \" + pkg.progenitor.url, \"background: #000;\\ncolor: white;\\nfont-size: 2em;\\nline-height: 2em;\\npadding: 10px 100px;\\nmargin-bottom: 1em;\\ntext-shadow:\\n  0 0 0.05em #fff,\\n  0 0 0.1em #fff,\\n  0 0 0.15em #fff,\\n  0 0 0.2em #ff00de,\\n  0 0 0.35em #ff00de,\\n  0 0 0.4em #ff00de,\\n  0 0 0.5em #ff00de,\\n  0 0 0.75em #ff00de;'\");\n    };\n    return {\n      boot: function() {\n        root = currentNode();\n        promo();\n        return root;\n      },\n      applyStyleSheet: function(style) {\n        var styleNode;\n        styleNode = document.createElement(\"style\");\n        styleNode.innerHTML = style;\n        return root.appendChild(styleNode);\n      }\n    };\n  };\n\n  module.exports = Runtime;\n\n}).call(this);\n",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.1\",\"entryPoint\":\"runtime\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.0.js\"]};",
+          "type": "blob"
+        },
+        "test/runtime": {
+          "path": "test/runtime",
+          "content": "(function() {\n  var Runtime;\n\n  Runtime = require(\"../runtime\");\n\n  describe(\"Runtime\", function() {\n    return it(\"should be created from a package and provide a boot method\", function() {\n      return assert(Runtime(PACKAGE).boot);\n    });\n  });\n\n}).call(this);\n",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "runtime",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.0.js"
+      ],
+      "repository": {
+        "id": 13202878,
+        "name": "runtime",
+        "full_name": "STRd6/runtime",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User"
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/runtime",
+        "description": "",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/runtime",
+        "forks_url": "https://api.github.com/repos/STRd6/runtime/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/runtime/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/runtime/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/runtime/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/runtime/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/runtime/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/runtime/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/runtime/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/runtime/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/runtime/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/runtime/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/runtime/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/runtime/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/runtime/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/runtime/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/runtime/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/runtime/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/runtime/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/runtime/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/runtime/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/runtime/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/runtime/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/runtime/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/runtime/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/runtime/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/runtime/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/runtime/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/runtime/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/runtime/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/runtime/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/runtime/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/runtime/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/runtime/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/runtime/labels{/name}",
+        "created_at": "2013-09-30T00:44:37Z",
+        "updated_at": "2013-09-30T00:44:37Z",
+        "pushed_at": "2013-09-30T00:44:37Z",
+        "git_url": "git://github.com/STRd6/runtime.git",
+        "ssh_url": "git@github.com:STRd6/runtime.git",
+        "clone_url": "https://github.com/STRd6/runtime.git",
+        "svn_url": "https://github.com/STRd6/runtime",
+        "homepage": null,
+        "size": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "master_branch": "master",
+        "default_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 0,
+        "branch": "v0.1.1",
+        "defaultBranch": "master",
+        "includedModules": [
+          "Bindable"
+        ]
+      },
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "name": "runtime"
+    },
+    "sprite": {
+      "version": "0.1.1",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 distri\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "sprite\n======\n\nSprites that can be drawn on an HTML5 canvas.\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        if x.x?\n          {x, y} = x\n\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n\nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n\n      width: width\n      height: height\n      image: image\n\nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n\n      sprites = []\n      image = new Image()\n\n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        loadedCallback?.defer(sprite)\n\n        return sprite\n\n      spriteCache[url] = proxy = LoaderProxy()\n      img = new Image()\n\n      img.onload = ->\n        Object.extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n\n    module.exports = Sprite\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.1\"\n",
+          "type": "blob"
+        },
+        "test/sprite.coffee": {
+          "path": "test/sprite.coffee",
+          "mode": "100644",
+          "content": "Sprite = require \"../main\"\n\ndescribe \"Sprite\", ->\n  it \"should construct sprites\", ->\n    img = new Image\n\n    assert Sprite(img)\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var LoaderProxy, Sprite, spriteCache;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        var _ref;\n        if (x.x != null) {\n          _ref = x, x = _ref.x, y = _ref.y;\n        }\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        loadedCallback.defer(sprite);\n      }\n      return sprite;\n    }\n    spriteCache[url] = proxy = LoaderProxy();\n    img = new Image();\n    img.onload = function() {\n      Object.extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  module.exports = Sprite;\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.1\"};",
+          "type": "blob"
+        },
+        "test/sprite": {
+          "path": "test/sprite",
+          "content": "(function() {\n  var Sprite;\n\n  Sprite = require(\"../main\");\n\n  describe(\"Sprite\", function() {\n    return it(\"should construct sprites\", function() {\n      var img;\n      img = new Image;\n      return assert(Sprite(img));\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/sprite.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 14668729,
+        "name": "sprite",
+        "full_name": "distri/sprite",
+        "owner": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/distri/sprite",
+        "description": "Sprites that can be drawn on an HTML5 canvas.",
+        "fork": false,
+        "url": "https://api.github.com/repos/distri/sprite",
+        "forks_url": "https://api.github.com/repos/distri/sprite/forks",
+        "keys_url": "https://api.github.com/repos/distri/sprite/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/distri/sprite/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/distri/sprite/teams",
+        "hooks_url": "https://api.github.com/repos/distri/sprite/hooks",
+        "issue_events_url": "https://api.github.com/repos/distri/sprite/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/distri/sprite/events",
+        "assignees_url": "https://api.github.com/repos/distri/sprite/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/distri/sprite/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/distri/sprite/tags",
+        "blobs_url": "https://api.github.com/repos/distri/sprite/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/distri/sprite/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/distri/sprite/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/distri/sprite/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/distri/sprite/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/distri/sprite/languages",
+        "stargazers_url": "https://api.github.com/repos/distri/sprite/stargazers",
+        "contributors_url": "https://api.github.com/repos/distri/sprite/contributors",
+        "subscribers_url": "https://api.github.com/repos/distri/sprite/subscribers",
+        "subscription_url": "https://api.github.com/repos/distri/sprite/subscription",
+        "commits_url": "https://api.github.com/repos/distri/sprite/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/distri/sprite/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/distri/sprite/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/distri/sprite/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/distri/sprite/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/distri/sprite/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/distri/sprite/merges",
+        "archive_url": "https://api.github.com/repos/distri/sprite/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/distri/sprite/downloads",
+        "issues_url": "https://api.github.com/repos/distri/sprite/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/distri/sprite/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/distri/sprite/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/distri/sprite/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/distri/sprite/labels{/name}",
+        "releases_url": "https://api.github.com/repos/distri/sprite/releases{/id}",
+        "created_at": "2013-11-24T20:34:55Z",
+        "updated_at": "2013-11-24T20:34:55Z",
+        "pushed_at": "2013-11-24T20:34:55Z",
+        "git_url": "git://github.com/distri/sprite.git",
+        "ssh_url": "git@github.com:distri/sprite.git",
+        "clone_url": "https://github.com/distri/sprite.git",
+        "svn_url": "https://github.com/distri/sprite",
+        "homepage": null,
+        "size": 0,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "organization": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "network_count": 0,
+        "subscribers_count": 1,
+        "branch": "v0.1.1",
+        "defaultBranch": "master"
+      }
+    },
     "touch-canvas": {
       "version": "0.2.0",
       "source": {
@@ -1083,319 +1702,12 @@ require('./main')
         "branch": "v0.2.0",
         "defaultBranch": "master"
       }
-    },
-    "runtime": {
-      "version": "0.1.1",
-      "source": {
-        "LICENSE": {
-          "path": "LICENSE",
-          "mode": "100644",
-          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
-          "type": "blob"
-        },
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "runtime\n=======\n",
-          "type": "blob"
-        },
-        "runtime.coffee.md": {
-          "path": "runtime.coffee.md",
-          "mode": "100644",
-          "content": "The runtime holds utilities to assist with an apps running environment.\n\nIt should me moved into it's own component one day.\n\n    Runtime = (pkg) ->\n\nHold on to a reference to our root node.\n\n      root = null\n\nReturns the node that is the parent of the script element that contains the code\nthat calls this function. If `document.write` has been called before this then the\nresults may not be accurate. Therefore be sure to call currentNode before\nwriting anything to the document.\n\n      currentNode = ->\n        target = document.documentElement\n\n        while (target.childNodes.length and target.lastChild.nodeType == 1)\n          target = target.lastChild\n\n        return target.parentNode\n\nDisplay a promo in the console linking back to the creator of this app.\n\n      promo = ->\n        console.log(\"%c You should meet my creator #{pkg.progenitor.url}\", \"\"\"\n          background: #000;\n          color: white;\n          font-size: 2em;\n          line-height: 2em;\n          padding: 10px 100px;\n          margin-bottom: 1em;\n          text-shadow:\n            0 0 0.05em #fff,\n            0 0 0.1em #fff,\n            0 0 0.15em #fff,\n            0 0 0.2em #ff00de,\n            0 0 0.35em #ff00de,\n            0 0 0.4em #ff00de,\n            0 0 0.5em #ff00de,\n            0 0 0.75em #ff00de;'\n        \"\"\")\n\nCall on start to boot up the runtime, get the root node, add styles, display a\npromo.\n\n      boot: ->\n        root = currentNode()\n\n        promo()\n\n        return root\n\nApply the stylesheet to the root node.\n\n      applyStyleSheet: (style) ->\n        styleNode = document.createElement(\"style\")\n        styleNode.innerHTML = style\n\n        root.appendChild(styleNode)\n\nExport\n\n    module.exports = Runtime\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"0.1.1\"\nentryPoint: \"runtime\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.0.js\"\n]\n",
-          "type": "blob"
-        },
-        "test/runtime.coffee": {
-          "path": "test/runtime.coffee",
-          "mode": "100644",
-          "content": "Runtime = require \"../runtime\"\n\ndescribe \"Runtime\", ->\n  it \"should be created from a package and provide a boot method\", ->\n    assert Runtime(PACKAGE).boot\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "runtime": {
-          "path": "runtime",
-          "content": "(function() {\n  var Runtime;\n\n  Runtime = function(pkg) {\n    var currentNode, promo, root;\n    root = null;\n    currentNode = function() {\n      var target;\n      target = document.documentElement;\n      while (target.childNodes.length && target.lastChild.nodeType === 1) {\n        target = target.lastChild;\n      }\n      return target.parentNode;\n    };\n    promo = function() {\n      return console.log(\"%c You should meet my creator \" + pkg.progenitor.url, \"background: #000;\\ncolor: white;\\nfont-size: 2em;\\nline-height: 2em;\\npadding: 10px 100px;\\nmargin-bottom: 1em;\\ntext-shadow:\\n  0 0 0.05em #fff,\\n  0 0 0.1em #fff,\\n  0 0 0.15em #fff,\\n  0 0 0.2em #ff00de,\\n  0 0 0.35em #ff00de,\\n  0 0 0.4em #ff00de,\\n  0 0 0.5em #ff00de,\\n  0 0 0.75em #ff00de;'\");\n    };\n    return {\n      boot: function() {\n        root = currentNode();\n        promo();\n        return root;\n      },\n      applyStyleSheet: function(style) {\n        var styleNode;\n        styleNode = document.createElement(\"style\");\n        styleNode.innerHTML = style;\n        return root.appendChild(styleNode);\n      }\n    };\n  };\n\n  module.exports = Runtime;\n\n}).call(this);\n",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"0.1.1\",\"entryPoint\":\"runtime\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.0.js\"]};",
-          "type": "blob"
-        },
-        "test/runtime": {
-          "path": "test/runtime",
-          "content": "(function() {\n  var Runtime;\n\n  Runtime = require(\"../runtime\");\n\n  describe(\"Runtime\", function() {\n    return it(\"should be created from a package and provide a boot method\", function() {\n      return assert(Runtime(PACKAGE).boot);\n    });\n  });\n\n}).call(this);\n",
-          "type": "blob"
-        }
-      },
-      "entryPoint": "runtime",
-      "dependencies": {},
-      "remoteDependencies": [
-        "http://strd6.github.io/require/v0.2.0.js"
-      ],
-      "repository": {
-        "id": 13202878,
-        "name": "runtime",
-        "full_name": "STRd6/runtime",
-        "owner": {
-          "login": "STRd6",
-          "id": 18894,
-          "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
-          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
-          "url": "https://api.github.com/users/STRd6",
-          "html_url": "https://github.com/STRd6",
-          "followers_url": "https://api.github.com/users/STRd6/followers",
-          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
-          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
-          "organizations_url": "https://api.github.com/users/STRd6/orgs",
-          "repos_url": "https://api.github.com/users/STRd6/repos",
-          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/STRd6/received_events",
-          "type": "User"
-        },
-        "private": false,
-        "html_url": "https://github.com/STRd6/runtime",
-        "description": "",
-        "fork": false,
-        "url": "https://api.github.com/repos/STRd6/runtime",
-        "forks_url": "https://api.github.com/repos/STRd6/runtime/forks",
-        "keys_url": "https://api.github.com/repos/STRd6/runtime/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/STRd6/runtime/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/STRd6/runtime/teams",
-        "hooks_url": "https://api.github.com/repos/STRd6/runtime/hooks",
-        "issue_events_url": "https://api.github.com/repos/STRd6/runtime/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/STRd6/runtime/events",
-        "assignees_url": "https://api.github.com/repos/STRd6/runtime/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/STRd6/runtime/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/STRd6/runtime/tags",
-        "blobs_url": "https://api.github.com/repos/STRd6/runtime/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/STRd6/runtime/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/STRd6/runtime/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/STRd6/runtime/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/STRd6/runtime/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/STRd6/runtime/languages",
-        "stargazers_url": "https://api.github.com/repos/STRd6/runtime/stargazers",
-        "contributors_url": "https://api.github.com/repos/STRd6/runtime/contributors",
-        "subscribers_url": "https://api.github.com/repos/STRd6/runtime/subscribers",
-        "subscription_url": "https://api.github.com/repos/STRd6/runtime/subscription",
-        "commits_url": "https://api.github.com/repos/STRd6/runtime/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/STRd6/runtime/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/STRd6/runtime/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/STRd6/runtime/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/STRd6/runtime/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/STRd6/runtime/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/STRd6/runtime/merges",
-        "archive_url": "https://api.github.com/repos/STRd6/runtime/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/STRd6/runtime/downloads",
-        "issues_url": "https://api.github.com/repos/STRd6/runtime/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/STRd6/runtime/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/STRd6/runtime/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/STRd6/runtime/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/STRd6/runtime/labels{/name}",
-        "created_at": "2013-09-30T00:44:37Z",
-        "updated_at": "2013-09-30T00:44:37Z",
-        "pushed_at": "2013-09-30T00:44:37Z",
-        "git_url": "git://github.com/STRd6/runtime.git",
-        "ssh_url": "git@github.com:STRd6/runtime.git",
-        "clone_url": "https://github.com/STRd6/runtime.git",
-        "svn_url": "https://github.com/STRd6/runtime",
-        "homepage": null,
-        "size": 0,
-        "watchers_count": 0,
-        "language": null,
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 0,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 0,
-        "open_issues": 0,
-        "watchers": 0,
-        "master_branch": "master",
-        "default_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "network_count": 0,
-        "branch": "v0.1.1",
-        "defaultBranch": "master",
-        "includedModules": [
-          "Bindable"
-        ]
-      },
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "name": "runtime"
-    },
-    "priority_queue": {
-      "version": "2.0.0-pre",
-      "source": {
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "Description\n-----------\n\nA priority queue is a handy data structure with many uses. From graph search\nalgorithms to simple job queues, having this in your toolbelt will help to give\nyou a solid foundation.\n\nFeatures\n--------\n\n* Simple to use and understand.\n* Creates a single PriorityQueue constructor.\n* Instantiate via `PriorityQueue()` or `new PriorityQueue()`\n* Offers both highest first and lowest first ordering.\n* Test suite included.\n\nThe default is highest priority first, but when doing something like A* you want lowest priority first... it handles it: `queue = PriorityQueue({low: true});` Boom!\n\nExample Usage\n-------------\n\n    # Highest priority first\n    queue = PriorityQueue()\n\n    queue.push(\"b\", 5)\n    queue.push(\"a\", 10)\n\n    queue.pop() # => \"a\"\n    queue.pop() # => \"b\"\n\n    # Lowest priority first\n    queue = PriorityQueue\n      low: true\n\n    queue.push(\"x\", 5)\n    queue.push(\"y\", 10)\n\n    queue.pop() # => \"x\"\n    queue.pop() # => \"y\"\n\nLicense\n-------\n\nMIT\n",
-          "type": "blob"
-        },
-        "main.coffee.md": {
-          "path": "main.coffee.md",
-          "mode": "100644",
-          "content": "Priority Queue\n==============\n\nPriorityQueue manages a queue of elements with priorities. The defaul behavior\nis to return elements with the highest priority first.\n\nIf `low` is set to `true` returns lowest first instead.\n\n    PriorityQueue = (options={}) ->\n      items = []\n      sorted = false\n\n      if options.low\n        sortStyle = prioritySortLow\n      else\n        sortStyle = prioritySortHigh\n\n      sort = ->\n        items.sort sortStyle\n        sorted = true\n\nAccessor functions need to ensure the items are sorted. This decorator wraps\nthat up nicely.\n\n      ensureSorted = (fn) ->\n        (args...) ->\n          sort() unless sorted\n          fn(args...)\n\nPublic Methods\n--------------\n\nRemoves and returns the next element in the queue. If the queue is empty returns\n`undefined`.\n\n      pop: ensureSorted ->\n        items.pop()?.object\n\nReturns but does not remove the next element in the queue. If the queue is empty\nreturns `undefined`.\n\n      top: ensureSorted ->\n        items[items.length - 1]?.object\n\nCheck if the given object is included in the priority queue. Returns true if\nit was found, false if not.\n\n      includes: (object) ->\n        items.reduce (found, item) ->\n          found or (object is item.object)\n        , false\n\nReturn the current number of elements in the queue.\n\n      size: ->\n        items.length\n\nCheck if the queue is empty. Returns true if there are no items in the queue,\nfalse otherwise.\n\n      empty: ->\n        items.length is 0\n\nPush an object onto the queue with the given priority.\n\n      push: (object, priority) ->\n        items.push\n          object: object\n          priority: priority\n\n        sorted = false\n\nHelpers\n-------\n\n    prioritySortLow = (a, b) ->\n      b.priority - a.priority\n\n    prioritySortHigh = (a, b) ->\n      a.priority - b.priority\n\nExport\n------\n\n    if module?\n      module.exports = PriorityQueue\n    else\n      window.PriorityQueue = PriorityQueue\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"2.0.0-pre\"\nentryPoint: \"main\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js?\"\n]\n",
-          "type": "blob"
-        },
-        "test/priority_queue.coffee": {
-          "path": "test/priority_queue.coffee",
-          "mode": "100644",
-          "content": "PriorityQueue = require \"../main\"\n\nok = assert\nequals = assert.equal\ntest = it\n\ndescribe \"PriorityQueue\", ->\n  test \"#push\", ->\n    queue = PriorityQueue()\n    queue.push 2, 5\n\n    ok queue.size() is 1, \"queue.size()\"\n    ok not queue.empty(), \"!queue.empty()\"\n\n  test \"#includes\", ->\n    queue = PriorityQueue()\n    queue.push 5, 0\n\n    equals queue.includes(5), true\n    equals queue.includes(0), false\n\n  test \"#empty\", ->\n    queue = PriorityQueue()\n    ok queue.size() is 0, \"queue.size() === 0\"\n    ok queue.empty(), \"queue.empty()\"\n\n  test \"#pop empty queue\", ->\n    equals PriorityQueue().pop(), undefined\n\n  test \"#pop\", ->\n    queue = PriorityQueue()\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 10\n    queue.push decent, 5\n    queue.push bad, 1\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n\n  test \"#pop with low => true\", ->\n    queue = PriorityQueue(low: true)\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 1\n    queue.push decent, 5\n    queue.push bad, 10\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "main": {
-          "path": "main",
-          "content": "(function() {\n  var PriorityQueue, prioritySortHigh, prioritySortLow,\n    __slice = [].slice;\n\n  PriorityQueue = function(options) {\n    var ensureSorted, items, sort, sortStyle, sorted;\n    if (options == null) {\n      options = {};\n    }\n    items = [];\n    sorted = false;\n    if (options.low) {\n      sortStyle = prioritySortLow;\n    } else {\n      sortStyle = prioritySortHigh;\n    }\n    sort = function() {\n      items.sort(sortStyle);\n      return sorted = true;\n    };\n    ensureSorted = function(fn) {\n      return function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        if (!sorted) {\n          sort();\n        }\n        return fn.apply(null, args);\n      };\n    };\n    return {\n      pop: ensureSorted(function() {\n        var _ref;\n        return (_ref = items.pop()) != null ? _ref.object : void 0;\n      }),\n      top: ensureSorted(function() {\n        var _ref;\n        return (_ref = items[items.length - 1]) != null ? _ref.object : void 0;\n      }),\n      includes: function(object) {\n        return items.reduce(function(found, item) {\n          return found || (object === item.object);\n        }, false);\n      },\n      size: function() {\n        return items.length;\n      },\n      empty: function() {\n        return items.length === 0;\n      },\n      push: function(object, priority) {\n        items.push({\n          object: object,\n          priority: priority\n        });\n        return sorted = false;\n      }\n    };\n  };\n\n  prioritySortLow = function(a, b) {\n    return b.priority - a.priority;\n  };\n\n  prioritySortHigh = function(a, b) {\n    return a.priority - b.priority;\n  };\n\n  if (typeof module !== \"undefined\" && module !== null) {\n    module.exports = PriorityQueue;\n  } else {\n    window.PriorityQueue = PriorityQueue;\n  }\n\n}).call(this);\n\n//# sourceURL=main.coffee",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"2.0.0-pre\",\"entryPoint\":\"main\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js?\"]};",
-          "type": "blob"
-        },
-        "test/priority_queue": {
-          "path": "test/priority_queue",
-          "content": "(function() {\n  var PriorityQueue, equals, ok, test;\n\n  PriorityQueue = require(\"../main\");\n\n  ok = assert;\n\n  equals = assert.equal;\n\n  test = it;\n\n  describe(\"PriorityQueue\", function() {\n    test(\"#push\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(2, 5);\n      ok(queue.size() === 1, \"queue.size()\");\n      return ok(!queue.empty(), \"!queue.empty()\");\n    });\n    test(\"#includes\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(5, 0);\n      equals(queue.includes(5), true);\n      return equals(queue.includes(0), false);\n    });\n    test(\"#empty\", function() {\n      var queue;\n      queue = PriorityQueue();\n      ok(queue.size() === 0, \"queue.size() === 0\");\n      return ok(queue.empty(), \"queue.empty()\");\n    });\n    test(\"#pop empty queue\", function() {\n      return equals(PriorityQueue().pop(), void 0);\n    });\n    test(\"#pop\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue();\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 10);\n      queue.push(decent, 5);\n      queue.push(bad, 1);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n    return test(\"#pop with low => true\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue({\n        low: true\n      });\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 1);\n      queue.push(decent, 5);\n      queue.push(bad, 10);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/priority_queue.coffee",
-          "type": "blob"
-        }
-      },
-      "entryPoint": "main",
-      "dependencies": {},
-      "remoteDependencies": [
-        "http://strd6.github.io/require/v0.2.2.js?"
-      ],
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "repository": {
-        "id": 220605,
-        "name": "priority_queue",
-        "full_name": "STRd6/priority_queue",
-        "owner": {
-          "login": "STRd6",
-          "id": 18894,
-          "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
-          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
-          "url": "https://api.github.com/users/STRd6",
-          "html_url": "https://github.com/STRd6",
-          "followers_url": "https://api.github.com/users/STRd6/followers",
-          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
-          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
-          "organizations_url": "https://api.github.com/users/STRd6/orgs",
-          "repos_url": "https://api.github.com/users/STRd6/repos",
-          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/STRd6/received_events",
-          "type": "User",
-          "site_admin": false
-        },
-        "private": false,
-        "html_url": "https://github.com/STRd6/priority_queue",
-        "description": "A JavaScript PriorityQueue",
-        "fork": false,
-        "url": "https://api.github.com/repos/STRd6/priority_queue",
-        "forks_url": "https://api.github.com/repos/STRd6/priority_queue/forks",
-        "keys_url": "https://api.github.com/repos/STRd6/priority_queue/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/STRd6/priority_queue/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/STRd6/priority_queue/teams",
-        "hooks_url": "https://api.github.com/repos/STRd6/priority_queue/hooks",
-        "issue_events_url": "https://api.github.com/repos/STRd6/priority_queue/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/STRd6/priority_queue/events",
-        "assignees_url": "https://api.github.com/repos/STRd6/priority_queue/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/STRd6/priority_queue/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/STRd6/priority_queue/tags",
-        "blobs_url": "https://api.github.com/repos/STRd6/priority_queue/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/STRd6/priority_queue/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/STRd6/priority_queue/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/STRd6/priority_queue/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/STRd6/priority_queue/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/STRd6/priority_queue/languages",
-        "stargazers_url": "https://api.github.com/repos/STRd6/priority_queue/stargazers",
-        "contributors_url": "https://api.github.com/repos/STRd6/priority_queue/contributors",
-        "subscribers_url": "https://api.github.com/repos/STRd6/priority_queue/subscribers",
-        "subscription_url": "https://api.github.com/repos/STRd6/priority_queue/subscription",
-        "commits_url": "https://api.github.com/repos/STRd6/priority_queue/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/STRd6/priority_queue/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/STRd6/priority_queue/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/STRd6/priority_queue/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/STRd6/priority_queue/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/STRd6/priority_queue/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/STRd6/priority_queue/merges",
-        "archive_url": "https://api.github.com/repos/STRd6/priority_queue/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/STRd6/priority_queue/downloads",
-        "issues_url": "https://api.github.com/repos/STRd6/priority_queue/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/STRd6/priority_queue/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/STRd6/priority_queue/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/STRd6/priority_queue/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/STRd6/priority_queue/labels{/name}",
-        "releases_url": "https://api.github.com/repos/STRd6/priority_queue/releases{/id}",
-        "created_at": "2009-06-07T01:59:36Z",
-        "updated_at": "2013-11-12T20:42:13Z",
-        "pushed_at": "2013-11-12T20:42:12Z",
-        "git_url": "git://github.com/STRd6/priority_queue.git",
-        "ssh_url": "git@github.com:STRd6/priority_queue.git",
-        "clone_url": "https://github.com/STRd6/priority_queue.git",
-        "svn_url": "https://github.com/STRd6/priority_queue",
-        "homepage": "",
-        "size": 292,
-        "stargazers_count": 17,
-        "watchers_count": 17,
-        "language": "JavaScript",
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 9,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 9,
-        "open_issues": 0,
-        "watchers": 17,
-        "default_branch": "master",
-        "master_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "network_count": 9,
-        "subscribers_count": 2,
-        "branch": "v2.0.0-pre",
-        "defaultBranch": "master"
-      }
     }
   },
   "remoteDependencies": [
     "//code.jquery.com/jquery-1.10.1.min.js",
     "//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js",
-    "http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js",
-    "http://strd6.github.io/require/v0.2.2.js"
+    "http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"
   ],
   "progenitor": {
     "url": "http://strd6.github.io/editor/"
@@ -1407,7 +1719,7 @@ require('./main')
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -1464,14 +1776,14 @@ require('./main')
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-11-20T02:14:22Z",
-    "pushed_at": "2013-11-20T02:14:22Z",
+    "updated_at": "2013-11-24T00:32:34Z",
+    "pushed_at": "2013-11-24T00:32:33Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
     "svn_url": "https://github.com/STRd6/tactics",
     "homepage": "http://strd6.github.io/tactics",
-    "size": 1124,
+    "size": 1136,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "CoffeeScript",

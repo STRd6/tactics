@@ -42,14 +42,14 @@ resources.</p>
 excessive.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Sprite = require <span class="string">"./sprite"</span>
-cache = require <span class="string">"./images"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Sprite = require <span class="string">"sprite"</span>
+images = require <span class="string">"./images"</span>
 
 Resource =
   dataURL: (name) -&gt;
-    cache[name]
+    images[name]
   sprite: (name) -&gt;
-    Sprite.load cache[name]
+    Sprite.load images[name]
 
 module.exports = Resource</code></pre>
 </div>
