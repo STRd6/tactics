@@ -14,13 +14,13 @@ Locally we can look up pngs by name and return data-urls.
 We may even want to store the data-urls as compressed data, but that seems
 excessive.
 
-    Sprite = require "./sprite"
-    cache = require "./images"
+    Sprite = require "sprite"
+    images = require "./images"
 
     Resource =
       dataURL: (name) ->
-        cache[name]
+        images[name]
       sprite: (name) ->
-        Sprite.load cache[name]
+        Sprite.load images[name]
 
     module.exports = Resource
