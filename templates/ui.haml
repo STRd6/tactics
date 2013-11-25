@@ -13,7 +13,7 @@
           .container
             - cost = action?.ability?.actionCost() || 0
             - cost.times ->
-              .cost(style="width:#{(1/cost) * 100}%;")
+              .cost
         = action.name
         - on "click", ->
           - unless action.disabled()
