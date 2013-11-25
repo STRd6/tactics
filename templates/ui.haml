@@ -11,8 +11,9 @@
       .action(class=activeClass class=disabledClass style="background-image: url(#{action.icon})")
         .costs
           .container
-            .cost
-            .cost
+            - cost = action?.ability?.actionCost() || 0
+            - cost.times ->
+              .cost(style="width:#{(1/cost) * 100}%;")
         = action.name
         - on "click", ->
           - unless action.disabled()
