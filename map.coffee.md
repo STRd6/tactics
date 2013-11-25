@@ -82,7 +82,7 @@ Hold the terrain and whatnot for a level.
           x: 30
       ]
 
-      activeSquad = Observable squads.first()        
+      activeSquad = Observable squads.first()
 
       nextActivatableSquad = ->
         squads.filter (squad) ->
