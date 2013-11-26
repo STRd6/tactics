@@ -4,6 +4,7 @@ Map
     Resource = require "./resource"
     MapSearch = require "./map_search"
     Squad = require "./squad"
+    Feature = require "./feature"
 
     {Grid} = require "./lib/util"
     Graph = require "./graph"
@@ -51,7 +52,9 @@ Hold the terrain and whatnot for a level.
       opaque: bush
       solid: false
       features: [0...bush].map ->
-        bushSprites.rand()
+        Feature
+          spriteName: "bush" + rand(4)
+          zIndex: 1
 
     module.exports = (I={}, self) ->
       self ?= Core(I)
@@ -82,7 +85,7 @@ Hold the terrain and whatnot for a level.
           x: 30
       ]
 
-      activeSquad = Observable squads.first()        
+      activeSquad = Observable squads.first()
 
       nextActivatableSquad = ->
         squads.filter (squad) ->
