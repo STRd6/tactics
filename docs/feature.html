@@ -42,11 +42,13 @@ Type = require <span class="string">"./type"</span>
 module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     movementPenalty: <span class="number">0</span>
+    opaque: <span class="literal">false</span>
     type: Type.Dirt
     zIndex: -<span class="number">1</span>
 
   self.attrAccessor(
     <span class="string">"movementPenalty"</span>
+    <span class="string">"opaque"</span>
     <span class="string">"type"</span>
     <span class="string">"zIndex"</span>
   )

@@ -175,7 +175,7 @@
     "feature.coffee.md": {
       "path": "feature.coffee.md",
       "mode": "100644",
-      "content": "Feature\n=======\n\nFeatures are things that are present within tiles in the tactical combat view.\n\n    Resource = require \"./resource\"\n    Sprite = require \"sprite\"\n    Type = require \"./type\"\n\n    module.exports = Feature = (I={}, self=Core(I)) ->\n      Object.defaults I,\n        movementPenalty: 0\n        type: Type.Dirt\n        zIndex: -1\n\n      self.attrAccessor(\n        \"movementPenalty\"\n        \"type\"\n        \"zIndex\"\n      )\n\n      Object.extend self,\n        draw: ->\n          self.sprite().draw arguments...\n        sprite: ->\n          Resource.sprite(I.spriteName) or Sprite.NONE\n\n      return self\n",
+      "content": "Feature\n=======\n\nFeatures are things that are present within tiles in the tactical combat view.\n\n    Resource = require \"./resource\"\n    Sprite = require \"sprite\"\n    Type = require \"./type\"\n\n    module.exports = Feature = (I={}, self=Core(I)) ->\n      Object.defaults I,\n        movementPenalty: 0\n        opaque: false\n        type: Type.Dirt\n        zIndex: -1\n\n      self.attrAccessor(\n        \"movementPenalty\"\n        \"opaque\"\n        \"type\"\n        \"zIndex\"\n      )\n\n      Object.extend self,\n        draw: ->\n          self.sprite().draw arguments...\n        sprite: ->\n          Resource.sprite(I.spriteName) or Sprite.NONE\n\n      return self\n",
       "type": "blob"
     },
     "type.coffee.md": {
@@ -308,7 +308,7 @@
     },
     "feature": {
       "path": "feature",
-      "content": "(function() {\n  var Feature, Resource, Sprite, Type;\n\n  Resource = require(\"./resource\");\n\n  Sprite = require(\"sprite\");\n\n  Type = require(\"./type\");\n\n  module.exports = Feature = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    Object.defaults(I, {\n      movementPenalty: 0,\n      type: Type.Dirt,\n      zIndex: -1\n    });\n    self.attrAccessor(\"movementPenalty\", \"type\", \"zIndex\");\n    Object.extend(self, {\n      draw: function() {\n        var _ref;\n        return (_ref = self.sprite()).draw.apply(_ref, arguments);\n      },\n      sprite: function() {\n        return Resource.sprite(I.spriteName) || Sprite.NONE;\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=feature.coffee",
+      "content": "(function() {\n  var Feature, Resource, Sprite, Type;\n\n  Resource = require(\"./resource\");\n\n  Sprite = require(\"sprite\");\n\n  Type = require(\"./type\");\n\n  module.exports = Feature = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    Object.defaults(I, {\n      movementPenalty: 0,\n      opaque: false,\n      type: Type.Dirt,\n      zIndex: -1\n    });\n    self.attrAccessor(\"movementPenalty\", \"opaque\", \"type\", \"zIndex\");\n    Object.extend(self, {\n      draw: function() {\n        var _ref;\n        return (_ref = self.sprite()).draw.apply(_ref, arguments);\n      },\n      sprite: function() {\n        return Resource.sprite(I.spriteName) || Sprite.NONE;\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=feature.coffee",
       "type": "blob"
     },
     "type": {
