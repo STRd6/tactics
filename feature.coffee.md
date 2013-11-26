@@ -10,11 +10,13 @@ Features are things that are present within tiles in the tactical combat view.
     module.exports = Feature = (I={}, self=Core(I)) ->
       Object.defaults I,
         movementPenalty: 0
+        opaque: false
         type: Type.Dirt
         zIndex: -1
 
       self.attrAccessor(
         "movementPenalty"
+        "opaque"
         "type"
         "zIndex"
       )
