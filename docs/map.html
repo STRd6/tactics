@@ -38,6 +38,7 @@
 Resource = require <span class="string">"./resource"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 Squad = require <span class="string">"./squad"</span>
+Feature = require <span class="string">"./feature"</span>
 
 {Grid} = require <span class="string">"./lib/util"</span>
 Graph = require <span class="string">"./graph"</span>
@@ -94,7 +95,9 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
   opaque: bush
   solid: <span class="literal">false</span>
   features: [<span class="number">0.</span>..bush].map -&gt;
-    bushSprites.rand()
+    Feature
+      spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
+      zIndex: <span class="number">1</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   self ?= Core(I)
@@ -125,7 +128,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       x: <span class="number">30</span>
   ]
 
-  activeSquad = Observable squads.first()        
+  activeSquad = Observable squads.first()
 
   <span class="function"><span class="title">nextActivatableSquad</span></span> = -&gt;
     squads.filter (squad) -&gt;
