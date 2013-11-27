@@ -55,6 +55,7 @@ electricity, I don&#39;t know yet.</p>
             <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Effect</span></span> = (I={}, self=Core(I)) -&gt;
   <span class="comment"># TODO</span>
 
+<span class="comment"># Used in Fireball</span>
 Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
   perform: ({tileAt, characterAt, message}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
@@ -68,6 +69,17 @@ Effect.<span class="function"><span class="title">Fire</span></span> = (position
       <span class="keyword">if</span> character = characterAt(position)
         message(<span class="string">"<span class="subst">#{character.name()}</span> is burned!"</span>)
         character.damage(<span class="number">2</span>)
+
+<span class="comment"># Used in Entanglement</span>
+Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;
+  perform: ({tileAt}) -&gt;
+    <span class="keyword">if</span> tile = tileAt(position)
+      <span class="keyword">unless</span> tile.solid
+        <span class="comment"># TODO: Check for existing bushes</span>
+        <span class="comment"># TODO: Add movement penalty to bush features</span>
+        <span class="comment"># TODO: Transfer opacity computation from to include features</span>
+        tile.opaque = <span class="literal">true</span>
+        tile.features.push Feature.Bush()
 
 Effect.<span class="function"><span class="title">Death</span></span> = (position) -&gt;
   perform: ({tileAt}) -&gt;

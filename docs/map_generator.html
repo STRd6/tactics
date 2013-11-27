@@ -77,9 +77,7 @@ wallSprites = [<span class="number">0.</span><span class="number">.3</span>].map
   opaque: bush
   solid: <span class="literal">false</span>
   features: [<span class="number">0.</span>..bush].map -&gt;
-    Feature
-      spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
-      zIndex: <span class="number">1</span>
+    Feature.Bush()
 
 module.exports =
   generate: (size) -&gt;

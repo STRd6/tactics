@@ -188,14 +188,26 @@ Ability.Abilities =
     perform: (owner) -&gt;
       owner.heal(<span class="number">1</span>)
 
+  Entanglement: Ability
+    name: <span class="string">"Entanglement"</span>
+    iconName: <span class="string">"bush0"</span>
+    range: <span class="number">7</span>
+    actionCost: <span class="number">2</span>
+    cooldown: <span class="number">3</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    perform: (owner, {position, addEffect}) -&gt;
+      search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
+        addEffect(Effect.Plant(position))
+
   Fireball: Ability
     name: <span class="string">"Fireball"</span>
     iconName: <span class="string">"fireball"</span>
     range: <span class="number">7</span>
     actionCost: <span class="number">2</span>
     cooldown: <span class="number">3</span>
-    costType: COST_TYPE.REST
-    targetZone: TARGET_ZONE.LINE_OF_SIGHT
+    costType: REST
+    targetZone: LINE_OF_SIGHT
     perform: (owner, {position, addEffect}) -&gt;
       search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
         addEffect(Effect.Fire(position))
@@ -203,9 +215,9 @@ Ability.Abilities =
   Wait: Ability
     name: <span class="string">"Wait"</span>
     iconName: <span class="string">"hourglass"</span>
-    actionCost: <span class="number">1</span>
-    costType: COST_TYPE.REST
-    targetZone: TARGET_ZONE.SELF
+    actionCost: <span class="number">0</span>
+    costType: REST
+    targetZone: SELF
     perform: -&gt;
 
   Cancel: Ability
