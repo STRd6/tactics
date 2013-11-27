@@ -45,13 +45,6 @@ Squad = require <span class="string">"./squad"</span>
   intersection
 } = require <span class="string">"./array_helpers"</span>
 
-moveDirections = [
-  Point(<span class="number">1</span>, <span class="number">0</span>)
-  Point(-<span class="number">1</span>, <span class="number">0</span>)
-  Point(<span class="number">0</span>, <span class="number">1</span>)
-  Point(<span class="number">0</span>, -<span class="number">1</span>)
-]
-
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   self ?= Core(I)
 
@@ -168,8 +161,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         squad.stateBasedActions(stack)
 
       <span class="keyword">if</span> stack.length
-        stack.map ([effect, position]) -&gt;
-          self.addEffect(effect, position)
+        stack.map self.performEffect
 
         <span class="comment"># Prevent infinite recursion</span>
         <span class="keyword">if</span> n &gt; <span class="number">0</span>
@@ -196,27 +188,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">if</span> activeSquad()
         self.stateBasedActions()
       <span class="keyword">else</span>
-        ;<span class="comment"># No survivors</span></code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <p>Add an effect to the map at the given position.</p>
-<p>TODO: &#39;Instance&#39; effects so they can know their own position in addition to other
-effect metadata.</p>
-
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">    addEffect: (effect, position) -&gt;
-      effect.perform
-        characterAt: characterAt
-        position: position
-        tileAt: tileAt
-        message: self.message
+        ;<span class="comment"># No survivors</span>
 
     message: (message) -&gt;
       self.messages.push message
@@ -225,9 +197,15 @@ effect metadata.</p>
       ability.perform owner,
         position: targetPosition
         character: characterAt targetPosition
-        addEffect: self.addEffect
+        addEffect: self.performEffect <span class="comment"># TODO: Figure out how to get an effect stack in here</span>
 
       self.stateBasedActions()
+
+    performEffect: (effect) -&gt;
+      effect.perform
+        characterAt: characterAt
+        tileAt: tileAt
+        message: self.message
 
     selectTarget: (position) -&gt;
       ability = self.targettingAbility()

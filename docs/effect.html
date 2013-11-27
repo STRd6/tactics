@@ -53,8 +53,10 @@ electricity, I don&#39;t know yet.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Effect</span></span> = (I={}, self=Core(I)) -&gt;
+  <span class="comment"># TODO</span>
 
-  perform: ({position, tileAt, characterAt, message}) -&gt;
+Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
+  perform: ({tileAt, characterAt, message}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
       <span class="comment"># Fireball Effect</span>
       Object.extend tile,
@@ -67,8 +69,8 @@ electricity, I don&#39;t know yet.</p>
         message(<span class="string">"<span class="subst">#{character.name()}</span> is burned!"</span>)
         character.damage(<span class="number">2</span>)
 
-Effect.Death =
-  perform: ({position, tileAt}) -&gt;
+Effect.<span class="function"><span class="title">Death</span></span> = (position) -&gt;
+  perform: ({tileAt}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
       tile.features.push Feature
         spriteName: <span class="string">"skeleton"</span></code></pre>

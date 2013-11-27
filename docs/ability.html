@@ -202,7 +202,7 @@ Ability.Abilities =
     targetZone: TARGET_ZONE.LINE_OF_SIGHT
     perform: (owner, {position, addEffect}) -&gt;
       search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
-        addEffect(Effect(), position)
+        addEffect(Effect.Fire(position))
 
   Wait: Ability
     name: <span class="string">"Wait"</span>

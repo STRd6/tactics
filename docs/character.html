@@ -96,7 +96,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         I.actions = <span class="number">0</span>
 
         <span class="comment"># Push death effect</span>
-        stack.push [Effect.Death, self.position()]
+        stack.push Effect.Death(self.position())
 
       Object.keys(I.cooldowns).forEach (name) -&gt;
         <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>
