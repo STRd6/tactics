@@ -52,6 +52,8 @@ Geom = require <span class="string">"./lib/geom"</span>
 
 tileExtent = Size <span class="number">32</span>, <span class="number">18</span>
 
+global.allSprites = Object.keys(require(<span class="string">"./images"</span>)).map Resource.sprite
+
 bgColor = <span class="string">"#222034"</span>
 
 global.canvas = canvas = Canvas

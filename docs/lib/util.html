@@ -182,7 +182,7 @@ Point.prototype.<span class="function"><span class="title">sign</span></span> = 
               <p>A 2d grid of values.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  Grid: (width, height, defaultValue) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  Grid: ({width, height}, defaultValue) -&gt;
     <span class="function"><span class="title">generateValue</span></span> = (x, y) -&gt;
       <span class="keyword">if</span> <span class="keyword">typeof</span> defaultValue <span class="keyword">is</span> <span class="string">"function"</span>
         defaultValue(x, y)
