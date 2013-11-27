@@ -22,6 +22,8 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     tileExtent = Size 32, 18
 
+    global.allSprites = Object.keys(require("./images")).map Resource.sprite
+
     bgColor = "#222034"
 
     global.canvas = canvas = Canvas
