@@ -51,7 +51,7 @@ Those little guys that run around.
         setCooldown: (ability) ->
           I.cooldowns[ability.name()] = ability.cooldown()
 
-        stateBasedActions: (stack) ->
+        stateBasedActions: ({addEffect}) ->
           return if !I.alive
 
           if I.health > I.healthMax
@@ -64,7 +64,7 @@ Those little guys that run around.
             I.actions = 0
 
             # Push death effect
-            stack.push Effect.Death(self.position())
+            addEffect Effect.Death(self.position())
 
           Object.keys(I.cooldowns).forEach (name) ->
             if I.cooldowns[name] < 0

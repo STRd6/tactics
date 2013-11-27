@@ -29,9 +29,9 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         activeCharacter: Observable null
         characters: Observable []
 
-        stateBasedActions: (stack) ->
+        stateBasedActions: (params) ->
           self.characters.forEach (character) ->
-            character.stateBasedActions(stack)
+            character.stateBasedActions(params)
 
           if character = self.activeCharacter()
             if character.actions() is 0

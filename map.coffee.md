@@ -68,6 +68,8 @@ The primary tactical combat screen.
 
       search = MapSearch(grid.get, characterAt)
 
+      effectStack = []
+
       Object.extend self,
         messages: Observable []
         activeSquadIndex: ->
@@ -122,20 +124,14 @@ The primary tactical combat screen.
                   positionsInRange
                 )
 
-        stateBasedActions: (n=16) ->
-          stack = []
-
+        stateBasedActions: ->
           squads.forEach (squad) ->
-            squad.stateBasedActions(stack)
+            squad.stateBasedActions
+              addEffect: self.addEffect
 
-          if stack.length
-            stack.map self.performEffect
-
-            # Prevent infinite recursion
-            if n > 0
-              self.stateBasedActions(n-1)
-            else
-              console.warn "State Based Actions failed to completely resolve in 16 iterations"
+          while effectStack.length
+            # TODO: This could fall victim to infinite recursion
+            self.performEffect effectStack.pop()
 
           # TODO: May be able to consolidate these into the stack resolution
           activeSquad nextActivatableSquad()
@@ -161,19 +157,26 @@ The primary tactical combat screen.
         message: (message) ->
           self.messages.push message
 
+        addEffect: (effect) ->
+          effectStack.push effect
+
         performAbility: (owner, ability, targetPosition) ->
           ability.perform owner,
-            position: targetPosition
+            addEffect: self.addEffect
             character: characterAt targetPosition
-            addEffect: self.performEffect # TODO: Figure out how to get an effect stack in here
+            message: self.message
+            position: targetPosition
 
           self.stateBasedActions()
 
         performEffect: (effect) ->
           effect.perform
+            addEffect: self.addEffect
             characterAt: characterAt
-            tileAt: tileAt
             message: self.message
+            tileAt: tileAt
+
+          self.stateBasedActions()
 
         selectTarget: (position) ->
           ability = self.targettingAbility()
