@@ -27,14 +27,10 @@ Some abilities may be situational (like Force Door being only available targetti
 
 Some cool abilities that should be in the game
 
-  - Movement
-  - Ranged Attacks
-  - Melee Attacks
   - Overwatch
   - Heal
   - Dig
   - Teleport
-  - Fireball
   - Buffs
   - Debuffs
 
