@@ -52,6 +52,8 @@ Geom = require <span class="string">"./lib/geom"</span>
 
 tileExtent = Size <span class="number">32</span>, <span class="number">18</span>
 
+global.allSprites = Object.keys(require(<span class="string">"./images"</span>)).map Resource.sprite
+
 bgColor = <span class="string">"#222034"</span>
 
 global.canvas = canvas = Canvas
@@ -155,7 +157,7 @@ $(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
   $.ajax({
     url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
     dataType: "jsonp",

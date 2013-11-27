@@ -1,16 +1,168 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1384913644605">
+<html manifest="manifest.appcache?1385511543872">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script>
-<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script>
 </head>
 <body>
 <script>
 ;(function(PACKAGE) {
+var oldRequire = window.Require;
+(function() {
+  var cacheFor, circularGuard, defaultEntryPoint, fileSeparator, generateRequireFn, global, isPackage, loadModule, loadPackage, loadPath, normalizePath, rootModule, startsWith,
+    __slice = [].slice;
+
+  fileSeparator = '/';
+
+  global = window;
+
+  defaultEntryPoint = "main";
+
+  circularGuard = {};
+
+  rootModule = {
+    path: ""
+  };
+
+  loadPath = function(parentModule, pkg, path) {
+    var cache, localPath, module, normalizedPath;
+    if (startsWith(path, '/')) {
+      localPath = [];
+    } else {
+      localPath = parentModule.path.split(fileSeparator);
+    }
+    normalizedPath = normalizePath(path, localPath);
+    cache = cacheFor(pkg);
+    if (module = cache[normalizedPath]) {
+      if (module === circularGuard) {
+        throw "Circular dependency detected when requiring " + normalizedPath;
+      }
+    } else {
+      cache[normalizedPath] = circularGuard;
+      try {
+        cache[normalizedPath] = module = loadModule(pkg, normalizedPath);
+      } finally {
+        if (cache[normalizedPath] === circularGuard) {
+          delete cache[normalizedPath];
+        }
+      }
+    }
+    return module.exports;
+  };
+
+  normalizePath = function(path, base) {
+    var piece, result;
+    if (base == null) {
+      base = [];
+    }
+    base = base.concat(path.split(fileSeparator));
+    result = [];
+    while (base.length) {
+      switch (piece = base.shift()) {
+        case "..":
+          result.pop();
+          break;
+        case "":
+        case ".":
+          break;
+        default:
+          result.push(piece);
+      }
+    }
+    return result.join(fileSeparator);
+  };
+
+  loadPackage = function(parentModule, pkg, path) {
+    path || (path = pkg.entryPoint || defaultEntryPoint);
+    return loadPath(parentModule, pkg, path);
+  };
+
+  loadModule = function(pkg, path) {
+    var args, context, dirname, file, module, program, values;
+    if (!(file = pkg.distribution[path])) {
+      throw "Could not find file at " + path + " in " + pkg.name;
+    }
+    program = file.content;
+    dirname = path.split(fileSeparator).slice(0, -1).join(fileSeparator);
+    module = {
+      path: dirname,
+      exports: {}
+    };
+    context = {
+      require: generateRequireFn(pkg, module),
+      global: global,
+      module: module,
+      exports: module.exports,
+      PACKAGE: pkg,
+      __filename: path,
+      __dirname: dirname
+    };
+    args = Object.keys(context);
+    values = args.map(function(name) {
+      return context[name];
+    });
+    Function.apply(null, __slice.call(args).concat([program])).apply(module, values);
+    return module;
+  };
+
+  isPackage = function(path) {
+    if (!(startsWith(path, fileSeparator) || startsWith(path, "." + fileSeparator) || startsWith(path, ".." + fileSeparator))) {
+      return path.split(fileSeparator)[0];
+    } else {
+      return false;
+    }
+  };
+
+  generateRequireFn = function(pkg, module) {
+    if (module == null) {
+      module = rootModule;
+    }
+    return function(path) {
+      var otherPackage, otherPackageName, packagePath;
+      if (otherPackageName = isPackage(path)) {
+        packagePath = path.replace(otherPackageName, "");
+        if (!(otherPackage = pkg.dependencies[otherPackageName])) {
+          throw "Package: " + otherPackageName + " not found.";
+        }
+        if (otherPackage.name == null) {
+          otherPackage.name = otherPackageName;
+        }
+        return loadPackage(rootModule, otherPackage, packagePath);
+      } else {
+        return loadPath(module, pkg, path);
+      }
+    };
+  };
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.generateFor = generateRequireFn;
+  } else {
+    global.Require = {
+      generateFor: generateRequireFn
+    };
+  }
+
+  startsWith = function(string, prefix) {
+    return string.lastIndexOf(prefix, 0) === 0;
+  };
+
+  cacheFor = function(pkg) {
+    if (pkg.cache) {
+      return pkg.cache;
+    }
+    Object.defineProperty(pkg, "cache", {
+      value: {}
+    });
+    return pkg.cache;
+  };
+
+}).call(this);
+
+//# sourceURL=main.coffee
 var require = Require.generateFor(PACKAGE);
+window.Require = oldRequire;
 require('./main')
 })({
   "version": "0.1.0",
@@ -75,6 +227,12 @@ require('./main')
       "content": "Effect\n======\n\n    Resource = require \"./resource\"\n\n    lavaSprites = [0..11].map (n) ->\n      Resource.sprite(\"lava#{n}\")\n\nEffects are things like explosions or dispelling undead. Maybe even fire or\nelectricity, I don't know yet.\n\n    module.exports = (I={}, self=Core(I)) ->\n\n      perform: ({position, tileAt, characterAt, message}) ->\n        if tile = tileAt(position)\n          # Fireball Effect\n          Object.extend tile,\n            opaque: false\n            solid: false\n            features: []\n            sprite: lavaSprites.rand()\n\n          if character = characterAt(position)\n            message(\"#{character.name()} is burned!\")\n            character.damage(2)\n",
       "type": "blob"
     },
+    "feature.coffee.md": {
+      "path": "feature.coffee.md",
+      "mode": "100644",
+      "content": "Feature\n=======\n\nFeatures are things that are present within tiles in the tactical combat view.\n\n    Resource = require \"./resource\"\n    Sprite = require \"sprite\"\n    Type = require \"./type\"\n\n    module.exports = Feature = (I={}, self=Core(I)) ->\n      Object.defaults I,\n        movementPenalty: 0\n        opaque: false\n        type: Type.Dirt\n        zIndex: -1\n\n      self.attrAccessor(\n        \"movementPenalty\"\n        \"opaque\"\n        \"type\"\n        \"zIndex\"\n      )\n\n      Object.extend self,\n        draw: ->\n          self.sprite().draw arguments...\n        sprite: ->\n          Resource.sprite(I.spriteName) or Sprite.NONE\n\n      return self\n",
+      "type": "blob"
+    },
     "field_of_vision.coffee.md": {
       "path": "field_of_vision.coffee.md",
       "mode": "100644",
@@ -102,31 +260,43 @@ require('./main')
     "lib/util.coffee.md": {
       "path": "lib/util.coffee.md",
       "mode": "100644",
-      "content": "Util\n====\n\nDeferred\n--------\n\nUse jQuery deferred\n\n    global.Deferred = jQuery.Deferred\n\nHelpers\n-------\n\n    isObject = (object) ->\n      Object::toString.call(object) is \"[object Object]\"\n\nSize\n----\n\nA 2d extent.\n\n    Size = (width, height) ->\n      if isObject(width)\n        {width, height} = width\n\n      width: width\n      height: height\n      __proto__: Size.prototype\n\n    Size.prototype =\n      scale: (scalar) ->\n        Size(@width * scalar, @height * scalar)\n\n      toString: ->\n        \"Size(#{@width}, #{@height})\"\n\n      each: (iterator) ->\n        [0...@height].forEach (y) ->\n          [0...@width].forEach (x) ->\n            iterator(x, y)\n\nBounds\n------\n\n    Bounds = ({x, y}, {width, height}) ->\n      x: x\n      y: y\n      width: width\n      height: height\n    \n    Bounds.prototype = \n      toString: ->\n        \"Bounds({#{@x}, #{@y}}, {#{@width}, #{@height}})\"\n\nPoint Extensions\n----------------\n\n    Point.prototype.scale = (scalar) ->\n      if isObject(scalar)\n        Point(@x * scalar.width, @y * scalar.height)\n      else\n        Point(@x * scalar, @y * scalar)\n\n    Point.prototype.sign = ->\n      Point(@x.sign(), @y.sign())\n\nExtra utilities that may be broken out into separate libraries.\n\n    module.exports =\n      Bounds: Bounds\n      Size: Size\n\nA 2d grid of values.\n\n      Grid: (width, height, defaultValue) ->\n        generateValue = (x, y) ->\n          if typeof defaultValue is \"function\"\n            defaultValue(x, y)\n          else\n            defaultValue\n\n        grid =\n          [0...height].map (y) ->\n            [0...width].map (x) ->\n              generateValue(x, y)\n\n        self =\n          contract: (x, y) ->\n            height -= y\n            width -= x\n\n            grid.length = height\n\n            grid.forEach (row) ->\n              row.length = width\n\n            return self\n\n          copy: ->\n            Grid(width, height, self.get)\n\n          get: (x, y) ->\n            if x.x?\n              {x, y} = x\n\n            return if x < 0 or x >= width\n            return if y < 0 or y >= height\n\n            grid[y][x]\n\n          set: (x, y, value) ->\n            if x.x?\n              {x, y} = x\n\n            return if x < 0 or x >= width\n            return if y < 0 or y >= height\n\n            grid[y][x] = value\n\n          each: (iterator) ->\n            grid.forEach (row, y) ->\n              row.forEach (value, x) ->\n                iterator(value, Point(x, y), self)\n\n            return self\n\n          expand: (x, y) ->\n            newRows = [0...y].map (y) ->\n              [0...width].map (x) ->\n                generateValue(x, y + height)\n\n            grid = grid.concat newRows\n\n            grid = grid.map (row, y) ->\n              row.concat [0...x].map (x) ->\n                generateValue(width + x, y)\n\n            height = y + height\n            width = x + width\n\n            return self\n\nReturn a 1-dimensional array of the data within the grid.\n\n          toArray: ->\n            grid.reduce (a, b) ->\n              a.concat(b)\n            , []\n\n        return self\n",
+      "content": "Util\n====\n\nDeferred\n--------\n\nUse jQuery deferred\n\n    global.Deferred = jQuery.Deferred\n\nHelpers\n-------\n\n    isObject = (object) ->\n      Object::toString.call(object) is \"[object Object]\"\n\nSize\n----\n\nA 2d extent.\n\n    Size = (width, height) ->\n      if isObject(width)\n        {width, height} = width\n\n      width: width\n      height: height\n      __proto__: Size.prototype\n\n    Size.prototype =\n      scale: (scalar) ->\n        Size(@width * scalar, @height * scalar)\n\n      toString: ->\n        \"Size(#{@width}, #{@height})\"\n\n      each: (iterator) ->\n        [0...@height].forEach (y) ->\n          [0...@width].forEach (x) ->\n            iterator(x, y)\n\nBounds\n------\n\n    Bounds = ({x, y}, {width, height}) ->\n      x: x\n      y: y\n      width: width\n      height: height\n    \n    Bounds.prototype = \n      toString: ->\n        \"Bounds({#{@x}, #{@y}}, {#{@width}, #{@height}})\"\n\nPoint Extensions\n----------------\n\n    Point.prototype.scale = (scalar) ->\n      if isObject(scalar)\n        Point(@x * scalar.width, @y * scalar.height)\n      else\n        Point(@x * scalar, @y * scalar)\n\n    Point.prototype.sign = ->\n      Point(@x.sign(), @y.sign())\n\nExtra utilities that may be broken out into separate libraries.\n\n    module.exports =\n      Bounds: Bounds\n      Size: Size\n\nA 2d grid of values.\n\n      Grid: ({width, height}, defaultValue) ->\n        generateValue = (x, y) ->\n          if typeof defaultValue is \"function\"\n            defaultValue(x, y)\n          else\n            defaultValue\n\n        grid =\n          [0...height].map (y) ->\n            [0...width].map (x) ->\n              generateValue(x, y)\n\n        self =\n          contract: (x, y) ->\n            height -= y\n            width -= x\n\n            grid.length = height\n\n            grid.forEach (row) ->\n              row.length = width\n\n            return self\n\n          copy: ->\n            Grid(width, height, self.get)\n\n          get: (x, y) ->\n            if x.x?\n              {x, y} = x\n\n            return if x < 0 or x >= width\n            return if y < 0 or y >= height\n\n            grid[y][x]\n\n          set: (x, y, value) ->\n            if x.x?\n              {x, y} = x\n\n            return if x < 0 or x >= width\n            return if y < 0 or y >= height\n\n            grid[y][x] = value\n\n          each: (iterator) ->\n            grid.forEach (row, y) ->\n              row.forEach (value, x) ->\n                iterator(value, Point(x, y), self)\n\n            return self\n\n          expand: (x, y) ->\n            newRows = [0...y].map (y) ->\n              [0...width].map (x) ->\n                generateValue(x, y + height)\n\n            grid = grid.concat newRows\n\n            grid = grid.map (row, y) ->\n              row.concat [0...x].map (x) ->\n                generateValue(width + x, y)\n\n            height = y + height\n            width = x + width\n\n            return self\n\nReturn a 1-dimensional array of the data within the grid.\n\n          toArray: ->\n            grid.reduce (a, b) ->\n              a.concat(b)\n            , []\n\n        return self\n",
       "type": "blob"
     },
     "main.coffee.md": {
       "path": "main.coffee.md",
       "mode": "100644",
-      "content": "Tactics\n=======\n\nA game about squad based dungeon combat.\n\nYou manage a tribe of humble humanoids over a thousand years.\n\nWill you conquer the world? Will they all die? That's between you and the RNG.\n\n    require \"./setup\"\n\n    Canvas = require \"touch-canvas\"\n    Action = require \"./action\"\n    Resource = require \"./resource\"\n    Map = require \"./map\"\n    CharacterUI = require \"./character_ui\"\n\n    {Grid, Size} = require \"./lib/util\"\n    Geom = require \"./lib/geom\"\n\n    {width, height} = require(\"./pixie\")\n\n    tileExtent = Size 32, 18\n\n    bgColor = \"#222034\"\n\n    global.canvas = canvas = Canvas\n      width: width\n      height: height\n\n    canvas.fill bgColor\n\n    $(\"body\").append canvas.element()\n\n    global.map = map = null\n    activeCharacter = Observable()\n\n    ui =\n      messages: Observable [\n        \"Hello\\n\"\n      ]\n      actions: Observable [\n        Action\n          name: \"New Game\"\n          icon: \"new_game\"\n          perform: ->\n            global.map = map = Map()\n            activeCharacter = map.activeCharacter\n            activeCharacter.observe (character) ->\n              if character\n                ui.actions character.uiActions()\n              else\n                ui.actions []\n\n            ui.actions activeCharacter().uiActions()\n\n            update()\n\n        Action\n          name: \"Tutorial\"\n          icon: \"book\"\n          perform: ->\n            alert \"Experience is the only teacher.\"\n      ]\n      actionPerformed: ->\n        update()\n\n    $(\"body\").append require(\"./templates/ui\")(ui)\n\n    accessiblePositions = null\n\n    update = ->\n      if map\n        map.stateBasedActions()\n        accessiblePositions = map.accessiblePositions()\n\n    t = 0\n    setInterval ->\n      t += 0.3333333\n\n      map?.render(canvas, t)\n      updateUiCanvas()\n    , 33.3333333\n\n    uiCanvas = Canvas\n      width: width\n      height: height\n\n    uiCanvas.on \"touch\", (position) ->\n      tilePosition = position.scale(tileExtent).floor()\n\n      if accessiblePositions\n        inRange = accessiblePositions.reduce (found, position) ->\n          found or position.equal(tilePosition)\n        , false\n\n        if inRange\n          map.selectTarget tilePosition\n          update()\n      else\n        map?.touch tilePosition\n\n    gridSprite = Resource.sprite(\"grid_blue\")\n\n    updateUiCanvas = ->\n      uiCanvas.clear()\n\n      if map\n        map.visibleCharacters().forEach (duder) ->\n          if duder is activeCharacter()\n            CharacterUI.activeTactical(uiCanvas, duder)\n          else if duder.alive()\n            CharacterUI.tactical(uiCanvas, duder)\n\n        if accessiblePositions\n          accessiblePositions.forEach (position) ->\n            gridSprite.draw uiCanvas, position.scale(32)\n\n    $(\".ui\").prepend uiCanvas.element()\n",
+      "content": "Tactics\n=======\n\nA game about squad based dungeon combat.\n\nYou manage a tribe of humble humanoids over a thousand years.\n\nWill you conquer the world? Will they all die? That's between you and the RNG.\n\n    require \"./setup\"\n\n    Canvas = require \"touch-canvas\"\n    Action = require \"./action\"\n    Resource = require \"./resource\"\n    Map = require \"./map\"\n    CharacterUI = require \"./character_ui\"\n\n    {Grid, Size} = require \"./lib/util\"\n    Geom = require \"./lib/geom\"\n\n    {width, height} = require(\"./pixie\")\n\n    tileExtent = Size 32, 18\n\n    global.allSprites = Object.keys(require(\"./images\")).map Resource.sprite\n\n    bgColor = \"#222034\"\n\n    global.canvas = canvas = Canvas\n      width: width\n      height: height\n\n    canvas.fill bgColor\n\n    $(\"body\").append canvas.element()\n\n    global.map = map = null\n    activeCharacter = Observable()\n\n    ui =\n      messages: Observable [\n        \"Hello\\n\"\n      ]\n      actions: Observable [\n        Action\n          name: \"New Game\"\n          icon: \"new_game\"\n          perform: ->\n            global.map = map = Map()\n            activeCharacter = map.activeCharacter\n            activeCharacter.observe (character) ->\n              if character\n                ui.actions character.uiActions()\n              else\n                ui.actions []\n\n            ui.actions activeCharacter().uiActions()\n\n            update()\n\n        Action\n          name: \"Tutorial\"\n          icon: \"book\"\n          perform: ->\n            alert \"Experience is the only teacher.\"\n      ]\n      actionPerformed: ->\n        update()\n\n    $(\"body\").append require(\"./templates/ui\")(ui)\n\n    accessiblePositions = null\n\n    update = ->\n      if map\n        map.stateBasedActions()\n        accessiblePositions = map.accessiblePositions()\n\n    t = 0\n    setInterval ->\n      t += 0.3333333\n\n      map?.render(canvas, t)\n      updateUiCanvas()\n    , 33.3333333\n\n    uiCanvas = Canvas\n      width: width\n      height: height\n\n    uiCanvas.on \"touch\", (position) ->\n      tilePosition = position.scale(tileExtent).floor()\n\n      if accessiblePositions\n        inRange = accessiblePositions.reduce (found, position) ->\n          found or position.equal(tilePosition)\n        , false\n\n        if inRange\n          map.selectTarget tilePosition\n          update()\n      else\n        map?.touch tilePosition\n\n    gridSprite = Resource.sprite(\"grid_blue\")\n\n    updateUiCanvas = ->\n      uiCanvas.clear()\n\n      if map\n        map.visibleCharacters().forEach (duder) ->\n          if duder is activeCharacter()\n            CharacterUI.activeTactical(uiCanvas, duder)\n          else if duder.alive()\n            CharacterUI.tactical(uiCanvas, duder)\n\n        if accessiblePositions\n          accessiblePositions.forEach (position) ->\n            gridSprite.draw uiCanvas, position.scale(32)\n\n    $(\".ui\").prepend uiCanvas.element()\n",
       "type": "blob"
     },
     "map.coffee.md": {
       "path": "map.coffee.md",
       "mode": "100644",
-      "content": "Map\n===\n    Ability = require \"./ability\"\n    Resource = require \"./resource\"\n    MapSearch = require \"./map_search\"\n    Squad = require \"./squad\"\n\n    {Grid} = require \"./lib/util\"\n    Graph = require \"./graph\"\n\n    {\n      intersection\n    } = require \"./array_helpers\"\n\n    moveDirections = [\n      Point(1, 0)\n      Point(-1, 0)\n      Point(0, 1)\n      Point(0, -1)\n    ]\n\nHold the terrain and whatnot for a level.\n\n    global.allSprites = Object.keys(require(\"./images\")).map Resource.sprite\n\n    groundSprites = [\"ground\", \"frozen\", \"stone\"].map (type) ->\n      [0..7].map (i) ->\n        \"#{type}#{i}\"\n      .map Resource.sprite\n\n    bushSprites = [0..3].map (i)->\n      Resource.sprite(\"bush#{i}\")\n\n    wallSprites = [0..3].map (i) ->\n      Resource.sprite(\"brick_vines#{i}\")\n\n    wall = ->\n      sprite: wallSprites.rand()\n      lit: []\n      seen: []\n      opaque: true\n      solid: true\n      features: []\n\n    ground = ->\n      bush = rand() < 0.1\n\n      sprite: groundSprites[0].rand()\n      lit: []\n      seen: []\n      opaque: bush\n      solid: false\n      features: [0...bush].map ->\n        bushSprites.rand()\n\n    module.exports = (I={}, self) ->\n      self ?= Core(I)\n\n      grid = Grid 32, 18, (x, y) ->\n        if rand() < 0.10\n          wall()\n        else\n          ground()\n\n      tileAt = grid.get\n\n      updateVisibleTiles = ->\n        grid.each (tile) ->\n          tile.lit = []\n\n        squads.forEach (squad, i) ->\n          squad.characters().filter (character) ->\n            character.alive()\n          .forEach (duder) ->\n            search.visible(duder.position(), duder.sight()).map(tileAt).forEach (tile) ->\n              tile.seen[i] = tile.lit[i] = true\n\n      squads = [\n        Squad()\n        Squad\n          race: \"goblin\"\n          x: 30\n      ]\n\n      activeSquad = Observable squads.first()\n\n      nextActivatableSquad = ->\n        squads.filter (squad) ->\n          squad.activeCharacter()\n        .first()\n\n      characterPassable = (character) ->\n        (position) ->\n          if tile = tileAt(position)\n            if occupant = characterAt(position)\n              occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)\n            else\n              occupantPassable = true\n\n            !tile.solid and tile.lit[self.activeSquadIndex()] and occupantPassable\n\n      characterAt = (x, y) ->\n        if x.x?\n          {x, y} = x\n\n        self.characters().filter (character) ->\n          position = character.position()\n          character.alive() and (position.x is x and position.y is y)\n        .first()\n\n      search = MapSearch(grid.get, characterAt)\n\n      Object.extend self,\n        activeSquadIndex: ->\n          squads.indexOf activeSquad()\n\n        characters: Observable ->\n          squads.map (squad) ->\n            squad.characters()\n          .flatten()\n\n        characterAt: characterAt\n\n        eachTile: grid.each\n\n        visibleCharacters: ->\n          index = self.activeSquadIndex()\n          self.characters().filter (character) ->\n            tileAt(character.position()).lit[index]\n\n        activeCharacter: Observable ->\n          # Dependencies for observable\n          squads.forEach (squad) ->\n            squad.activeCharacter()\n\n          activeSquad()?.activeCharacter()\n\n        targettingAbility: ->\n          if character = self.activeCharacter()\n            character.targettingAbility()\n\n        accessiblePositions: ->\n          character = self.activeCharacter()\n\n          if ability = self.targettingAbility()\n            switch ability.targetZone()\n              when Ability.TARGET_ZONE.SELF\n                self.performAbility(character, ability, character.position())\n\n                return\n              when Ability.TARGET_ZONE.MOVEMENT\n                accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))\n\n                accessiblePositions.reject (position) ->\n                  characterAt(position)\n\n              when Ability.TARGET_ZONE.LINE_OF_SIGHT\n                visiblePositions = search.visible(character.position(), character.sight())\n                positionsInRange = search.adjacent(character.position(), ability.range())\n\n                intersection(\n                  visiblePositions\n                  positionsInRange\n                )\n\n        stateBasedActions: ->\n          squads.forEach (squad) ->\n            squad.stateBasedActions()\n\n          activeSquad nextActivatableSquad()\n\n          updateVisibleTiles()\n\n          unless self.activeCharacter()\n            # End of Round\n            self.ready()\n\n        ready: ->\n          # Refresh all squads\n          squads.forEach (squad) ->\n            squad.ready()\n\n          activeSquad nextActivatableSquad()\n\n          if activeSquad()\n            self.stateBasedActions()\n          else\n            ;# No survivors\n\n        addEffect: (effect, position) ->\n          effect.perform\n            characterAt: characterAt\n            position: position\n            tileAt: tileAt\n            message: -> #TODO Hook up to messages\n\n        performAbility: (owner, ability, targetPosition) ->\n          ability.perform owner,\n            position: targetPosition\n            character: characterAt targetPosition\n            addEffect: self.addEffect\n\n          self.stateBasedActions()\n\n        selectTarget: (position) ->\n          ability = self.targettingAbility()\n\n          switch ability.targetZone()\n            when Ability.TARGET_ZONE.MOVEMENT\n              self.moveDuder(position)\n            else\n              self.performAbility(self.activeCharacter(), ability, position)\n\n        touch: (position) ->\n          activeSquad()?.activateCharacterAt(position)\n\n        moveDuder: (position) ->\n          character = self.activeCharacter()\n\n          path = search.movementPath(\n            character.position(),\n            position,\n            characterPassable(character)\n          )\n\n          if path\n            index = self.activeSquadIndex()\n            path.forEach (position) ->\n              search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) ->\n                tile.seen[index] = true\n\n            self.performAbility(character, self.targettingAbility(), position)\n\n      updateVisibleTiles()\n\n      self.include require(\"./map_rendering\")\n\n      return self\n",
+      "content": "Map\n===\n\nThe primary tactical combat screen.\n\n    Ability = require \"./ability\"\n    Graph = require \"./graph\"\n    MapGenerator = require \"./map_generator\"\n    MapSearch = require \"./map_search\"\n    Squad = require \"./squad\"\n\n    {\n      intersection\n    } = require \"./array_helpers\"\n\n    moveDirections = [\n      Point(1, 0)\n      Point(-1, 0)\n      Point(0, 1)\n      Point(0, -1)\n    ]\n\n    module.exports = (I={}, self) ->\n      self ?= Core(I)\n\n      grid = MapGenerator.generate\n        width: 32\n        height: 18\n\n      tileAt = grid.get\n\n      updateVisibleTiles = ->\n        grid.each (tile) ->\n          tile.lit = []\n\n        squads.forEach (squad, i) ->\n          squad.characters().filter (character) ->\n            character.alive()\n          .forEach (duder) ->\n            search.visible(duder.position(), duder.sight()).map(tileAt).forEach (tile) ->\n              tile.seen[i] = tile.lit[i] = true\n\n      squads = [\n        Squad()\n        Squad\n          race: \"goblin\"\n          x: 30\n      ]\n\n      activeSquad = Observable squads.first()\n\n      nextActivatableSquad = ->\n        squads.filter (squad) ->\n          squad.activeCharacter()\n        .first()\n\n      characterPassable = (character) ->\n        (position) ->\n          if tile = tileAt(position)\n            if occupant = characterAt(position)\n              occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)\n            else\n              occupantPassable = true\n\n            !tile.solid and tile.lit[self.activeSquadIndex()] and occupantPassable\n\n      characterAt = (x, y) ->\n        if x.x?\n          {x, y} = x\n\n        self.characters().filter (character) ->\n          position = character.position()\n          character.alive() and (position.x is x and position.y is y)\n        .first()\n\n      search = MapSearch(grid.get, characterAt)\n\n      Object.extend self,\n        activeSquadIndex: ->\n          squads.indexOf activeSquad()\n\n        characters: Observable ->\n          squads.map (squad) ->\n            squad.characters()\n          .flatten()\n\n        characterAt: characterAt\n\n        eachTile: grid.each\n\n        visibleCharacters: ->\n          index = self.activeSquadIndex()\n          self.characters().filter (character) ->\n            tileAt(character.position()).lit[index]\n\n        activeCharacter: Observable ->\n          # Dependencies for observable\n          squads.forEach (squad) ->\n            squad.activeCharacter()\n\n          activeSquad()?.activeCharacter()\n\n        targettingAbility: ->\n          if character = self.activeCharacter()\n            character.targettingAbility()\n\n        accessiblePositions: ->\n          character = self.activeCharacter()\n\n          if ability = self.targettingAbility()\n            switch ability.targetZone()\n              when Ability.TARGET_ZONE.SELF\n                self.performAbility(character, ability, character.position())\n\n                return\n              when Ability.TARGET_ZONE.MOVEMENT\n                accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))\n\n                accessiblePositions.reject (position) ->\n                  characterAt(position)\n\n              when Ability.TARGET_ZONE.LINE_OF_SIGHT\n                visiblePositions = search.visible(character.position(), character.sight())\n                positionsInRange = search.adjacent(character.position(), ability.range())\n\n                intersection(\n                  visiblePositions\n                  positionsInRange\n                )\n\n        stateBasedActions: ->\n          squads.forEach (squad) ->\n            squad.stateBasedActions()\n\n          activeSquad nextActivatableSquad()\n\n          updateVisibleTiles()\n\n          unless self.activeCharacter()\n            # End of Round\n            self.ready()\n\n        ready: ->\n          # Refresh all squads\n          squads.forEach (squad) ->\n            squad.ready()\n\n          activeSquad nextActivatableSquad()\n\n          if activeSquad()\n            self.stateBasedActions()\n          else\n            ;# No survivors\n\n        addEffect: (effect, position) ->\n          effect.perform\n            characterAt: characterAt\n            position: position\n            tileAt: tileAt\n            message: -> #TODO Hook up to messages\n\n        performAbility: (owner, ability, targetPosition) ->\n          ability.perform owner,\n            position: targetPosition\n            character: characterAt targetPosition\n            addEffect: self.addEffect\n\n          self.stateBasedActions()\n\n        selectTarget: (position) ->\n          ability = self.targettingAbility()\n\n          switch ability.targetZone()\n            when Ability.TARGET_ZONE.MOVEMENT\n              self.moveDuder(position)\n            else\n              self.performAbility(self.activeCharacter(), ability, position)\n\n        touch: (position) ->\n          activeSquad()?.activateCharacterAt(position)\n\n        moveDuder: (position) ->\n          character = self.activeCharacter()\n\n          path = search.movementPath(\n            character.position(),\n            position,\n            characterPassable(character)\n          )\n\n          if path\n            index = self.activeSquadIndex()\n            path.forEach (position) ->\n              search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) ->\n                tile.seen[index] = true\n\n            self.performAbility(character, self.targettingAbility(), position)\n\n      updateVisibleTiles()\n\n      self.include require(\"./map_rendering\")\n\n      return self\n",
+      "type": "blob"
+    },
+    "map_generator.coffee.md": {
+      "path": "map_generator.coffee.md",
+      "mode": "100644",
+      "content": "Map Generator\n=============\n\n    Feature = require \"./feature\"\n    {Grid} = require \"./lib/util\"\n    Resource = require \"./resource\"\n\nHold the terrain and whatnot for a level.\n\n    groundSprites = [\"ground\", \"frozen\", \"stone\"].map (type) ->\n      [0..7].map (i) ->\n        \"#{type}#{i}\"\n      .map Resource.sprite\n\n    bushSprites = [0..3].map (i)->\n      Resource.sprite(\"bush#{i}\")\n\n    wallSprites = [0..3].map (i) ->\n      Resource.sprite(\"brick_vines#{i}\")\n\n    wall = ->\n      sprite: wallSprites.rand()\n      lit: []\n      seen: []\n      opaque: true\n      solid: true\n      features: []\n\n    ground = ->\n      bush = rand() < 0.1\n\n      sprite: groundSprites[0].rand()\n      lit: []\n      seen: []\n      opaque: bush\n      solid: false\n      features: [0...bush].map ->\n        Feature\n          spriteName: \"bush\" + rand(4)\n          zIndex: 1\n\n    module.exports =\n      generate: (size) ->\n        Grid size, (x, y) ->\n          if rand() < 0.10\n            wall()\n          else\n            ground()\n",
       "type": "blob"
     },
     "map_rendering.coffee.md": {
       "path": "map_rendering.coffee.md",
       "mode": "100644",
-      "content": "Map Rendering\n=============\n\nDrawing the map data on the screen.\n\n    {Size, Bounds} = require \"./lib/util\"\n    Resource = require \"./resource\"\n\n    skeleton = Resource.sprite \"skeleton\"\n\n    tileSize = Size(32, 32)\n    \n    drawGround = (tiles, canvas) ->\n      tiles.forEach ([{sprite}, position]) ->\n        sprite.draw canvas, position.scale(tileSize)\n    \n    drawFeatures = (tiles, canvas) ->\n      tiles.forEach ([{features}, position]) ->\n        features.forEach (feature) ->\n          feature.draw canvas, position.scale(tileSize)\n\n    drawCharacters = (tiles, characterAt, canvas, t) ->\n      tiles.forEach ([_, position]) ->\n        bounce = Point(Math.cos(Math.TAU * t / 12), 0).scale(2).floor()\n        canvasPosition = position.scale(tileSize).add(bounce)\n\n        if character = characterAt(position)\n          if character.alive()\n            character.sprite().draw(canvas, canvasPosition)\n          else\n            skeletonSprite.draw(canvas, canvasPosition)\n\n    drawFog = (tiles, canvas) ->\n      tiles.forEach ([_, position]) ->\n        bounds = Bounds(position.scale(tileSize), tileSize)\n        bounds.color = \"rgba(0, 0, 0, 0.5)\"\n\n        canvas.drawRect(bounds)\n\n    module.exports = (I={}, self) ->\n      I.backgroundColor ?= \"#222034\"\n\n      Object.extend self,\n        # TODO: Grid#filter\n        seenTiles: (index) ->\n          results = []\n\n          self.eachTile (tile, position) ->\n            results.push [tile, position] if tile.seen[index]\n\n          results\n\n        render: (canvas, t) ->\n          canvas.fill I.backgroundColor\n\n          index = self.activeSquadIndex()\n          seenTiles = self.seenTiles(index)\n          \n          drawGround(seenTiles, canvas)\n          \n          [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->\n            tile.lit[index]\n\n          drawCharacters(litTiles, self.characterAt, canvas, t)\n          drawFeatures(seenTiles, canvas)\n          drawFog(unlitTiles, canvas)\n",
+      "content": "Map Rendering\n=============\n\nDrawing the map data on the screen.\n\n    {Size, Bounds} = require \"./lib/util\"\n    Resource = require \"./resource\"\n\n    skeleton = Resource.sprite \"skeleton\"\n\n    tileSize = Size(32, 32)\n\n    drawGround = (tiles, canvas) ->\n      tiles.forEach ([{sprite}, position]) ->\n        sprite.draw canvas, position.scale(tileSize)\n\n    drawFeatures = (tiles, canvas) ->\n      tiles.forEach ([{features}, position]) ->\n        features.forEach (feature) ->\n          feature.draw canvas, position.scale(tileSize)\n\n    drawCharacters = (tiles, characterAt, canvas, t) ->\n      tiles.forEach ([_, position]) ->\n        canvasPosition = position.scale(tileSize)\n\n        if character = characterAt(position)\n          if character.alive()\n            character.sprite().draw(canvas, canvasPosition)\n          else\n            skeletonSprite.draw(canvas, canvasPosition)\n\n    drawFog = (tiles, canvas) ->\n      tiles.forEach ([_, position]) ->\n        bounds = Bounds(position.scale(tileSize), tileSize)\n        bounds.color = \"rgba(0, 0, 0, 0.5)\"\n\n        canvas.drawRect(bounds)\n\n    module.exports = (I={}, self) ->\n      I.backgroundColor ?= \"#222034\"\n\n      Object.extend self,\n        # TODO: Grid#filter\n        seenTiles: (index) ->\n          results = []\n\n          self.eachTile (tile, position) ->\n            results.push [tile, position] if tile.seen[index]\n\n          results\n\n        render: (canvas, t) ->\n          canvas.fill I.backgroundColor\n\n          index = self.activeSquadIndex()\n          seenTiles = self.seenTiles(index)\n\n          drawGround(seenTiles, canvas)\n\n          [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->\n            tile.lit[index]\n\n          drawCharacters(litTiles, self.characterAt, canvas, t)\n          drawFeatures(seenTiles, canvas)\n          drawFog(unlitTiles, canvas)\n",
       "type": "blob"
     },
     "map_search.coffee.md": {
       "path": "map_search.coffee.md",
       "mode": "100644",
       "content": "Map Search\n==========\n\n    Graph = require \"./graph\"\n    FOV = require \"./field_of_vision\"\n\n    {sqrt} = Math\n\n    {\n      indexOf\n      intersection\n      unique\n      without\n    } = require \"./array_helpers\"\n\nHere's a dumping ground for all the specifics of how we use A* and other graph\nsearch algorithms with our tile data objects. It's the glue between\nabstract graph searching and our concrete implementation.\n\n    cardinalDirections = [\n      Point(0, -1)\n      Point(1, 0)\n      Point(0, 1)\n      Point(-1, 0)\n    ]\n\n    calculateDiagonals = (directions) ->\n      results = []\n      directions.eachPair (a, b) ->\n        results.push a.add(b)\n\n      without(unique(results), Point.ZERO)\n\n    ordinalDirections = calculateDiagonals(cardinalDirections)\n\n    directionsWithCosts = cardinalDirections.map (direction) ->\n      [direction, 1]\n    .concat ordinalDirections.map (direction) ->\n      [direction, sqrt(2)]\n\nReturn an array of [position, cost] pairs that represents locations that can\nbe reached immediately from the given position.\n\nThe passed in `get` function returns the tile for a given position so that we\nmay query its properties and figure out what to do.\n\n    neighborsVisible = (position, getTile, getEntities, passable) ->\n      # TODO: Add diagonals if both edges are passable\n      cardinalDirections.map (direction) ->\n        position.add(direction)\n      .filter(passable)\n      .map (position) ->\n        [position, 1]\n\n    adjacentPositions = (position) ->\n      directionsWithCosts.map ([direction, cost]) ->\n        [position.add(direction), cost]\n\n    strategy = (pattern, getTile, getEntities, index) ->\n      (position) ->\n        pattern(position, getTile, getEntities, index)\n\n    module.exports = (getTile, getEntities) ->\n\nReturns a list of all positions accessible to the duder by normal movement\nthrough tiles.\n\n      accessible: (position, range, passable) ->\n        Graph.accessible\n          initial: position\n          neighbors: strategy neighborsVisible, getTile, getEntities, passable\n          distanceMax: range\n\n      adjacent: (position, range=sqrt(2)) ->\n        Graph.accessible\n          initial: position\n          neighbors: adjacentPositions\n          distanceMax: range\n\n      visible: (position, range=1) ->\n        FOV.calculate(getTile, position, range)\n\n      movementPath: (position, target, passable) ->\n        Graph.aStar\n          initial: position\n          goal: target\n          neighbors: strategy neighborsVisible, getTile, getEntities, passable\n          heuristic: (a, b) ->\n            {x, y} = b.subtract(a).abs()\n\n            x + y # Manhattan distance\n",
+      "type": "blob"
+    },
+    "map_tile.coffee.md": {
+      "path": "map_tile.coffee.md",
+      "mode": "100644",
+      "content": "Map Tile\n========\n\nA tile in the tactical combat screen.\n\n    module.exports = (I={}, self=Core(I)) ->\n      \n      return self\n",
       "type": "blob"
     },
     "names.coffee.md": {
@@ -138,25 +308,19 @@ require('./main')
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\"\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\ndependencies:\n  appcache: \"STRd6/appcache:v0.1.0\"\n  compression: \"STRd6/lz-string:v1.3.3\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n",
+      "content": "version: \"0.1.0\"\nwidth: 1024\nheight: 576\nremoteDependencies: [\n  \"//code.jquery.com/jquery-1.10.1.min.js\"\n  \"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\"\n  \"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"\n]\ndependencies:\n  appcache: \"STRd6/appcache:v0.1.0\"\n  compression: \"STRd6/lz-string:v1.3.3\"\n  priority_queue: \"STRd6/priority_queue:v2.0.0-pre\"\n  runtime: \"STRd6/runtime:v0.1.1\"\n  sprite: \"distri/sprite:v0.1.1\"\n  \"touch-canvas\": \"STRd6/touch-canvas:v0.2.0\"\n",
       "type": "blob"
     },
     "resource.coffee.md": {
       "path": "resource.coffee.md",
       "mode": "100644",
-      "content": "Resource\n========\n\nA loader for resources in games and stuff.\n\nWe primarily want to load resources from localStorage or resource packfiles\nbundled with the page or downloaded from the internet.\n\nI don't know what packfiles are yet, but the seem like a good way to package up\nresources.\n\nLocally we can look up pngs by name and return data-urls.\n\nWe may even want to store the data-urls as compressed data, but that seems\nexcessive.\n\n    Sprite = require \"./sprite\"\n    cache = require \"./images\"\n\n    Resource =\n      dataURL: (name) ->\n        cache[name]\n      sprite: (name) ->\n        Sprite.load cache[name]\n\n    module.exports = Resource\n",
+      "content": "Resource\n========\n\nA loader for resources in games and stuff.\n\nWe primarily want to load resources from localStorage or resource packfiles\nbundled with the page or downloaded from the internet.\n\nI don't know what packfiles are yet, but the seem like a good way to package up\nresources.\n\nLocally we can look up pngs by name and return data-urls.\n\nWe may even want to store the data-urls as compressed data, but that seems\nexcessive.\n\n    Sprite = require \"sprite\"\n    images = require \"./images\"\n\n    Resource =\n      dataURL: (name) ->\n        images[name]\n      sprite: (name) ->\n        Sprite.load images[name]\n\n    module.exports = Resource\n",
       "type": "blob"
     },
     "setup.coffee.md": {
       "path": "setup.coffee.md",
       "mode": "100644",
       "content": "Setup\n=====\n\nSet up our runtime styles and expose some stuff for debugging.\n\n    # For debug purposes\n    global.PACKAGE = PACKAGE\n    global.require = require\n\n    runtime = require(\"runtime\")(PACKAGE)\n    runtime.boot()\n    runtime.applyStyleSheet(require('./style'))\n\n    # Updating Application Cache and prompting for new version\n    require \"appcache\"\n",
-      "type": "blob"
-    },
-    "sprite.coffee.md": {
-      "path": "sprite.coffee.md",
-      "mode": "100644",
-      "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        if x.x?\n          {x, y} = x\n\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n\nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n\n      width: width\n      height: height\n      image: image\n\nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n\n      sprites = []\n      image = new Image()\n\n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        loadedCallback?.defer(sprite)\n        return sprite\n\n      img = new Image()\n      proxy = LoaderProxy()\n\n      img.onload = ->\n        spriteCache[url] = Object.extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n\nLoad a sprite with the given name. The first parameter is name The name of the\nimage in your images directory. The second parameter is a callback function to\nexecute once the image is loaded. The sprite proxy data is passed to this as a parameter.\n\n    Sprite.loadByName = (name, callback) ->\n      Sprite.load(ResourceLoader.urlFor(\"images\", name), callback)\n\n    module.exports = Sprite\n",
       "type": "blob"
     },
     "squad.coffee.md": {
@@ -187,6 +351,12 @@ require('./main')
       "path": "test/array_helpers.coffee",
       "mode": "100644",
       "content": "{intersection, indexOf} = require \"../array_helpers\"\n\nNumber::equal = (other) ->\n  (this + 0) == other\n\ndescribe \"Array Helpers\", ->\n  it \"indexOf\", ->\n    assert indexOf([1, 2, 3], 2) is 1\n\n  it \"intersection\", ->\n    result = intersection [Point(1, 1), Point(2, 1), Point(3, 1)], [Point(1, 1)]\n\n    assert result.length is 1\n",
+      "type": "blob"
+    },
+    "type.coffee.md": {
+      "path": "type.coffee.md",
+      "mode": "100644",
+      "content": "Type\n====\n\nHolding all the types of things. Keeping all the types here really just helps\nwith static analysis. It's possible to use strings to hold and compare types\nand for new ones or extensions and modules that may be fine. Eventually they'll\nend up here if they're important.\n\nHelpers\n-------\n\n    toObject = (list) ->\n      list.split(\"\\n\").reduce (object, item) ->\n        object[item] = item.toLowerCase()\n\n        object\n      , {}\n\nList\n----\n\n    module.exports = toObject \"\"\"\n      Dirt\n      Plant\n      Water\n      Ice\n      Fire\n    \"\"\"\n",
       "type": "blob"
     }
   },
@@ -221,6 +391,11 @@ require('./main')
       "content": "(function() {\n  var Resource, lavaSprites;\n\n  Resource = require(\"./resource\");\n\n  lavaSprites = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(function(n) {\n    return Resource.sprite(\"lava\" + n);\n  });\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    return {\n      perform: function(_arg) {\n        var character, characterAt, message, position, tile, tileAt;\n        position = _arg.position, tileAt = _arg.tileAt, characterAt = _arg.characterAt, message = _arg.message;\n        if (tile = tileAt(position)) {\n          Object.extend(tile, {\n            opaque: false,\n            solid: false,\n            features: [],\n            sprite: lavaSprites.rand()\n          });\n          if (character = characterAt(position)) {\n            message(\"\" + (character.name()) + \" is burned!\");\n            return character.damage(2);\n          }\n        }\n      }\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=effect.coffee",
       "type": "blob"
     },
+    "feature": {
+      "path": "feature",
+      "content": "(function() {\n  var Feature, Resource, Sprite, Type;\n\n  Resource = require(\"./resource\");\n\n  Sprite = require(\"sprite\");\n\n  Type = require(\"./type\");\n\n  module.exports = Feature = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    Object.defaults(I, {\n      movementPenalty: 0,\n      opaque: false,\n      type: Type.Dirt,\n      zIndex: -1\n    });\n    self.attrAccessor(\"movementPenalty\", \"opaque\", \"type\", \"zIndex\");\n    Object.extend(self, {\n      draw: function() {\n        var _ref;\n        return (_ref = self.sprite()).draw.apply(_ref, arguments);\n      },\n      sprite: function() {\n        return Resource.sprite(I.spriteName) || Sprite.NONE;\n      }\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=feature.coffee",
+      "type": "blob"
+    },
     "field_of_vision": {
       "path": "field_of_vision",
       "content": "(function() {\n  var calculateOctant, colors, debug, debugTile, markTile, mult;\n\n  mult = [[1, 0, 0, -1, -1, 0, 0, 1], [0, 1, -1, 0, 0, -1, 1, 0], [0, 1, 1, 0, 0, -1, -1, 0], [1, 0, 0, 1, -1, 0, 0, -1]];\n\n  debug = false;\n\n  colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [0, 1, 1], [1, 0, 1]].map(function(values) {\n    var rgb;\n    rgb = values.map(function(value) {\n      return value * 255;\n    }).join(\",\");\n    return \"rgba(\" + rgb + \", 0.125)\";\n  });\n\n  calculateOctant = function(positions, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) {\n    var X, Y, done, dx, dy, new_start, radius_squared, tile, _i, _results,\n      _this = this;\n    tile = tileAt(cx, cy);\n    positions.push(Point(cx, cy));\n    new_start = 0;\n    if (start < end) {\n      return;\n    }\n    radius_squared = radius * radius;\n    dx = -row;\n    dy = -row;\n    X = cx + dx * xx + dy * xy;\n    Y = cy + dx * yx + dy * yy;\n    if (id > 0) {\n      markTile(Point(X, Y), 4);\n    }\n    if (!(row <= radius)) {\n      return;\n    }\n    done = false;\n    return (function() {\n      _results = [];\n      for (var _i = row; row <= radius ? _i <= radius : _i >= radius; row <= radius ? _i++ : _i--){ _results.push(_i); }\n      return _results;\n    }).apply(this).forEach(function(i) {\n      var blocked, d, l_slope, r_slope;\n      if (done) {\n        return;\n      }\n      dx = -i - 1;\n      dy = -i;\n      blocked = false;\n      while (dx <= 0) {\n        dx += 1;\n        X = cx + dx * xx + dy * xy;\n        Y = cy + dx * yx + dy * yy;\n        d = radius - Math.sqrt(dx * dx + dy * dy);\n        debugTile(Point(X, Y), \"\" + (d.toFixed(2)));\n        if (tile = tileAt(X, Y)) {\n          l_slope = (dx - 0.5) / (dy + 0.5);\n          r_slope = (dx + 0.5) / (dy - 0.5);\n          if (start < r_slope) {\n            continue;\n          } else if (end > l_slope) {\n            break;\n          } else {\n            if (dx * dx + dy * dy < radius_squared) {\n              positions.push(Point(X, Y));\n            }\n            if (blocked) {\n              if (tile.opaque) {\n                markTile(Point(X, Y), 1);\n                new_start = r_slope;\n                continue;\n              } else {\n                markTile(Point(X, Y), 2);\n                blocked = false;\n                start = new_start;\n              }\n            } else {\n              if (tile.opaque) {\n                markTile(Point(X, Y), 0);\n                blocked = true;\n                calculateOctant(positions, tileAt, cx, cy, i + 1, start, l_slope, radius, xx, xy, yx, yy, id + 1);\n                new_start = r_slope;\n              }\n            }\n          }\n        }\n      }\n      if (blocked) {\n        return done = true;\n      }\n    });\n  };\n\n  module.exports = {\n    calculate: function(tileAt, position, radius) {\n      var positions, tile,\n        _this = this;\n      positions = [];\n      [0, 1, 2, 3, 4, 5, 6, 7].forEach(function(i) {\n        var xx, xy, yx, yy;\n        xx = mult[0][i];\n        xy = mult[1][i];\n        yx = mult[2][i];\n        yy = mult[3][i];\n        return calculateOctant(positions, tileAt, position.x, position.y, 0, 1.0, 0.0, radius, xx, xy, yx, yy, 0);\n      });\n      tile = tileAt(position.x, position.y);\n      positions.push(position);\n      return positions;\n    }\n  };\n\n  debugTile = function(position, message) {\n    if (!debug) {\n      return;\n    }\n    return setTimeout(function() {\n      return message.split(\"\\n\").forEach(function(part, i) {\n        return canvas.centerText({\n          position: position.add(Point(0.5, 0.5)).scale(32).add(Point(0, i).scale(12)),\n          text: part,\n          color: \"white\"\n        });\n      });\n    }, 0);\n  };\n\n  markTile = function(position, color) {\n    if (!debug) {\n      return;\n    }\n    return setTimeout(function() {\n      return canvas.drawRect({\n        position: position.scale(32),\n        width: 32,\n        height: 32,\n        color: colors[color]\n      });\n    }, 0);\n  };\n\n}).call(this);\n\n//# sourceURL=field_of_vision.coffee",
@@ -243,27 +418,37 @@ require('./main')
     },
     "lib/util": {
       "path": "lib/util",
-      "content": "(function() {\n  var Bounds, Size, isObject;\n\n  global.Deferred = jQuery.Deferred;\n\n  isObject = function(object) {\n    return Object.prototype.toString.call(object) === \"[object Object]\";\n  };\n\n  Size = function(width, height) {\n    var _ref;\n    if (isObject(width)) {\n      _ref = width, width = _ref.width, height = _ref.height;\n    }\n    return {\n      width: width,\n      height: height,\n      __proto__: Size.prototype\n    };\n  };\n\n  Size.prototype = {\n    scale: function(scalar) {\n      return Size(this.width * scalar, this.height * scalar);\n    },\n    toString: function() {\n      return \"Size(\" + this.width + \", \" + this.height + \")\";\n    },\n    each: function(iterator) {\n      var _i, _ref, _results;\n      return (function() {\n        _results = [];\n        for (var _i = 0, _ref = this.height; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n        return _results;\n      }).apply(this).forEach(function(y) {\n        var _i, _ref, _results;\n        return (function() {\n          _results = [];\n          for (var _i = 0, _ref = this.width; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n          return _results;\n        }).apply(this).forEach(function(x) {\n          return iterator(x, y);\n        });\n      });\n    }\n  };\n\n  Bounds = function(_arg, _arg1) {\n    var height, width, x, y;\n    x = _arg.x, y = _arg.y;\n    width = _arg1.width, height = _arg1.height;\n    return {\n      x: x,\n      y: y,\n      width: width,\n      height: height\n    };\n  };\n\n  Bounds.prototype = {\n    toString: function() {\n      return \"Bounds({\" + this.x + \", \" + this.y + \"}, {\" + this.width + \", \" + this.height + \"})\";\n    }\n  };\n\n  Point.prototype.scale = function(scalar) {\n    if (isObject(scalar)) {\n      return Point(this.x * scalar.width, this.y * scalar.height);\n    } else {\n      return Point(this.x * scalar, this.y * scalar);\n    }\n  };\n\n  Point.prototype.sign = function() {\n    return Point(this.x.sign(), this.y.sign());\n  };\n\n  module.exports = {\n    Bounds: Bounds,\n    Size: Size,\n    Grid: function(width, height, defaultValue) {\n      var generateValue, grid, self, _i, _results;\n      generateValue = function(x, y) {\n        if (typeof defaultValue === \"function\") {\n          return defaultValue(x, y);\n        } else {\n          return defaultValue;\n        }\n      };\n      grid = (function() {\n        _results = [];\n        for (var _i = 0; 0 <= height ? _i < height : _i > height; 0 <= height ? _i++ : _i--){ _results.push(_i); }\n        return _results;\n      }).apply(this).map(function(y) {\n        var _i, _results;\n        return (function() {\n          _results = [];\n          for (var _i = 0; 0 <= width ? _i < width : _i > width; 0 <= width ? _i++ : _i--){ _results.push(_i); }\n          return _results;\n        }).apply(this).map(function(x) {\n          return generateValue(x, y);\n        });\n      });\n      self = {\n        contract: function(x, y) {\n          height -= y;\n          width -= x;\n          grid.length = height;\n          grid.forEach(function(row) {\n            return row.length = width;\n          });\n          return self;\n        },\n        copy: function() {\n          return Grid(width, height, self.get);\n        },\n        get: function(x, y) {\n          var _ref;\n          if (x.x != null) {\n            _ref = x, x = _ref.x, y = _ref.y;\n          }\n          if (x < 0 || x >= width) {\n            return;\n          }\n          if (y < 0 || y >= height) {\n            return;\n          }\n          return grid[y][x];\n        },\n        set: function(x, y, value) {\n          var _ref;\n          if (x.x != null) {\n            _ref = x, x = _ref.x, y = _ref.y;\n          }\n          if (x < 0 || x >= width) {\n            return;\n          }\n          if (y < 0 || y >= height) {\n            return;\n          }\n          return grid[y][x] = value;\n        },\n        each: function(iterator) {\n          grid.forEach(function(row, y) {\n            return row.forEach(function(value, x) {\n              return iterator(value, Point(x, y), self);\n            });\n          });\n          return self;\n        },\n        expand: function(x, y) {\n          var newRows, _j, _results1;\n          newRows = (function() {\n            _results1 = [];\n            for (var _j = 0; 0 <= y ? _j < y : _j > y; 0 <= y ? _j++ : _j--){ _results1.push(_j); }\n            return _results1;\n          }).apply(this).map(function(y) {\n            var _j, _results1;\n            return (function() {\n              _results1 = [];\n              for (var _j = 0; 0 <= width ? _j < width : _j > width; 0 <= width ? _j++ : _j--){ _results1.push(_j); }\n              return _results1;\n            }).apply(this).map(function(x) {\n              return generateValue(x, y + height);\n            });\n          });\n          grid = grid.concat(newRows);\n          grid = grid.map(function(row, y) {\n            var _k, _results2;\n            return row.concat((function() {\n              _results2 = [];\n              for (var _k = 0; 0 <= x ? _k < x : _k > x; 0 <= x ? _k++ : _k--){ _results2.push(_k); }\n              return _results2;\n            }).apply(this).map(function(x) {\n              return generateValue(width + x, y);\n            }));\n          });\n          height = y + height;\n          width = x + width;\n          return self;\n        },\n        toArray: function() {\n          return grid.reduce(function(a, b) {\n            return a.concat(b);\n          }, []);\n        }\n      };\n      return self;\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=lib/util.coffee",
+      "content": "(function() {\n  var Bounds, Size, isObject;\n\n  global.Deferred = jQuery.Deferred;\n\n  isObject = function(object) {\n    return Object.prototype.toString.call(object) === \"[object Object]\";\n  };\n\n  Size = function(width, height) {\n    var _ref;\n    if (isObject(width)) {\n      _ref = width, width = _ref.width, height = _ref.height;\n    }\n    return {\n      width: width,\n      height: height,\n      __proto__: Size.prototype\n    };\n  };\n\n  Size.prototype = {\n    scale: function(scalar) {\n      return Size(this.width * scalar, this.height * scalar);\n    },\n    toString: function() {\n      return \"Size(\" + this.width + \", \" + this.height + \")\";\n    },\n    each: function(iterator) {\n      var _i, _ref, _results;\n      return (function() {\n        _results = [];\n        for (var _i = 0, _ref = this.height; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n        return _results;\n      }).apply(this).forEach(function(y) {\n        var _i, _ref, _results;\n        return (function() {\n          _results = [];\n          for (var _i = 0, _ref = this.width; 0 <= _ref ? _i < _ref : _i > _ref; 0 <= _ref ? _i++ : _i--){ _results.push(_i); }\n          return _results;\n        }).apply(this).forEach(function(x) {\n          return iterator(x, y);\n        });\n      });\n    }\n  };\n\n  Bounds = function(_arg, _arg1) {\n    var height, width, x, y;\n    x = _arg.x, y = _arg.y;\n    width = _arg1.width, height = _arg1.height;\n    return {\n      x: x,\n      y: y,\n      width: width,\n      height: height\n    };\n  };\n\n  Bounds.prototype = {\n    toString: function() {\n      return \"Bounds({\" + this.x + \", \" + this.y + \"}, {\" + this.width + \", \" + this.height + \"})\";\n    }\n  };\n\n  Point.prototype.scale = function(scalar) {\n    if (isObject(scalar)) {\n      return Point(this.x * scalar.width, this.y * scalar.height);\n    } else {\n      return Point(this.x * scalar, this.y * scalar);\n    }\n  };\n\n  Point.prototype.sign = function() {\n    return Point(this.x.sign(), this.y.sign());\n  };\n\n  module.exports = {\n    Bounds: Bounds,\n    Size: Size,\n    Grid: function(_arg, defaultValue) {\n      var generateValue, grid, height, self, width, _i, _results;\n      width = _arg.width, height = _arg.height;\n      generateValue = function(x, y) {\n        if (typeof defaultValue === \"function\") {\n          return defaultValue(x, y);\n        } else {\n          return defaultValue;\n        }\n      };\n      grid = (function() {\n        _results = [];\n        for (var _i = 0; 0 <= height ? _i < height : _i > height; 0 <= height ? _i++ : _i--){ _results.push(_i); }\n        return _results;\n      }).apply(this).map(function(y) {\n        var _i, _results;\n        return (function() {\n          _results = [];\n          for (var _i = 0; 0 <= width ? _i < width : _i > width; 0 <= width ? _i++ : _i--){ _results.push(_i); }\n          return _results;\n        }).apply(this).map(function(x) {\n          return generateValue(x, y);\n        });\n      });\n      self = {\n        contract: function(x, y) {\n          height -= y;\n          width -= x;\n          grid.length = height;\n          grid.forEach(function(row) {\n            return row.length = width;\n          });\n          return self;\n        },\n        copy: function() {\n          return Grid(width, height, self.get);\n        },\n        get: function(x, y) {\n          var _ref;\n          if (x.x != null) {\n            _ref = x, x = _ref.x, y = _ref.y;\n          }\n          if (x < 0 || x >= width) {\n            return;\n          }\n          if (y < 0 || y >= height) {\n            return;\n          }\n          return grid[y][x];\n        },\n        set: function(x, y, value) {\n          var _ref;\n          if (x.x != null) {\n            _ref = x, x = _ref.x, y = _ref.y;\n          }\n          if (x < 0 || x >= width) {\n            return;\n          }\n          if (y < 0 || y >= height) {\n            return;\n          }\n          return grid[y][x] = value;\n        },\n        each: function(iterator) {\n          grid.forEach(function(row, y) {\n            return row.forEach(function(value, x) {\n              return iterator(value, Point(x, y), self);\n            });\n          });\n          return self;\n        },\n        expand: function(x, y) {\n          var newRows, _j, _results1;\n          newRows = (function() {\n            _results1 = [];\n            for (var _j = 0; 0 <= y ? _j < y : _j > y; 0 <= y ? _j++ : _j--){ _results1.push(_j); }\n            return _results1;\n          }).apply(this).map(function(y) {\n            var _j, _results1;\n            return (function() {\n              _results1 = [];\n              for (var _j = 0; 0 <= width ? _j < width : _j > width; 0 <= width ? _j++ : _j--){ _results1.push(_j); }\n              return _results1;\n            }).apply(this).map(function(x) {\n              return generateValue(x, y + height);\n            });\n          });\n          grid = grid.concat(newRows);\n          grid = grid.map(function(row, y) {\n            var _k, _results2;\n            return row.concat((function() {\n              _results2 = [];\n              for (var _k = 0; 0 <= x ? _k < x : _k > x; 0 <= x ? _k++ : _k--){ _results2.push(_k); }\n              return _results2;\n            }).apply(this).map(function(x) {\n              return generateValue(width + x, y);\n            }));\n          });\n          height = y + height;\n          width = x + width;\n          return self;\n        },\n        toArray: function() {\n          return grid.reduce(function(a, b) {\n            return a.concat(b);\n          }, []);\n        }\n      };\n      return self;\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=lib/util.coffee",
       "type": "blob"
     },
     "main": {
       "path": "main",
-      "content": "(function() {\n  var Action, Canvas, CharacterUI, Geom, Grid, Map, Resource, Size, accessiblePositions, activeCharacter, bgColor, canvas, gridSprite, height, map, t, tileExtent, ui, uiCanvas, update, updateUiCanvas, width, _ref, _ref1;\n\n  require(\"./setup\");\n\n  Canvas = require(\"touch-canvas\");\n\n  Action = require(\"./action\");\n\n  Resource = require(\"./resource\");\n\n  Map = require(\"./map\");\n\n  CharacterUI = require(\"./character_ui\");\n\n  _ref = require(\"./lib/util\"), Grid = _ref.Grid, Size = _ref.Size;\n\n  Geom = require(\"./lib/geom\");\n\n  _ref1 = require(\"./pixie\"), width = _ref1.width, height = _ref1.height;\n\n  tileExtent = Size(32, 18);\n\n  bgColor = \"#222034\";\n\n  global.canvas = canvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  canvas.fill(bgColor);\n\n  $(\"body\").append(canvas.element());\n\n  global.map = map = null;\n\n  activeCharacter = Observable();\n\n  ui = {\n    messages: Observable([\"Hello\\n\"]),\n    actions: Observable([\n      Action({\n        name: \"New Game\",\n        icon: \"new_game\",\n        perform: function() {\n          global.map = map = Map();\n          activeCharacter = map.activeCharacter;\n          activeCharacter.observe(function(character) {\n            if (character) {\n              return ui.actions(character.uiActions());\n            } else {\n              return ui.actions([]);\n            }\n          });\n          ui.actions(activeCharacter().uiActions());\n          return update();\n        }\n      }), Action({\n        name: \"Tutorial\",\n        icon: \"book\",\n        perform: function() {\n          return alert(\"Experience is the only teacher.\");\n        }\n      })\n    ]),\n    actionPerformed: function() {\n      return update();\n    }\n  };\n\n  $(\"body\").append(require(\"./templates/ui\")(ui));\n\n  accessiblePositions = null;\n\n  update = function() {\n    if (map) {\n      map.stateBasedActions();\n      return accessiblePositions = map.accessiblePositions();\n    }\n  };\n\n  t = 0;\n\n  setInterval(function() {\n    t += 0.3333333;\n    if (map != null) {\n      map.render(canvas, t);\n    }\n    return updateUiCanvas();\n  }, 33.3333333);\n\n  uiCanvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  uiCanvas.on(\"touch\", function(position) {\n    var inRange, tilePosition;\n    tilePosition = position.scale(tileExtent).floor();\n    if (accessiblePositions) {\n      inRange = accessiblePositions.reduce(function(found, position) {\n        return found || position.equal(tilePosition);\n      }, false);\n      if (inRange) {\n        map.selectTarget(tilePosition);\n        return update();\n      }\n    } else {\n      return map != null ? map.touch(tilePosition) : void 0;\n    }\n  });\n\n  gridSprite = Resource.sprite(\"grid_blue\");\n\n  updateUiCanvas = function() {\n    uiCanvas.clear();\n    if (map) {\n      map.visibleCharacters().forEach(function(duder) {\n        if (duder === activeCharacter()) {\n          return CharacterUI.activeTactical(uiCanvas, duder);\n        } else if (duder.alive()) {\n          return CharacterUI.tactical(uiCanvas, duder);\n        }\n      });\n      if (accessiblePositions) {\n        return accessiblePositions.forEach(function(position) {\n          return gridSprite.draw(uiCanvas, position.scale(32));\n        });\n      }\n    }\n  };\n\n  $(\".ui\").prepend(uiCanvas.element());\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+      "content": "(function() {\n  var Action, Canvas, CharacterUI, Geom, Grid, Map, Resource, Size, accessiblePositions, activeCharacter, bgColor, canvas, gridSprite, height, map, t, tileExtent, ui, uiCanvas, update, updateUiCanvas, width, _ref, _ref1;\n\n  require(\"./setup\");\n\n  Canvas = require(\"touch-canvas\");\n\n  Action = require(\"./action\");\n\n  Resource = require(\"./resource\");\n\n  Map = require(\"./map\");\n\n  CharacterUI = require(\"./character_ui\");\n\n  _ref = require(\"./lib/util\"), Grid = _ref.Grid, Size = _ref.Size;\n\n  Geom = require(\"./lib/geom\");\n\n  _ref1 = require(\"./pixie\"), width = _ref1.width, height = _ref1.height;\n\n  tileExtent = Size(32, 18);\n\n  global.allSprites = Object.keys(require(\"./images\")).map(Resource.sprite);\n\n  bgColor = \"#222034\";\n\n  global.canvas = canvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  canvas.fill(bgColor);\n\n  $(\"body\").append(canvas.element());\n\n  global.map = map = null;\n\n  activeCharacter = Observable();\n\n  ui = {\n    messages: Observable([\"Hello\\n\"]),\n    actions: Observable([\n      Action({\n        name: \"New Game\",\n        icon: \"new_game\",\n        perform: function() {\n          global.map = map = Map();\n          activeCharacter = map.activeCharacter;\n          activeCharacter.observe(function(character) {\n            if (character) {\n              return ui.actions(character.uiActions());\n            } else {\n              return ui.actions([]);\n            }\n          });\n          ui.actions(activeCharacter().uiActions());\n          return update();\n        }\n      }), Action({\n        name: \"Tutorial\",\n        icon: \"book\",\n        perform: function() {\n          return alert(\"Experience is the only teacher.\");\n        }\n      })\n    ]),\n    actionPerformed: function() {\n      return update();\n    }\n  };\n\n  $(\"body\").append(require(\"./templates/ui\")(ui));\n\n  accessiblePositions = null;\n\n  update = function() {\n    if (map) {\n      map.stateBasedActions();\n      return accessiblePositions = map.accessiblePositions();\n    }\n  };\n\n  t = 0;\n\n  setInterval(function() {\n    t += 0.3333333;\n    if (map != null) {\n      map.render(canvas, t);\n    }\n    return updateUiCanvas();\n  }, 33.3333333);\n\n  uiCanvas = Canvas({\n    width: width,\n    height: height\n  });\n\n  uiCanvas.on(\"touch\", function(position) {\n    var inRange, tilePosition;\n    tilePosition = position.scale(tileExtent).floor();\n    if (accessiblePositions) {\n      inRange = accessiblePositions.reduce(function(found, position) {\n        return found || position.equal(tilePosition);\n      }, false);\n      if (inRange) {\n        map.selectTarget(tilePosition);\n        return update();\n      }\n    } else {\n      return map != null ? map.touch(tilePosition) : void 0;\n    }\n  });\n\n  gridSprite = Resource.sprite(\"grid_blue\");\n\n  updateUiCanvas = function() {\n    uiCanvas.clear();\n    if (map) {\n      map.visibleCharacters().forEach(function(duder) {\n        if (duder === activeCharacter()) {\n          return CharacterUI.activeTactical(uiCanvas, duder);\n        } else if (duder.alive()) {\n          return CharacterUI.tactical(uiCanvas, duder);\n        }\n      });\n      if (accessiblePositions) {\n        return accessiblePositions.forEach(function(position) {\n          return gridSprite.draw(uiCanvas, position.scale(32));\n        });\n      }\n    }\n  };\n\n  $(\".ui\").prepend(uiCanvas.element());\n\n}).call(this);\n\n//# sourceURL=main.coffee",
       "type": "blob"
     },
     "map": {
       "path": "map",
-      "content": "(function() {\n  var Ability, Graph, Grid, MapSearch, Resource, Squad, bushSprites, ground, groundSprites, intersection, moveDirections, wall, wallSprites;\n\n  Ability = require(\"./ability\");\n\n  Resource = require(\"./resource\");\n\n  MapSearch = require(\"./map_search\");\n\n  Squad = require(\"./squad\");\n\n  Grid = require(\"./lib/util\").Grid;\n\n  Graph = require(\"./graph\");\n\n  intersection = require(\"./array_helpers\").intersection;\n\n  moveDirections = [Point(1, 0), Point(-1, 0), Point(0, 1), Point(0, -1)];\n\n  global.allSprites = Object.keys(require(\"./images\")).map(Resource.sprite);\n\n  groundSprites = [\"ground\", \"frozen\", \"stone\"].map(function(type) {\n    return [0, 1, 2, 3, 4, 5, 6, 7].map(function(i) {\n      return \"\" + type + i;\n    }).map(Resource.sprite);\n  });\n\n  bushSprites = [0, 1, 2, 3].map(function(i) {\n    return Resource.sprite(\"bush\" + i);\n  });\n\n  wallSprites = [0, 1, 2, 3].map(function(i) {\n    return Resource.sprite(\"brick_vines\" + i);\n  });\n\n  wall = function() {\n    return {\n      sprite: wallSprites.rand(),\n      lit: [],\n      seen: [],\n      opaque: true,\n      solid: true,\n      features: []\n    };\n  };\n\n  ground = function() {\n    var bush, _i, _results;\n    bush = rand() < 0.1;\n    return {\n      sprite: groundSprites[0].rand(),\n      lit: [],\n      seen: [],\n      opaque: bush,\n      solid: false,\n      features: (function() {\n        _results = [];\n        for (var _i = 0; 0 <= bush ? _i < bush : _i > bush; 0 <= bush ? _i++ : _i--){ _results.push(_i); }\n        return _results;\n      }).apply(this).map(function() {\n        return bushSprites.rand();\n      })\n    };\n  };\n\n  module.exports = function(I, self) {\n    var activeSquad, characterAt, characterPassable, grid, nextActivatableSquad, search, squads, tileAt, updateVisibleTiles;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    grid = Grid(32, 18, function(x, y) {\n      if (rand() < 0.10) {\n        return wall();\n      } else {\n        return ground();\n      }\n    });\n    tileAt = grid.get;\n    updateVisibleTiles = function() {\n      grid.each(function(tile) {\n        return tile.lit = [];\n      });\n      return squads.forEach(function(squad, i) {\n        return squad.characters().filter(function(character) {\n          return character.alive();\n        }).forEach(function(duder) {\n          return search.visible(duder.position(), duder.sight()).map(tileAt).forEach(function(tile) {\n            return tile.seen[i] = tile.lit[i] = true;\n          });\n        });\n      });\n    };\n    squads = [\n      Squad(), Squad({\n        race: \"goblin\",\n        x: 30\n      })\n    ];\n    activeSquad = Observable(squads.first());\n    nextActivatableSquad = function() {\n      return squads.filter(function(squad) {\n        return squad.activeCharacter();\n      }).first();\n    };\n    characterPassable = function(character) {\n      return function(position) {\n        var occupant, occupantPassable, tile;\n        if (tile = tileAt(position)) {\n          if (occupant = characterAt(position)) {\n            occupantPassable = activeSquad().characters.indexOf(occupant) !== -1;\n          } else {\n            occupantPassable = true;\n          }\n          return !tile.solid && tile.lit[self.activeSquadIndex()] && occupantPassable;\n        }\n      };\n    };\n    characterAt = function(x, y) {\n      var _ref;\n      if (x.x != null) {\n        _ref = x, x = _ref.x, y = _ref.y;\n      }\n      return self.characters().filter(function(character) {\n        var position;\n        position = character.position();\n        return character.alive() && (position.x === x && position.y === y);\n      }).first();\n    };\n    search = MapSearch(grid.get, characterAt);\n    Object.extend(self, {\n      activeSquadIndex: function() {\n        return squads.indexOf(activeSquad());\n      },\n      characters: Observable(function() {\n        return squads.map(function(squad) {\n          return squad.characters();\n        }).flatten();\n      }),\n      characterAt: characterAt,\n      eachTile: grid.each,\n      visibleCharacters: function() {\n        var index;\n        index = self.activeSquadIndex();\n        return self.characters().filter(function(character) {\n          return tileAt(character.position()).lit[index];\n        });\n      },\n      activeCharacter: Observable(function() {\n        var _ref;\n        squads.forEach(function(squad) {\n          return squad.activeCharacter();\n        });\n        return (_ref = activeSquad()) != null ? _ref.activeCharacter() : void 0;\n      }),\n      targettingAbility: function() {\n        var character;\n        if (character = self.activeCharacter()) {\n          return character.targettingAbility();\n        }\n      },\n      accessiblePositions: function() {\n        var ability, accessiblePositions, character, positionsInRange, visiblePositions;\n        character = self.activeCharacter();\n        if (ability = self.targettingAbility()) {\n          switch (ability.targetZone()) {\n            case Ability.TARGET_ZONE.SELF:\n              self.performAbility(character, ability, character.position());\n              break;\n            case Ability.TARGET_ZONE.MOVEMENT:\n              accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character));\n              return accessiblePositions.reject(function(position) {\n                return characterAt(position);\n              });\n            case Ability.TARGET_ZONE.LINE_OF_SIGHT:\n              visiblePositions = search.visible(character.position(), character.sight());\n              positionsInRange = search.adjacent(character.position(), ability.range());\n              return intersection(visiblePositions, positionsInRange);\n          }\n        }\n      },\n      stateBasedActions: function() {\n        squads.forEach(function(squad) {\n          return squad.stateBasedActions();\n        });\n        activeSquad(nextActivatableSquad());\n        updateVisibleTiles();\n        if (!self.activeCharacter()) {\n          return self.ready();\n        }\n      },\n      ready: function() {\n        squads.forEach(function(squad) {\n          return squad.ready();\n        });\n        activeSquad(nextActivatableSquad());\n        if (activeSquad()) {\n          return self.stateBasedActions();\n        } else {\n\n        }\n      },\n      addEffect: function(effect, position) {\n        return effect.perform({\n          characterAt: characterAt,\n          position: position,\n          tileAt: tileAt,\n          message: function() {}\n        });\n      },\n      performAbility: function(owner, ability, targetPosition) {\n        ability.perform(owner, {\n          position: targetPosition,\n          character: characterAt(targetPosition),\n          addEffect: self.addEffect\n        });\n        return self.stateBasedActions();\n      },\n      selectTarget: function(position) {\n        var ability;\n        ability = self.targettingAbility();\n        switch (ability.targetZone()) {\n          case Ability.TARGET_ZONE.MOVEMENT:\n            return self.moveDuder(position);\n          default:\n            return self.performAbility(self.activeCharacter(), ability, position);\n        }\n      },\n      touch: function(position) {\n        var _ref;\n        return (_ref = activeSquad()) != null ? _ref.activateCharacterAt(position) : void 0;\n      },\n      moveDuder: function(position) {\n        var character, index, path;\n        character = self.activeCharacter();\n        path = search.movementPath(character.position(), position, characterPassable(character));\n        if (path) {\n          index = self.activeSquadIndex();\n          path.forEach(function(position) {\n            return search.visible(character.position(), character.sight()).map(tileAt).forEach(function(tile) {\n              return tile.seen[index] = true;\n            });\n          });\n          return self.performAbility(character, self.targettingAbility(), position);\n        }\n      }\n    });\n    updateVisibleTiles();\n    self.include(require(\"./map_rendering\"));\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=map.coffee",
+      "content": "(function() {\n  var Ability, Graph, MapGenerator, MapSearch, Squad, intersection, moveDirections;\n\n  Ability = require(\"./ability\");\n\n  Graph = require(\"./graph\");\n\n  MapGenerator = require(\"./map_generator\");\n\n  MapSearch = require(\"./map_search\");\n\n  Squad = require(\"./squad\");\n\n  intersection = require(\"./array_helpers\").intersection;\n\n  moveDirections = [Point(1, 0), Point(-1, 0), Point(0, 1), Point(0, -1)];\n\n  module.exports = function(I, self) {\n    var activeSquad, characterAt, characterPassable, grid, nextActivatableSquad, search, squads, tileAt, updateVisibleTiles;\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    grid = MapGenerator.generate({\n      width: 32,\n      height: 18\n    });\n    tileAt = grid.get;\n    updateVisibleTiles = function() {\n      grid.each(function(tile) {\n        return tile.lit = [];\n      });\n      return squads.forEach(function(squad, i) {\n        return squad.characters().filter(function(character) {\n          return character.alive();\n        }).forEach(function(duder) {\n          return search.visible(duder.position(), duder.sight()).map(tileAt).forEach(function(tile) {\n            return tile.seen[i] = tile.lit[i] = true;\n          });\n        });\n      });\n    };\n    squads = [\n      Squad(), Squad({\n        race: \"goblin\",\n        x: 30\n      })\n    ];\n    activeSquad = Observable(squads.first());\n    nextActivatableSquad = function() {\n      return squads.filter(function(squad) {\n        return squad.activeCharacter();\n      }).first();\n    };\n    characterPassable = function(character) {\n      return function(position) {\n        var occupant, occupantPassable, tile;\n        if (tile = tileAt(position)) {\n          if (occupant = characterAt(position)) {\n            occupantPassable = activeSquad().characters.indexOf(occupant) !== -1;\n          } else {\n            occupantPassable = true;\n          }\n          return !tile.solid && tile.lit[self.activeSquadIndex()] && occupantPassable;\n        }\n      };\n    };\n    characterAt = function(x, y) {\n      var _ref;\n      if (x.x != null) {\n        _ref = x, x = _ref.x, y = _ref.y;\n      }\n      return self.characters().filter(function(character) {\n        var position;\n        position = character.position();\n        return character.alive() && (position.x === x && position.y === y);\n      }).first();\n    };\n    search = MapSearch(grid.get, characterAt);\n    Object.extend(self, {\n      activeSquadIndex: function() {\n        return squads.indexOf(activeSquad());\n      },\n      characters: Observable(function() {\n        return squads.map(function(squad) {\n          return squad.characters();\n        }).flatten();\n      }),\n      characterAt: characterAt,\n      eachTile: grid.each,\n      visibleCharacters: function() {\n        var index;\n        index = self.activeSquadIndex();\n        return self.characters().filter(function(character) {\n          return tileAt(character.position()).lit[index];\n        });\n      },\n      activeCharacter: Observable(function() {\n        var _ref;\n        squads.forEach(function(squad) {\n          return squad.activeCharacter();\n        });\n        return (_ref = activeSquad()) != null ? _ref.activeCharacter() : void 0;\n      }),\n      targettingAbility: function() {\n        var character;\n        if (character = self.activeCharacter()) {\n          return character.targettingAbility();\n        }\n      },\n      accessiblePositions: function() {\n        var ability, accessiblePositions, character, positionsInRange, visiblePositions;\n        character = self.activeCharacter();\n        if (ability = self.targettingAbility()) {\n          switch (ability.targetZone()) {\n            case Ability.TARGET_ZONE.SELF:\n              self.performAbility(character, ability, character.position());\n              break;\n            case Ability.TARGET_ZONE.MOVEMENT:\n              accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character));\n              return accessiblePositions.reject(function(position) {\n                return characterAt(position);\n              });\n            case Ability.TARGET_ZONE.LINE_OF_SIGHT:\n              visiblePositions = search.visible(character.position(), character.sight());\n              positionsInRange = search.adjacent(character.position(), ability.range());\n              return intersection(visiblePositions, positionsInRange);\n          }\n        }\n      },\n      stateBasedActions: function() {\n        squads.forEach(function(squad) {\n          return squad.stateBasedActions();\n        });\n        activeSquad(nextActivatableSquad());\n        updateVisibleTiles();\n        if (!self.activeCharacter()) {\n          return self.ready();\n        }\n      },\n      ready: function() {\n        squads.forEach(function(squad) {\n          return squad.ready();\n        });\n        activeSquad(nextActivatableSquad());\n        if (activeSquad()) {\n          return self.stateBasedActions();\n        } else {\n\n        }\n      },\n      addEffect: function(effect, position) {\n        return effect.perform({\n          characterAt: characterAt,\n          position: position,\n          tileAt: tileAt,\n          message: function() {}\n        });\n      },\n      performAbility: function(owner, ability, targetPosition) {\n        ability.perform(owner, {\n          position: targetPosition,\n          character: characterAt(targetPosition),\n          addEffect: self.addEffect\n        });\n        return self.stateBasedActions();\n      },\n      selectTarget: function(position) {\n        var ability;\n        ability = self.targettingAbility();\n        switch (ability.targetZone()) {\n          case Ability.TARGET_ZONE.MOVEMENT:\n            return self.moveDuder(position);\n          default:\n            return self.performAbility(self.activeCharacter(), ability, position);\n        }\n      },\n      touch: function(position) {\n        var _ref;\n        return (_ref = activeSquad()) != null ? _ref.activateCharacterAt(position) : void 0;\n      },\n      moveDuder: function(position) {\n        var character, index, path;\n        character = self.activeCharacter();\n        path = search.movementPath(character.position(), position, characterPassable(character));\n        if (path) {\n          index = self.activeSquadIndex();\n          path.forEach(function(position) {\n            return search.visible(character.position(), character.sight()).map(tileAt).forEach(function(tile) {\n              return tile.seen[index] = true;\n            });\n          });\n          return self.performAbility(character, self.targettingAbility(), position);\n        }\n      }\n    });\n    updateVisibleTiles();\n    self.include(require(\"./map_rendering\"));\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=map.coffee",
+      "type": "blob"
+    },
+    "map_generator": {
+      "path": "map_generator",
+      "content": "(function() {\n  var Feature, Grid, Resource, bushSprites, ground, groundSprites, wall, wallSprites;\n\n  Feature = require(\"./feature\");\n\n  Grid = require(\"./lib/util\").Grid;\n\n  Resource = require(\"./resource\");\n\n  groundSprites = [\"ground\", \"frozen\", \"stone\"].map(function(type) {\n    return [0, 1, 2, 3, 4, 5, 6, 7].map(function(i) {\n      return \"\" + type + i;\n    }).map(Resource.sprite);\n  });\n\n  bushSprites = [0, 1, 2, 3].map(function(i) {\n    return Resource.sprite(\"bush\" + i);\n  });\n\n  wallSprites = [0, 1, 2, 3].map(function(i) {\n    return Resource.sprite(\"brick_vines\" + i);\n  });\n\n  wall = function() {\n    return {\n      sprite: wallSprites.rand(),\n      lit: [],\n      seen: [],\n      opaque: true,\n      solid: true,\n      features: []\n    };\n  };\n\n  ground = function() {\n    var bush, _i, _results;\n    bush = rand() < 0.1;\n    return {\n      sprite: groundSprites[0].rand(),\n      lit: [],\n      seen: [],\n      opaque: bush,\n      solid: false,\n      features: (function() {\n        _results = [];\n        for (var _i = 0; 0 <= bush ? _i < bush : _i > bush; 0 <= bush ? _i++ : _i--){ _results.push(_i); }\n        return _results;\n      }).apply(this).map(function() {\n        return Feature({\n          spriteName: \"bush\" + rand(4),\n          zIndex: 1\n        });\n      })\n    };\n  };\n\n  module.exports = {\n    generate: function(size) {\n      return Grid(size, function(x, y) {\n        if (rand() < 0.10) {\n          return wall();\n        } else {\n          return ground();\n        }\n      });\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=map_generator.coffee",
       "type": "blob"
     },
     "map_rendering": {
       "path": "map_rendering",
-      "content": "(function() {\n  var Bounds, Resource, Size, drawCharacters, drawFeatures, drawFog, drawGround, skeleton, tileSize, _ref;\n\n  _ref = require(\"./lib/util\"), Size = _ref.Size, Bounds = _ref.Bounds;\n\n  Resource = require(\"./resource\");\n\n  skeleton = Resource.sprite(\"skeleton\");\n\n  tileSize = Size(32, 32);\n\n  drawGround = function(tiles, canvas) {\n    return tiles.forEach(function(_arg) {\n      var position, sprite, _ref1;\n      (_ref1 = _arg[0], sprite = _ref1.sprite), position = _arg[1];\n      return sprite.draw(canvas, position.scale(tileSize));\n    });\n  };\n\n  drawFeatures = function(tiles, canvas) {\n    return tiles.forEach(function(_arg) {\n      var features, position, _ref1;\n      (_ref1 = _arg[0], features = _ref1.features), position = _arg[1];\n      return features.forEach(function(feature) {\n        return feature.draw(canvas, position.scale(tileSize));\n      });\n    });\n  };\n\n  drawCharacters = function(tiles, characterAt, canvas, t) {\n    return tiles.forEach(function(_arg) {\n      var bounce, canvasPosition, character, position, _;\n      _ = _arg[0], position = _arg[1];\n      bounce = Point(Math.cos(Math.TAU * t / 12), 0).scale(2).floor();\n      canvasPosition = position.scale(tileSize).add(bounce);\n      if (character = characterAt(position)) {\n        if (character.alive()) {\n          return character.sprite().draw(canvas, canvasPosition);\n        } else {\n          return skeletonSprite.draw(canvas, canvasPosition);\n        }\n      }\n    });\n  };\n\n  drawFog = function(tiles, canvas) {\n    return tiles.forEach(function(_arg) {\n      var bounds, position, _;\n      _ = _arg[0], position = _arg[1];\n      bounds = Bounds(position.scale(tileSize), tileSize);\n      bounds.color = \"rgba(0, 0, 0, 0.5)\";\n      return canvas.drawRect(bounds);\n    });\n  };\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (I.backgroundColor == null) {\n      I.backgroundColor = \"#222034\";\n    }\n    return Object.extend(self, {\n      seenTiles: function(index) {\n        var results;\n        results = [];\n        self.eachTile(function(tile, position) {\n          if (tile.seen[index]) {\n            return results.push([tile, position]);\n          }\n        });\n        return results;\n      },\n      render: function(canvas, t) {\n        var index, litTiles, seenTiles, unlitTiles, _ref1;\n        canvas.fill(I.backgroundColor);\n        index = self.activeSquadIndex();\n        seenTiles = self.seenTiles(index);\n        drawGround(seenTiles, canvas);\n        _ref1 = seenTiles.partition(function(_arg) {\n          var tile;\n          tile = _arg[0];\n          return tile.lit[index];\n        }), litTiles = _ref1[0], unlitTiles = _ref1[1];\n        drawCharacters(litTiles, self.characterAt, canvas, t);\n        drawFeatures(seenTiles, canvas);\n        return drawFog(unlitTiles, canvas);\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=map_rendering.coffee",
+      "content": "(function() {\n  var Bounds, Resource, Size, drawCharacters, drawFeatures, drawFog, drawGround, skeleton, tileSize, _ref;\n\n  _ref = require(\"./lib/util\"), Size = _ref.Size, Bounds = _ref.Bounds;\n\n  Resource = require(\"./resource\");\n\n  skeleton = Resource.sprite(\"skeleton\");\n\n  tileSize = Size(32, 32);\n\n  drawGround = function(tiles, canvas) {\n    return tiles.forEach(function(_arg) {\n      var position, sprite, _ref1;\n      (_ref1 = _arg[0], sprite = _ref1.sprite), position = _arg[1];\n      return sprite.draw(canvas, position.scale(tileSize));\n    });\n  };\n\n  drawFeatures = function(tiles, canvas) {\n    return tiles.forEach(function(_arg) {\n      var features, position, _ref1;\n      (_ref1 = _arg[0], features = _ref1.features), position = _arg[1];\n      return features.forEach(function(feature) {\n        return feature.draw(canvas, position.scale(tileSize));\n      });\n    });\n  };\n\n  drawCharacters = function(tiles, characterAt, canvas, t) {\n    return tiles.forEach(function(_arg) {\n      var canvasPosition, character, position, _;\n      _ = _arg[0], position = _arg[1];\n      canvasPosition = position.scale(tileSize);\n      if (character = characterAt(position)) {\n        if (character.alive()) {\n          return character.sprite().draw(canvas, canvasPosition);\n        } else {\n          return skeletonSprite.draw(canvas, canvasPosition);\n        }\n      }\n    });\n  };\n\n  drawFog = function(tiles, canvas) {\n    return tiles.forEach(function(_arg) {\n      var bounds, position, _;\n      _ = _arg[0], position = _arg[1];\n      bounds = Bounds(position.scale(tileSize), tileSize);\n      bounds.color = \"rgba(0, 0, 0, 0.5)\";\n      return canvas.drawRect(bounds);\n    });\n  };\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (I.backgroundColor == null) {\n      I.backgroundColor = \"#222034\";\n    }\n    return Object.extend(self, {\n      seenTiles: function(index) {\n        var results;\n        results = [];\n        self.eachTile(function(tile, position) {\n          if (tile.seen[index]) {\n            return results.push([tile, position]);\n          }\n        });\n        return results;\n      },\n      render: function(canvas, t) {\n        var index, litTiles, seenTiles, unlitTiles, _ref1;\n        canvas.fill(I.backgroundColor);\n        index = self.activeSquadIndex();\n        seenTiles = self.seenTiles(index);\n        drawGround(seenTiles, canvas);\n        _ref1 = seenTiles.partition(function(_arg) {\n          var tile;\n          tile = _arg[0];\n          return tile.lit[index];\n        }), litTiles = _ref1[0], unlitTiles = _ref1[1];\n        drawCharacters(litTiles, self.characterAt, canvas, t);\n        drawFeatures(seenTiles, canvas);\n        return drawFog(unlitTiles, canvas);\n      }\n    });\n  };\n\n}).call(this);\n\n//# sourceURL=map_rendering.coffee",
       "type": "blob"
     },
     "map_search": {
       "path": "map_search",
       "content": "(function() {\n  var FOV, Graph, adjacentPositions, calculateDiagonals, cardinalDirections, directionsWithCosts, indexOf, intersection, neighborsVisible, ordinalDirections, sqrt, strategy, unique, without, _ref;\n\n  Graph = require(\"./graph\");\n\n  FOV = require(\"./field_of_vision\");\n\n  sqrt = Math.sqrt;\n\n  _ref = require(\"./array_helpers\"), indexOf = _ref.indexOf, intersection = _ref.intersection, unique = _ref.unique, without = _ref.without;\n\n  cardinalDirections = [Point(0, -1), Point(1, 0), Point(0, 1), Point(-1, 0)];\n\n  calculateDiagonals = function(directions) {\n    var results;\n    results = [];\n    directions.eachPair(function(a, b) {\n      return results.push(a.add(b));\n    });\n    return without(unique(results), Point.ZERO);\n  };\n\n  ordinalDirections = calculateDiagonals(cardinalDirections);\n\n  directionsWithCosts = cardinalDirections.map(function(direction) {\n    return [direction, 1];\n  }).concat(ordinalDirections.map(function(direction) {\n    return [direction, sqrt(2)];\n  }));\n\n  neighborsVisible = function(position, getTile, getEntities, passable) {\n    return cardinalDirections.map(function(direction) {\n      return position.add(direction);\n    }).filter(passable).map(function(position) {\n      return [position, 1];\n    });\n  };\n\n  adjacentPositions = function(position) {\n    return directionsWithCosts.map(function(_arg) {\n      var cost, direction;\n      direction = _arg[0], cost = _arg[1];\n      return [position.add(direction), cost];\n    });\n  };\n\n  strategy = function(pattern, getTile, getEntities, index) {\n    return function(position) {\n      return pattern(position, getTile, getEntities, index);\n    };\n  };\n\n  module.exports = function(getTile, getEntities) {\n    return {\n      accessible: function(position, range, passable) {\n        return Graph.accessible({\n          initial: position,\n          neighbors: strategy(neighborsVisible, getTile, getEntities, passable),\n          distanceMax: range\n        });\n      },\n      adjacent: function(position, range) {\n        if (range == null) {\n          range = sqrt(2);\n        }\n        return Graph.accessible({\n          initial: position,\n          neighbors: adjacentPositions,\n          distanceMax: range\n        });\n      },\n      visible: function(position, range) {\n        if (range == null) {\n          range = 1;\n        }\n        return FOV.calculate(getTile, position, range);\n      },\n      movementPath: function(position, target, passable) {\n        return Graph.aStar({\n          initial: position,\n          goal: target,\n          neighbors: strategy(neighborsVisible, getTile, getEntities, passable),\n          heuristic: function(a, b) {\n            var x, y, _ref1;\n            _ref1 = b.subtract(a).abs(), x = _ref1.x, y = _ref1.y;\n            return x + y;\n          }\n        });\n      }\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=map_search.coffee",
+      "type": "blob"
+    },
+    "map_tile": {
+      "path": "map_tile",
+      "content": "(function() {\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=map_tile.coffee",
       "type": "blob"
     },
     "names": {
@@ -273,22 +458,17 @@ require('./main')
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js\",\"http://strd6.github.io/require/v0.2.2.js\"],\"dependencies\":{\"appcache\":\"STRd6/appcache:v0.1.0\",\"compression\":\"STRd6/lz-string:v1.3.3\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\"}};",
+      "content": "module.exports = {\"version\":\"0.1.0\",\"width\":1024,\"height\":576,\"remoteDependencies\":[\"//code.jquery.com/jquery-1.10.1.min.js\",\"//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js\",\"http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js\"],\"dependencies\":{\"appcache\":\"STRd6/appcache:v0.1.0\",\"compression\":\"STRd6/lz-string:v1.3.3\",\"priority_queue\":\"STRd6/priority_queue:v2.0.0-pre\",\"runtime\":\"STRd6/runtime:v0.1.1\",\"sprite\":\"distri/sprite:v0.1.1\",\"touch-canvas\":\"STRd6/touch-canvas:v0.2.0\"}};",
       "type": "blob"
     },
     "resource": {
       "path": "resource",
-      "content": "(function() {\n  var Resource, Sprite, cache;\n\n  Sprite = require(\"./sprite\");\n\n  cache = require(\"./images\");\n\n  Resource = {\n    dataURL: function(name) {\n      return cache[name];\n    },\n    sprite: function(name) {\n      return Sprite.load(cache[name]);\n    }\n  };\n\n  module.exports = Resource;\n\n}).call(this);\n\n//# sourceURL=resource.coffee",
+      "content": "(function() {\n  var Resource, Sprite, images;\n\n  Sprite = require(\"sprite\");\n\n  images = require(\"./images\");\n\n  Resource = {\n    dataURL: function(name) {\n      return images[name];\n    },\n    sprite: function(name) {\n      return Sprite.load(images[name]);\n    }\n  };\n\n  module.exports = Resource;\n\n}).call(this);\n\n//# sourceURL=resource.coffee",
       "type": "blob"
     },
     "setup": {
       "path": "setup",
       "content": "(function() {\n  var runtime;\n\n  global.PACKAGE = PACKAGE;\n\n  global.require = require;\n\n  runtime = require(\"runtime\")(PACKAGE);\n\n  runtime.boot();\n\n  runtime.applyStyleSheet(require('./style'));\n\n  require(\"appcache\");\n\n}).call(this);\n\n//# sourceURL=setup.coffee",
-      "type": "blob"
-    },
-    "sprite": {
-      "path": "sprite",
-      "content": "(function() {\n  var LoaderProxy, Sprite, spriteCache;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        var _ref;\n        if (x.x != null) {\n          _ref = x, x = _ref.x, y = _ref.y;\n        }\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        loadedCallback.defer(sprite);\n      }\n      return sprite;\n    }\n    img = new Image();\n    proxy = LoaderProxy();\n    img.onload = function() {\n      spriteCache[url] = Object.extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  Sprite.loadByName = function(name, callback) {\n    return Sprite.load(ResourceLoader.urlFor(\"images\", name), callback);\n  };\n\n  module.exports = Sprite;\n\n}).call(this);\n\n//# sourceURL=sprite.coffee",
       "type": "blob"
     },
     "squad": {
@@ -314,6 +494,11 @@ require('./main')
     "test/array_helpers": {
       "path": "test/array_helpers",
       "content": "(function() {\n  var indexOf, intersection, _ref;\n\n  _ref = require(\"../array_helpers\"), intersection = _ref.intersection, indexOf = _ref.indexOf;\n\n  Number.prototype.equal = function(other) {\n    return (this + 0) === other;\n  };\n\n  describe(\"Array Helpers\", function() {\n    it(\"indexOf\", function() {\n      return assert(indexOf([1, 2, 3], 2) === 1);\n    });\n    return it(\"intersection\", function() {\n      var result;\n      result = intersection([Point(1, 1), Point(2, 1), Point(3, 1)], [Point(1, 1)]);\n      return assert(result.length === 1);\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/array_helpers.coffee",
+      "type": "blob"
+    },
+    "type": {
+      "path": "type",
+      "content": "(function() {\n  var toObject;\n\n  toObject = function(list) {\n    return list.split(\"\\n\").reduce(function(object, item) {\n      object[item] = item.toLowerCase();\n      return object;\n    }, {});\n  };\n\n  module.exports = toObject(\"Dirt\\nPlant\\nWater\\nIce\\nFire\");\n\n}).call(this);\n\n//# sourceURL=type.coffee",
       "type": "blob"
     }
   },
@@ -796,6 +981,484 @@ require('./main')
         "defaultBranch": "master"
       }
     },
+    "priority_queue": {
+      "version": "2.0.0-pre",
+      "source": {
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "Description\n-----------\n\nA priority queue is a handy data structure with many uses. From graph search\nalgorithms to simple job queues, having this in your toolbelt will help to give\nyou a solid foundation.\n\nFeatures\n--------\n\n* Simple to use and understand.\n* Creates a single PriorityQueue constructor.\n* Instantiate via `PriorityQueue()` or `new PriorityQueue()`\n* Offers both highest first and lowest first ordering.\n* Test suite included.\n\nThe default is highest priority first, but when doing something like A* you want lowest priority first... it handles it: `queue = PriorityQueue({low: true});` Boom!\n\nExample Usage\n-------------\n\n    # Highest priority first\n    queue = PriorityQueue()\n\n    queue.push(\"b\", 5)\n    queue.push(\"a\", 10)\n\n    queue.pop() # => \"a\"\n    queue.pop() # => \"b\"\n\n    # Lowest priority first\n    queue = PriorityQueue\n      low: true\n\n    queue.push(\"x\", 5)\n    queue.push(\"y\", 10)\n\n    queue.pop() # => \"x\"\n    queue.pop() # => \"y\"\n\nLicense\n-------\n\nMIT\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Priority Queue\n==============\n\nPriorityQueue manages a queue of elements with priorities. The defaul behavior\nis to return elements with the highest priority first.\n\nIf `low` is set to `true` returns lowest first instead.\n\n    PriorityQueue = (options={}) ->\n      items = []\n      sorted = false\n\n      if options.low\n        sortStyle = prioritySortLow\n      else\n        sortStyle = prioritySortHigh\n\n      sort = ->\n        items.sort sortStyle\n        sorted = true\n\nAccessor functions need to ensure the items are sorted. This decorator wraps\nthat up nicely.\n\n      ensureSorted = (fn) ->\n        (args...) ->\n          sort() unless sorted\n          fn(args...)\n\nPublic Methods\n--------------\n\nRemoves and returns the next element in the queue. If the queue is empty returns\n`undefined`.\n\n      pop: ensureSorted ->\n        items.pop()?.object\n\nReturns but does not remove the next element in the queue. If the queue is empty\nreturns `undefined`.\n\n      top: ensureSorted ->\n        items[items.length - 1]?.object\n\nCheck if the given object is included in the priority queue. Returns true if\nit was found, false if not.\n\n      includes: (object) ->\n        items.reduce (found, item) ->\n          found or (object is item.object)\n        , false\n\nReturn the current number of elements in the queue.\n\n      size: ->\n        items.length\n\nCheck if the queue is empty. Returns true if there are no items in the queue,\nfalse otherwise.\n\n      empty: ->\n        items.length is 0\n\nPush an object onto the queue with the given priority.\n\n      push: (object, priority) ->\n        items.push\n          object: object\n          priority: priority\n\n        sorted = false\n\nHelpers\n-------\n\n    prioritySortLow = (a, b) ->\n      b.priority - a.priority\n\n    prioritySortHigh = (a, b) ->\n      a.priority - b.priority\n\nExport\n------\n\n    if module?\n      module.exports = PriorityQueue\n    else\n      window.PriorityQueue = PriorityQueue\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"2.0.0-pre\"\nentryPoint: \"main\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js?\"\n]\n",
+          "type": "blob"
+        },
+        "test/priority_queue.coffee": {
+          "path": "test/priority_queue.coffee",
+          "mode": "100644",
+          "content": "PriorityQueue = require \"../main\"\n\nok = assert\nequals = assert.equal\ntest = it\n\ndescribe \"PriorityQueue\", ->\n  test \"#push\", ->\n    queue = PriorityQueue()\n    queue.push 2, 5\n\n    ok queue.size() is 1, \"queue.size()\"\n    ok not queue.empty(), \"!queue.empty()\"\n\n  test \"#includes\", ->\n    queue = PriorityQueue()\n    queue.push 5, 0\n\n    equals queue.includes(5), true\n    equals queue.includes(0), false\n\n  test \"#empty\", ->\n    queue = PriorityQueue()\n    ok queue.size() is 0, \"queue.size() === 0\"\n    ok queue.empty(), \"queue.empty()\"\n\n  test \"#pop empty queue\", ->\n    equals PriorityQueue().pop(), undefined\n\n  test \"#pop\", ->\n    queue = PriorityQueue()\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 10\n    queue.push decent, 5\n    queue.push bad, 1\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n\n  test \"#pop with low => true\", ->\n    queue = PriorityQueue(low: true)\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 1\n    queue.push decent, 5\n    queue.push bad, 10\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var PriorityQueue, prioritySortHigh, prioritySortLow,\n    __slice = [].slice;\n\n  PriorityQueue = function(options) {\n    var ensureSorted, items, sort, sortStyle, sorted;\n    if (options == null) {\n      options = {};\n    }\n    items = [];\n    sorted = false;\n    if (options.low) {\n      sortStyle = prioritySortLow;\n    } else {\n      sortStyle = prioritySortHigh;\n    }\n    sort = function() {\n      items.sort(sortStyle);\n      return sorted = true;\n    };\n    ensureSorted = function(fn) {\n      return function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        if (!sorted) {\n          sort();\n        }\n        return fn.apply(null, args);\n      };\n    };\n    return {\n      pop: ensureSorted(function() {\n        var _ref;\n        return (_ref = items.pop()) != null ? _ref.object : void 0;\n      }),\n      top: ensureSorted(function() {\n        var _ref;\n        return (_ref = items[items.length - 1]) != null ? _ref.object : void 0;\n      }),\n      includes: function(object) {\n        return items.reduce(function(found, item) {\n          return found || (object === item.object);\n        }, false);\n      },\n      size: function() {\n        return items.length;\n      },\n      empty: function() {\n        return items.length === 0;\n      },\n      push: function(object, priority) {\n        items.push({\n          object: object,\n          priority: priority\n        });\n        return sorted = false;\n      }\n    };\n  };\n\n  prioritySortLow = function(a, b) {\n    return b.priority - a.priority;\n  };\n\n  prioritySortHigh = function(a, b) {\n    return a.priority - b.priority;\n  };\n\n  if (typeof module !== \"undefined\" && module !== null) {\n    module.exports = PriorityQueue;\n  } else {\n    window.PriorityQueue = PriorityQueue;\n  }\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"2.0.0-pre\",\"entryPoint\":\"main\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js?\"]};",
+          "type": "blob"
+        },
+        "test/priority_queue": {
+          "path": "test/priority_queue",
+          "content": "(function() {\n  var PriorityQueue, equals, ok, test;\n\n  PriorityQueue = require(\"../main\");\n\n  ok = assert;\n\n  equals = assert.equal;\n\n  test = it;\n\n  describe(\"PriorityQueue\", function() {\n    test(\"#push\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(2, 5);\n      ok(queue.size() === 1, \"queue.size()\");\n      return ok(!queue.empty(), \"!queue.empty()\");\n    });\n    test(\"#includes\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(5, 0);\n      equals(queue.includes(5), true);\n      return equals(queue.includes(0), false);\n    });\n    test(\"#empty\", function() {\n      var queue;\n      queue = PriorityQueue();\n      ok(queue.size() === 0, \"queue.size() === 0\");\n      return ok(queue.empty(), \"queue.empty()\");\n    });\n    test(\"#pop empty queue\", function() {\n      return equals(PriorityQueue().pop(), void 0);\n    });\n    test(\"#pop\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue();\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 10);\n      queue.push(decent, 5);\n      queue.push(bad, 1);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n    return test(\"#pop with low => true\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue({\n        low: true\n      });\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 1);\n      queue.push(decent, 5);\n      queue.push(bad, 10);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/priority_queue.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.2.js?"
+      ],
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 220605,
+        "name": "priority_queue",
+        "full_name": "STRd6/priority_queue",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/priority_queue",
+        "description": "A JavaScript PriorityQueue",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/priority_queue",
+        "forks_url": "https://api.github.com/repos/STRd6/priority_queue/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/priority_queue/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/priority_queue/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/priority_queue/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/priority_queue/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/priority_queue/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/priority_queue/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/priority_queue/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/priority_queue/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/priority_queue/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/priority_queue/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/priority_queue/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/priority_queue/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/priority_queue/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/priority_queue/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/priority_queue/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/priority_queue/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/priority_queue/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/priority_queue/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/priority_queue/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/priority_queue/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/priority_queue/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/priority_queue/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/priority_queue/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/priority_queue/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/priority_queue/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/priority_queue/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/priority_queue/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/priority_queue/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/priority_queue/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/priority_queue/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/priority_queue/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/priority_queue/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/priority_queue/labels{/name}",
+        "releases_url": "https://api.github.com/repos/STRd6/priority_queue/releases{/id}",
+        "created_at": "2009-06-07T01:59:36Z",
+        "updated_at": "2013-11-12T20:42:13Z",
+        "pushed_at": "2013-11-12T20:42:12Z",
+        "git_url": "git://github.com/STRd6/priority_queue.git",
+        "ssh_url": "git@github.com:STRd6/priority_queue.git",
+        "clone_url": "https://github.com/STRd6/priority_queue.git",
+        "svn_url": "https://github.com/STRd6/priority_queue",
+        "homepage": "",
+        "size": 292,
+        "stargazers_count": 17,
+        "watchers_count": 17,
+        "language": "JavaScript",
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 9,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 9,
+        "open_issues": 0,
+        "watchers": 17,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 9,
+        "subscribers_count": 2,
+        "branch": "v2.0.0-pre",
+        "defaultBranch": "master"
+      }
+    },
+    "runtime": {
+      "version": "0.1.1",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "runtime\n=======\n",
+          "type": "blob"
+        },
+        "runtime.coffee.md": {
+          "path": "runtime.coffee.md",
+          "mode": "100644",
+          "content": "The runtime holds utilities to assist with an apps running environment.\n\nIt should me moved into it's own component one day.\n\n    Runtime = (pkg) ->\n\nHold on to a reference to our root node.\n\n      root = null\n\nReturns the node that is the parent of the script element that contains the code\nthat calls this function. If `document.write` has been called before this then the\nresults may not be accurate. Therefore be sure to call currentNode before\nwriting anything to the document.\n\n      currentNode = ->\n        target = document.documentElement\n\n        while (target.childNodes.length and target.lastChild.nodeType == 1)\n          target = target.lastChild\n\n        return target.parentNode\n\nDisplay a promo in the console linking back to the creator of this app.\n\n      promo = ->\n        console.log(\"%c You should meet my creator #{pkg.progenitor.url}\", \"\"\"\n          background: #000;\n          color: white;\n          font-size: 2em;\n          line-height: 2em;\n          padding: 10px 100px;\n          margin-bottom: 1em;\n          text-shadow:\n            0 0 0.05em #fff,\n            0 0 0.1em #fff,\n            0 0 0.15em #fff,\n            0 0 0.2em #ff00de,\n            0 0 0.35em #ff00de,\n            0 0 0.4em #ff00de,\n            0 0 0.5em #ff00de,\n            0 0 0.75em #ff00de;'\n        \"\"\")\n\nCall on start to boot up the runtime, get the root node, add styles, display a\npromo.\n\n      boot: ->\n        root = currentNode()\n\n        promo()\n\n        return root\n\nApply the stylesheet to the root node.\n\n      applyStyleSheet: (style) ->\n        styleNode = document.createElement(\"style\")\n        styleNode.innerHTML = style\n\n        root.appendChild(styleNode)\n\nExport\n\n    module.exports = Runtime\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.1\"\nentryPoint: \"runtime\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.0.js\"\n]\n",
+          "type": "blob"
+        },
+        "test/runtime.coffee": {
+          "path": "test/runtime.coffee",
+          "mode": "100644",
+          "content": "Runtime = require \"../runtime\"\n\ndescribe \"Runtime\", ->\n  it \"should be created from a package and provide a boot method\", ->\n    assert Runtime(PACKAGE).boot\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "runtime": {
+          "path": "runtime",
+          "content": "(function() {\n  var Runtime;\n\n  Runtime = function(pkg) {\n    var currentNode, promo, root;\n    root = null;\n    currentNode = function() {\n      var target;\n      target = document.documentElement;\n      while (target.childNodes.length && target.lastChild.nodeType === 1) {\n        target = target.lastChild;\n      }\n      return target.parentNode;\n    };\n    promo = function() {\n      return console.log(\"%c You should meet my creator \" + pkg.progenitor.url, \"background: #000;\\ncolor: white;\\nfont-size: 2em;\\nline-height: 2em;\\npadding: 10px 100px;\\nmargin-bottom: 1em;\\ntext-shadow:\\n  0 0 0.05em #fff,\\n  0 0 0.1em #fff,\\n  0 0 0.15em #fff,\\n  0 0 0.2em #ff00de,\\n  0 0 0.35em #ff00de,\\n  0 0 0.4em #ff00de,\\n  0 0 0.5em #ff00de,\\n  0 0 0.75em #ff00de;'\");\n    };\n    return {\n      boot: function() {\n        root = currentNode();\n        promo();\n        return root;\n      },\n      applyStyleSheet: function(style) {\n        var styleNode;\n        styleNode = document.createElement(\"style\");\n        styleNode.innerHTML = style;\n        return root.appendChild(styleNode);\n      }\n    };\n  };\n\n  module.exports = Runtime;\n\n}).call(this);\n",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.1\",\"entryPoint\":\"runtime\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.0.js\"]};",
+          "type": "blob"
+        },
+        "test/runtime": {
+          "path": "test/runtime",
+          "content": "(function() {\n  var Runtime;\n\n  Runtime = require(\"../runtime\");\n\n  describe(\"Runtime\", function() {\n    return it(\"should be created from a package and provide a boot method\", function() {\n      return assert(Runtime(PACKAGE).boot);\n    });\n  });\n\n}).call(this);\n",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "runtime",
+      "dependencies": {},
+      "remoteDependencies": [
+        "http://strd6.github.io/require/v0.2.0.js"
+      ],
+      "repository": {
+        "id": 13202878,
+        "name": "runtime",
+        "full_name": "STRd6/runtime",
+        "owner": {
+          "login": "STRd6",
+          "id": 18894,
+          "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
+          "url": "https://api.github.com/users/STRd6",
+          "html_url": "https://github.com/STRd6",
+          "followers_url": "https://api.github.com/users/STRd6/followers",
+          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
+          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
+          "organizations_url": "https://api.github.com/users/STRd6/orgs",
+          "repos_url": "https://api.github.com/users/STRd6/repos",
+          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/STRd6/received_events",
+          "type": "User"
+        },
+        "private": false,
+        "html_url": "https://github.com/STRd6/runtime",
+        "description": "",
+        "fork": false,
+        "url": "https://api.github.com/repos/STRd6/runtime",
+        "forks_url": "https://api.github.com/repos/STRd6/runtime/forks",
+        "keys_url": "https://api.github.com/repos/STRd6/runtime/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/STRd6/runtime/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/STRd6/runtime/teams",
+        "hooks_url": "https://api.github.com/repos/STRd6/runtime/hooks",
+        "issue_events_url": "https://api.github.com/repos/STRd6/runtime/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/STRd6/runtime/events",
+        "assignees_url": "https://api.github.com/repos/STRd6/runtime/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/STRd6/runtime/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/STRd6/runtime/tags",
+        "blobs_url": "https://api.github.com/repos/STRd6/runtime/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/STRd6/runtime/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/STRd6/runtime/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/STRd6/runtime/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/STRd6/runtime/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/STRd6/runtime/languages",
+        "stargazers_url": "https://api.github.com/repos/STRd6/runtime/stargazers",
+        "contributors_url": "https://api.github.com/repos/STRd6/runtime/contributors",
+        "subscribers_url": "https://api.github.com/repos/STRd6/runtime/subscribers",
+        "subscription_url": "https://api.github.com/repos/STRd6/runtime/subscription",
+        "commits_url": "https://api.github.com/repos/STRd6/runtime/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/STRd6/runtime/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/STRd6/runtime/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/STRd6/runtime/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/STRd6/runtime/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/STRd6/runtime/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/STRd6/runtime/merges",
+        "archive_url": "https://api.github.com/repos/STRd6/runtime/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/STRd6/runtime/downloads",
+        "issues_url": "https://api.github.com/repos/STRd6/runtime/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/STRd6/runtime/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/STRd6/runtime/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/STRd6/runtime/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/STRd6/runtime/labels{/name}",
+        "created_at": "2013-09-30T00:44:37Z",
+        "updated_at": "2013-09-30T00:44:37Z",
+        "pushed_at": "2013-09-30T00:44:37Z",
+        "git_url": "git://github.com/STRd6/runtime.git",
+        "ssh_url": "git@github.com:STRd6/runtime.git",
+        "clone_url": "https://github.com/STRd6/runtime.git",
+        "svn_url": "https://github.com/STRd6/runtime",
+        "homepage": null,
+        "size": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "master_branch": "master",
+        "default_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "network_count": 0,
+        "branch": "v0.1.1",
+        "defaultBranch": "master",
+        "includedModules": [
+          "Bindable"
+        ]
+      },
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "name": "runtime"
+    },
+    "sprite": {
+      "version": "0.1.1",
+      "source": {
+        "LICENSE": {
+          "path": "LICENSE",
+          "mode": "100644",
+          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 distri\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+          "type": "blob"
+        },
+        "README.md": {
+          "path": "README.md",
+          "mode": "100644",
+          "content": "sprite\n======\n\nSprites that can be drawn on an HTML5 canvas.\n",
+          "type": "blob"
+        },
+        "main.coffee.md": {
+          "path": "main.coffee.md",
+          "mode": "100644",
+          "content": "Sprite\n======\n\nThe Sprite class provides a way to load images for use in games.\n\nA sprite is a still 2d image.\n\nAn animation can be created from a collection of sprites.\n\nBy default, images are loaded asynchronously. A proxy object is\nreturned immediately. Even though it has a draw method it will not\ndraw anything to the screen until the image has been loaded.\n\n    LoaderProxy = ->\n      draw: ->\n      fill: ->\n      width: null\n      height: null\n      image: null\n\nCache loaded images\n\n    spriteCache = {}\n\n    Sprite = (image, sourceX, sourceY, width, height) ->\n      sourceX ||= 0\n      sourceY ||= 0\n      width ||= image.width\n      height ||= image.height\n\nDraw this sprite on the given canvas at the given position.\n\n      draw: (canvas, x, y) ->\n        if x.x?\n          {x, y} = x\n\n        canvas.drawImage(\n          image,\n          sourceX,\n          sourceY,\n          width,\n          height,\n          x,\n          y,\n          width,\n          height\n        )\n\nDraw this sprite on the given canvas tiled to the x, y,\nwidth, and height dimensions specified.\n\nRepeat options can be `repeat-x`, `repeat-y`, `no-repeat`, or `repeat`. Defaults to `repeat`\n\n      fill: (canvas, x, y, width, height, repeat=\"repeat\") ->\n        pattern = canvas.createPattern(image, repeat)\n        canvas.drawRect({x, y, width, height, color: pattern})\n\n      width: width\n      height: height\n      image: image\n\nLoads all sprites from a sprite sheet found in\nyour images directory, specified by the name passed in.\n\nReturns an array of sprite objects which will start out empty, but be filled\nonce the image has loaded.\n\n    Sprite.loadSheet = (name, tileWidth, tileHeight) ->\n      url = ResourceLoader.urlFor(\"images\", name)\n\n      sprites = []\n      image = new Image()\n\n      image.onload = ->\n        imgElement = this\n        (image.height / tileHeight).times (row) ->\n          (image.width / tileWidth).times (col) ->\n            sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight))\n\n      image.src = url\n\n      return sprites\n\nLoads a sprite from a given url.\nA second optional callback parameter may be passet wich is executeh once the\nimage is loaded. The sprite proxy data is passed to it as the only parameter.\n\n    Sprite.fromURL = Sprite.load = (url, loadedCallback) ->\n      if sprite = spriteCache[url]\n        loadedCallback?.defer(sprite)\n\n        return sprite\n\n      spriteCache[url] = proxy = LoaderProxy()\n      img = new Image()\n\n      img.onload = ->\n        Object.extend(proxy, Sprite(this))\n\n        loadedCallback?(proxy)\n\n      img.src = url\n\n      return proxy\n\nA sprite that draws nothing.\n\n    Sprite.EMPTY = Sprite.NONE = LoaderProxy()\n\n    module.exports = Sprite\n",
+          "type": "blob"
+        },
+        "pixie.cson": {
+          "path": "pixie.cson",
+          "mode": "100644",
+          "content": "version: \"0.1.1\"\n",
+          "type": "blob"
+        },
+        "test/sprite.coffee": {
+          "path": "test/sprite.coffee",
+          "mode": "100644",
+          "content": "Sprite = require \"../main\"\n\ndescribe \"Sprite\", ->\n  it \"should construct sprites\", ->\n    img = new Image\n\n    assert Sprite(img)\n",
+          "type": "blob"
+        }
+      },
+      "distribution": {
+        "main": {
+          "path": "main",
+          "content": "(function() {\n  var LoaderProxy, Sprite, spriteCache;\n\n  LoaderProxy = function() {\n    return {\n      draw: function() {},\n      fill: function() {},\n      width: null,\n      height: null,\n      image: null\n    };\n  };\n\n  spriteCache = {};\n\n  Sprite = function(image, sourceX, sourceY, width, height) {\n    sourceX || (sourceX = 0);\n    sourceY || (sourceY = 0);\n    width || (width = image.width);\n    height || (height = image.height);\n    return {\n      draw: function(canvas, x, y) {\n        var _ref;\n        if (x.x != null) {\n          _ref = x, x = _ref.x, y = _ref.y;\n        }\n        return canvas.drawImage(image, sourceX, sourceY, width, height, x, y, width, height);\n      },\n      fill: function(canvas, x, y, width, height, repeat) {\n        var pattern;\n        if (repeat == null) {\n          repeat = \"repeat\";\n        }\n        pattern = canvas.createPattern(image, repeat);\n        return canvas.drawRect({\n          x: x,\n          y: y,\n          width: width,\n          height: height,\n          color: pattern\n        });\n      },\n      width: width,\n      height: height,\n      image: image\n    };\n  };\n\n  Sprite.loadSheet = function(name, tileWidth, tileHeight) {\n    var image, sprites, url;\n    url = ResourceLoader.urlFor(\"images\", name);\n    sprites = [];\n    image = new Image();\n    image.onload = function() {\n      var imgElement;\n      imgElement = this;\n      return (image.height / tileHeight).times(function(row) {\n        return (image.width / tileWidth).times(function(col) {\n          return sprites.push(Sprite(imgElement, col * tileWidth, row * tileHeight, tileWidth, tileHeight));\n        });\n      });\n    };\n    image.src = url;\n    return sprites;\n  };\n\n  Sprite.fromURL = Sprite.load = function(url, loadedCallback) {\n    var img, proxy, sprite;\n    if (sprite = spriteCache[url]) {\n      if (loadedCallback != null) {\n        loadedCallback.defer(sprite);\n      }\n      return sprite;\n    }\n    spriteCache[url] = proxy = LoaderProxy();\n    img = new Image();\n    img.onload = function() {\n      Object.extend(proxy, Sprite(this));\n      return typeof loadedCallback === \"function\" ? loadedCallback(proxy) : void 0;\n    };\n    img.src = url;\n    return proxy;\n  };\n\n  Sprite.EMPTY = Sprite.NONE = LoaderProxy();\n\n  module.exports = Sprite;\n\n}).call(this);\n\n//# sourceURL=main.coffee",
+          "type": "blob"
+        },
+        "pixie": {
+          "path": "pixie",
+          "content": "module.exports = {\"version\":\"0.1.1\"};",
+          "type": "blob"
+        },
+        "test/sprite": {
+          "path": "test/sprite",
+          "content": "(function() {\n  var Sprite;\n\n  Sprite = require(\"../main\");\n\n  describe(\"Sprite\", function() {\n    return it(\"should construct sprites\", function() {\n      var img;\n      img = new Image;\n      return assert(Sprite(img));\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/sprite.coffee",
+          "type": "blob"
+        }
+      },
+      "entryPoint": "main",
+      "dependencies": {},
+      "progenitor": {
+        "url": "http://strd6.github.io/editor/"
+      },
+      "repository": {
+        "id": 14668729,
+        "name": "sprite",
+        "full_name": "distri/sprite",
+        "owner": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "private": false,
+        "html_url": "https://github.com/distri/sprite",
+        "description": "Sprites that can be drawn on an HTML5 canvas.",
+        "fork": false,
+        "url": "https://api.github.com/repos/distri/sprite",
+        "forks_url": "https://api.github.com/repos/distri/sprite/forks",
+        "keys_url": "https://api.github.com/repos/distri/sprite/keys{/key_id}",
+        "collaborators_url": "https://api.github.com/repos/distri/sprite/collaborators{/collaborator}",
+        "teams_url": "https://api.github.com/repos/distri/sprite/teams",
+        "hooks_url": "https://api.github.com/repos/distri/sprite/hooks",
+        "issue_events_url": "https://api.github.com/repos/distri/sprite/issues/events{/number}",
+        "events_url": "https://api.github.com/repos/distri/sprite/events",
+        "assignees_url": "https://api.github.com/repos/distri/sprite/assignees{/user}",
+        "branches_url": "https://api.github.com/repos/distri/sprite/branches{/branch}",
+        "tags_url": "https://api.github.com/repos/distri/sprite/tags",
+        "blobs_url": "https://api.github.com/repos/distri/sprite/git/blobs{/sha}",
+        "git_tags_url": "https://api.github.com/repos/distri/sprite/git/tags{/sha}",
+        "git_refs_url": "https://api.github.com/repos/distri/sprite/git/refs{/sha}",
+        "trees_url": "https://api.github.com/repos/distri/sprite/git/trees{/sha}",
+        "statuses_url": "https://api.github.com/repos/distri/sprite/statuses/{sha}",
+        "languages_url": "https://api.github.com/repos/distri/sprite/languages",
+        "stargazers_url": "https://api.github.com/repos/distri/sprite/stargazers",
+        "contributors_url": "https://api.github.com/repos/distri/sprite/contributors",
+        "subscribers_url": "https://api.github.com/repos/distri/sprite/subscribers",
+        "subscription_url": "https://api.github.com/repos/distri/sprite/subscription",
+        "commits_url": "https://api.github.com/repos/distri/sprite/commits{/sha}",
+        "git_commits_url": "https://api.github.com/repos/distri/sprite/git/commits{/sha}",
+        "comments_url": "https://api.github.com/repos/distri/sprite/comments{/number}",
+        "issue_comment_url": "https://api.github.com/repos/distri/sprite/issues/comments/{number}",
+        "contents_url": "https://api.github.com/repos/distri/sprite/contents/{+path}",
+        "compare_url": "https://api.github.com/repos/distri/sprite/compare/{base}...{head}",
+        "merges_url": "https://api.github.com/repos/distri/sprite/merges",
+        "archive_url": "https://api.github.com/repos/distri/sprite/{archive_format}{/ref}",
+        "downloads_url": "https://api.github.com/repos/distri/sprite/downloads",
+        "issues_url": "https://api.github.com/repos/distri/sprite/issues{/number}",
+        "pulls_url": "https://api.github.com/repos/distri/sprite/pulls{/number}",
+        "milestones_url": "https://api.github.com/repos/distri/sprite/milestones{/number}",
+        "notifications_url": "https://api.github.com/repos/distri/sprite/notifications{?since,all,participating}",
+        "labels_url": "https://api.github.com/repos/distri/sprite/labels{/name}",
+        "releases_url": "https://api.github.com/repos/distri/sprite/releases{/id}",
+        "created_at": "2013-11-24T20:34:55Z",
+        "updated_at": "2013-11-24T20:34:55Z",
+        "pushed_at": "2013-11-24T20:34:55Z",
+        "git_url": "git://github.com/distri/sprite.git",
+        "ssh_url": "git@github.com:distri/sprite.git",
+        "clone_url": "https://github.com/distri/sprite.git",
+        "svn_url": "https://github.com/distri/sprite",
+        "homepage": null,
+        "size": 0,
+        "stargazers_count": 0,
+        "watchers_count": 0,
+        "language": null,
+        "has_issues": true,
+        "has_downloads": true,
+        "has_wiki": true,
+        "forks_count": 0,
+        "mirror_url": null,
+        "open_issues_count": 0,
+        "forks": 0,
+        "open_issues": 0,
+        "watchers": 0,
+        "default_branch": "master",
+        "master_branch": "master",
+        "permissions": {
+          "admin": true,
+          "push": true,
+          "pull": true
+        },
+        "organization": {
+          "login": "distri",
+          "id": 6005125,
+          "avatar_url": "https://identicons.github.com/f90c81ffc1498e260c820082f2e7ca5f.png",
+          "gravatar_id": null,
+          "url": "https://api.github.com/users/distri",
+          "html_url": "https://github.com/distri",
+          "followers_url": "https://api.github.com/users/distri/followers",
+          "following_url": "https://api.github.com/users/distri/following{/other_user}",
+          "gists_url": "https://api.github.com/users/distri/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/distri/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/distri/subscriptions",
+          "organizations_url": "https://api.github.com/users/distri/orgs",
+          "repos_url": "https://api.github.com/users/distri/repos",
+          "events_url": "https://api.github.com/users/distri/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/distri/received_events",
+          "type": "Organization",
+          "site_admin": false
+        },
+        "network_count": 0,
+        "subscribers_count": 1,
+        "branch": "v0.1.1",
+        "defaultBranch": "master"
+      }
+    },
     "touch-canvas": {
       "version": "0.2.0",
       "source": {
@@ -1083,319 +1746,12 @@ require('./main')
         "branch": "v0.2.0",
         "defaultBranch": "master"
       }
-    },
-    "runtime": {
-      "version": "0.1.1",
-      "source": {
-        "LICENSE": {
-          "path": "LICENSE",
-          "mode": "100644",
-          "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
-          "type": "blob"
-        },
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "runtime\n=======\n",
-          "type": "blob"
-        },
-        "runtime.coffee.md": {
-          "path": "runtime.coffee.md",
-          "mode": "100644",
-          "content": "The runtime holds utilities to assist with an apps running environment.\n\nIt should me moved into it's own component one day.\n\n    Runtime = (pkg) ->\n\nHold on to a reference to our root node.\n\n      root = null\n\nReturns the node that is the parent of the script element that contains the code\nthat calls this function. If `document.write` has been called before this then the\nresults may not be accurate. Therefore be sure to call currentNode before\nwriting anything to the document.\n\n      currentNode = ->\n        target = document.documentElement\n\n        while (target.childNodes.length and target.lastChild.nodeType == 1)\n          target = target.lastChild\n\n        return target.parentNode\n\nDisplay a promo in the console linking back to the creator of this app.\n\n      promo = ->\n        console.log(\"%c You should meet my creator #{pkg.progenitor.url}\", \"\"\"\n          background: #000;\n          color: white;\n          font-size: 2em;\n          line-height: 2em;\n          padding: 10px 100px;\n          margin-bottom: 1em;\n          text-shadow:\n            0 0 0.05em #fff,\n            0 0 0.1em #fff,\n            0 0 0.15em #fff,\n            0 0 0.2em #ff00de,\n            0 0 0.35em #ff00de,\n            0 0 0.4em #ff00de,\n            0 0 0.5em #ff00de,\n            0 0 0.75em #ff00de;'\n        \"\"\")\n\nCall on start to boot up the runtime, get the root node, add styles, display a\npromo.\n\n      boot: ->\n        root = currentNode()\n\n        promo()\n\n        return root\n\nApply the stylesheet to the root node.\n\n      applyStyleSheet: (style) ->\n        styleNode = document.createElement(\"style\")\n        styleNode.innerHTML = style\n\n        root.appendChild(styleNode)\n\nExport\n\n    module.exports = Runtime\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"0.1.1\"\nentryPoint: \"runtime\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.0.js\"\n]\n",
-          "type": "blob"
-        },
-        "test/runtime.coffee": {
-          "path": "test/runtime.coffee",
-          "mode": "100644",
-          "content": "Runtime = require \"../runtime\"\n\ndescribe \"Runtime\", ->\n  it \"should be created from a package and provide a boot method\", ->\n    assert Runtime(PACKAGE).boot\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "runtime": {
-          "path": "runtime",
-          "content": "(function() {\n  var Runtime;\n\n  Runtime = function(pkg) {\n    var currentNode, promo, root;\n    root = null;\n    currentNode = function() {\n      var target;\n      target = document.documentElement;\n      while (target.childNodes.length && target.lastChild.nodeType === 1) {\n        target = target.lastChild;\n      }\n      return target.parentNode;\n    };\n    promo = function() {\n      return console.log(\"%c You should meet my creator \" + pkg.progenitor.url, \"background: #000;\\ncolor: white;\\nfont-size: 2em;\\nline-height: 2em;\\npadding: 10px 100px;\\nmargin-bottom: 1em;\\ntext-shadow:\\n  0 0 0.05em #fff,\\n  0 0 0.1em #fff,\\n  0 0 0.15em #fff,\\n  0 0 0.2em #ff00de,\\n  0 0 0.35em #ff00de,\\n  0 0 0.4em #ff00de,\\n  0 0 0.5em #ff00de,\\n  0 0 0.75em #ff00de;'\");\n    };\n    return {\n      boot: function() {\n        root = currentNode();\n        promo();\n        return root;\n      },\n      applyStyleSheet: function(style) {\n        var styleNode;\n        styleNode = document.createElement(\"style\");\n        styleNode.innerHTML = style;\n        return root.appendChild(styleNode);\n      }\n    };\n  };\n\n  module.exports = Runtime;\n\n}).call(this);\n",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"0.1.1\",\"entryPoint\":\"runtime\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.0.js\"]};",
-          "type": "blob"
-        },
-        "test/runtime": {
-          "path": "test/runtime",
-          "content": "(function() {\n  var Runtime;\n\n  Runtime = require(\"../runtime\");\n\n  describe(\"Runtime\", function() {\n    return it(\"should be created from a package and provide a boot method\", function() {\n      return assert(Runtime(PACKAGE).boot);\n    });\n  });\n\n}).call(this);\n",
-          "type": "blob"
-        }
-      },
-      "entryPoint": "runtime",
-      "dependencies": {},
-      "remoteDependencies": [
-        "http://strd6.github.io/require/v0.2.0.js"
-      ],
-      "repository": {
-        "id": 13202878,
-        "name": "runtime",
-        "full_name": "STRd6/runtime",
-        "owner": {
-          "login": "STRd6",
-          "id": 18894,
-          "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
-          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
-          "url": "https://api.github.com/users/STRd6",
-          "html_url": "https://github.com/STRd6",
-          "followers_url": "https://api.github.com/users/STRd6/followers",
-          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
-          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
-          "organizations_url": "https://api.github.com/users/STRd6/orgs",
-          "repos_url": "https://api.github.com/users/STRd6/repos",
-          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/STRd6/received_events",
-          "type": "User"
-        },
-        "private": false,
-        "html_url": "https://github.com/STRd6/runtime",
-        "description": "",
-        "fork": false,
-        "url": "https://api.github.com/repos/STRd6/runtime",
-        "forks_url": "https://api.github.com/repos/STRd6/runtime/forks",
-        "keys_url": "https://api.github.com/repos/STRd6/runtime/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/STRd6/runtime/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/STRd6/runtime/teams",
-        "hooks_url": "https://api.github.com/repos/STRd6/runtime/hooks",
-        "issue_events_url": "https://api.github.com/repos/STRd6/runtime/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/STRd6/runtime/events",
-        "assignees_url": "https://api.github.com/repos/STRd6/runtime/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/STRd6/runtime/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/STRd6/runtime/tags",
-        "blobs_url": "https://api.github.com/repos/STRd6/runtime/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/STRd6/runtime/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/STRd6/runtime/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/STRd6/runtime/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/STRd6/runtime/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/STRd6/runtime/languages",
-        "stargazers_url": "https://api.github.com/repos/STRd6/runtime/stargazers",
-        "contributors_url": "https://api.github.com/repos/STRd6/runtime/contributors",
-        "subscribers_url": "https://api.github.com/repos/STRd6/runtime/subscribers",
-        "subscription_url": "https://api.github.com/repos/STRd6/runtime/subscription",
-        "commits_url": "https://api.github.com/repos/STRd6/runtime/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/STRd6/runtime/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/STRd6/runtime/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/STRd6/runtime/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/STRd6/runtime/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/STRd6/runtime/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/STRd6/runtime/merges",
-        "archive_url": "https://api.github.com/repos/STRd6/runtime/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/STRd6/runtime/downloads",
-        "issues_url": "https://api.github.com/repos/STRd6/runtime/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/STRd6/runtime/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/STRd6/runtime/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/STRd6/runtime/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/STRd6/runtime/labels{/name}",
-        "created_at": "2013-09-30T00:44:37Z",
-        "updated_at": "2013-09-30T00:44:37Z",
-        "pushed_at": "2013-09-30T00:44:37Z",
-        "git_url": "git://github.com/STRd6/runtime.git",
-        "ssh_url": "git@github.com:STRd6/runtime.git",
-        "clone_url": "https://github.com/STRd6/runtime.git",
-        "svn_url": "https://github.com/STRd6/runtime",
-        "homepage": null,
-        "size": 0,
-        "watchers_count": 0,
-        "language": null,
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 0,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 0,
-        "open_issues": 0,
-        "watchers": 0,
-        "master_branch": "master",
-        "default_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "network_count": 0,
-        "branch": "v0.1.1",
-        "defaultBranch": "master",
-        "includedModules": [
-          "Bindable"
-        ]
-      },
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "name": "runtime"
-    },
-    "priority_queue": {
-      "version": "2.0.0-pre",
-      "source": {
-        "README.md": {
-          "path": "README.md",
-          "mode": "100644",
-          "content": "Description\n-----------\n\nA priority queue is a handy data structure with many uses. From graph search\nalgorithms to simple job queues, having this in your toolbelt will help to give\nyou a solid foundation.\n\nFeatures\n--------\n\n* Simple to use and understand.\n* Creates a single PriorityQueue constructor.\n* Instantiate via `PriorityQueue()` or `new PriorityQueue()`\n* Offers both highest first and lowest first ordering.\n* Test suite included.\n\nThe default is highest priority first, but when doing something like A* you want lowest priority first... it handles it: `queue = PriorityQueue({low: true});` Boom!\n\nExample Usage\n-------------\n\n    # Highest priority first\n    queue = PriorityQueue()\n\n    queue.push(\"b\", 5)\n    queue.push(\"a\", 10)\n\n    queue.pop() # => \"a\"\n    queue.pop() # => \"b\"\n\n    # Lowest priority first\n    queue = PriorityQueue\n      low: true\n\n    queue.push(\"x\", 5)\n    queue.push(\"y\", 10)\n\n    queue.pop() # => \"x\"\n    queue.pop() # => \"y\"\n\nLicense\n-------\n\nMIT\n",
-          "type": "blob"
-        },
-        "main.coffee.md": {
-          "path": "main.coffee.md",
-          "mode": "100644",
-          "content": "Priority Queue\n==============\n\nPriorityQueue manages a queue of elements with priorities. The defaul behavior\nis to return elements with the highest priority first.\n\nIf `low` is set to `true` returns lowest first instead.\n\n    PriorityQueue = (options={}) ->\n      items = []\n      sorted = false\n\n      if options.low\n        sortStyle = prioritySortLow\n      else\n        sortStyle = prioritySortHigh\n\n      sort = ->\n        items.sort sortStyle\n        sorted = true\n\nAccessor functions need to ensure the items are sorted. This decorator wraps\nthat up nicely.\n\n      ensureSorted = (fn) ->\n        (args...) ->\n          sort() unless sorted\n          fn(args...)\n\nPublic Methods\n--------------\n\nRemoves and returns the next element in the queue. If the queue is empty returns\n`undefined`.\n\n      pop: ensureSorted ->\n        items.pop()?.object\n\nReturns but does not remove the next element in the queue. If the queue is empty\nreturns `undefined`.\n\n      top: ensureSorted ->\n        items[items.length - 1]?.object\n\nCheck if the given object is included in the priority queue. Returns true if\nit was found, false if not.\n\n      includes: (object) ->\n        items.reduce (found, item) ->\n          found or (object is item.object)\n        , false\n\nReturn the current number of elements in the queue.\n\n      size: ->\n        items.length\n\nCheck if the queue is empty. Returns true if there are no items in the queue,\nfalse otherwise.\n\n      empty: ->\n        items.length is 0\n\nPush an object onto the queue with the given priority.\n\n      push: (object, priority) ->\n        items.push\n          object: object\n          priority: priority\n\n        sorted = false\n\nHelpers\n-------\n\n    prioritySortLow = (a, b) ->\n      b.priority - a.priority\n\n    prioritySortHigh = (a, b) ->\n      a.priority - b.priority\n\nExport\n------\n\n    if module?\n      module.exports = PriorityQueue\n    else\n      window.PriorityQueue = PriorityQueue\n",
-          "type": "blob"
-        },
-        "pixie.cson": {
-          "path": "pixie.cson",
-          "mode": "100644",
-          "content": "version: \"2.0.0-pre\"\nentryPoint: \"main\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js?\"\n]\n",
-          "type": "blob"
-        },
-        "test/priority_queue.coffee": {
-          "path": "test/priority_queue.coffee",
-          "mode": "100644",
-          "content": "PriorityQueue = require \"../main\"\n\nok = assert\nequals = assert.equal\ntest = it\n\ndescribe \"PriorityQueue\", ->\n  test \"#push\", ->\n    queue = PriorityQueue()\n    queue.push 2, 5\n\n    ok queue.size() is 1, \"queue.size()\"\n    ok not queue.empty(), \"!queue.empty()\"\n\n  test \"#includes\", ->\n    queue = PriorityQueue()\n    queue.push 5, 0\n\n    equals queue.includes(5), true\n    equals queue.includes(0), false\n\n  test \"#empty\", ->\n    queue = PriorityQueue()\n    ok queue.size() is 0, \"queue.size() === 0\"\n    ok queue.empty(), \"queue.empty()\"\n\n  test \"#pop empty queue\", ->\n    equals PriorityQueue().pop(), undefined\n\n  test \"#pop\", ->\n    queue = PriorityQueue()\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 10\n    queue.push decent, 5\n    queue.push bad, 1\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n\n  test \"#pop with low => true\", ->\n    queue = PriorityQueue(low: true)\n\n    good = {}\n    decent = {}\n    bad = {}\n\n    queue.push good, 1\n    queue.push decent, 5\n    queue.push bad, 10\n\n    equals queue.pop(), good, \"Start with best\"\n    equals queue.pop(), decent, \"then next best\"\n    equals queue.pop(), bad, \"then next\"\n",
-          "type": "blob"
-        }
-      },
-      "distribution": {
-        "main": {
-          "path": "main",
-          "content": "(function() {\n  var PriorityQueue, prioritySortHigh, prioritySortLow,\n    __slice = [].slice;\n\n  PriorityQueue = function(options) {\n    var ensureSorted, items, sort, sortStyle, sorted;\n    if (options == null) {\n      options = {};\n    }\n    items = [];\n    sorted = false;\n    if (options.low) {\n      sortStyle = prioritySortLow;\n    } else {\n      sortStyle = prioritySortHigh;\n    }\n    sort = function() {\n      items.sort(sortStyle);\n      return sorted = true;\n    };\n    ensureSorted = function(fn) {\n      return function() {\n        var args;\n        args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n        if (!sorted) {\n          sort();\n        }\n        return fn.apply(null, args);\n      };\n    };\n    return {\n      pop: ensureSorted(function() {\n        var _ref;\n        return (_ref = items.pop()) != null ? _ref.object : void 0;\n      }),\n      top: ensureSorted(function() {\n        var _ref;\n        return (_ref = items[items.length - 1]) != null ? _ref.object : void 0;\n      }),\n      includes: function(object) {\n        return items.reduce(function(found, item) {\n          return found || (object === item.object);\n        }, false);\n      },\n      size: function() {\n        return items.length;\n      },\n      empty: function() {\n        return items.length === 0;\n      },\n      push: function(object, priority) {\n        items.push({\n          object: object,\n          priority: priority\n        });\n        return sorted = false;\n      }\n    };\n  };\n\n  prioritySortLow = function(a, b) {\n    return b.priority - a.priority;\n  };\n\n  prioritySortHigh = function(a, b) {\n    return a.priority - b.priority;\n  };\n\n  if (typeof module !== \"undefined\" && module !== null) {\n    module.exports = PriorityQueue;\n  } else {\n    window.PriorityQueue = PriorityQueue;\n  }\n\n}).call(this);\n\n//# sourceURL=main.coffee",
-          "type": "blob"
-        },
-        "pixie": {
-          "path": "pixie",
-          "content": "module.exports = {\"version\":\"2.0.0-pre\",\"entryPoint\":\"main\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js?\"]};",
-          "type": "blob"
-        },
-        "test/priority_queue": {
-          "path": "test/priority_queue",
-          "content": "(function() {\n  var PriorityQueue, equals, ok, test;\n\n  PriorityQueue = require(\"../main\");\n\n  ok = assert;\n\n  equals = assert.equal;\n\n  test = it;\n\n  describe(\"PriorityQueue\", function() {\n    test(\"#push\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(2, 5);\n      ok(queue.size() === 1, \"queue.size()\");\n      return ok(!queue.empty(), \"!queue.empty()\");\n    });\n    test(\"#includes\", function() {\n      var queue;\n      queue = PriorityQueue();\n      queue.push(5, 0);\n      equals(queue.includes(5), true);\n      return equals(queue.includes(0), false);\n    });\n    test(\"#empty\", function() {\n      var queue;\n      queue = PriorityQueue();\n      ok(queue.size() === 0, \"queue.size() === 0\");\n      return ok(queue.empty(), \"queue.empty()\");\n    });\n    test(\"#pop empty queue\", function() {\n      return equals(PriorityQueue().pop(), void 0);\n    });\n    test(\"#pop\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue();\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 10);\n      queue.push(decent, 5);\n      queue.push(bad, 1);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n    return test(\"#pop with low => true\", function() {\n      var bad, decent, good, queue;\n      queue = PriorityQueue({\n        low: true\n      });\n      good = {};\n      decent = {};\n      bad = {};\n      queue.push(good, 1);\n      queue.push(decent, 5);\n      queue.push(bad, 10);\n      equals(queue.pop(), good, \"Start with best\");\n      equals(queue.pop(), decent, \"then next best\");\n      return equals(queue.pop(), bad, \"then next\");\n    });\n  });\n\n}).call(this);\n\n//# sourceURL=test/priority_queue.coffee",
-          "type": "blob"
-        }
-      },
-      "entryPoint": "main",
-      "dependencies": {},
-      "remoteDependencies": [
-        "http://strd6.github.io/require/v0.2.2.js?"
-      ],
-      "progenitor": {
-        "url": "http://strd6.github.io/editor/"
-      },
-      "repository": {
-        "id": 220605,
-        "name": "priority_queue",
-        "full_name": "STRd6/priority_queue",
-        "owner": {
-          "login": "STRd6",
-          "id": 18894,
-          "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
-          "gravatar_id": "33117162fff8a9cf50544a604f60c045",
-          "url": "https://api.github.com/users/STRd6",
-          "html_url": "https://github.com/STRd6",
-          "followers_url": "https://api.github.com/users/STRd6/followers",
-          "following_url": "https://api.github.com/users/STRd6/following{/other_user}",
-          "gists_url": "https://api.github.com/users/STRd6/gists{/gist_id}",
-          "starred_url": "https://api.github.com/users/STRd6/starred{/owner}{/repo}",
-          "subscriptions_url": "https://api.github.com/users/STRd6/subscriptions",
-          "organizations_url": "https://api.github.com/users/STRd6/orgs",
-          "repos_url": "https://api.github.com/users/STRd6/repos",
-          "events_url": "https://api.github.com/users/STRd6/events{/privacy}",
-          "received_events_url": "https://api.github.com/users/STRd6/received_events",
-          "type": "User",
-          "site_admin": false
-        },
-        "private": false,
-        "html_url": "https://github.com/STRd6/priority_queue",
-        "description": "A JavaScript PriorityQueue",
-        "fork": false,
-        "url": "https://api.github.com/repos/STRd6/priority_queue",
-        "forks_url": "https://api.github.com/repos/STRd6/priority_queue/forks",
-        "keys_url": "https://api.github.com/repos/STRd6/priority_queue/keys{/key_id}",
-        "collaborators_url": "https://api.github.com/repos/STRd6/priority_queue/collaborators{/collaborator}",
-        "teams_url": "https://api.github.com/repos/STRd6/priority_queue/teams",
-        "hooks_url": "https://api.github.com/repos/STRd6/priority_queue/hooks",
-        "issue_events_url": "https://api.github.com/repos/STRd6/priority_queue/issues/events{/number}",
-        "events_url": "https://api.github.com/repos/STRd6/priority_queue/events",
-        "assignees_url": "https://api.github.com/repos/STRd6/priority_queue/assignees{/user}",
-        "branches_url": "https://api.github.com/repos/STRd6/priority_queue/branches{/branch}",
-        "tags_url": "https://api.github.com/repos/STRd6/priority_queue/tags",
-        "blobs_url": "https://api.github.com/repos/STRd6/priority_queue/git/blobs{/sha}",
-        "git_tags_url": "https://api.github.com/repos/STRd6/priority_queue/git/tags{/sha}",
-        "git_refs_url": "https://api.github.com/repos/STRd6/priority_queue/git/refs{/sha}",
-        "trees_url": "https://api.github.com/repos/STRd6/priority_queue/git/trees{/sha}",
-        "statuses_url": "https://api.github.com/repos/STRd6/priority_queue/statuses/{sha}",
-        "languages_url": "https://api.github.com/repos/STRd6/priority_queue/languages",
-        "stargazers_url": "https://api.github.com/repos/STRd6/priority_queue/stargazers",
-        "contributors_url": "https://api.github.com/repos/STRd6/priority_queue/contributors",
-        "subscribers_url": "https://api.github.com/repos/STRd6/priority_queue/subscribers",
-        "subscription_url": "https://api.github.com/repos/STRd6/priority_queue/subscription",
-        "commits_url": "https://api.github.com/repos/STRd6/priority_queue/commits{/sha}",
-        "git_commits_url": "https://api.github.com/repos/STRd6/priority_queue/git/commits{/sha}",
-        "comments_url": "https://api.github.com/repos/STRd6/priority_queue/comments{/number}",
-        "issue_comment_url": "https://api.github.com/repos/STRd6/priority_queue/issues/comments/{number}",
-        "contents_url": "https://api.github.com/repos/STRd6/priority_queue/contents/{+path}",
-        "compare_url": "https://api.github.com/repos/STRd6/priority_queue/compare/{base}...{head}",
-        "merges_url": "https://api.github.com/repos/STRd6/priority_queue/merges",
-        "archive_url": "https://api.github.com/repos/STRd6/priority_queue/{archive_format}{/ref}",
-        "downloads_url": "https://api.github.com/repos/STRd6/priority_queue/downloads",
-        "issues_url": "https://api.github.com/repos/STRd6/priority_queue/issues{/number}",
-        "pulls_url": "https://api.github.com/repos/STRd6/priority_queue/pulls{/number}",
-        "milestones_url": "https://api.github.com/repos/STRd6/priority_queue/milestones{/number}",
-        "notifications_url": "https://api.github.com/repos/STRd6/priority_queue/notifications{?since,all,participating}",
-        "labels_url": "https://api.github.com/repos/STRd6/priority_queue/labels{/name}",
-        "releases_url": "https://api.github.com/repos/STRd6/priority_queue/releases{/id}",
-        "created_at": "2009-06-07T01:59:36Z",
-        "updated_at": "2013-11-12T20:42:13Z",
-        "pushed_at": "2013-11-12T20:42:12Z",
-        "git_url": "git://github.com/STRd6/priority_queue.git",
-        "ssh_url": "git@github.com:STRd6/priority_queue.git",
-        "clone_url": "https://github.com/STRd6/priority_queue.git",
-        "svn_url": "https://github.com/STRd6/priority_queue",
-        "homepage": "",
-        "size": 292,
-        "stargazers_count": 17,
-        "watchers_count": 17,
-        "language": "JavaScript",
-        "has_issues": true,
-        "has_downloads": true,
-        "has_wiki": true,
-        "forks_count": 9,
-        "mirror_url": null,
-        "open_issues_count": 0,
-        "forks": 9,
-        "open_issues": 0,
-        "watchers": 17,
-        "default_branch": "master",
-        "master_branch": "master",
-        "permissions": {
-          "admin": true,
-          "push": true,
-          "pull": true
-        },
-        "network_count": 9,
-        "subscribers_count": 2,
-        "branch": "v2.0.0-pre",
-        "defaultBranch": "master"
-      }
     }
   },
   "remoteDependencies": [
     "//code.jquery.com/jquery-1.10.1.min.js",
     "//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js",
-    "http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js",
-    "http://strd6.github.io/require/v0.2.2.js"
+    "http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"
   ],
   "progenitor": {
     "url": "http://strd6.github.io/editor/"
@@ -1407,7 +1763,7 @@ require('./main')
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+      "avatar_url": "https://1.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -1464,14 +1820,14 @@ require('./main')
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-11-20T00:43:34Z",
-    "pushed_at": "2013-11-20T00:43:33Z",
+    "updated_at": "2013-11-25T02:35:17Z",
+    "pushed_at": "2013-11-24T20:56:49Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
     "svn_url": "https://github.com/STRd6/tactics",
     "homepage": "http://strd6.github.io/tactics",
-    "size": 1101,
+    "size": 880,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "CoffeeScript",
@@ -1480,9 +1836,9 @@ require('./main')
     "has_wiki": true,
     "forks_count": 1,
     "mirror_url": null,
-    "open_issues_count": 0,
+    "open_issues_count": 2,
     "forks": 1,
-    "open_issues": 0,
+    "open_issues": 2,
     "watchers": 0,
     "default_branch": "master",
     "master_branch": "master",

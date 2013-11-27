@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>array_helpers</title>
+  <title>feature</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="array-helpers">Array Helpers</h1>
+              <h1 id="feature">Feature</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,38 +32,34 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>A bunch of array helpers that will work with Points and other objects that
-implement an <code>.equal</code> method.</p>
-<p>Returns the index of the element in the array if present, undefined if not.</p>
+              <p>Features are things that are present within tiles in the tactical combat view.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">indexOf</span></span> = (array, item) -&gt;
-  <span class="keyword">for</span> element, index <span class="keyword">in</span> array
-    <span class="keyword">return</span> index <span class="keyword">if</span> element.equal(item)
+            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
+Sprite = require <span class="string">"sprite"</span>
+Type = require <span class="string">"./type"</span>
 
-  <span class="keyword">return</span>
+module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
+  Object.defaults I,
+    movementPenalty: <span class="number">0</span>
+    opaque: <span class="literal">false</span>
+    type: Type.Dirt
+    zIndex: -<span class="number">1</span>
 
-<span class="function"><span class="title">without</span></span> = (array, values...) -&gt;
-  array.reject (element) -&gt;
-    indexOf(values, element)?
+  self.attrAccessor(
+    <span class="string">"movementPenalty"</span>
+    <span class="string">"opaque"</span>
+    <span class="string">"type"</span>
+    <span class="string">"zIndex"</span>
+  )
 
-<span class="function"><span class="title">unique</span></span> = (array) -&gt;
-  array.reduce (results, element) -&gt;
-    results.push element <span class="keyword">unless</span> indexOf(results, element)
-    results
-  , []
+  Object.extend self,
+    draw: -&gt;
+      self.sprite().draw arguments...
+    sprite: -&gt;
+      Resource.sprite(I.spriteName) <span class="keyword">or</span> Sprite.NONE
 
-<span class="function"><span class="title">intersection</span></span> = (array, others...) -&gt;
-  unique(array).filter (item) -&gt;
-    others.every (array) -&gt;
-      indexOf(array, item)?
-
-module.exports = {
-  indexOf
-  intersection
-  unique
-  without
-}</code></pre>
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

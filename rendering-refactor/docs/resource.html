@@ -42,14 +42,14 @@ resources.</p>
 excessive.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Sprite = require <span class="string">"./sprite"</span>
-cache = require <span class="string">"./images"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Sprite = require <span class="string">"sprite"</span>
+images = require <span class="string">"./images"</span>
 
 Resource =
   dataURL: (name) -&gt;
-    cache[name]
+    images[name]
   sprite: (name) -&gt;
-    Sprite.load cache[name]
+    Sprite.load images[name]
 
 module.exports = Resource</code></pre>
 </div>
@@ -60,7 +60,7 @@ module.exports = Resource</code></pre>
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"></script><script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
   $.ajax({
     url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
     dataType: "jsonp",

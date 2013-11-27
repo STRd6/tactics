@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>TODO</title>
+  <title>type</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,10 +18,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="todo">TODO</h1>
+              <h1 id="type">Type</h1>
 
             </div>
-            <div class="content"><pre><code>
+            <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
 </div>
         </li>
@@ -32,10 +32,14 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <h2 id="tactical">Tactical</h2>
+              <p>Holding all the types of things. Keeping all the types here really just helps
+with static analysis. It&#39;s possible to use strings to hold and compare types
+and for new ones or extensions and modules that may be fine. Eventually they&#39;ll
+end up here if they&#39;re important.</p>
+<h2 id="helpers">Helpers</h2>
 
             </div>
-            <div class="content"><pre><code>
+            <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
 </div>
         </li>
@@ -46,18 +50,14 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Display Squad Overview, Click to Activate and Center</p>
-<p>Handle winning and losing</p>
-<p>Simple Ability Animations</p>
-<p>Smooth transitions</p>
-<p>Random Level Generation</p>
-<p>Display Messages</p>
-<p>Map Scrolling</p>
-<h2 id="abilities">Abilities</h2>
-
+              
             </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">toObject</span></span> = (list) -&gt;
+  list.split(<span class="string">"\n"</span>).reduce (object, item) -&gt;
+    object[item] = item.toLowerCase()
+
+    object
+  , {}</code></pre>
 </div>
         </li>
         
@@ -67,12 +67,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Healing</p>
-<p>Blink</p>
-<h2 id="overwold-map">Overwold Map</h2>
+              <h2 id="list">List</h2>
 
             </div>
-            <div class="content"><pre><code>
+            <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
 </div>
         </li>
@@ -83,65 +81,15 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Start with one screen where you can choose quests/missions</p>
-<h2 id="ai">AI</h2>
-<p>Anything at all</p>
-<h1 id="done">Done</h1>
-
+              
             </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-6">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              <h2 id="tactical">Tactical</h2>
-
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-7">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-7">&#182;</a>
-              </div>
-              <p>Disable Ability if can&#39;t pay cost</p>
-<p>Ability Cooldowns</p>
-<p>Passable allies</p>
-<p>Cancel action targetting</p>
-<p>Handle 2 squads on map</p>
-<p>4 characters in each squad</p>
-<p>Remove characters with zero health in SBEs</p>
-<h2 id="abilities">Abilities</h2>
-
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-8">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-8">&#182;</a>
-              </div>
-              <p>Ranged attacks</p>
-<p>Fireball</p>
-<p>Regeneration</p>
-
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">module.exports = toObject <span class="string">"""
+  Dirt
+  Plant
+  Water
+  Ice
+  Fire
+"""</span></code></pre>
 </div>
         </li>
         
