@@ -9,11 +9,11 @@ Drawing the map data on the screen.
     skeleton = Resource.sprite "skeleton"
 
     tileSize = Size(32, 32)
-    
+
     drawGround = (tiles, canvas) ->
       tiles.forEach ([{sprite}, position]) ->
         sprite.draw canvas, position.scale(tileSize)
-    
+
     drawFeatures = (tiles, canvas) ->
       tiles.forEach ([{features}, position]) ->
         features.forEach (feature) ->
@@ -21,8 +21,7 @@ Drawing the map data on the screen.
 
     drawCharacters = (tiles, characterAt, canvas, t) ->
       tiles.forEach ([_, position]) ->
-        bounce = Point(Math.cos(Math.TAU * t / 12), 0).scale(2).floor()
-        canvasPosition = position.scale(tileSize).add(bounce)
+        canvasPosition = position.scale(tileSize)
 
         if character = characterAt(position)
           if character.alive()
@@ -55,9 +54,9 @@ Drawing the map data on the screen.
 
           index = self.activeSquadIndex()
           seenTiles = self.seenTiles(index)
-          
+
           drawGround(seenTiles, canvas)
-          
+
           [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
             tile.lit[index]
 
