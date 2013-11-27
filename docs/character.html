@@ -35,9 +35,10 @@
               <p>Those little guys that run around.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Action = require <span class="string">"./action"</span>
-Ability = require <span class="string">"./ability"</span>
+Effect = require <span class="string">"./effect"</span>
+Resource = require <span class="string">"./resource"</span>
 Names = require <span class="string">"./names"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
@@ -45,6 +46,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   I.sprite = Resource.sprite(I.sprite)
 
   Object.defaults I,
+    alive: <span class="literal">true</span>
     actions: <span class="number">2</span>
     cooldowns: {}
     health: <span class="number">3</span>
@@ -57,6 +59,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     ]
 
   self.attrAccessor(
+    <span class="string">"alive"</span>
     <span class="string">"actions"</span>
     <span class="string">"health"</span>
     <span class="string">"healthMax"</span>
@@ -68,9 +71,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   )
 
   Object.extend self,
-    alive: -&gt;
-      I.health &gt; <span class="number">0</span>
-
     damage: (amount) -&gt;
       I.health -= amount
 
@@ -83,13 +83,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     setCooldown: (ability) -&gt;
       I.cooldowns[ability.name()] = ability.cooldown()
 
-    stateBasedActions: -&gt;
+    stateBasedActions: (stack) -&gt;
+      <span class="keyword">return</span> <span class="keyword">if</span> !I.alive
+
       <span class="keyword">if</span> I.health &gt; I.healthMax
         I.health = I.healthMax
 
       <span class="comment"># Clamping actions and cooldowns</span>
       <span class="keyword">if</span> I.health &lt;= <span class="number">0</span>
+        <span class="comment"># Died</span>
+        I.alive = <span class="literal">false</span>
         I.actions = <span class="number">0</span>
+
+        <span class="comment"># Push death effect</span>
+        stack.push [Effect.Death, self.position()]
 
       Object.keys(I.cooldowns).forEach (name) -&gt;
         <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>

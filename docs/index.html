@@ -106,8 +106,11 @@ accessiblePositions = <span class="literal">null</span>
     map.stateBasedActions()
     accessiblePositions = map.accessiblePositions()
 
+t = <span class="number">0</span>
 setInterval -&gt;
-  map?.render(canvas)
+  t += <span class="number">0.3333333</span>
+
+  map?.render(canvas, t)
   updateUiCanvas()
 , <span class="number">33.3333333</span>
 
@@ -127,7 +130,7 @@ uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p
       map.selectTarget tilePosition
       update()
   <span class="keyword">else</span>
-    map.touch tilePosition
+    map?.touch tilePosition
 
 gridSprite = Resource.sprite(<span class="string">"grid_blue"</span>)
 
