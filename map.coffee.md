@@ -13,13 +13,6 @@ The primary tactical combat screen.
       intersection
     } = require "./array_helpers"
 
-    moveDirections = [
-      Point(1, 0)
-      Point(-1, 0)
-      Point(0, 1)
-      Point(0, -1)
-    ]
-
     module.exports = (I={}, self) ->
       self ?= Core(I)
 
@@ -136,8 +129,7 @@ The primary tactical combat screen.
             squad.stateBasedActions(stack)
 
           if stack.length
-            stack.map ([effect, position]) ->
-              self.addEffect(effect, position)
+            stack.map self.performEffect
 
             # Prevent infinite recursion
             if n > 0
@@ -166,18 +158,6 @@ The primary tactical combat screen.
           else
             ;# No survivors
 
-Add an effect to the map at the given position.
-
-TODO: 'Instance' effects so they can know their own position in addition to other
-effect metadata.
-
-        addEffect: (effect, position) ->
-          effect.perform
-            characterAt: characterAt
-            position: position
-            tileAt: tileAt
-            message: self.message
-
         message: (message) ->
           self.messages.push message
 
@@ -185,9 +165,15 @@ effect metadata.
           ability.perform owner,
             position: targetPosition
             character: characterAt targetPosition
-            addEffect: self.addEffect
+            addEffect: self.performEffect # TODO: Figure out how to get an effect stack in here
 
           self.stateBasedActions()
+
+        performEffect: (effect) ->
+          effect.perform
+            characterAt: characterAt
+            tileAt: tileAt
+            message: self.message
 
         selectTarget: (position) ->
           ability = self.targettingAbility()

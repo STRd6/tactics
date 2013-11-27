@@ -64,7 +64,7 @@ Those little guys that run around.
             I.actions = 0
 
             # Push death effect
-            stack.push [Effect.Death, self.position()]
+            stack.push Effect.Death(self.position())
 
           Object.keys(I.cooldowns).forEach (name) ->
             if I.cooldowns[name] < 0

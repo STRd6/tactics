@@ -4,9 +4,6 @@ Map Rendering
 Drawing the map data on the screen.
 
     {Size, Bounds} = require "./lib/util"
-    Resource = require "./resource"
-
-    skeleton = Resource.sprite "skeleton"
 
     tileSize = Size(32, 32)
 

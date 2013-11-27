@@ -11,8 +11,10 @@ Effects are things like explosions or dispelling undead. Maybe even fire or
 electricity, I don't know yet.
 
     module.exports = Effect = (I={}, self=Core(I)) ->
+      # TODO
 
-      perform: ({position, tileAt, characterAt, message}) ->
+    Effect.Fire = (position) ->
+      perform: ({tileAt, characterAt, message}) ->
         if tile = tileAt(position)
           # Fireball Effect
           Object.extend tile,
@@ -25,8 +27,8 @@ electricity, I don't know yet.
             message("#{character.name()} is burned!")
             character.damage(2)
 
-    Effect.Death =
-      perform: ({position, tileAt}) ->
+    Effect.Death = (position) ->
+      perform: ({tileAt}) ->
         if tile = tileAt(position)
           tile.features.push Feature
             spriteName: "skeleton"

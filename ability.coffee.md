@@ -169,7 +169,7 @@ Should there be range types too? Connected, any, passable, etc?
         targetZone: TARGET_ZONE.LINE_OF_SIGHT
         perform: (owner, {position, addEffect}) ->
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect(), position)
+            addEffect(Effect.Fire(position))
 
       Wait: Ability
         name: "Wait"
