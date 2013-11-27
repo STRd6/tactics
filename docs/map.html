@@ -100,6 +100,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   search = MapSearch(grid.get, characterAt)
 
+  effectStack = []
+
   Object.extend self,
     messages: Observable []
     activeSquadIndex: -&gt;
@@ -154,20 +156,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
               positionsInRange
             )
 
-    stateBasedActions: (n=<span class="number">16</span>) -&gt;
-      stack = []
-
+    stateBasedActions: -&gt;
       squads.forEach (squad) -&gt;
-        squad.stateBasedActions(stack)
+        squad.stateBasedActions
+          addEffect: self.addEffect
 
-      <span class="keyword">if</span> stack.length
-        stack.map self.performEffect
-
-        <span class="comment"># Prevent infinite recursion</span>
-        <span class="keyword">if</span> n &gt; <span class="number">0</span>
-          self.stateBasedActions(n-<span class="number">1</span>)
-        <span class="keyword">else</span>
-          console.warn <span class="string">"State Based Actions failed to completely resolve in 16 iterations"</span>
+      <span class="keyword">while</span> effectStack.length
+        <span class="comment"># TODO: This could fall victim to infinite recursion</span>
+        self.performEffect effectStack.pop()
 
       <span class="comment"># TODO: May be able to consolidate these into the stack resolution</span>
       activeSquad nextActivatableSquad()
@@ -193,19 +189,26 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     message: (message) -&gt;
       self.messages.push message
 
+    addEffect: (effect) -&gt;
+      effectStack.push effect
+
     performAbility: (owner, ability, targetPosition) -&gt;
       ability.perform owner,
-        position: targetPosition
+        addEffect: self.addEffect
         character: characterAt targetPosition
-        addEffect: self.performEffect <span class="comment"># TODO: Figure out how to get an effect stack in here</span>
+        message: self.message
+        position: targetPosition
 
       self.stateBasedActions()
 
     performEffect: (effect) -&gt;
       effect.perform
+        addEffect: self.addEffect
         characterAt: characterAt
-        tileAt: tileAt
         message: self.message
+        tileAt: tileAt
+
+      self.stateBasedActions()
 
     selectTarget: (position) -&gt;
       ability = self.targettingAbility()

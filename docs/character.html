@@ -83,7 +83,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     setCooldown: (ability) -&gt;
       I.cooldowns[ability.name()] = ability.cooldown()
 
-    stateBasedActions: (stack) -&gt;
+    stateBasedActions: ({addEffect}) -&gt;
       <span class="keyword">return</span> <span class="keyword">if</span> !I.alive
 
       <span class="keyword">if</span> I.health &gt; I.healthMax
@@ -96,7 +96,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         I.actions = <span class="number">0</span>
 
         <span class="comment"># Push death effect</span>
-        stack.push Effect.Death(self.position())
+        addEffect Effect.Death(self.position())
 
       Object.keys(I.cooldowns).forEach (name) -&gt;
         <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>

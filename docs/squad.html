@@ -71,9 +71,9 @@
     activeCharacter: Observable <span class="literal">null</span>
     characters: Observable []
 
-    stateBasedActions: (stack) -&gt;
+    stateBasedActions: (params) -&gt;
       self.characters.forEach (character) -&gt;
-        character.stateBasedActions(stack)
+        character.stateBasedActions(params)
 
       <span class="keyword">if</span> character = self.activeCharacter()
         <span class="keyword">if</span> character.actions() <span class="keyword">is</span> <span class="number">0</span>
