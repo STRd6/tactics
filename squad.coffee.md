@@ -12,6 +12,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
 
       activatableCharacters = ->
         self.characters.filter (character) ->
+          character.alive() and
           character.actions() > 0
 
       nextActivatableCharacter = ->
