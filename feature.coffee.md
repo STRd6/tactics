@@ -28,3 +28,8 @@ Features are things that are present within tiles in the tactical combat view.
           Resource.sprite(I.spriteName) or Sprite.NONE
 
       return self
+
+    Feature.Bush = ->
+      Feature
+        spriteName: "bush" + rand(4)
+        zIndex: 1

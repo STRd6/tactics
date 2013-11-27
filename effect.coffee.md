@@ -13,6 +13,7 @@ electricity, I don't know yet.
     module.exports = Effect = (I={}, self=Core(I)) ->
       # TODO
 
+    # Used in Fireball
     Effect.Fire = (position) ->
       perform: ({tileAt, characterAt, message}) ->
         if tile = tileAt(position)
@@ -26,6 +27,17 @@ electricity, I don't know yet.
           if character = characterAt(position)
             message("#{character.name()} is burned!")
             character.damage(2)
+
+    # Used in Entanglement
+    Effect.Plant = (position) ->
+      perform: ({tileAt}) ->
+        if tile = tileAt(position)
+          unless tile.solid
+            # TODO: Check for existing bushes
+            # TODO: Add movement penalty to bush features
+            # TODO: Transfer opacity computation from to include features
+            tile.opaque = true
+            tile.features.push Feature.Bush()
 
     Effect.Death = (position) ->
       perform: ({tileAt}) ->

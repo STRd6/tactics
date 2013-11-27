@@ -35,9 +35,7 @@ Hold the terrain and whatnot for a level.
       opaque: bush
       solid: false
       features: [0...bush].map ->
-        Feature
-          spriteName: "bush" + rand(4)
-          zIndex: 1
+        Feature.Bush()
 
     module.exports =
       generate: (size) ->

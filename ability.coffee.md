@@ -155,14 +155,26 @@ Should there be range types too? Connected, any, passable, etc?
         perform: (owner) ->
           owner.heal(1)
 
+      Entanglement: Ability
+        name: "Entanglement"
+        iconName: "bush0"
+        range: 7
+        actionCost: 2
+        cooldown: 3
+        costType: REST
+        targetZone: LINE_OF_SIGHT
+        perform: (owner, {position, addEffect}) ->
+          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
+            addEffect(Effect.Plant(position))
+
       Fireball: Ability
         name: "Fireball"
         iconName: "fireball"
         range: 7
         actionCost: 2
         cooldown: 3
-        costType: COST_TYPE.REST
-        targetZone: TARGET_ZONE.LINE_OF_SIGHT
+        costType: REST
+        targetZone: LINE_OF_SIGHT
         perform: (owner, {position, addEffect}) ->
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             addEffect(Effect.Fire(position))
@@ -170,9 +182,9 @@ Should there be range types too? Connected, any, passable, etc?
       Wait: Ability
         name: "Wait"
         iconName: "hourglass"
-        actionCost: 1
-        costType: COST_TYPE.REST
-        targetZone: TARGET_ZONE.SELF
+        actionCost: 0
+        costType: REST
+        targetZone: SELF
         perform: ->
 
       Cancel: Ability
