@@ -3,9 +3,10 @@ Character
 
 Those little guys that run around.
 
-    Resource = require "./resource"
-    Action = require "./action"
     Ability = require "./ability"
+    Action = require "./action"
+    Effect = require "./effect"
+    Resource = require "./resource"
     Names = require "./names"
 
     module.exports = (I={}, self=Core(I)) ->
@@ -13,6 +14,7 @@ Those little guys that run around.
       I.sprite = Resource.sprite(I.sprite)
 
       Object.defaults I,
+        alive: true
         actions: 2
         cooldowns: {}
         health: 3
@@ -25,6 +27,7 @@ Those little guys that run around.
         ]
 
       self.attrAccessor(
+        "alive"
         "actions"
         "health"
         "healthMax"
@@ -36,9 +39,6 @@ Those little guys that run around.
       )
 
       Object.extend self,
-        alive: ->
-          I.health > 0
-
         damage: (amount) ->
           I.health -= amount
 
@@ -47,17 +47,24 @@ Those little guys that run around.
 
         cooldown: (ability) ->
           I.cooldowns[ability.name()] or 0
-        
+
         setCooldown: (ability) ->
           I.cooldowns[ability.name()] = ability.cooldown()
 
-        stateBasedActions: ->
+        stateBasedActions: (stack) ->
+          return if !I.alive
+
           if I.health > I.healthMax
             I.health = I.healthMax
 
           # Clamping actions and cooldowns
           if I.health <= 0
+            # Died
+            I.alive = false
             I.actions = 0
+
+            # Push death effect
+            stack.push [Effect.Death, self.position()]
 
           Object.keys(I.cooldowns).forEach (name) ->
             if I.cooldowns[name] < 0

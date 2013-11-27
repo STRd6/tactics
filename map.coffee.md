@@ -76,6 +76,7 @@ The primary tactical combat screen.
       search = MapSearch(grid.get, characterAt)
 
       Object.extend self,
+        messages: Observable []
         activeSquadIndex: ->
           squads.indexOf activeSquad()
 
@@ -128,10 +129,23 @@ The primary tactical combat screen.
                   positionsInRange
                 )
 
-        stateBasedActions: ->
-          squads.forEach (squad) ->
-            squad.stateBasedActions()
+        stateBasedActions: (n=16) ->
+          stack = []
 
+          squads.forEach (squad) ->
+            squad.stateBasedActions(stack)
+
+          if stack.length
+            stack.map ([effect, position]) ->
+              self.addEffect(effect, position)
+
+            # Prevent infinite recursion
+            if n > 0
+              self.stateBasedActions(n-1)
+            else
+              console.warn "State Based Actions failed to completely resolve in 16 iterations"
+
+          # TODO: May be able to consolidate these into the stack resolution
           activeSquad nextActivatableSquad()
 
           updateVisibleTiles()
@@ -152,12 +166,20 @@ The primary tactical combat screen.
           else
             ;# No survivors
 
+Add an effect to the map at the given position.
+
+TODO: 'Instance' effects so they can know their own position in addition to other
+effect metadata.
+
         addEffect: (effect, position) ->
           effect.perform
             characterAt: characterAt
             position: position
             tileAt: tileAt
-            message: -> #TODO Hook up to messages
+            message: self.message
+
+        message: (message) ->
+          self.messages.push message
 
         performAbility: (owner, ability, targetPosition) ->
           ability.perform owner,

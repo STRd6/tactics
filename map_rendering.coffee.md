@@ -14,10 +14,12 @@ Drawing the map data on the screen.
       tiles.forEach ([{sprite}, position]) ->
         sprite.draw canvas, position.scale(tileSize)
 
-    drawFeatures = (tiles, canvas) ->
+    drawFeatures = (tiles, canvas, under) ->
       tiles.forEach ([{features}, position]) ->
         features.forEach (feature) ->
-          feature.draw canvas, position.scale(tileSize)
+          zIndex = feature.zIndex()
+          if (under and zIndex <= 0) or (!under and zIndex > 0)
+            feature.draw canvas, position.scale(tileSize)
 
     drawCharacters = (tiles, characterAt, canvas, t) ->
       tiles.forEach ([_, position]) ->
@@ -60,6 +62,9 @@ Drawing the map data on the screen.
           [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
             tile.lit[index]
 
+          # TODO: Iterate zSorted features + characters on a per chunk basis
+          drawFeatures(seenTiles, canvas, true)
           drawCharacters(litTiles, self.characterAt, canvas, t)
           drawFeatures(seenTiles, canvas)
+
           drawFog(unlitTiles, canvas)
