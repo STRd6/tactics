@@ -54,6 +54,7 @@
 
   <span class="function"><span class="title">activatableCharacters</span></span> = -&gt;
     self.characters.filter (character) -&gt;
+      character.alive() <span class="keyword">and</span>
       character.actions() &gt; <span class="number">0</span>
 
   <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
