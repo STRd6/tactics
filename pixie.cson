@@ -4,12 +4,12 @@ height: 576
 remoteDependencies: [
   "//code.jquery.com/jquery-1.10.1.min.js"
   "//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"
-  "http://strd6.github.io/tempest/javascripts/envweb-v0.4.5.js"
-  "http://strd6.github.io/require/v0.2.2.js"
+  "http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"
 ]
 dependencies:
   appcache: "STRd6/appcache:v0.1.0"
   compression: "STRd6/lz-string:v1.3.3"
-  "touch-canvas": "STRd6/touch-canvas:v0.2.0"
-  runtime: "STRd6/runtime:v0.1.1"
   priority_queue: "STRd6/priority_queue:v2.0.0-pre"
+  runtime: "STRd6/runtime:v0.1.1"
+  sprite: "distri/sprite:v0.1.1"
+  "touch-canvas": "STRd6/touch-canvas:v0.2.0"

@@ -1,12 +1,13 @@
 Map
 ===
+
+The primary tactical combat screen.
+
     Ability = require "./ability"
-    Resource = require "./resource"
+    Graph = require "./graph"
+    MapGenerator = require "./map_generator"
     MapSearch = require "./map_search"
     Squad = require "./squad"
-
-    {Grid} = require "./lib/util"
-    Graph = require "./graph"
 
     {
       intersection
@@ -19,48 +20,12 @@ Map
       Point(0, -1)
     ]
 
-Hold the terrain and whatnot for a level.
-
-    global.allSprites = Object.keys(require("./images")).map Resource.sprite
-
-    groundSprites = ["ground", "frozen", "stone"].map (type) ->
-      [0..7].map (i) ->
-        "#{type}#{i}"
-      .map Resource.sprite
-
-    bushSprites = [0..3].map (i)->
-      Resource.sprite("bush#{i}")
-
-    wallSprites = [0..3].map (i) ->
-      Resource.sprite("brick_vines#{i}")
-
-    wall = ->
-      sprite: wallSprites.rand()
-      lit: []
-      seen: []
-      opaque: true
-      solid: true
-      features: []
-
-    ground = ->
-      bush = rand() < 0.1
-
-      sprite: groundSprites[0].rand()
-      lit: []
-      seen: []
-      opaque: bush
-      solid: false
-      features: [0...bush].map ->
-        bushSprites.rand()
-
     module.exports = (I={}, self) ->
       self ?= Core(I)
 
-      grid = Grid 32, 18, (x, y) ->
-        if rand() < 0.10
-          wall()
-        else
-          ground()
+      grid = MapGenerator.generate
+        width: 32
+        height: 18
 
       tileAt = grid.get
 

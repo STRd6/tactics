@@ -72,7 +72,7 @@ Extra utilities that may be broken out into separate libraries.
 
 A 2d grid of values.
 
-      Grid: (width, height, defaultValue) ->
+      Grid: ({width, height}, defaultValue) ->
         generateValue = (x, y) ->
           if typeof defaultValue is "function"
             defaultValue(x, y)
