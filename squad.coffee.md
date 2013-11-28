@@ -64,6 +64,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             abilities: [
               "Blink"
               "Entanglement"
+              "Teleport"
             ]
           Character
             position:
