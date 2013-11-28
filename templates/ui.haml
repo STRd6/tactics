@@ -1,12 +1,15 @@
 - ui = this
 
 .ui
-  .messages_container
+  - hiddenClass = Observable()
+  .messages_container(class=hiddenClass)
     %pre.messages
       - each @messages, (message) ->
         = message
     .toggle
-
+      - on "click", ->
+        - hiddenClass("hidden")
+        
   .actions
     - each @actions, (action) ->
       - activeClass = -> "active" if action.active()
