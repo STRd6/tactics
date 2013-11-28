@@ -157,6 +157,15 @@ Ability.Abilities =
     perform: (owner, {position}) -&gt;
       owner.updatePosition position
 
+  Blink: Ability
+    name: <span class="string">"Blink"</span>
+    iconName: <span class="string">"blink"</span>
+    actionCost: <span class="number">1</span>
+    range: <span class="number">8</span>
+    targetZone: LINE_OF_SIGHT
+    perform: (owner, {position}) -&gt;
+      owner.updatePosition position
+
   Melee: Ability
     name: <span class="string">"Attack"</span>
     iconName: <span class="string">"sword"</span>
