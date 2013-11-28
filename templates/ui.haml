@@ -10,9 +10,9 @@
       - on "click", ->
         - debugger
         - if $(".messages_container").is(".hidden")
-          - hiddenClass("hidden")
-        - else
           - hiddenClass("")
+        - else
+          - hiddenClass("hidden")
 
   .actions
     - each @actions, (action) ->
