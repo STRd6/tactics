@@ -6,6 +6,7 @@
       - each @messages, (message) ->
         = message
     .toggle
+      = "="
       - on "click", (e) ->
         - $(e.currentTarget).parent().toggleClass("hidden")
 
