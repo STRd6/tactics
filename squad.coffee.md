@@ -62,6 +62,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             healthMax: 2
             sprite: "wizard"
             abilities: [
+              "Blink"
               "Entanglement"
             ]
           Character

@@ -124,6 +124,15 @@ Should there be range types too? Connected, any, passable, etc?
         perform: (owner, {position}) ->
           owner.updatePosition position
 
+      Blink: Ability
+        name: "Blink"
+        iconName: "blink"
+        actionCost: 1
+        range: 8
+        targetZone: LINE_OF_SIGHT
+        perform: (owner, {position}) ->
+          owner.updatePosition position
+
       Melee: Ability
         name: "Attack"
         iconName: "sword"
