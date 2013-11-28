@@ -1,18 +1,13 @@
 - ui = this
 
 .ui
-  - hiddenClass = Observable()
-  .messages_container(class=hiddenClass)
+  .messages_container
     %pre.messages
       - each @messages, (message) ->
         = message
     .toggle
-      - on "click", ->
-        - debugger
-        - if $(".messages_container").is(".hidden")
-          - hiddenClass("")
-        - else
-          - hiddenClass("hidden")
+      - on "click", (e) ->
+        - $(e.currentTarget).parent().toggleClass("hidden")
 
   .actions
     - each @actions, (action) ->
