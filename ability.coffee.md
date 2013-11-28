@@ -99,7 +99,7 @@ that target's an enemy, but has movement range and connectedness constraints.
 
 Should there be range types too? Connected, any, passable, etc?
 
-    {SELF, MOVEMENT, LINE_OF_SIGHT} = Ability.TARGET_ZONE = TARGET_ZONE =
+    {SELF, MOVEMENT, LINE_OF_SIGHT, ANY} = Ability.TARGET_ZONE = TARGET_ZONE =
       SELF: 1 # The character itself, skips targetting step
       LINE_OF_SIGHT: 2 # Any tile within character's line of sight and within range
       VISIBLE: 3 # Any tile visible to squad within range
@@ -125,6 +125,19 @@ Should there be range types too? Connected, any, passable, etc?
         targetZone: MOVEMENT
         perform: ({owner, position}) ->
           owner.updatePosition position
+          
+      Teleport: Ability
+        name: "Teleport"
+        iconName: "teleport"
+        actionCost: 2
+        range: 50
+        targetZone: ANY
+        perform: ({character, owner, position}) ->
+          owner.updatePosition position
+
+          if character
+            owner.I.health = 0
+            character.I.health = 0
 
       Blink: Ability
         name: "Blink"

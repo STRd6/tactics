@@ -115,6 +115,9 @@ The primary tactical combat screen.
                 accessiblePositions.reject (position) ->
                   characterAt(position)
 
+              when Ability.TARGET_ZONE.ANY
+                positionsInRange = search.adjacent(character.position(), ability.range())
+
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = search.visible(character.position(), character.sight())
                 positionsInRange = search.adjacent(character.position(), ability.range())
