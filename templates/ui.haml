@@ -1,10 +1,12 @@
 - ui = this
 
 .ui
-  %pre.messages
+  .messages_container
+    %pre.messages
+      - each @messages, (message) ->
+        = message
     .toggle
-    - each @messages, (message) ->
-      = message
+
   .actions
     - each @actions, (action) ->
       - activeClass = -> "active" if action.active()
