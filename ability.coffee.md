@@ -164,7 +164,13 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: ({position, character}) ->
+        perform: ({character}) ->
+          if character
+            character.addEffect
+              name: "blindness"
+              attribute: "sight"
+              amount: -100
+              duration: 3
 
       Regeneration: Ability
         name: "Regeneration"

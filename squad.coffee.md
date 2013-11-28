@@ -71,6 +71,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               y: 13
             sprite: "elf_archer"
             abilities: [
+              "Blind"
               "Ranged"
             ]
         ]

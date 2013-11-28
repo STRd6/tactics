@@ -17,6 +17,7 @@ Those little guys that run around.
         alive: true
         actions: 2
         cooldowns: {}
+        effects: []
         health: 3
         healthMax: 3
         movement: 4
@@ -38,6 +39,20 @@ Those little guys that run around.
         "sight"
       )
 
+      effectModifiable = (names...) ->
+        names.forEach (name) ->
+          method = self[name]
+
+          self[name] = (args...) ->
+            if args.length > 0
+              method(args...)
+            else
+              method() + self.mods(name)
+
+      effectModifiable(
+        "sight"
+      )
+
       Object.extend self,
         damage: (amount) ->
           I.health -= amount
@@ -51,9 +66,27 @@ Those little guys that run around.
         setCooldown: (ability) ->
           I.cooldowns[ability.name()] = ability.cooldown()
 
+        addEffect: (effect) ->
+          I.effects.push effect
+
+Sums up the modifications for an attribute from all the effects.
+
+        mods: (attribute) ->
+          I.effects.reduce (total, effect) ->
+            if effect.attribute is attribute
+              total + effect.amount
+            else
+              total
+          , 0
+
         stateBasedActions: ({addEffect}) ->
           return if !I.alive
 
+          # Clear expired effects
+          I.effects = I.effects.filter (effect) ->
+            effect.duration > 0
+
+          # Cap health
           if I.health > I.healthMax
             I.health = I.healthMax
 
@@ -85,6 +118,9 @@ any status effects.
         ready: ->
           Object.keys(I.cooldowns).forEach (name) ->
             I.cooldowns[name] -= 1
+
+          I.effects.forEach (effect) ->
+            effect.duration -= 1
 
           I.actions = 2
 
