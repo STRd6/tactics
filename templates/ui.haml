@@ -8,8 +8,12 @@
         = message
     .toggle
       - on "click", ->
-        - hiddenClass("hidden")
-        
+        - debugger
+        - if $(".messages_container").is(".hidden")
+          - hiddenClass("hidden")
+        - else
+          - hiddenClass("")
+
   .actions
     - each @actions, (action) ->
       - activeClass = -> "active" if action.active()
