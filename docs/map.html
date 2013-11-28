@@ -193,7 +193,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       effectStack.push effect
 
     performAbility: (owner, ability, targetPosition) -&gt;
-      ability.perform owner,
+      ability.perform
+        owner: owner
         addEffect: self.addEffect
         character: characterAt targetPosition
         message: self.message

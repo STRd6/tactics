@@ -104,11 +104,13 @@ search = Search()
 
     validTargets: (owner, tileAt) -&gt;
 
-    perform: (owner, target) -&gt;
+    perform: (params) -&gt;
+      {owner} = params
+
       self.payCosts(owner)
 
       <span class="comment"># TODO: Not sure if this should be on I</span>
-      I.perform(owner, target)
+      I.perform(params)
 
       owner.resetTargetting()
 
@@ -154,7 +156,7 @@ Ability.Abilities =
     iconName: <span class="string">"boots"</span>
     actionCost: <span class="number">1</span>
     targetZone: MOVEMENT
-    perform: (owner, {position}) -&gt;
+    perform: ({owner, position}) -&gt;
       owner.updatePosition position
 
   Blink: Ability
@@ -163,7 +165,7 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     range: <span class="number">8</span>
     targetZone: LINE_OF_SIGHT
-    perform: (owner, {position}) -&gt;
+    perform: ({owner, position}) -&gt;
       owner.updatePosition position
 
   Melee: Ability
@@ -173,7 +175,7 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: (owner, {position, character}) -&gt;
+    perform: ({character}) -&gt;
       <span class="keyword">if</span> character
         character.damage <span class="number">1</span>
 
@@ -184,9 +186,18 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: (owner, {position, character}) -&gt;
+    perform: ({character}) -&gt;
       <span class="keyword">if</span> character
         character.damage <span class="number">1</span>
+
+  Blind: Ability
+    name: <span class="string">"Blind"</span>
+    iconName: <span class="string">"blind"</span>
+    range: <span class="number">8</span>
+    actionCost: <span class="number">1</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    perform: ({position, character}) -&gt;
 
   Regeneration: Ability
     name: <span class="string">"Regeneration"</span>
@@ -194,7 +205,7 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     costType: REST
     targetZone: SELF
-    perform: (owner) -&gt;
+    perform: ({owner}) -&gt;
       owner.heal(<span class="number">1</span>)
 
   Entanglement: Ability
@@ -205,7 +216,7 @@ Ability.Abilities =
     cooldown: <span class="number">3</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: (owner, {position, addEffect}) -&gt;
+    perform: ({position, addEffect}) -&gt;
       search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
         addEffect(Effect.Plant(position))
 
@@ -217,7 +228,7 @@ Ability.Abilities =
     cooldown: <span class="number">3</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: (owner, {position, addEffect}) -&gt;
+    perform: ({position, addEffect}) -&gt;
       search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
         addEffect(Effect.Fire(position))
 
@@ -233,7 +244,7 @@ Ability.Abilities =
     name: <span class="string">"Cancel"</span>
     actionCost: <span class="number">0</span>
     targetZone: TARGET_ZONE.SELF
-    perform: (owner, {position, character}) -&gt;
+    perform: ({owner}) -&gt;
       owner.targettingAbility <span class="literal">null</span>
 
 module.exports = Ability</code></pre>
