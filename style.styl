@@ -34,10 +34,13 @@ canvas, .ui
   margin: 0
   padding: 0
   height: 100px
+  top: 0
   width: 40%
+  transition-property: top
+  transition-duration: 0.200s
 
   &.hidden
-    height: 0
+    top: -100px
 
   .toggle
     border-bottom-right-radius: 4px
@@ -54,8 +57,6 @@ canvas, .ui
     right: 0
     margin: auto
     cursor: pointer
-    -webkit-transition-property: height
-    -webkit-transition-duration: 0.200s
 
 .messages
   background-color: rgba(0, 0, 0, 0.75)
