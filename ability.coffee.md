@@ -79,11 +79,13 @@ Some cool abilities that should be in the game
 
         validTargets: (owner, tileAt) ->
 
-        perform: (owner, target) ->
+        perform: (params) ->
+          {owner} = params
+
           self.payCosts(owner)
 
           # TODO: Not sure if this should be on I
-          I.perform(owner, target)
+          I.perform(params)
 
           owner.resetTargetting()
 
@@ -121,7 +123,7 @@ Should there be range types too? Connected, any, passable, etc?
         iconName: "boots"
         actionCost: 1
         targetZone: MOVEMENT
-        perform: (owner, {position}) ->
+        perform: ({owner, position}) ->
           owner.updatePosition position
 
       Blink: Ability
@@ -130,7 +132,7 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         range: 8
         targetZone: LINE_OF_SIGHT
-        perform: (owner, {position}) ->
+        perform: ({owner, position}) ->
           owner.updatePosition position
 
       Melee: Ability
@@ -140,7 +142,7 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: (owner, {position, character}) ->
+        perform: ({character}) ->
           if character
             character.damage 1
 
@@ -151,9 +153,18 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: (owner, {position, character}) ->
+        perform: ({character}) ->
           if character
             character.damage 1
+
+      Blind: Ability
+        name: "Blind"
+        iconName: "blind"
+        range: 8
+        actionCost: 1
+        costType: REST
+        targetZone: LINE_OF_SIGHT
+        perform: ({position, character}) ->
 
       Regeneration: Ability
         name: "Regeneration"
@@ -161,7 +172,7 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: SELF
-        perform: (owner) ->
+        perform: ({owner}) ->
           owner.heal(1)
 
       Entanglement: Ability
@@ -172,7 +183,7 @@ Should there be range types too? Connected, any, passable, etc?
         cooldown: 3
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: (owner, {position, addEffect}) ->
+        perform: ({position, addEffect}) ->
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             addEffect(Effect.Plant(position))
 
@@ -184,7 +195,7 @@ Should there be range types too? Connected, any, passable, etc?
         cooldown: 3
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: (owner, {position, addEffect}) ->
+        perform: ({position, addEffect}) ->
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             addEffect(Effect.Fire(position))
 
@@ -200,7 +211,7 @@ Should there be range types too? Connected, any, passable, etc?
         name: "Cancel"
         actionCost: 0
         targetZone: TARGET_ZONE.SELF
-        perform: (owner, {position, character}) ->
+        perform: ({owner}) ->
           owner.targettingAbility null
 
     module.exports = Ability

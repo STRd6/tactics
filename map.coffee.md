@@ -161,7 +161,8 @@ The primary tactical combat screen.
           effectStack.push effect
 
         performAbility: (owner, ability, targetPosition) ->
-          ability.perform owner,
+          ability.perform
+            owner: owner
             addEffect: self.addEffect
             character: characterAt targetPosition
             message: self.message
