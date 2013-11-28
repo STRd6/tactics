@@ -132,12 +132,14 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 2
         range: 50
         targetZone: ANY
-        perform: ({character, owner, position}) ->
+        perform: ({character, owner, position, message}) ->
           owner.updatePosition position
 
           if character
             owner.I.health = 0
             character.I.health = 0
+
+            message("#{owner.name()} teleported into #{character.name()}. There were no survivors.")
 
       Blink: Ability
         name: "Blink"
