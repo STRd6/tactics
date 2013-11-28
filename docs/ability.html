@@ -197,7 +197,13 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: ({position, character}) -&gt;
+    perform: ({character}) -&gt;
+      <span class="keyword">if</span> character
+        character.addEffect
+          name: <span class="string">"blindness"</span>
+          attribute: <span class="string">"sight"</span>
+          amount: -<span class="number">100</span>
+          duration: <span class="number">3</span>
 
   Regeneration: Ability
     name: <span class="string">"Regeneration"</span>

@@ -49,6 +49,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     alive: <span class="literal">true</span>
     actions: <span class="number">2</span>
     cooldowns: {}
+    effects: []
     health: <span class="number">3</span>
     healthMax: <span class="number">3</span>
     movement: <span class="number">4</span>
@@ -70,6 +71,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"sight"</span>
   )
 
+  <span class="function"><span class="title">effectModifiable</span></span> = (names...) -&gt;
+    names.forEach (name) -&gt;
+      method = self[name]
+
+      self[name] = (args...) -&gt;
+        <span class="keyword">if</span> args.length &gt; <span class="number">0</span>
+          method(args...)
+        <span class="keyword">else</span>
+          method() + self.mods(name)
+
+  effectModifiable(
+    <span class="string">"sight"</span>
+  )
+
   Object.extend self,
     damage: (amount) -&gt;
       I.health -= amount
@@ -83,9 +98,36 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     setCooldown: (ability) -&gt;
       I.cooldowns[ability.name()] = ability.cooldown()
 
+    addEffect: (effect) -&gt;
+      I.effects.push effect</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Sums up the modifications for an attribute from all the effects.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    mods: (attribute) -&gt;
+      I.effects.reduce (total, effect) -&gt;
+        <span class="keyword">if</span> effect.attribute <span class="keyword">is</span> attribute
+          total + effect.amount
+        <span class="keyword">else</span>
+          total
+      , <span class="number">0</span>
+
     stateBasedActions: ({addEffect}) -&gt;
       <span class="keyword">return</span> <span class="keyword">if</span> !I.alive
 
+      <span class="comment"># Clear expired effects</span>
+      I.effects = I.effects.filter (effect) -&gt;
+        effect.duration &gt; <span class="number">0</span>
+
+      <span class="comment"># Cap health</span>
       <span class="keyword">if</span> I.health &gt; I.healthMax
         I.health = I.healthMax
 
@@ -114,10 +156,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         </li>
         
         
-        <li id="section-3">
+        <li id="section-4">
             <div class="annotation">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
+                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p>Ready is called at the beginning of each turn. It resets the actions and processes
 any status effects.</p>
@@ -126,6 +168,9 @@ any status effects.</p>
             <div class="content"><pre><code class="lang-coffeescript">    ready: -&gt;
       Object.keys(I.cooldowns).forEach (name) -&gt;
         I.cooldowns[name] -= <span class="number">1</span>
+
+      I.effects.forEach (effect) -&gt;
+        effect.duration -= <span class="number">1</span>
 
       I.actions = <span class="number">2</span>
 
