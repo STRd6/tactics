@@ -1,9 +1,15 @@
 - ui = this
 
 .ui
-  %pre.messages
-    - each @messages, (message) ->
-      = message
+  .messages_container
+    %pre.messages
+      - each @messages, (message) ->
+        = message
+    .toggle
+      = "="
+      - on "click", (e) ->
+        - $(e.currentTarget).parent().toggleClass("hidden")
+
   .actions
     - each @actions, (action) ->
       - activeClass = -> "active" if action.active()
