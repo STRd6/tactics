@@ -23,6 +23,7 @@ Those little guys that run around.
         movement: 4
         name: Names.male.rand()
         sight: 7
+        strength: 2
         abilities: [
           "Melee"
         ]
@@ -35,8 +36,9 @@ Those little guys that run around.
         "movement"
         "name"
         "position"
-        "sprite"
         "sight"
+        "sprite"
+        "strength"
       )
 
       effectModifiable = (names...) ->
@@ -51,6 +53,7 @@ Those little guys that run around.
 
       effectModifiable(
         "sight"
+        "strength"
       )
 
       Object.extend self,

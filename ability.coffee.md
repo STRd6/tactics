@@ -35,6 +35,7 @@ Some cool abilities that should be in the game
   - Debuffs
 
     {sqrt} = Math
+    {binomial} = require "./random"
     Search = require "./map_search"
     Effect = require "./effect"
 
@@ -125,7 +126,7 @@ Should there be range types too? Connected, any, passable, etc?
         targetZone: MOVEMENT
         perform: ({owner, position}) ->
           owner.updatePosition position
-          
+
       Teleport: Ability
         name: "Teleport"
         iconName: "teleport"
@@ -157,9 +158,12 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: ({character}) ->
+        perform: ({owner, character, message}) ->
           if character
-            character.damage 1
+            amount = binomial(owner.strength())
+            character.damage amount
+
+            message "#{owner.name()} struck #{character.name()} for #{amount}"
 
       Ranged: Ability
         name: "Attack"
@@ -168,9 +172,12 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: ({character}) ->
+        perform: ({owner, character, message}) ->
           if character
-            character.damage 1
+            amount = binomial(owner.strength() - 1)
+            character.damage amount
+            
+            message "#{owner.name()} struck #{character.name()} for #{amount}"
 
       Blind: Ability
         name: "Blind"
