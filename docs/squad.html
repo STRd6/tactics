@@ -104,8 +104,7 @@
         healthMax: <span class="number">2</span>
         sprite: <span class="string">"wizard"</span>
         abilities: [
-          <span class="string">"Blink"</span>
-          <span class="string">"Entanglement"</span>
+          <span class="string">"Fireball"</span>
           <span class="string">"Teleport"</span>
         ]
       Character
@@ -114,12 +113,20 @@
           y: <span class="number">13</span>
         sprite: <span class="string">"elf_archer"</span>
         abilities: [
-          <span class="string">"Blind"</span>
           <span class="string">"Ranged"</span>
         ]
     ]
   <span class="keyword">else</span>
     self.characters [
+      Character
+        position:
+          x: I.x - <span class="number">1</span>
+          y: <span class="number">7</span>
+        sprite: <span class="string">"goblin"</span>
+        abilities: [
+          <span class="string">"Melee"</span>
+          <span class="string">"Regeneration"</span>
+        ]
       Character
         position:
           x: I.x - <span class="number">1</span>

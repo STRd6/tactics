@@ -193,7 +193,7 @@ Ability.Abilities =
     targetZone: LINE_OF_SIGHT
     perform: ({owner, character, message}) -&gt;
       <span class="keyword">if</span> character
-        amount = binomial(owner.strength())
+        amount = binomial(owner.strength()) + <span class="number">1</span>
         character.damage amount
 
         message <span class="string">"<span class="subst">#{owner.name()}</span> struck <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"</span>
@@ -207,7 +207,7 @@ Ability.Abilities =
     targetZone: LINE_OF_SIGHT
     perform: ({owner, character, message}) -&gt;
       <span class="keyword">if</span> character
-        amount = binomial(owner.strength() - <span class="number">1</span>)
+        amount = binomial(owner.strength())
         character.damage amount
 
         message <span class="string">"<span class="subst">#{owner.name()}</span> struck <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"</span>
