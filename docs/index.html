@@ -77,6 +77,8 @@ ui =
       icon: <span class="string">"new_game"</span>
       perform: -&gt;
         global.map = map = Map()
+        map.messages.observe(ui.messages)
+
         activeCharacter = map.activeCharacter
         activeCharacter.observe (character) -&gt;
           <span class="keyword">if</span> character

@@ -147,6 +147,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             accessiblePositions.reject (position) -&gt;
               characterAt(position)
 
+          <span class="keyword">when</span> Ability.TARGET_ZONE.ANY
+            positionsInRange = search.adjacent(character.position(), ability.range())
+
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
             visiblePositions = search.visible(character.position(), character.sight())
             positionsInRange = search.adjacent(character.position(), ability.range())

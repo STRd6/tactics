@@ -60,6 +60,7 @@ tile.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">{sqrt} = Math
+{binomial} = require <span class="string">"./random"</span>
 Search = require <span class="string">"./map_search"</span>
 Effect = require <span class="string">"./effect"</span>
 
@@ -132,7 +133,7 @@ that target&#39;s an enemy, but has movement range and connectedness constraints
 <p>Should there be range types too? Connected, any, passable, etc?</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{SELF, MOVEMENT, LINE_OF_SIGHT} = Ability.TARGET_ZONE = TARGET_ZONE =
+            <div class="content"><pre><code class="lang-coffeescript">{SELF, MOVEMENT, LINE_OF_SIGHT, ANY} = Ability.TARGET_ZONE = TARGET_ZONE =
   SELF: <span class="number">1</span> <span class="comment"># The character itself, skips targetting step</span>
   LINE_OF_SIGHT: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
   VISIBLE: <span class="number">3</span> <span class="comment"># Any tile visible to squad within range</span>
@@ -159,6 +160,21 @@ Ability.Abilities =
     perform: ({owner, position}) -&gt;
       owner.updatePosition position
 
+  Teleport: Ability
+    name: <span class="string">"Teleport"</span>
+    iconName: <span class="string">"teleport"</span>
+    actionCost: <span class="number">2</span>
+    range: <span class="number">50</span>
+    targetZone: ANY
+    perform: ({character, owner, position, message}) -&gt;
+      owner.updatePosition position
+
+      <span class="keyword">if</span> character
+        owner.I.health = <span class="number">0</span>
+        character.I.health = <span class="number">0</span>
+
+        message(<span class="string">"<span class="subst">#{owner.name()}</span> teleported into <span class="subst">#{character.name()}</span>. There were no survivors."</span>)
+
   Blink: Ability
     name: <span class="string">"Blink"</span>
     iconName: <span class="string">"blink"</span>
@@ -175,9 +191,12 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: ({character}) -&gt;
+    perform: ({owner, character, message}) -&gt;
       <span class="keyword">if</span> character
-        character.damage <span class="number">1</span>
+        amount = binomial(owner.strength())
+        character.damage amount
+
+        message <span class="string">"<span class="subst">#{owner.name()}</span> struck <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"</span>
 
   Ranged: Ability
     name: <span class="string">"Attack"</span>
@@ -186,9 +205,12 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     costType: REST
     targetZone: LINE_OF_SIGHT
-    perform: ({character}) -&gt;
+    perform: ({owner, character, message}) -&gt;
       <span class="keyword">if</span> character
-        character.damage <span class="number">1</span>
+        amount = binomial(owner.strength() - <span class="number">1</span>)
+        character.damage amount
+
+        message <span class="string">"<span class="subst">#{owner.name()}</span> struck <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"</span>
 
   Blind: Ability
     name: <span class="string">"Blind"</span>

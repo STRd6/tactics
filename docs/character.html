@@ -55,6 +55,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     movement: <span class="number">4</span>
     name: Names.male.rand()
     sight: <span class="number">7</span>
+    strength: <span class="number">2</span>
     abilities: [
       <span class="string">"Melee"</span>
     ]
@@ -67,8 +68,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"movement"</span>
     <span class="string">"name"</span>
     <span class="string">"position"</span>
-    <span class="string">"sprite"</span>
     <span class="string">"sight"</span>
+    <span class="string">"sprite"</span>
+    <span class="string">"strength"</span>
   )
 
   <span class="function"><span class="title">effectModifiable</span></span> = (names...) -&gt;
@@ -83,6 +85,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   effectModifiable(
     <span class="string">"sight"</span>
+    <span class="string">"strength"</span>
   )
 
   Object.extend self,
