@@ -190,7 +190,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         ;<span class="comment"># No survivors</span>
 
     message: (message) -&gt;
-      self.messages.push message
+      self.messages.push message + <span class="string">"\n"</span>
 
     addEffect: (effect) -&gt;
       effectStack.push effect
