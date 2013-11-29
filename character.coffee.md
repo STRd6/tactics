@@ -23,7 +23,7 @@ Those little guys that run around.
         movement: 4
         name: Names.male.rand()
         sight: 7
-        strength: 2
+        strength: 1
         abilities: [
           "Melee"
         ]

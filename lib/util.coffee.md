@@ -47,8 +47,8 @@ Bounds
       y: y
       width: width
       height: height
-    
-    Bounds.prototype = 
+
+    Bounds.prototype =
       toString: ->
         "Bounds({#{@x}, #{@y}}, {#{@width}, #{@height}})"
 

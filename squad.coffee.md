@@ -62,8 +62,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             healthMax: 2
             sprite: "wizard"
             abilities: [
-              "Blink"
-              "Entanglement"
+              "Fireball"
               "Teleport"
             ]
           Character
@@ -72,12 +71,20 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               y: 13
             sprite: "elf_archer"
             abilities: [
-              "Blind"
               "Ranged"
             ]
         ]
       else
         self.characters [
+          Character
+            position:
+              x: I.x - 1
+              y: 7
+            sprite: "goblin"
+            abilities: [
+              "Melee"
+              "Regeneration"
+            ]
           Character
             position:
               x: I.x - 1

@@ -160,7 +160,7 @@ Should there be range types too? Connected, any, passable, etc?
         targetZone: LINE_OF_SIGHT
         perform: ({owner, character, message}) ->
           if character
-            amount = binomial(owner.strength())
+            amount = binomial(owner.strength()) + 1
             character.damage amount
 
             message "#{owner.name()} struck #{character.name()} for #{amount}"
@@ -174,7 +174,7 @@ Should there be range types too? Connected, any, passable, etc?
         targetZone: LINE_OF_SIGHT
         perform: ({owner, character, message}) ->
           if character
-            amount = binomial(owner.strength() - 1)
+            amount = binomial(owner.strength())
             character.damage amount
             
             message "#{owner.name()} struck #{character.name()} for #{amount}"
