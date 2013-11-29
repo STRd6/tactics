@@ -47,8 +47,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           icon: "new_game"
           perform: ->
             global.map = map = Map()
-            map.messages.observe(ui.messages)
-            
+            map.messages.observe (messages) ->
+              ui.messages(messages.copy())
+
             activeCharacter = map.activeCharacter
             activeCharacter.observe (character) ->
               if character

@@ -158,7 +158,7 @@ The primary tactical combat screen.
             ;# No survivors
 
         message: (message) ->
-          self.messages.push message
+          self.messages.push message + "\n"
 
         addEffect: (effect) ->
           effectStack.push effect
