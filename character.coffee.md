@@ -106,7 +106,7 @@ Sums up the modifications for an attribute from all the effects.
             I.actions = 0
 
             # Push death effect
-            addEffect Effect.Death(self.position())
+            addEffect Effect.Death(self.position(), self)
 
           Object.keys(I.cooldowns).forEach (name) ->
             if I.cooldowns[name] < 0

@@ -140,7 +140,7 @@ Should there be range types too? Connected, any, passable, etc?
             owner.I.health = 0
             character.I.health = 0
 
-            message("#{owner.name()} teleported into #{character.name()}. There were no survivors.")
+            message "#{owner.name()} teleports into #{character.name()}. There are no survivors."
 
       Blink: Ability
         name: "Blink"
@@ -148,8 +148,14 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         range: 8
         targetZone: LINE_OF_SIGHT
-        perform: ({owner, position}) ->
+        perform: ({character, message, owner, position}) ->
           owner.updatePosition position
+
+          if character
+            owner.I.health = 0
+            character.I.health = 0
+
+            message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
 
       Melee: Ability
         name: "Attack"
@@ -163,7 +169,7 @@ Should there be range types too? Connected, any, passable, etc?
             amount = binomial(owner.strength()) + 1
             character.damage amount
 
-            message "#{owner.name()} struck #{character.name()} for #{amount}"
+            message "#{owner.name()} strikes #{character.name()} for #{amount}"
 
       Ranged: Ability
         name: "Attack"
@@ -177,7 +183,7 @@ Should there be range types too? Connected, any, passable, etc?
             amount = binomial(owner.strength())
             character.damage amount
 
-            message "#{owner.name()} struck #{character.name()} for #{amount}"
+            message "#{owner.name()} strikes #{character.name()} for #{amount}"
 
       Blind: Ability
         name: "Blind"
@@ -200,8 +206,10 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         costType: REST
         targetZone: SELF
-        perform: ({owner}) ->
-          owner.heal(1)
+        perform: ({owner, message}) ->
+          amount = 1
+          owner.heal(amount)
+          message "#{owner.name()} regenerates #{amount} health."
 
       Entanglement: Ability
         name: "Entanglement"

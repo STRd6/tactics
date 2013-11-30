@@ -25,12 +25,12 @@ electricity, I don't know yet.
             sprite: lavaSprites.rand()
 
           if character = characterAt(position)
-            message("#{character.name()} is burned!")
+            message "#{character.name()} is on fire!"
             character.damage(2)
 
     # Used in Entanglement
     Effect.Plant = (position) ->
-      perform: ({tileAt}) ->
+      perform: ({characterAt, tileAt, message}) ->
         if tile = tileAt(position)
           unless tile.solid
             # TODO: Check for existing bushes
@@ -39,8 +39,13 @@ electricity, I don't know yet.
             tile.opaque = true
             tile.features.push Feature.Bush()
 
-    Effect.Death = (position) ->
-      perform: ({tileAt}) ->
+          if character = characterAt(position)
+            message "#{character.name()} is caught in a shrub!"
+
+    Effect.Death = (position, owner) ->
+      perform: ({tileAt, message}) ->
+        message "#{owner.name()} has been slain."
+
         if tile = tileAt(position)
           tile.features.push Feature
             spriteName: "skeleton"
