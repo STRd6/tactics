@@ -53,32 +53,20 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
       # TODO: Load characters from data
       if I.race is "human"
         self.characters [
-          Character
+          create "Knight",
             position:
               x: I.x - 1
               y: 7
-            health: 4
-            healthMax: 4
-            spriteName: "human"
-          Character
+            
+          create "Wizard",
             position:
               x: I.x - 2
               y: 10
-            health: 2
-            healthMax: 2
-            spriteName: "wizard"
-            abilities: [
-              "Fireball"
-              "Teleport"
-            ]
-          Character
+          
+          create "Archer",
             position:
               x: I.x - 4
               y: 13
-            spriteName: "elf_archer"
-            abilities: [
-              "Ranged"
-            ]
         ]
       else
         self.characters [
