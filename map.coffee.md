@@ -22,6 +22,12 @@ The primary tactical combat screen.
 
       tileAt = grid.get
 
+      # TODO: Add trap detection
+      # TODO: Keep track of seen features as well as seen tiles
+      viewTiles = (positions, index) ->
+        positions.map(tileAt).forEach (tile) ->
+          tile.seen[index] = tile.lit[index] = true
+
       updateVisibleTiles = ->
         grid.each (tile) ->
           tile.lit = []
@@ -30,8 +36,14 @@ The primary tactical combat screen.
           squad.characters().filter (character) ->
             character.alive()
           .forEach (duder) ->
-            search.visible(duder.position(), duder.sight()).map(tileAt).forEach (tile) ->
-              tile.seen[i] = tile.lit[i] = true
+            # Magical vision
+            viewTiles duder.magicalVision(), i
+
+            # Physical sensing
+            viewTiles search.adjacent(duder.position()), i
+
+            # Normal Sight
+            viewTiles search.visible(duder.position(), duder.sight()), i
 
       squads = [
         Squad()

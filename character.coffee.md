@@ -26,12 +26,14 @@ Those little guys that run around.
         name: Names.male.rand()
         sight: 7
         strength: 1
+        magicalVision: []
 
       self.attrAccessor(
         "alive"
         "actions"
         "health"
         "healthMax"
+        "magicalVision"
         "movement"
         "name"
         "position"
@@ -57,7 +59,7 @@ Those little guys that run around.
       Object.extend self,
         sprite: ->
           Resource.sprite(I.spriteName) or Sprite.NONE
-  
+
         damage: (amount) ->
           I.health -= amount
 
@@ -69,6 +71,9 @@ Those little guys that run around.
 
         setCooldown: (ability) ->
           I.cooldowns[ability.name()] = ability.cooldown()
+
+        addMagicalVision: (position) ->
+          I.magicalVision.push position
 
         addEffect: (effect) ->
           I.effects.push effect
@@ -120,6 +125,10 @@ Ready is called at the beginning of each turn. It resets the actions and process
 any status effects.
 
         ready: ->
+          # Remove all magical vision
+          # TODO: Maybe have separate vision effects with their own durations
+          I.magicalVision = []
+
           Object.keys(I.cooldowns).forEach (name) ->
             I.cooldowns[name] -= 1
 

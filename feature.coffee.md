@@ -32,4 +32,5 @@ Features are things that are present within tiles in the tactical combat view.
     Feature.Bush = ->
       Feature
         spriteName: "bush" + rand(4)
+        type: Type.Plant
         zIndex: 1

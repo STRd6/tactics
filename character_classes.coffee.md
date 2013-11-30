@@ -7,6 +7,7 @@ Exploring various character classes here.
       ShrubMage:
         abilities: [
           "Entanglement"
+          "ShrubSight"
         ]
         spriteName: "kobold"
 

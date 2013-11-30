@@ -227,6 +227,16 @@ Should there be range types too? Connected, any, passable, etc?
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             addEffect(Effect.Fire(position))
 
+      ShrubSight: Ability
+        name: "ShrubSight"
+        iconName: "bush1"
+        actionCost: 1
+        cooldown: 3
+        targetZone: SELF
+        perform: ({position, addEffect, owner}) ->
+          search.adjacent(position, 13).forEach (position) ->
+            addEffect(Effect.ShrubSight(position, owner))
+
       Wait: Ability
         name: "Wait"
         iconName: "hourglass"

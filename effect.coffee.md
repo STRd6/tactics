@@ -44,3 +44,14 @@ electricity, I don't know yet.
         if tile = tileAt(position)
           tile.features.push Feature
             spriteName: "skeleton"
+
+    Effect.ShrubSight = (position, owner) ->
+      perform: ({tileAt}) ->
+        if tile = tileAt(position)
+          # TODO: Maybe have a featureAt method passed in?
+          hasPlant = tile.features.some (feature) ->
+            feature.type() is "plant"
+
+          # Add magical vision to owner if tile has a `plant` feature
+          if hasPlant
+            owner.addMagicalVision(position)
