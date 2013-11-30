@@ -85,7 +85,18 @@ Effect.<span class="function"><span class="title">Death</span></span> = (positio
   perform: ({tileAt}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
       tile.features.push Feature
-        spriteName: <span class="string">"skeleton"</span></code></pre>
+        spriteName: <span class="string">"skeleton"</span>
+
+Effect.<span class="function"><span class="title">ShrubSight</span></span> = (position, owner) -&gt;
+  perform: ({tileAt}) -&gt;
+    <span class="keyword">if</span> tile = tileAt(position)
+      <span class="comment"># TODO: Maybe have a featureAt method passed in?</span>
+      hasPlant = tile.features.some (feature) -&gt;
+        feature.type() <span class="keyword">is</span> <span class="string">"plant"</span>
+
+      <span class="comment"># Add magical vision to owner if tile has a `plant` feature</span>
+      <span class="keyword">if</span> hasPlant
+        owner.addMagicalVision(position)</code></pre>
 </div>
         </li>
         

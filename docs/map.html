@@ -54,6 +54,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   tileAt = grid.get
 
+  <span class="comment"># TODO: Add trap detection</span>
+  <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
+  <span class="function"><span class="title">viewTiles</span></span> = (positions, index) -&gt;
+    positions.map(tileAt).forEach (tile) -&gt;
+      tile.seen[index] = tile.lit[index] = <span class="literal">true</span>
+
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
     grid.each (tile) -&gt;
       tile.lit = []
@@ -62,8 +68,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       squad.characters().filter (character) -&gt;
         character.alive()
       .forEach (duder) -&gt;
-        search.visible(duder.position(), duder.sight()).map(tileAt).forEach (tile) -&gt;
-          tile.seen[i] = tile.lit[i] = <span class="literal">true</span>
+        <span class="comment"># Magical vision</span>
+        viewTiles duder.magicalVision(), i
+
+        <span class="comment"># Physical sensing</span>
+        viewTiles search.adjacent(duder.position()), i
+
+        <span class="comment"># Normal Sight</span>
+        viewTiles search.visible(duder.position(), duder.sight()), i
 
   squads = [
     Squad()

@@ -58,12 +58,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     name: Names.male.rand()
     sight: <span class="number">7</span>
     strength: <span class="number">1</span>
+    magicalVision: []
 
   self.attrAccessor(
     <span class="string">"alive"</span>
     <span class="string">"actions"</span>
     <span class="string">"health"</span>
     <span class="string">"healthMax"</span>
+    <span class="string">"magicalVision"</span>
     <span class="string">"movement"</span>
     <span class="string">"name"</span>
     <span class="string">"position"</span>
@@ -101,6 +103,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     setCooldown: (ability) -&gt;
       I.cooldowns[ability.name()] = ability.cooldown()
+
+    addMagicalVision: (position) -&gt;
+      I.magicalVision.push position
 
     addEffect: (effect) -&gt;
       I.effects.push effect</code></pre>
@@ -170,6 +175,10 @@ any status effects.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">    ready: -&gt;
+      <span class="comment"># Remove all magical vision</span>
+      <span class="comment"># TODO: Maybe have separate vision effects with their own durations</span>
+      I.magicalVision = []
+
       Object.keys(I.cooldowns).forEach (name) -&gt;
         I.cooldowns[name] -= <span class="number">1</span>
 

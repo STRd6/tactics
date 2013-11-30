@@ -260,6 +260,16 @@ Ability.Abilities =
       search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
         addEffect(Effect.Fire(position))
 
+  ShrubSight: Ability
+    name: <span class="string">"ShrubSight"</span>
+    iconName: <span class="string">"bush1"</span>
+    actionCost: <span class="number">1</span>
+    cooldown: <span class="number">3</span>
+    targetZone: SELF
+    perform: ({position, addEffect, owner}) -&gt;
+      search.adjacent(position, <span class="number">13</span>).forEach (position) -&gt;
+        addEffect(Effect.ShrubSight(position, owner))
+
   Wait: Ability
     name: <span class="string">"Wait"</span>
     iconName: <span class="string">"hourglass"</span>
