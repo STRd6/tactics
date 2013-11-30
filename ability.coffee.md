@@ -38,6 +38,7 @@ Some cool abilities that should be in the game
     {binomial} = require "./random"
     Search = require "./map_search"
     Effect = require "./effect"
+    Feature = require "./feature"
 
     # TODO we don't have tileAt, so we can't do all searches
     search = Search()
