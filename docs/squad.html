@@ -95,32 +95,20 @@ extend = Object.extend
   <span class="comment"># TODO: Load characters from data</span>
   <span class="keyword">if</span> I.race <span class="keyword">is</span> <span class="string">"human"</span>
     self.characters [
-      Character
+      create <span class="string">"Knight"</span>,
         position:
           x: I.x - <span class="number">1</span>
           y: <span class="number">7</span>
-        health: <span class="number">4</span>
-        healthMax: <span class="number">4</span>
-        spriteName: <span class="string">"human"</span>
-      Character
+
+      create <span class="string">"Wizard"</span>,
         position:
           x: I.x - <span class="number">2</span>
           y: <span class="number">10</span>
-        health: <span class="number">2</span>
-        healthMax: <span class="number">2</span>
-        spriteName: <span class="string">"wizard"</span>
-        abilities: [
-          <span class="string">"Fireball"</span>
-          <span class="string">"Teleport"</span>
-        ]
-      Character
+
+      create <span class="string">"Archer"</span>,
         position:
           x: I.x - <span class="number">4</span>
           y: <span class="number">13</span>
-        spriteName: <span class="string">"elf_archer"</span>
-        abilities: [
-          <span class="string">"Ranged"</span>
-        ]
     ]
   <span class="keyword">else</span>
     self.characters [
