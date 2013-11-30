@@ -27,6 +27,7 @@ Exploring various character classes here.
         healthMax: 2
         spriteName: "wizard"
         abilities: [
+          "Blink"
           "Fireball"
           "Teleport"
         ]
