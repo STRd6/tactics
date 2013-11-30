@@ -219,7 +219,7 @@ Should there be range types too? Connected, any, passable, etc?
         cooldown: 3
         costType: REST
         targetZone: LINE_OF_SIGHT
-        perform: ({position, addEffect, message}) ->
+        perform: ({position, addEffect}) ->
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             addEffect(Effect.Plant(position))
 
