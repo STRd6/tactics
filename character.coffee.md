@@ -11,11 +11,13 @@ Those little guys that run around.
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
-      I.sprite = Resource.sprite(I.sprite)
 
       Object.defaults I,
-        alive: true
+        abilities: [
+          "Melee"
+        ]
         actions: 2
+        alive: true
         cooldowns: {}
         effects: []
         health: 3
@@ -24,9 +26,6 @@ Those little guys that run around.
         name: Names.male.rand()
         sight: 7
         strength: 1
-        abilities: [
-          "Melee"
-        ]
 
       self.attrAccessor(
         "alive"
@@ -37,7 +36,6 @@ Those little guys that run around.
         "name"
         "position"
         "sight"
-        "sprite"
         "strength"
       )
 
@@ -57,6 +55,9 @@ Those little guys that run around.
       )
 
       Object.extend self,
+        sprite: ->
+          Resource.sprite(I.spriteName) or Sprite.NONE
+  
         damage: (amount) ->
           I.health -= amount
 

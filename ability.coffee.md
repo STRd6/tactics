@@ -176,7 +176,7 @@ Should there be range types too? Connected, any, passable, etc?
           if character
             amount = binomial(owner.strength())
             character.damage amount
-            
+
             message "#{owner.name()} struck #{character.name()} for #{amount}"
 
       Blind: Ability

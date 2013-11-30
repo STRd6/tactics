@@ -2,6 +2,12 @@ Squad
 =====
 
     Character = require "./character"
+    Class = require "./character_classes"
+
+    extend = Object.extend
+
+    create = (type, data) ->
+      Character extend data, Class[type]
 
 A team of 4-6 characters who battle it out with other squads in tactical combat.
 
@@ -53,14 +59,14 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               y: 7
             health: 4
             healthMax: 4
-            sprite: "human"
+            spriteName: "human"
           Character
             position:
               x: I.x - 2
               y: 10
             health: 2
             healthMax: 2
-            sprite: "wizard"
+            spriteName: "wizard"
             abilities: [
               "Fireball"
               "Teleport"
@@ -69,49 +75,29 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             position:
               x: I.x - 4
               y: 13
-            sprite: "elf_archer"
+            spriteName: "elf_archer"
             abilities: [
               "Ranged"
             ]
         ]
       else
         self.characters [
-          Character
+          create "Grunt",
             position:
               x: I.x - 1
               y: 7
-            sprite: "goblin"
-            abilities: [
-              "Melee"
-              "Regeneration"
-            ]
-          Character
+          create "Grunt",
             position:
-              x: I.x - 1
-              y: 7
-            sprite: "goblin"
-            abilities: [
-              "Melee"
-              "Regeneration"
-            ]
-          Character
+              x: I.x - 2
+              y: 5
+          create "ShrubMage",
             position:
               x: I.x - 2
               y: 10
-            sprite: "goblin"
-            abilities: [
-              "Melee"
-              "Regeneration"
-            ]
-          Character
+          create "Grunt",
             position:
               x: I.x - 4
               y: 13
-            sprite: "goblin"
-            abilities: [
-              "Melee"
-              "Regeneration"
-            ]
         ]
 
       self.activeCharacter self.characters.first()
