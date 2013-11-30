@@ -96,6 +96,16 @@ The primary tactical combat screen.
 
           activeSquad()?.activeCharacter()
 
+        updateFeatures: ->
+          grid.each (tile, position) ->
+            tile.features = tile.features.select (feature) ->
+              feature.update
+                addEffect: self.addEffect
+                characterAt: characterAt
+                message: self.message
+                tileAt: tileAt
+                position: position
+
         targettingAbility: ->
           if character = self.activeCharacter()
             character.targettingAbility()
@@ -146,6 +156,8 @@ The primary tactical combat screen.
             self.ready()
 
         ready: ->
+          self.updateFeatures()
+
           # Refresh all squads
           squads.forEach (squad) ->
             squad.ready()

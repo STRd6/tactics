@@ -24,6 +24,8 @@ electricity, I don't know yet.
             features: []
             sprite: lavaSprites.rand()
 
+          tile.features.push Feature.Fire()
+
           if character = characterAt(position)
             message "#{character.name()} is on fire!"
             character.damage(2)
