@@ -43,11 +43,13 @@ Names = require <span class="string">"./names"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
-  I.sprite = Resource.sprite(I.sprite)
 
   Object.defaults I,
-    alive: <span class="literal">true</span>
+    abilities: [
+      <span class="string">"Melee"</span>
+    ]
     actions: <span class="number">2</span>
+    alive: <span class="literal">true</span>
     cooldowns: {}
     effects: []
     health: <span class="number">3</span>
@@ -56,9 +58,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     name: Names.male.rand()
     sight: <span class="number">7</span>
     strength: <span class="number">1</span>
-    abilities: [
-      <span class="string">"Melee"</span>
-    ]
 
   self.attrAccessor(
     <span class="string">"alive"</span>
@@ -69,7 +68,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"name"</span>
     <span class="string">"position"</span>
     <span class="string">"sight"</span>
-    <span class="string">"sprite"</span>
     <span class="string">"strength"</span>
   )
 
@@ -89,6 +87,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   )
 
   Object.extend self,
+    sprite: -&gt;
+      Resource.sprite(I.spriteName) <span class="keyword">or</span> Sprite.NONE
+
     damage: (amount) -&gt;
       I.health -= amount
 
@@ -211,6 +212,8 @@ any status effects.</p>
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
   $.ajax({
     url: "http://strd6.github.io/interactive/v0.8.1.jsonp",

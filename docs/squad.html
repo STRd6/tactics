@@ -34,7 +34,13 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Character = require <span class="string">"./character"</span></code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">Character = require <span class="string">"./character"</span>
+Class = require <span class="string">"./character_classes"</span>
+
+extend = Object.extend
+
+<span class="function"><span class="title">create</span></span> = (type, data) -&gt;
+  Character extend data, Class[type]</code></pre>
 </div>
         </li>
         
@@ -95,14 +101,14 @@
           y: <span class="number">7</span>
         health: <span class="number">4</span>
         healthMax: <span class="number">4</span>
-        sprite: <span class="string">"human"</span>
+        spriteName: <span class="string">"human"</span>
       Character
         position:
           x: I.x - <span class="number">2</span>
           y: <span class="number">10</span>
         health: <span class="number">2</span>
         healthMax: <span class="number">2</span>
-        sprite: <span class="string">"wizard"</span>
+        spriteName: <span class="string">"wizard"</span>
         abilities: [
           <span class="string">"Fireball"</span>
           <span class="string">"Teleport"</span>
@@ -111,49 +117,29 @@
         position:
           x: I.x - <span class="number">4</span>
           y: <span class="number">13</span>
-        sprite: <span class="string">"elf_archer"</span>
+        spriteName: <span class="string">"elf_archer"</span>
         abilities: [
           <span class="string">"Ranged"</span>
         ]
     ]
   <span class="keyword">else</span>
     self.characters [
-      Character
+      create <span class="string">"Grunt"</span>,
         position:
           x: I.x - <span class="number">1</span>
           y: <span class="number">7</span>
-        sprite: <span class="string">"goblin"</span>
-        abilities: [
-          <span class="string">"Melee"</span>
-          <span class="string">"Regeneration"</span>
-        ]
-      Character
+      create <span class="string">"Grunt"</span>,
         position:
-          x: I.x - <span class="number">1</span>
-          y: <span class="number">7</span>
-        sprite: <span class="string">"goblin"</span>
-        abilities: [
-          <span class="string">"Melee"</span>
-          <span class="string">"Regeneration"</span>
-        ]
-      Character
+          x: I.x - <span class="number">2</span>
+          y: <span class="number">5</span>
+      create <span class="string">"ShrubMage"</span>,
         position:
           x: I.x - <span class="number">2</span>
           y: <span class="number">10</span>
-        sprite: <span class="string">"goblin"</span>
-        abilities: [
-          <span class="string">"Melee"</span>
-          <span class="string">"Regeneration"</span>
-        ]
-      Character
+      create <span class="string">"Grunt"</span>,
         position:
           x: I.x - <span class="number">4</span>
           y: <span class="number">13</span>
-        sprite: <span class="string">"goblin"</span>
-        abilities: [
-          <span class="string">"Melee"</span>
-          <span class="string">"Regeneration"</span>
-        ]
     ]
 
   self.activeCharacter self.characters.first()
@@ -167,6 +153,8 @@
   <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
 <script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
   $.ajax({
     url: "http://strd6.github.io/interactive/v0.8.1.jsonp",

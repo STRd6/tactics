@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>action</title>
+  <title>character_classes</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="action">Action</h1>
+              <h1 id="character-classes">Character Classes</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,24 +32,22 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>The only thing persons can do in the game are actions.</p>
-<p>They live in a little menu that changes based on the context.</p>
-<p>Clicking on them makes them happen.</p>
+              <p>Exploring various character classes here.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
+            <div class="content"><pre><code class="lang-coffeescript">module.exports =
+  ShrubMage:
+    abilities: [
+      <span class="string">"Entanglement"</span>
+    ]
+    spriteName: <span class="string">"kobold"</span>
 
-module.<span class="function"><span class="title">exports</span></span> = (I={}) -&gt;
-  self = {}
-
-  Object.defaults self, I,
-    name: <span class="string">"Action"</span>
-
-  self.active = Observable <span class="literal">false</span>
-  self.disabled = Observable <span class="literal">false</span>
-  self.icon = Resource.dataURL(I.icon)
-
-  <span class="keyword">return</span> self</code></pre>
+  Grunt:
+    abilities: [
+      <span class="string">"Melee"</span>
+      <span class="string">"Regeneration"</span>
+    ]
+    spriteName: <span class="string">"goblin"</span></code></pre>
 </div>
         </li>
         
