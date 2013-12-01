@@ -35,7 +35,9 @@ code isn't really in a position to be modified easily yet.
 
 http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting explains it fairly well.
 
-    calculateOctant = (positions, tileAt, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
+TODO: Maybe we can avoid passing in tileAt and just use opaque instead.
+
+    calculateOctant = (positions, tileAt, opaque, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
       tile = tileAt(cx, cy)
 
       positions.push Point(cx, cy)
@@ -83,7 +85,7 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
                 positions.push Point(X, Y)
 
               if blocked
-                if tile.opaque
+                if opaque(tile)
                   markTile(Point(X, Y), 1)
                   new_start = r_slope
                   continue
@@ -92,10 +94,10 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
                   blocked = false
                   start = new_start
               else
-                if tile.opaque
+                if opaque(tile)
                   markTile(Point(X, Y), 0)
                   blocked = true
-                  calculateOctant positions, tileAt, cx, cy, i + 1, start, l_slope, radius,
+                  calculateOctant positions, tileAt, opaque, cx, cy, i + 1, start, l_slope, radius,
                     xx, xy, yx, yy, id + 1
                   new_start = r_slope
 
@@ -106,7 +108,7 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
 
 Calculate the field of vision.
 
-      calculate: (tileAt, position, radius) ->
+      calculate: (tileAt, opaque, position, radius) ->
         positions = []
 
         [0..7].forEach (i) =>
@@ -115,7 +117,7 @@ Calculate the field of vision.
           yx = mult[2][i]
           yy = mult[3][i]
 
-          calculateOctant positions, tileAt, position.x, position.y, 0, 1.0, 0.0, radius,
+          calculateOctant positions, tileAt, opaque, position.x, position.y, 0, 1.0, 0.0, radius,
             xx, xy, yx, yy, 0
 
         tile = tileAt position.x, position.y

@@ -60,6 +60,10 @@ may query its properties and figure out what to do.
       (position) ->
         pattern(position, getTile, getEntities, index)
 
+    # TODO: Calculate based on tile features and character abilities
+    opaque = (tile) ->
+      tile.opaque
+
     module.exports = (getTile, getEntities) ->
 
 Returns a list of all positions accessible to the duder by normal movement
@@ -78,7 +82,7 @@ through tiles.
           distanceMax: range
 
       visible: (position, range=1) ->
-        FOV.calculate(getTile, position, range)
+        FOV.calculate(getTile, opaque, position, range)
 
       movementPath: (position, target, passable) ->
         Graph.aStar
