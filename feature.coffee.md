@@ -70,6 +70,8 @@ Features are things that are present within tiles in the tactical combat view.
                 shrubsOnFire = true
 
               if shrubsOnFire
+                # TODO fix visibility
+                tile.opaque = false
                 addFeature(Feature.Fire(), position)
 
           if character = characterAt(position)

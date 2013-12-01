@@ -175,7 +175,7 @@ Should there be range types too? Connected, any, passable, etc?
       Ranged: Ability
         name: "Attack"
         iconName: "longbow"
-        range: 6
+        range: 7
         actionCost: 1
         costType: REST
         targetZone: LINE_OF_SIGHT

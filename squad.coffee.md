@@ -57,16 +57,21 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             position:
               x: I.x - 1
               y: 7
-            
+
           create "Wizard",
             position:
               x: I.x - 2
               y: 10
-          
+
           create "Archer",
             position:
               x: I.x - 4
               y: 13
+
+          create "Archer",
+            postion:
+              x: rand(8) + 2
+              y: 3
         ]
       else
         self.characters [

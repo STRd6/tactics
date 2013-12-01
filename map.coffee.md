@@ -28,7 +28,7 @@ The primary tactical combat screen.
       # TODO: Keep track of seen features as well as seen tiles
       viewTiles = (positions, index) ->
         positions.map(tileAt).forEach (tile) ->
-          tile.seen[index] = tile.lit[index] = true
+          tile.seen[index] = tile.lit[index] = true if tile
 
       updateVisibleTiles = ->
         grid.each (tile) ->
