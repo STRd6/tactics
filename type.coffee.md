@@ -21,8 +21,9 @@ List
 
     module.exports = toObject """
       Dirt
-      Plant
-      Water
-      Ice
       Fire
+      Ice
+      Plant
+      Stone
+      Water
     """

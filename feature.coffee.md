@@ -13,12 +13,14 @@ Features are things that are present within tiles in the tactical combat view.
     module.exports = Feature = (I={}, self=Core(I)) ->
       Object.defaults I,
         createdAt: 0
+        impassable: false
         movementPenalty: 0
         opaque: false
         type: Type.Dirt
         zIndex: -1
 
       self.attrAccessor(
+        "impassable"
         "movementPenalty"
         "opaque"
         "type"
@@ -46,8 +48,16 @@ Features are things that are present within tiles in the tactical combat view.
 
       return self
 
+    Feature.Wall = ->
+      Feature
+        impassable: true
+        opaque: true
+        spriteName: "brick_vines" + rand(4)
+        type: Type.Stone
+
     Feature.Bush = ->
       Feature
+        opaque: true
         spriteName: "bush" + rand(4)
         type: Type.Plant
         zIndex: 1
@@ -56,6 +66,7 @@ Features are things that are present within tiles in the tactical combat view.
       Feature
         duration: 1
         spriteName: "ogre"
+        type: Type.Fire
         zIndex: 1
         update: ({addFeature, characterAt, position, message, tileAt}) ->
           search.adjacent(position).forEach (position) ->

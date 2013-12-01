@@ -69,7 +69,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               y: 13
 
           create "Archer",
-            postion:
+            position:
               x: rand(8) + 2
               y: 3
         ]

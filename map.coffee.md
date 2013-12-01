@@ -61,6 +61,11 @@ The primary tactical combat screen.
           squad.activeCharacter()
         .first()
 
+      # TODO: Calculate based on character abilities
+      impassable = (tile) ->
+        tile.features.some (feature) ->
+          feature.impassable()
+
       characterPassable = (character) ->
         (position) ->
           if tile = tileAt(position)
@@ -69,7 +74,7 @@ The primary tactical combat screen.
             else
               occupantPassable = true
 
-            !tile.solid and tile.lit[self.activeSquadIndex()] and occupantPassable
+            !impassable(tile) and tile.lit[self.activeSquadIndex()] and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?

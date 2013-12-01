@@ -60,9 +60,10 @@ may query its properties and figure out what to do.
       (position) ->
         pattern(position, getTile, getEntities, index)
 
-    # TODO: Calculate based on tile features and character abilities
+    # TODO: Calculate based on character abilities
     opaque = (tile) ->
-      tile.opaque
+      tile.features.some (feature) ->
+        feature.opaque()
 
     module.exports = (getTile, getEntities) ->
 

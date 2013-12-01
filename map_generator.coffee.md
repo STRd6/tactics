@@ -12,19 +12,11 @@ Hold the terrain and whatnot for a level.
         "#{type}#{i}"
       .map Resource.sprite
 
-    bushSprites = [0..3].map (i)->
-      Resource.sprite("bush#{i}")
-
-    wallSprites = [0..3].map (i) ->
-      Resource.sprite("brick_vines#{i}")
-
     wall = ->
-      sprite: wallSprites.rand()
+      sprite: groundSprites[0].rand()
       lit: []
       seen: []
-      opaque: true
-      solid: true
-      features: []
+      features: [Feature.Wall()]
 
     ground = ->
       bush = rand() < 0.1
@@ -32,8 +24,6 @@ Hold the terrain and whatnot for a level.
       sprite: groundSprites[0].rand()
       lit: []
       seen: []
-      opaque: bush
-      solid: false
       features: [0...bush].map ->
         Feature.Bush()
 
