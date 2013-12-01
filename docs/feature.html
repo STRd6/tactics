@@ -45,12 +45,14 @@ search = require(<span class="string">"./map_search"</span>)()
 module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     createdAt: <span class="number">0</span>
+    impassable: <span class="literal">false</span>
     movementPenalty: <span class="number">0</span>
     opaque: <span class="literal">false</span>
     type: Type.Dirt
     zIndex: -<span class="number">1</span>
 
   self.attrAccessor(
+    <span class="string">"impassable"</span>
     <span class="string">"movementPenalty"</span>
     <span class="string">"opaque"</span>
     <span class="string">"type"</span>
@@ -78,8 +80,16 @@ module.exports = <span class="function"><span class="title">Feature</span></span
 
   <span class="keyword">return</span> self
 
+Feature.<span class="function"><span class="title">Wall</span></span> = -&gt;
+  Feature
+    impassable: <span class="literal">true</span>
+    opaque: <span class="literal">true</span>
+    spriteName: <span class="string">"brick_vines"</span> + rand(<span class="number">4</span>)
+    type: Type.Stone
+
 Feature.<span class="function"><span class="title">Bush</span></span> = -&gt;
   Feature
+    opaque: <span class="literal">true</span>
     spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
     type: Type.Plant
     zIndex: <span class="number">1</span>
@@ -88,6 +98,7 @@ Feature.<span class="function"><span class="title">Fire</span></span> = -&gt;
   Feature
     duration: <span class="number">1</span>
     spriteName: <span class="string">"ogre"</span>
+    type: Type.Fire
     zIndex: <span class="number">1</span>
     update: ({addFeature, characterAt, position, message, tileAt}) -&gt;
       search.adjacent(position).forEach (position) -&gt;

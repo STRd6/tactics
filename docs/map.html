@@ -93,6 +93,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       squad.activeCharacter()
     .first()
 
+  <span class="comment"># TODO: Calculate based on character abilities</span>
+  <span class="function"><span class="title">impassable</span></span> = (tile) -&gt;
+    tile.features.some (feature) -&gt;
+      feature.impassable()
+
   <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
     (position) -&gt;
       <span class="keyword">if</span> tile = tileAt(position)
@@ -101,7 +106,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">else</span>
           occupantPassable = <span class="literal">true</span>
 
-        !tile.solid <span class="keyword">and</span> tile.lit[self.activeSquadIndex()] <span class="keyword">and</span> occupantPassable
+        !impassable(tile) <span class="keyword">and</span> tile.lit[self.activeSquadIndex()] <span class="keyword">and</span> occupantPassable
 
   <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
