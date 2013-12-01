@@ -7,9 +7,12 @@ Features are things that are present within tiles in the tactical combat view.
     Sprite = require "sprite"
     Type = require "./type"
 
+    # TODO we don't have tileAt, so we can't do all searches
+    search = require("./map_search")()
+
     module.exports = Feature = (I={}, self=Core(I)) ->
       Object.defaults I,
-        age: 0
+        createdAt: 0
         movementPenalty: 0
         opaque: false
         type: Type.Dirt
@@ -27,13 +30,17 @@ Features are things that are present within tiles in the tactical combat view.
           self.sprite().draw arguments...
         sprite: ->
           Resource.sprite(I.spriteName) or Sprite.NONE
-        update: ->
-          I.age += 1
+        update: ({turn}) ->
+          debugger if I.spriteName is "ogre"
+          delta = turn - I.createdAt
 
-          I.update?(arguments...)
+          if (delta > 0) and (delta % 1 is 0)
+            I.update?(arguments...)
 
-          if I.duration?
-            I.age < I.duration
+            if I.duration?
+              delta < I.duration
+            else
+              true
           else
             true
 
@@ -50,7 +57,21 @@ Features are things that are present within tiles in the tactical combat view.
         duration: 1
         spriteName: "ogre"
         zIndex: 1
-        update: ({characterAt, position, message}) ->
+        update: ({addFeature, characterAt, position, message, tileAt}) ->
+          search.adjacent(position).forEach (position) ->
+            if tile = tileAt(position)
+              shrubsOnFire = false
+
+              tile.features.select( (feature) ->
+                # TODO: apply this to all flammable things
+                feature.type() is "plant"
+              ).forEach (plantFeature) ->
+                tile.features.remove(plantFeature)
+                shrubsOnFire = true
+
+              if shrubsOnFire
+                addFeature(Feature.Fire(), position)
+
           if character = characterAt(position)
             amount = 1
 

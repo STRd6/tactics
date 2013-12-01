@@ -16,6 +16,8 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       self ?= Core(I)
 
+      I.currentTurn = 0
+
       grid = MapGenerator.generate
         width: 32
         height: 18
@@ -81,6 +83,7 @@ The primary tactical combat screen.
       search = MapSearch(grid.get, characterAt)
 
       effectStack = []
+      featuresToAdd = []
 
       Object.extend self,
         messages: Observable []
@@ -117,6 +120,8 @@ The primary tactical combat screen.
                 message: self.message
                 tileAt: tileAt
                 position: position
+                turn: I.currentTurn
+                addFeature: self.addFeature
 
         targettingAbility: ->
           if character = self.activeCharacter()
@@ -158,6 +163,11 @@ The primary tactical combat screen.
             # TODO: This could fall victim to infinite recursion
             self.performEffect effectStack.pop()
 
+          while featuresToAdd.length
+            [feature, position] = featuresToAdd.pop()
+
+            tileAt(position)?.features.push(feature)
+
           # TODO: May be able to consolidate these into the stack resolution
           activeSquad nextActivatableSquad()
 
@@ -168,6 +178,7 @@ The primary tactical combat screen.
             self.ready()
 
         ready: ->
+          I.currentTurn += 1
           self.updateFeatures()
 
           # Refresh all squads
@@ -187,6 +198,10 @@ The primary tactical combat screen.
         addEffect: (effect) ->
           effectStack.push effect
 
+        addFeature: (feature, position) ->
+          feature.I.createdAt = I.currentTurn
+          featuresToAdd.push([feature, position])
+
         performAbility: (owner, ability, targetPosition) ->
           ability.perform
             owner: owner
@@ -194,6 +209,7 @@ The primary tactical combat screen.
             character: characterAt targetPosition
             message: self.message
             position: targetPosition
+            addFeature: self.addFeature
 
           self.stateBasedActions()
 
@@ -203,6 +219,7 @@ The primary tactical combat screen.
             characterAt: characterAt
             message: self.message
             tileAt: tileAt
+            addFeature: self.addFeature
 
           self.stateBasedActions()
 
