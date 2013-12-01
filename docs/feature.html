@@ -39,8 +39,12 @@
 Sprite = require <span class="string">"sprite"</span>
 Type = require <span class="string">"./type"</span>
 
+<span class="comment"># TODO we don't have tileAt, so we can't do all searches</span>
+search = require(<span class="string">"./map_search"</span>)()
+
 module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
+    createdAt: <span class="number">0</span>
     movementPenalty: <span class="number">0</span>
     opaque: <span class="literal">false</span>
     type: Type.Dirt
@@ -58,6 +62,19 @@ module.exports = <span class="function"><span class="title">Feature</span></span
       self.sprite().draw arguments...
     sprite: -&gt;
       Resource.sprite(I.spriteName) <span class="keyword">or</span> Sprite.NONE
+    update: ({turn}) -&gt;
+      <span class="keyword">debugger</span> <span class="keyword">if</span> I.spriteName <span class="keyword">is</span> <span class="string">"ogre"</span>
+      delta = turn - I.createdAt
+
+      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % <span class="number">1</span> <span class="keyword">is</span> <span class="number">0</span>)
+        I.update?(arguments...)
+
+        <span class="keyword">if</span> I.duration?
+          delta &lt; I.duration
+        <span class="keyword">else</span>
+          <span class="literal">true</span>
+      <span class="keyword">else</span>
+        <span class="literal">true</span>
 
   <span class="keyword">return</span> self
 
@@ -65,7 +82,35 @@ Feature.<span class="function"><span class="title">Bush</span></span> = -&gt;
   Feature
     spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
     type: Type.Plant
-    zIndex: <span class="number">1</span></code></pre>
+    zIndex: <span class="number">1</span>
+
+Feature.<span class="function"><span class="title">Fire</span></span> = -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    spriteName: <span class="string">"ogre"</span>
+    zIndex: <span class="number">1</span>
+    update: ({addFeature, characterAt, position, message, tileAt}) -&gt;
+      search.adjacent(position).forEach (position) -&gt;
+        <span class="keyword">if</span> tile = tileAt(position)
+          shrubsOnFire = <span class="literal">false</span>
+
+          tile.features.select( (feature) -&gt;
+            <span class="comment"># TODO: apply this to all flammable things</span>
+            feature.type() <span class="keyword">is</span> <span class="string">"plant"</span>
+          ).forEach (plantFeature) -&gt;
+            tile.features.remove(plantFeature)
+            shrubsOnFire = <span class="literal">true</span>
+
+          <span class="keyword">if</span> shrubsOnFire
+            <span class="comment"># TODO fix visibility</span>
+            tile.opaque = <span class="literal">false</span>
+            addFeature(Feature.Fire(), position)
+
+      <span class="keyword">if</span> character = characterAt(position)
+        amount = <span class="number">1</span>
+
+        character.damage(amount)
+        message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span></code></pre>
 </div>
         </li>
         

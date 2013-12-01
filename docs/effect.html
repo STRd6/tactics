@@ -57,7 +57,7 @@ electricity, I don&#39;t know yet.</p>
 
 <span class="comment"># Used in Fireball</span>
 Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
-  perform: ({tileAt, characterAt, message}) -&gt;
+  perform: ({tileAt, characterAt, message, addFeature}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
       <span class="comment"># Fireball Effect</span>
       Object.extend tile,
@@ -66,13 +66,15 @@ Effect.<span class="function"><span class="title">Fire</span></span> = (position
         features: []
         sprite: lavaSprites.rand()
 
+      addFeature(Feature.Fire(), position)
+
       <span class="keyword">if</span> character = characterAt(position)
-        message(<span class="string">"<span class="subst">#{character.name()}</span> is burned!"</span>)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
         character.damage(<span class="number">2</span>)
 
 <span class="comment"># Used in Entanglement</span>
 Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;
-  perform: ({tileAt}) -&gt;
+  perform: ({characterAt, tileAt, message}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
       <span class="keyword">unless</span> tile.solid
         <span class="comment"># TODO: Check for existing bushes</span>
@@ -81,8 +83,13 @@ Effect.<span class="function"><span class="title">Plant</span></span> = (positio
         tile.opaque = <span class="literal">true</span>
         tile.features.push Feature.Bush()
 
-Effect.<span class="function"><span class="title">Death</span></span> = (position) -&gt;
-  perform: ({tileAt}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is caught in a shrub!"</span>
+
+Effect.<span class="function"><span class="title">Death</span></span> = (position, owner) -&gt;
+  perform: ({tileAt, message}) -&gt;
+    message <span class="string">"<span class="subst">#{owner.name()}</span> has been slain."</span>
+
     <span class="keyword">if</span> tile = tileAt(position)
       tile.features.push Feature
         spriteName: <span class="string">"skeleton"</span>

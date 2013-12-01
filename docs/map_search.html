@@ -110,6 +110,10 @@ may query its properties and figure out what to do.</p>
   (position) -&gt;
     pattern(position, getTile, getEntities, index)
 
+<span class="comment"># TODO: Calculate based on tile features and character abilities</span>
+<span class="function"><span class="title">opaque</span></span> = (tile) -&gt;
+  tile.opaque
+
 module.<span class="function"><span class="title">exports</span></span> = (getTile, getEntities) -&gt;</code></pre>
 </div>
         </li>
@@ -137,7 +141,7 @@ through tiles.</p>
       distanceMax: range
 
   visible: (position, range=<span class="number">1</span>) -&gt;
-    FOV.calculate(getTile, position, range)
+    FOV.calculate(getTile, opaque, position, range)
 
   movementPath: (position, target, passable) -&gt;
     Graph.aStar

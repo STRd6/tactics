@@ -48,6 +48,8 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   self ?= Core(I)
 
+  I.currentTurn = <span class="number">0</span>
+
   grid = MapGenerator.generate
     width: <span class="number">32</span>
     height: <span class="number">18</span>
@@ -58,7 +60,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
   <span class="function"><span class="title">viewTiles</span></span> = (positions, index) -&gt;
     positions.map(tileAt).forEach (tile) -&gt;
-      tile.seen[index] = tile.lit[index] = <span class="literal">true</span>
+      tile.seen[index] = tile.lit[index] = <span class="literal">true</span> <span class="keyword">if</span> tile
 
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
     grid.each (tile) -&gt;
@@ -113,6 +115,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   search = MapSearch(grid.get, characterAt)
 
   effectStack = []
+  featuresToAdd = []
 
   Object.extend self,
     messages: Observable []
@@ -139,6 +142,18 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         squad.activeCharacter()
 
       activeSquad()?.activeCharacter()
+
+    updateFeatures: -&gt;
+      grid.each (tile, position) -&gt;
+        tile.features = tile.features.select (feature) -&gt;
+          feature.update
+            addEffect: self.addEffect
+            characterAt: characterAt
+            message: self.message
+            tileAt: tileAt
+            position: position
+            turn: I.currentTurn
+            addFeature: self.addFeature
 
     targettingAbility: -&gt;
       <span class="keyword">if</span> character = self.activeCharacter()
@@ -180,6 +195,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="comment"># TODO: This could fall victim to infinite recursion</span>
         self.performEffect effectStack.pop()
 
+      <span class="keyword">while</span> featuresToAdd.length
+        [feature, position] = featuresToAdd.pop()
+
+        tileAt(position)?.features.push(feature)
+
       <span class="comment"># TODO: May be able to consolidate these into the stack resolution</span>
       activeSquad nextActivatableSquad()
 
@@ -190,6 +210,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         self.ready()
 
     ready: -&gt;
+      I.currentTurn += <span class="number">1</span>
+      self.updateFeatures()
+
       <span class="comment"># Refresh all squads</span>
       squads.forEach (squad) -&gt;
         squad.ready()
@@ -207,6 +230,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     addEffect: (effect) -&gt;
       effectStack.push effect
 
+    addFeature: (feature, position) -&gt;
+      feature.I.createdAt = I.currentTurn
+      featuresToAdd.push([feature, position])
+
     performAbility: (owner, ability, targetPosition) -&gt;
       ability.perform
         owner: owner
@@ -214,6 +241,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         character: characterAt targetPosition
         message: self.message
         position: targetPosition
+        addFeature: self.addFeature
 
       self.stateBasedActions()
 
@@ -223,6 +251,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         characterAt: characterAt
         message: self.message
         tileAt: tileAt
+        addFeature: self.addFeature
 
       self.stateBasedActions()
 
