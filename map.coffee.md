@@ -28,11 +28,11 @@ The primary tactical combat screen.
       # TODO: Keep track of seen features as well as seen tiles
       viewTiles = (positions, index) ->
         positions.map(tileAt).forEach (tile) ->
-          tile.seen[index] = tile.lit[index] = true if tile
+          tile?.view index
 
       updateVisibleTiles = ->
         grid.each (tile) ->
-          tile.lit = []
+          tile.resetLit()
 
         squads.forEach (squad, i) ->
           squad.characters().filter (character) ->
@@ -61,11 +61,6 @@ The primary tactical combat screen.
           squad.activeCharacter()
         .first()
 
-      # TODO: Calculate based on character abilities
-      impassable = (tile) ->
-        tile.features.some (feature) ->
-          feature.impassable()
-
       characterPassable = (character) ->
         (position) ->
           if tile = tileAt(position)
@@ -74,7 +69,7 @@ The primary tactical combat screen.
             else
               occupantPassable = true
 
-            !impassable(tile) and tile.lit[self.activeSquadIndex()] and occupantPassable
+            !tile.impassable() and tile.lit(self.activeSquadIndex()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -118,15 +113,14 @@ The primary tactical combat screen.
 
         updateFeatures: ->
           grid.each (tile, position) ->
-            tile.features = tile.features.select (feature) ->
-              feature.update
-                addEffect: self.addEffect
-                characterAt: characterAt
-                message: self.message
-                tileAt: tileAt
-                position: position
-                turn: I.currentTurn
-                addFeature: self.addFeature
+            tile.updateFeatures
+              addEffect: self.addEffect
+              characterAt: characterAt
+              message: self.message
+              tileAt: tileAt
+              position: position
+              turn: I.currentTurn
+              addFeature: self.addFeature
 
         targettingAbility: ->
           if character = self.activeCharacter()
@@ -251,9 +245,9 @@ The primary tactical combat screen.
 
           if path
             index = self.activeSquadIndex()
+            # TODO: Maybe this should be done as SBAs
             path.forEach (position) ->
-              search.visible(character.position(), character.sight()).map(tileAt).forEach (tile) ->
-                tile.seen[index] = true
+              viewTiles search.visible(character.position(), character.sight()), index
 
             self.performAbility(character, self.targettingAbility(), position)
 

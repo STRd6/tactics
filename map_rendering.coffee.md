@@ -8,12 +8,12 @@ Drawing the map data on the screen.
     tileSize = Size(32, 32)
 
     drawGround = (tiles, canvas) ->
-      tiles.forEach ([{sprite}, position]) ->
-        sprite.draw canvas, position.scale(tileSize)
+      tiles.forEach ([tile, position]) ->
+        tile.draw canvas, position.scale(tileSize)
 
     drawFeatures = (tiles, canvas, under) ->
-      tiles.forEach ([{features}, position]) ->
-        features.forEach (feature) ->
+      tiles.forEach ([tile, position]) ->
+        tile.features().forEach (feature) ->
           zIndex = feature.zIndex()
           if (under and zIndex <= 0) or (!under and zIndex > 0)
             feature.draw canvas, position.scale(tileSize)

@@ -61,9 +61,9 @@ may query its properties and figure out what to do.
         pattern(position, getTile, getEntities, index)
 
     # TODO: Calculate based on character abilities
+    # TODO: Probably pass this in just like passable method
     opaque = (tile) ->
-      tile.features.some (feature) ->
-        feature.opaque()
+      tile.opaque()
 
     module.exports = (getTile, getEntities) ->
 
