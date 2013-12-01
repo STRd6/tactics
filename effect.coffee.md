@@ -15,7 +15,7 @@ electricity, I don't know yet.
 
     # Used in Fireball
     Effect.Fire = (position) ->
-      perform: ({tileAt, characterAt, message}) ->
+      perform: ({tileAt, characterAt, message, addFeature}) ->
         if tile = tileAt(position)
           # Fireball Effect
           Object.extend tile,
@@ -24,7 +24,7 @@ electricity, I don't know yet.
             features: []
             sprite: lavaSprites.rand()
 
-          tile.features.push Feature.Fire()
+          addFeature(Feature.Fire(), position)
 
           if character = characterAt(position)
             message "#{character.name()} is on fire!"
