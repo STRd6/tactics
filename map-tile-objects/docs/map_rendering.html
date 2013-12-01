@@ -76,7 +76,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       results = []
 
       self.eachTile (tile, position) -&gt;
-        results.push [tile, position] <span class="keyword">if</span> tile.seen[index]
+        results.push [tile, position] <span class="keyword">if</span> tile.seen(index)
 
       results
 
@@ -89,7 +89,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       drawGround(seenTiles, canvas)
 
       [litTiles, unlitTiles] = seenTiles.partition ([tile]) -&gt;
-        tile.lit[index]
+        tile.lit(index)
 
       <span class="comment"># TODO: Iterate zSorted features + characters on a per chunk basis</span>
       drawFeatures(seenTiles, canvas, <span class="literal">true</span>)
