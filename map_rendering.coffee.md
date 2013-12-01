@@ -44,7 +44,7 @@ Drawing the map data on the screen.
           results = []
 
           self.eachTile (tile, position) ->
-            results.push [tile, position] if tile.seen[index]
+            results.push [tile, position] if tile.seen(index)
 
           results
 
@@ -57,7 +57,7 @@ Drawing the map data on the screen.
           drawGround(seenTiles, canvas)
 
           [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
-            tile.lit[index]
+            tile.lit(index)
 
           # TODO: Iterate zSorted features + characters on a per chunk basis
           drawFeatures(seenTiles, canvas, true)
