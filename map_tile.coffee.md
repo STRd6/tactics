@@ -17,7 +17,7 @@ A tile in the tactical combat screen.
 
       self.include Drawable
 
-      self.attrAccessor "features"
+      self.attrAccessor "features", "spriteName"
 
       self.extend
         addFeature: (feature) ->

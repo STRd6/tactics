@@ -16,6 +16,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
     module.exports = Squad = (I={}, self=Core(I)) ->
       Object.defaults I,
         characters: []
+        race: "human"
 
       self.include Compositions
 
