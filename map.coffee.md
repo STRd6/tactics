@@ -4,6 +4,7 @@ Map
 The primary tactical combat screen.
 
     Ability = require "./ability"
+    Compositions = require "./lib/compositions"
     Graph = require "./graph"
     {Grid} = require "./lib/util"
     MapGenerator = require "./map_generator"
@@ -27,11 +28,13 @@ The primary tactical combat screen.
             features: []
 
       self ?= Core(I)
+      
+      self.include Compositions
 
       I.tiles.constructor = MapTile
-      tiles = Grid(I.tiles)
+      self.attrModel "tiles", Grid
 
-      tileAt = tiles.get
+      tileAt = self.tiles().get
 
       # TODO: Add trap detection
       # TODO: Keep track of seen features as well as seen tiles
@@ -40,7 +43,7 @@ The primary tactical combat screen.
           tile?.view index
 
       updateVisibleTiles = ->
-        tiles.each (tile) ->
+        self.eachTile (tile) ->
           tile.resetLit()
 
         squads.forEach (squad, i) ->
@@ -96,7 +99,7 @@ The primary tactical combat screen.
 
       self.include require("./map_serialization")
 
-      Object.extend self,
+      self.extend
         messages: Observable []
 
         activeSquadIndex: ->
@@ -109,7 +112,7 @@ The primary tactical combat screen.
 
         characterAt: characterAt
 
-        eachTile: tiles.each
+        eachTile: self.tiles().each
 
         visibleCharacters: ->
           index = self.activeSquadIndex()
@@ -124,7 +127,8 @@ The primary tactical combat screen.
           activeSquad()?.activeCharacter()
 
         updateFeatures: ->
-          tiles.each (tile, position) ->
+          # TODO: Think about storing features separately from tiles
+          self.eachTile (tile, position) ->
             tile.updateFeatures
               addEffect: self.addEffect
               characterAt: characterAt
@@ -177,7 +181,7 @@ The primary tactical combat screen.
           while featuresToAdd.length
             [feature, position] = featuresToAdd.pop()
 
-            tileAt(position)?.features.push(feature)
+            tileAt(position)?.addFeature(feature)
 
           # TODO: May be able to consolidate these into the stack resolution
           activeSquad nextActivatableSquad()
