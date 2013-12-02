@@ -60,9 +60,8 @@ Effect.<span class="function"><span class="title">Fire</span></span> = (position
   perform: ({tileAt, characterAt, message, addFeature}) -&gt;
     <span class="keyword">if</span> tile = tileAt(position)
       <span class="comment"># Fireball Effect</span>
-      Object.extend tile,
-        features: []
-        sprite: lavaSprites.rand()
+      tile.spriteName(<span class="string">"lava<span class="subst">#{rand(<span class="number">12</span>)}</span>"</span>)
+      tile.features([])
 
       addFeature(Feature.Fire(), position)
 
