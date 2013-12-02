@@ -36,6 +36,7 @@
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
+Compositions = require <span class="string">"./lib/compositions"</span>
 Graph = require <span class="string">"./graph"</span>
 {Grid} = require <span class="string">"./lib/util"</span>
 MapGenerator = require <span class="string">"./map_generator"</span>
@@ -60,10 +61,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self ?= Core(I)
 
-  I.tiles.constructor = MapTile
-  tiles = Grid(I.tiles)
+  self.include Compositions
 
-  tileAt = tiles.get
+  I.tiles.constructor = MapTile
+  self.attrModel <span class="string">"tiles"</span>, Grid
+
+  tileAt = self.tiles().get
 
   <span class="comment"># TODO: Add trap detection</span>
   <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
@@ -72,7 +75,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       tile?.view index
 
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
-    tiles.each (tile) -&gt;
+    self.eachTile (tile) -&gt;
       tile.resetLit()
 
     squads.forEach (squad, i) -&gt;
@@ -128,7 +131,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.include require(<span class="string">"./map_serialization"</span>)
 
-  Object.extend self,
+  self.extend
     messages: Observable []
 
     activeSquadIndex: -&gt;
@@ -141,7 +144,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     characterAt: characterAt
 
-    eachTile: tiles.each
+    eachTile: self.tiles().each
 
     visibleCharacters: -&gt;
       index = self.activeSquadIndex()
@@ -156,7 +159,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       activeSquad()?.activeCharacter()
 
     updateFeatures: -&gt;
-      tiles.each (tile, position) -&gt;
+      <span class="comment"># TODO: Think about storing features separately from tiles</span>
+      self.eachTile (tile, position) -&gt;
         tile.updateFeatures
           addEffect: self.addEffect
           characterAt: characterAt
@@ -209,7 +213,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">while</span> featuresToAdd.length
         [feature, position] = featuresToAdd.pop()
 
-        tileAt(position)?.features.push(feature)
+        tileAt(position)?.addFeature(feature)
 
       <span class="comment"># TODO: May be able to consolidate these into the stack resolution</span>
       activeSquad nextActivatableSquad()
