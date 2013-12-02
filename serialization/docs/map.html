@@ -37,8 +37,10 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Graph = require <span class="string">"./graph"</span>
+{Grid} = require <span class="string">"./lib/util"</span>
 MapGenerator = require <span class="string">"./map_generator"</span>
 MapSearch = require <span class="string">"./map_search"</span>
+MapTile = require <span class="string">"./map_tile"</span>
 Squad = require <span class="string">"./squad"</span>
 
 {
@@ -46,15 +48,22 @@ Squad = require <span class="string">"./squad"</span>
 } = require <span class="string">"./array_helpers"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  Object.defaults I,
+    currentTurn: <span class="number">0</span>
+    tiles:
+      width: <span class="number">32</span>
+      height: <span class="number">18</span>
+      data: [<span class="number">0.</span>.. <span class="number">32</span> * <span class="number">18</span>].map -&gt;
+        lit: []
+        seen: []
+        features: []
+
   self ?= Core(I)
 
-  I.currentTurn = <span class="number">0</span>
+  I.tiles.constructor = MapTile
+  tiles = Grid(I.tiles)
 
-  grid = MapGenerator.generate
-    width: <span class="number">32</span>
-    height: <span class="number">18</span>
-
-  tileAt = grid.get
+  tileAt = tiles.get
 
   <span class="comment"># TODO: Add trap detection</span>
   <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
@@ -63,7 +72,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       tile?.view index
 
   <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
-    grid.each (tile) -&gt;
+    tiles.each (tile) -&gt;
       tile.resetLit()
 
     squads.forEach (squad, i) -&gt;
@@ -112,7 +121,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       character.alive() <span class="keyword">and</span> (position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y)
     .first()
 
-  search = MapSearch(grid.get, characterAt)
+  search = MapSearch(tileAt, characterAt)
 
   effectStack = []
   featuresToAdd = []
@@ -121,8 +130,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   Object.extend self,
     messages: Observable []
-
-    tiles: grid
 
     activeSquadIndex: -&gt;
       squads.indexOf activeSquad()
@@ -134,7 +141,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     characterAt: characterAt
 
-    eachTile: grid.each
+    eachTile: tiles.each
 
     visibleCharacters: -&gt;
       index = self.activeSquadIndex()
@@ -149,7 +156,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       activeSquad()?.activeCharacter()
 
     updateFeatures: -&gt;
-      grid.each (tile, position) -&gt;
+      tiles.each (tile, position) -&gt;
         tile.updateFeatures
           addEffect: self.addEffect
           characterAt: characterAt
