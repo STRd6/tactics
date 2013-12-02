@@ -147,4 +147,9 @@ Return a 1-dimensional array of the data within the grid.
               a.concat(b)
             , []
 
+          toJSON: ->
+            width: width
+            height: height
+            data: self.toArray()
+
         return self

@@ -85,8 +85,13 @@ The primary tactical combat screen.
       effectStack = []
       featuresToAdd = []
 
+      self.include require("./map_serialization")
+
       Object.extend self,
         messages: Observable []
+
+        tiles: grid
+
         activeSquadIndex: ->
           squads.indexOf activeSquad()
 
