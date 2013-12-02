@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>feature</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="feature">Feature</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Features are things that are present within tiles in the tactical combat view.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Drawable = require <span class="string">"./lib/drawable"</span>
+Type = require <span class="string">"./type"</span>
+
+<span class="comment"># TODO we don't have tileAt, so we can't do all searches</span>
+search = require(<span class="string">"./map_search"</span>)()
+
+module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
+  Object.defaults I,
+    createdAt: <span class="number">0</span>
+    impassable: <span class="literal">false</span>
+    movementPenalty: <span class="number">0</span>
+    opaque: <span class="literal">false</span>
+    type: Type.Dirt
+    zIndex: -<span class="number">1</span>
+
+  self.attrAccessor(
+    <span class="string">"impassable"</span>
+    <span class="string">"movementPenalty"</span>
+    <span class="string">"opaque"</span>
+    <span class="string">"type"</span>
+    <span class="string">"zIndex"</span>
+  )
+
+  self.include Drawable
+
+  Object.extend self,
+    update: ({turn}) -&gt;
+      <span class="keyword">debugger</span> <span class="keyword">if</span> I.spriteName <span class="keyword">is</span> <span class="string">"ogre"</span>
+      delta = turn - I.createdAt
+
+      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % <span class="number">1</span> <span class="keyword">is</span> <span class="number">0</span>)
+        I.update?(arguments...)
+
+        <span class="keyword">if</span> I.duration?
+          delta &lt; I.duration
+        <span class="keyword">else</span>
+          <span class="literal">true</span>
+      <span class="keyword">else</span>
+        <span class="literal">true</span>
+
+  <span class="keyword">return</span> self
+
+Feature.<span class="function"><span class="title">Wall</span></span> = -&gt;
+  Feature
+    impassable: <span class="literal">true</span>
+    opaque: <span class="literal">true</span>
+    spriteName: <span class="string">"brick_vines"</span> + rand(<span class="number">4</span>)
+    type: Type.Stone
+
+Feature.<span class="function"><span class="title">Bush</span></span> = -&gt;
+  Feature
+    opaque: <span class="literal">true</span>
+    spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
+    type: Type.Plant
+    zIndex: <span class="number">1</span>
+
+Feature.<span class="function"><span class="title">Fire</span></span> = -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    spriteName: <span class="string">"ogre"</span>
+    type: Type.Fire
+    zIndex: <span class="number">1</span>
+    update: ({addFeature, characterAt, position, message, tileAt}) -&gt;
+      search.adjacent(position).forEach (position) -&gt;
+        <span class="keyword">if</span> tile = tileAt(position)
+          shrubsOnFire = <span class="literal">false</span>
+
+          tile.features().select( (feature) -&gt;
+            <span class="comment"># TODO: apply this to all flammable things</span>
+            feature.type() <span class="keyword">is</span> <span class="string">"plant"</span>
+          ).forEach (plantFeature) -&gt;
+            tile.features().remove(plantFeature)
+            shrubsOnFire = <span class="literal">true</span>
+
+          <span class="keyword">if</span> shrubsOnFire
+            addFeature(Feature.Fire(), position)
+
+      <span class="keyword">if</span> character = characterAt(position)
+        amount = <span class="number">1</span>
+
+        character.damage(amount)
+        message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span></code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
