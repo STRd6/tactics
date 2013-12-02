@@ -58,6 +58,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         lit: []
         seen: []
         features: []
+    squads: [{
+      <span class="comment"># TODO</span>
+    }, {
+      race: <span class="string">"goblin"</span>
+    }]
 
   self ?= Core(I)
 
@@ -67,6 +72,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.attrModel <span class="string">"tiles"</span>, Grid
 
   tileAt = self.tiles().get
+
+  self.attrModels <span class="string">"squads"</span>, Squad
 
   <span class="comment"># TODO: Add trap detection</span>
   <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
@@ -78,7 +85,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     self.eachTile (tile) -&gt;
       tile.resetLit()
 
-    squads.forEach (squad, i) -&gt;
+    self.squads().forEach (squad, i) -&gt;
       squad.characters().filter (character) -&gt;
         character.alive()
       .forEach (duder) -&gt;
@@ -91,17 +98,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="comment"># Normal Sight</span>
         viewTiles search.visible(duder.position(), duder.sight()), i
 
-  squads = [
-    Squad()
-    Squad
-      race: <span class="string">"goblin"</span>
-      x: <span class="number">30</span>
-  ]
-
-  activeSquad = Observable squads.first()
+  activeSquad = Observable self.squads().first()
 
   <span class="function"><span class="title">nextActivatableSquad</span></span> = -&gt;
-    squads.filter (squad) -&gt;
+    self.squads().filter (squad) -&gt;
       squad.activeCharacter()
     .first()
 
@@ -135,10 +135,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     messages: Observable []
 
     activeSquadIndex: -&gt;
-      squads.indexOf activeSquad()
+      self.squads().indexOf activeSquad()
 
     characters: Observable -&gt;
-      squads.map (squad) -&gt;
+      self.squads().map (squad) -&gt;
         squad.characters()
       .flatten()
 
@@ -153,7 +153,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     activeCharacter: Observable -&gt;
       <span class="comment"># Dependencies for observable</span>
-      squads.forEach (squad) -&gt;
+      self.squads().forEach (squad) -&gt;
         squad.activeCharacter()
 
       activeSquad()?.activeCharacter()
@@ -202,7 +202,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             )
 
     stateBasedActions: -&gt;
-      squads.forEach (squad) -&gt;
+      self.squads().forEach (squad) -&gt;
         squad.stateBasedActions
           addEffect: self.addEffect
 
@@ -229,7 +229,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.updateFeatures()
 
       <span class="comment"># Refresh all squads</span>
-      squads.forEach (squad) -&gt;
+      self.squads().forEach (squad) -&gt;
         squad.ready()
 
       activeSquad nextActivatableSquad()
