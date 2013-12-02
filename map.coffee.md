@@ -102,7 +102,7 @@ The primary tactical combat screen.
         visibleCharacters: ->
           index = self.activeSquadIndex()
           self.characters().filter (character) ->
-            tileAt(character.position()).lit[index]
+            tileAt(character.position()).lit(index)
 
         activeCharacter: Observable ->
           # Dependencies for observable
