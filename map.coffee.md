@@ -5,8 +5,10 @@ The primary tactical combat screen.
 
     Ability = require "./ability"
     Graph = require "./graph"
+    {Grid} = require "./lib/util"
     MapGenerator = require "./map_generator"
     MapSearch = require "./map_search"
+    MapTile = require "./map_tile"
     Squad = require "./squad"
 
     {
@@ -14,15 +16,22 @@ The primary tactical combat screen.
     } = require "./array_helpers"
 
     module.exports = (I={}, self) ->
+      Object.defaults I,
+        currentTurn: 0
+        tiles:
+          width: 32
+          height: 18
+          data: [0... 32 * 18].map ->
+            lit: []
+            seen: []
+            features: []
+
       self ?= Core(I)
 
-      I.currentTurn = 0
+      I.tiles.constructor = MapTile
+      tiles = Grid(I.tiles)
 
-      grid = MapGenerator.generate
-        width: 32
-        height: 18
-
-      tileAt = grid.get
+      tileAt = tiles.get
 
       # TODO: Add trap detection
       # TODO: Keep track of seen features as well as seen tiles
@@ -31,7 +40,7 @@ The primary tactical combat screen.
           tile?.view index
 
       updateVisibleTiles = ->
-        grid.each (tile) ->
+        tiles.each (tile) ->
           tile.resetLit()
 
         squads.forEach (squad, i) ->
@@ -80,7 +89,7 @@ The primary tactical combat screen.
           character.alive() and (position.x is x and position.y is y)
         .first()
 
-      search = MapSearch(grid.get, characterAt)
+      search = MapSearch(tileAt, characterAt)
 
       effectStack = []
       featuresToAdd = []
@@ -89,8 +98,6 @@ The primary tactical combat screen.
 
       Object.extend self,
         messages: Observable []
-
-        tiles: grid
 
         activeSquadIndex: ->
           squads.indexOf activeSquad()
@@ -102,7 +109,7 @@ The primary tactical combat screen.
 
         characterAt: characterAt
 
-        eachTile: grid.each
+        eachTile: tiles.each
 
         visibleCharacters: ->
           index = self.activeSquadIndex()
@@ -117,7 +124,7 @@ The primary tactical combat screen.
           activeSquad()?.activeCharacter()
 
         updateFeatures: ->
-          grid.each (tile, position) ->
+          tiles.each (tile, position) ->
             tile.updateFeatures
               addEffect: self.addEffect
               characterAt: characterAt

@@ -13,6 +13,7 @@ A tile in the tactical combat screen.
         features: []
         lit: []
         seen: []
+        spriteName: "ground0"
 
       self.include Drawable
 
