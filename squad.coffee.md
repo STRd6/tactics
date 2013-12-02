@@ -4,6 +4,8 @@ Squad
     Character = require "./character"
     Class = require "./character_classes"
 
+    Compositions = require "./lib/compositions"
+
     extend = Object.extend
 
     create = (type, data) ->
@@ -11,20 +13,23 @@ Squad
 
 A team of 4-6 characters who battle it out with other squads in tactical combat.
 
-    module.exports = Squad = (I={}) ->
+    module.exports = Squad = (I={}, self=Core(I)) ->
       Object.defaults I,
-        race: "human"
-        x: 5
+        characters: []
+
+      self.include Compositions
+
+      self.attrModels "characters", Character
 
       activatableCharacters = ->
-        self.characters.filter (character) ->
+        self.characters().filter (character) ->
           character.alive() and
           character.actions() > 0
 
       nextActivatableCharacter = ->
         activatableCharacters().first()
 
-      self =
+      self.extend
         activateCharacterAt: (position) ->
           character = activatableCharacters().filter (character) ->
             character.position().equal position
@@ -34,10 +39,9 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             self.activeCharacter(character)
 
         activeCharacter: Observable null
-        characters: Observable []
 
         stateBasedActions: (params) ->
-          self.characters.forEach (character) ->
+          self.characters().forEach (character) ->
             character.stateBasedActions(params)
 
           if character = self.activeCharacter()
@@ -45,7 +49,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               self.activeCharacter nextActivatableCharacter()
 
         ready: ->
-          self.characters.forEach (character) ->
+          self.characters().forEach (character) ->
             character.ready()
 
           self.activeCharacter nextActivatableCharacter()
@@ -55,44 +59,44 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         self.characters [
           create "Knight",
             position:
-              x: I.x - 1
+              x: 1
               y: 7
 
           create "Wizard",
             position:
-              x: I.x - 2
+              x: 2
               y: 10
 
           create "Archer",
             position:
-              x: I.x - 4
+              x: 4
               y: 13
 
           create "Archer",
             position:
-              x: rand(8) + 2
+              x: 2
               y: 3
         ]
       else
         self.characters [
           create "Grunt",
             position:
-              x: I.x - 1
+              x: 10
               y: 7
           create "Grunt",
             position:
-              x: I.x - 2
+              x: 8
               y: 5
           create "ShrubMage",
             position:
-              x: I.x - 2
+              x: 8
               y: 10
           create "Grunt",
             position:
-              x: I.x - 4
+              x: 12
               y: 13
         ]
 
-      self.activeCharacter self.characters.first()
+      self.activeCharacter self.characters().first()
 
       return self
