@@ -3,8 +3,7 @@ Feature
 
 Features are things that are present within tiles in the tactical combat view.
 
-    Resource = require "./resource"
-    Sprite = require "sprite"
+    Drawable = require "./lib/drawable"
     Type = require "./type"
 
     # TODO we don't have tileAt, so we can't do all searches
@@ -27,11 +26,9 @@ Features are things that are present within tiles in the tactical combat view.
         "zIndex"
       )
 
+      self.include Drawable
+
       Object.extend self,
-        draw: ->
-          self.sprite().draw arguments...
-        sprite: ->
-          Resource.sprite(I.spriteName) or Sprite.NONE
         update: ({turn}) ->
           debugger if I.spriteName is "ogre"
           delta = turn - I.createdAt
@@ -73,16 +70,14 @@ Features are things that are present within tiles in the tactical combat view.
             if tile = tileAt(position)
               shrubsOnFire = false
 
-              tile.features.select( (feature) ->
+              tile.features().select( (feature) ->
                 # TODO: apply this to all flammable things
                 feature.type() is "plant"
               ).forEach (plantFeature) ->
-                tile.features.remove(plantFeature)
+                tile.features().remove(plantFeature)
                 shrubsOnFire = true
 
               if shrubsOnFire
-                # TODO fix visibility
-                tile.opaque = false
                 addFeature(Feature.Fire(), position)
 
           if character = characterAt(position)

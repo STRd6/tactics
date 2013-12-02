@@ -5,8 +5,8 @@ Those little guys that run around.
 
     Ability = require "./ability"
     Action = require "./action"
+    Drawable = require "./lib/drawable"
     Effect = require "./effect"
-    Resource = require "./resource"
     Names = require "./names"
 
     module.exports = (I={}, self=Core(I)) ->
@@ -55,11 +55,10 @@ Those little guys that run around.
         "sight"
         "strength"
       )
+      
+      self.include Drawable
 
       Object.extend self,
-        sprite: ->
-          Resource.sprite(I.spriteName) or Sprite.NONE
-
         damage: (amount) ->
           I.health -= amount
 

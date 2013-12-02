@@ -19,8 +19,6 @@ electricity, I don't know yet.
         if tile = tileAt(position)
           # Fireball Effect
           Object.extend tile,
-            opaque: false
-            solid: false
             features: []
             sprite: lavaSprites.rand()
 
@@ -34,12 +32,10 @@ electricity, I don't know yet.
     Effect.Plant = (position) ->
       perform: ({characterAt, tileAt, message}) ->
         if tile = tileAt(position)
-          unless tile.solid
+          unless tile.impassable()
             # TODO: Check for existing bushes
             # TODO: Add movement penalty to bush features
-            # TODO: Transfer opacity computation from to include features
-            tile.opaque = true
-            tile.features.push Feature.Bush()
+            tile.addFeature Feature.Bush()
 
           if character = characterAt(position)
             message "#{character.name()} is caught in a shrub!"
@@ -49,15 +45,14 @@ electricity, I don't know yet.
         message "#{owner.name()} has been slain."
 
         if tile = tileAt(position)
-          tile.features.push Feature
+          tile.addFeature Feature
             spriteName: "skeleton"
 
     Effect.ShrubSight = (position, owner) ->
       perform: ({tileAt}) ->
         if tile = tileAt(position)
-          # TODO: Maybe have a featureAt method passed in?
-          hasPlant = tile.features.some (feature) ->
-            feature.type() is "plant"
+          # TODO: Maybe have a featureAt method passed in rather than use tile.features
+          hasPlant = tile.hasType "plant"
 
           # Add magical vision to owner if tile has a `plant` feature
           if hasPlant

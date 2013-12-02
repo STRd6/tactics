@@ -8,12 +8,12 @@ Drawing the map data on the screen.
     tileSize = Size(32, 32)
 
     drawGround = (tiles, canvas) ->
-      tiles.forEach ([{sprite}, position]) ->
-        sprite.draw canvas, position.scale(tileSize)
+      tiles.forEach ([tile, position]) ->
+        tile.draw canvas, position.scale(tileSize)
 
     drawFeatures = (tiles, canvas, under) ->
-      tiles.forEach ([{features}, position]) ->
-        features.forEach (feature) ->
+      tiles.forEach ([tile, position]) ->
+        tile.features().forEach (feature) ->
           zIndex = feature.zIndex()
           if (under and zIndex <= 0) or (!under and zIndex > 0)
             feature.draw canvas, position.scale(tileSize)
@@ -44,7 +44,7 @@ Drawing the map data on the screen.
           results = []
 
           self.eachTile (tile, position) ->
-            results.push [tile, position] if tile.seen[index]
+            results.push [tile, position] if tile.seen(index)
 
           results
 
@@ -57,7 +57,7 @@ Drawing the map data on the screen.
           drawGround(seenTiles, canvas)
 
           [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
-            tile.lit[index]
+            tile.lit(index)
 
           # TODO: Iterate zSorted features + characters on a per chunk basis
           drawFeatures(seenTiles, canvas, true)

@@ -3,29 +3,22 @@ Map Generator
 
     Feature = require "./feature"
     {Grid} = require "./lib/util"
-    Resource = require "./resource"
+    MapTile = require "./map_tile"
 
 Hold the terrain and whatnot for a level.
 
-    groundSprites = ["ground", "frozen", "stone"].map (type) ->
-      [0..7].map (i) ->
-        "#{type}#{i}"
-      .map Resource.sprite
-
     wall = ->
-      sprite: groundSprites[0].rand()
-      lit: []
-      seen: []
-      features: [Feature.Wall()]
+      MapTile
+        spriteName: "ground" + rand(8)
+        features: [Feature.Wall()]
 
     ground = ->
       bush = rand() < 0.1
 
-      sprite: groundSprites[0].rand()
-      lit: []
-      seen: []
-      features: [0...bush].map ->
-        Feature.Bush()
+      MapTile
+        spriteName: "ground" + rand(8)
+        features: [0...bush].map ->
+          Feature.Bush()
 
     module.exports =
       generate: (size) ->
