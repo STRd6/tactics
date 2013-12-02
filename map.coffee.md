@@ -26,6 +26,11 @@ The primary tactical combat screen.
             lit: []
             seen: []
             features: []
+        squads: [{
+          # TODO
+        }, {
+          race: "goblin"
+        }]
 
       self ?= Core(I)
       
@@ -35,6 +40,8 @@ The primary tactical combat screen.
       self.attrModel "tiles", Grid
 
       tileAt = self.tiles().get
+
+      self.attrModels "squads", Squad
 
       # TODO: Add trap detection
       # TODO: Keep track of seen features as well as seen tiles
@@ -46,7 +53,7 @@ The primary tactical combat screen.
         self.eachTile (tile) ->
           tile.resetLit()
 
-        squads.forEach (squad, i) ->
+        self.squads().forEach (squad, i) ->
           squad.characters().filter (character) ->
             character.alive()
           .forEach (duder) ->
@@ -59,17 +66,10 @@ The primary tactical combat screen.
             # Normal Sight
             viewTiles search.visible(duder.position(), duder.sight()), i
 
-      squads = [
-        Squad()
-        Squad
-          race: "goblin"
-          x: 30
-      ]
-
-      activeSquad = Observable squads.first()
+      activeSquad = Observable self.squads().first()
 
       nextActivatableSquad = ->
-        squads.filter (squad) ->
+        self.squads().filter (squad) ->
           squad.activeCharacter()
         .first()
 
@@ -103,10 +103,10 @@ The primary tactical combat screen.
         messages: Observable []
 
         activeSquadIndex: ->
-          squads.indexOf activeSquad()
+          self.squads().indexOf activeSquad()
 
         characters: Observable ->
-          squads.map (squad) ->
+          self.squads().map (squad) ->
             squad.characters()
           .flatten()
 
@@ -121,7 +121,7 @@ The primary tactical combat screen.
 
         activeCharacter: Observable ->
           # Dependencies for observable
-          squads.forEach (squad) ->
+          self.squads().forEach (squad) ->
             squad.activeCharacter()
 
           activeSquad()?.activeCharacter()
@@ -170,7 +170,7 @@ The primary tactical combat screen.
                 )
 
         stateBasedActions: ->
-          squads.forEach (squad) ->
+          self.squads().forEach (squad) ->
             squad.stateBasedActions
               addEffect: self.addEffect
 
@@ -197,7 +197,7 @@ The primary tactical combat screen.
           self.updateFeatures()
 
           # Refresh all squads
-          squads.forEach (squad) ->
+          self.squads().forEach (squad) ->
             squad.ready()
 
           activeSquad nextActivatableSquad()
