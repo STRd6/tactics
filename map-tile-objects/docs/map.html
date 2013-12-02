@@ -134,7 +134,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     visibleCharacters: -&gt;
       index = self.activeSquadIndex()
       self.characters().filter (character) -&gt;
-        tileAt(character.position()).lit[index]
+        tileAt(character.position()).lit(index)
 
     activeCharacter: Observable -&gt;
       <span class="comment"># Dependencies for observable</span>
