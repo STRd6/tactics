@@ -76,6 +76,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.attrModels <span class="string">"squads"</span>, Squad
 
+  self.attrObservable <span class="string">"currentTurn"</span>
+
   <span class="comment"># TODO: Add trap detection</span>
   <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
   <span class="function"><span class="title">viewTiles</span></span> = (positions, index) -&gt;
@@ -99,8 +101,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="comment"># Normal Sight</span>
         viewTiles search.visible(duder.position(), duder.sight()), i
 
-  <span class="function"><span class="title">activeSquad</span></span> = -&gt;
-    self.squads().wrap(I.currentTurn)
+  activeSquad = Observable -&gt;
+    self.squads().wrap(self.currentTurn())
 
   <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
     (position) -&gt;
@@ -225,7 +227,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.updateFeatures()
 
       <span class="comment"># Refresh newly active squad</span>
-      self.activeSquad().ready()
+      activeSquad().ready()
 
       <span class="keyword">if</span> self.activeCharacter()
         self.stateBasedActions()
