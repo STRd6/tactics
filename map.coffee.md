@@ -22,6 +22,7 @@ The primary tactical combat screen.
         tiles:
           width: 32
           height: 18
+          # TODO: Make this into bit/byte arrays
           data: [0... 32 * 18].map ->
             lit: []
             seen: []
