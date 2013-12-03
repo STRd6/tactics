@@ -213,6 +213,7 @@ The primary tactical combat screen.
         addEffect: (effect) ->
           effectStack.push effect
 
+        # TODO: Feature should contain its own position to better match addEffect
         addFeature: (feature, position) ->
           feature.I.createdAt = I.currentTurn
           featuresToAdd.push([feature, position])
