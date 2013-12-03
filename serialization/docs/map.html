@@ -38,10 +38,9 @@
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Compositions = require <span class="string">"./lib/compositions"</span>
 Graph = require <span class="string">"./graph"</span>
-{Grid} = require <span class="string">"./lib/util"</span>
 MapGenerator = require <span class="string">"./map_generator"</span>
 MapSearch = require <span class="string">"./map_search"</span>
-MapTile = require <span class="string">"./map_tile"</span>
+MapTiles = require <span class="string">"./map_tiles"</span>
 Squad = require <span class="string">"./squad"</span>
 
 {
@@ -51,14 +50,6 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
-    tiles:
-      width: <span class="number">32</span>
-      height: <span class="number">18</span>
-      <span class="comment"># TODO: Make this into bit/byte arrays</span>
-      data: [<span class="number">0.</span>.. <span class="number">32</span> * <span class="number">18</span>].map -&gt;
-        lit: []
-        seen: []
-        features: []
     squads: [{
       <span class="comment"># TODO</span>
     }, {
@@ -69,37 +60,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.include Compositions
 
-  I.tiles.constructor = MapTile
-  self.attrModel <span class="string">"tiles"</span>, Grid
-
-  tileAt = self.tiles().get
+  self.include MapTiles
+  <span class="comment"># TODO: Remove this</span>
+  tileAt = self.tileAt
 
   self.attrModels <span class="string">"squads"</span>, Squad
 
   self.attrObservable <span class="string">"currentTurn"</span>
-
-  <span class="comment"># TODO: Add trap detection</span>
-  <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
-  <span class="function"><span class="title">viewTiles</span></span> = (positions, index) -&gt;
-    positions.map(tileAt).forEach (tile) -&gt;
-      tile?.view index
-
-  <span class="function"><span class="title">updateVisibleTiles</span></span> = -&gt;
-    self.eachTile (tile) -&gt;
-      tile.resetLit()
-
-    self.squads().forEach (squad, i) -&gt;
-      squad.characters().filter (character) -&gt;
-        character.alive()
-      .forEach (duder) -&gt;
-        <span class="comment"># Magical vision</span>
-        viewTiles duder.magicalVision(), i
-
-        <span class="comment"># Physical sensing</span>
-        viewTiles search.adjacent(duder.position()), i
-
-        <span class="comment"># Normal Sight</span>
-        viewTiles search.visible(duder.position(), duder.sight()), i
 
   activeSquad = Observable -&gt;
     self.squads().wrap(self.currentTurn())
@@ -216,7 +183,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         tileAt(position)?.addFeature(feature)
 
       <span class="comment"># TODO: May not want to do this ALL the time</span>
-      updateVisibleTiles()
+      self.updateVisibleTiles()
 
       <span class="keyword">unless</span> self.activeCharacter()
         <span class="comment"># End of turn</span>
@@ -234,6 +201,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">else</span>
         <span class="comment"># TODO: This squad is wiped out, pop up win condition though we may</span>
         <span class="comment"># want to check as SBAs rather than just on ready event</span>
+
+    search: search
 
     message: (message) -&gt;
       self.messages.push message + <span class="string">"\n"</span>
@@ -262,7 +231,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         addEffect: self.addEffect
         characterAt: characterAt
         message: self.message
-        tileAt: tileAt
+        tileAt: self.tileAt
         addFeature: self.addFeature
 
       self.stateBasedActions()
@@ -292,11 +261,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         index = self.activeSquadIndex()
         <span class="comment"># TODO: Maybe this should be done as SBAs</span>
         path.forEach (position) -&gt;
-          viewTiles search.visible(character.position(), character.sight()), index
+          self.viewTiles search.visible(character.position(), character.sight()), index
 
         self.performAbility(character, self.targettingAbility(), position)
 
-  updateVisibleTiles()
+  self.updateVisibleTiles()
 
   self.include require(<span class="string">"./map_rendering"</span>)
 
