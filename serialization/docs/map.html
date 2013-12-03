@@ -135,7 +135,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     activeSquadIndex: -&gt;
       <span class="comment"># NOTE: Assumes squad length never changes</span>
-      I.currentTurn % I.squads.length
+      self.currentTurn() % I.squads.length
 
     characters: Observable -&gt;
       self.squads().map (squad) -&gt;
@@ -223,7 +223,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         self.ready()
 
     ready: -&gt;
-      I.currentTurn += <span class="number">1</span>
+      self.currentTurn(self.currentTurn() + <span class="number">1</span>)
       self.updateFeatures()
 
       <span class="comment"># Refresh newly active squad</span>
