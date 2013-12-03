@@ -44,11 +44,25 @@ masks = [
   <span class="number">0b00001100</span>
   <span class="number">0b00110000</span>
   <span class="number">0b11000000</span>
-]
+]</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>TODO: Would this be simpler as 1 bit arrays?</p>
 
-module.<span class="function"><span class="title">exports</span></span> = (size) -&gt;
-  buffer = <span class="keyword">new</span> ArrayBuffer(ceil(size/n))
-  view = <span class="keyword">new</span> Uint8Array(buffer)
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (sizeOrData) -&gt;
+  <span class="keyword">if</span> <span class="keyword">typeof</span> sizeOrData <span class="keyword">is</span> <span class="string">"string"</span>
+    view = deserialize(sizeOrData)
+  <span class="keyword">else</span>
+    buffer = <span class="keyword">new</span> ArrayBuffer(ceil(sizeOrData/n))
+    view = <span class="keyword">new</span> Uint8Array(buffer)
 
   self = 
     get: (i) -&gt;

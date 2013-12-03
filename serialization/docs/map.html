@@ -99,12 +99,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="comment"># Normal Sight</span>
         viewTiles search.visible(duder.position(), duder.sight()), i
 
-  activeSquad = Observable self.squads().first()
-
-  <span class="function"><span class="title">nextActivatableSquad</span></span> = -&gt;
-    self.squads().filter (squad) -&gt;
-      squad.activeCharacter()
-    .first()
+  <span class="function"><span class="title">activeSquad</span></span> = -&gt;
+    self.squads().wrap(I.currentTurn)
 
   <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
     (position) -&gt;
@@ -136,7 +132,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     messages: Observable []
 
     activeSquadIndex: -&gt;
-      self.squads().indexOf activeSquad()
+      <span class="comment"># NOTE: Assumes squad length never changes</span>
+      I.currentTurn % I.squads.length
 
     characters: Observable -&gt;
       self.squads().map (squad) -&gt;
@@ -168,7 +165,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
           message: self.message
           tileAt: tileAt
           position: position
-          turn: I.currentTurn
+          turn: I.currentTurn / I.squads.length
           addFeature: self.addFeature
 
     targettingAbility: -&gt;
@@ -216,29 +213,25 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
         tileAt(position)?.addFeature(feature)
 
-      <span class="comment"># TODO: May be able to consolidate these into the stack resolution</span>
-      activeSquad nextActivatableSquad()
-
+      <span class="comment"># TODO: May not want to do this ALL the time</span>
       updateVisibleTiles()
 
       <span class="keyword">unless</span> self.activeCharacter()
-        <span class="comment"># End of Round</span>
+        <span class="comment"># End of turn</span>
         self.ready()
 
     ready: -&gt;
       I.currentTurn += <span class="number">1</span>
       self.updateFeatures()
 
-      <span class="comment"># Refresh all squads</span>
-      self.squads().forEach (squad) -&gt;
-        squad.ready()
+      <span class="comment"># Refresh newly active squad</span>
+      self.activeSquad().ready()
 
-      activeSquad nextActivatableSquad()
-
-      <span class="keyword">if</span> activeSquad()
+      <span class="keyword">if</span> self.activeCharacter()
         self.stateBasedActions()
       <span class="keyword">else</span>
-        ;<span class="comment"># No survivors</span>
+        <span class="comment"># TODO: This squad is wiped out, pop up win condition though we may</span>
+        <span class="comment"># want to check as SBAs rather than just on ready event</span>
 
     message: (message) -&gt;
       self.messages.push message + <span class="string">"\n"</span>
