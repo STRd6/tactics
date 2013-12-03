@@ -44,6 +44,8 @@ The primary tactical combat screen.
 
       self.attrModels "squads", Squad
 
+      self.attrObservable "currentTurn"
+
       # TODO: Add trap detection
       # TODO: Keep track of seen features as well as seen tiles
       viewTiles = (positions, index) ->
@@ -67,8 +69,8 @@ The primary tactical combat screen.
             # Normal Sight
             viewTiles search.visible(duder.position(), duder.sight()), i
 
-      activeSquad = ->
-        self.squads().wrap(I.currentTurn)
+      activeSquad = Observable ->
+        self.squads().wrap(self.currentTurn())
 
       characterPassable = (character) ->
         (position) ->
@@ -193,7 +195,7 @@ The primary tactical combat screen.
           self.updateFeatures()
 
           # Refresh newly active squad
-          self.activeSquad().ready()
+          activeSquad().ready()
 
           if self.activeCharacter()
             self.stateBasedActions()
