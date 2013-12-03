@@ -6,10 +6,9 @@ The primary tactical combat screen.
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
     Graph = require "./graph"
-    {Grid} = require "./lib/util"
     MapGenerator = require "./map_generator"
     MapSearch = require "./map_search"
-    MapTile = require "./map_tile"
+    MapTiles = require "./map_tiles"
     Squad = require "./squad"
 
     {
@@ -19,14 +18,6 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
-        tiles:
-          width: 32
-          height: 18
-          # TODO: Make this into bit/byte arrays
-          data: [0... 32 * 18].map ->
-            lit: []
-            seen: []
-            features: []
         squads: [{
           # TODO
         }, {
@@ -34,40 +25,16 @@ The primary tactical combat screen.
         }]
 
       self ?= Core(I)
-      
+
       self.include Compositions
-
-      I.tiles.constructor = MapTile
-      self.attrModel "tiles", Grid
-
-      tileAt = self.tiles().get
+      
+      self.include MapTiles
+      # TODO: Remove this
+      tileAt = self.tileAt
 
       self.attrModels "squads", Squad
 
       self.attrObservable "currentTurn"
-
-      # TODO: Add trap detection
-      # TODO: Keep track of seen features as well as seen tiles
-      viewTiles = (positions, index) ->
-        positions.map(tileAt).forEach (tile) ->
-          tile?.view index
-
-      updateVisibleTiles = ->
-        self.eachTile (tile) ->
-          tile.resetLit()
-
-        self.squads().forEach (squad, i) ->
-          squad.characters().filter (character) ->
-            character.alive()
-          .forEach (duder) ->
-            # Magical vision
-            viewTiles duder.magicalVision(), i
-
-            # Physical sensing
-            viewTiles search.adjacent(duder.position()), i
-
-            # Normal Sight
-            viewTiles search.visible(duder.position(), duder.sight()), i
 
       activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
@@ -184,7 +151,7 @@ The primary tactical combat screen.
             tileAt(position)?.addFeature(feature)
 
           # TODO: May not want to do this ALL the time
-          updateVisibleTiles()
+          self.updateVisibleTiles()
 
           unless self.activeCharacter()
             # End of turn
@@ -202,6 +169,8 @@ The primary tactical combat screen.
           else
             # TODO: This squad is wiped out, pop up win condition though we may
             # want to check as SBAs rather than just on ready event
+
+        search: search
 
         message: (message) ->
           self.messages.push message + "\n"
@@ -230,7 +199,7 @@ The primary tactical combat screen.
             addEffect: self.addEffect
             characterAt: characterAt
             message: self.message
-            tileAt: tileAt
+            tileAt: self.tileAt
             addFeature: self.addFeature
 
           self.stateBasedActions()
@@ -260,11 +229,11 @@ The primary tactical combat screen.
             index = self.activeSquadIndex()
             # TODO: Maybe this should be done as SBAs
             path.forEach (position) ->
-              viewTiles search.visible(character.position(), character.sight()), index
+              self.viewTiles search.visible(character.position(), character.sight()), index
 
             self.performAbility(character, self.targettingAbility(), position)
 
-      updateVisibleTiles()
+      self.updateVisibleTiles()
 
       self.include require("./map_rendering")
 
