@@ -67,12 +67,8 @@ The primary tactical combat screen.
             # Normal Sight
             viewTiles search.visible(duder.position(), duder.sight()), i
 
-      activeSquad = Observable self.squads().first()
-
-      nextActivatableSquad = ->
-        self.squads().filter (squad) ->
-          squad.activeCharacter()
-        .first()
+      activeSquad = ->
+        self.squads().wrap(I.currentTurn)
 
       characterPassable = (character) ->
         (position) ->
@@ -104,7 +100,8 @@ The primary tactical combat screen.
         messages: Observable []
 
         activeSquadIndex: ->
-          self.squads().indexOf activeSquad()
+          # NOTE: Assumes squad length never changes
+          I.currentTurn % I.squads.length
 
         characters: Observable ->
           self.squads().map (squad) ->
@@ -136,7 +133,7 @@ The primary tactical combat screen.
               message: self.message
               tileAt: tileAt
               position: position
-              turn: I.currentTurn
+              turn: I.currentTurn / I.squads.length
               addFeature: self.addFeature
 
         targettingAbility: ->
@@ -184,29 +181,25 @@ The primary tactical combat screen.
 
             tileAt(position)?.addFeature(feature)
 
-          # TODO: May be able to consolidate these into the stack resolution
-          activeSquad nextActivatableSquad()
-
+          # TODO: May not want to do this ALL the time
           updateVisibleTiles()
 
           unless self.activeCharacter()
-            # End of Round
+            # End of turn
             self.ready()
 
         ready: ->
           I.currentTurn += 1
           self.updateFeatures()
 
-          # Refresh all squads
-          self.squads().forEach (squad) ->
-            squad.ready()
+          # Refresh newly active squad
+          self.activeSquad().ready()
 
-          activeSquad nextActivatableSquad()
-
-          if activeSquad()
+          if self.activeCharacter()
             self.stateBasedActions()
           else
-            ;# No survivors
+            # TODO: This squad is wiped out, pop up win condition though we may
+            # want to check as SBAs rather than just on ready event
 
         message: (message) ->
           self.messages.push message + "\n"

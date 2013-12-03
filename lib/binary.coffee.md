@@ -14,9 +14,14 @@ Experiment to store an array of 2-bit data and serialize back and forth from JSO
       0b11000000
     ]
 
-    module.exports = (size) ->
-      buffer = new ArrayBuffer(ceil(size/n))
-      view = new Uint8Array(buffer)
+TODO: Would this be simpler as 1 bit arrays?
+
+    module.exports = (sizeOrData) ->
+      if typeof sizeOrData is "string"
+        view = deserialize(sizeOrData)
+      else
+        buffer = new ArrayBuffer(ceil(sizeOrData/n))
+        view = new Uint8Array(buffer)
 
       self = 
         get: (i) ->

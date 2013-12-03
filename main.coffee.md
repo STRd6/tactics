@@ -39,7 +39,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     ui =
       messages: Observable [
-        "Hello\n"
+        "Welcome to the arena!\n"
       ]
       actions: Observable [
         Action
