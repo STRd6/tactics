@@ -1,20 +1,25 @@
-Binary
-======
+Bit Array
+=========
 
-Experiment to store an array of 2-bit data and serialize back and forth from JSON. 
+Experiment to store an array of 1-bit data and serialize back and forth from JSON. 
 
-    {floor, ceil} = Math
+    {ceil} = Math
 
-    n = 8/2
-    
+    n = 8
+
     masks = [
-      0b00000011
-      0b00001100
-      0b00110000
-      0b11000000
+      0b00000001
+      0b00000010
+      0b00000100
+      0b00001000
+      0b00010000
+      0b00100000
+      0b01000000
+      0b10000000
     ]
 
-TODO: Would this be simpler as 1 bit arrays?
+    inverseMasks = masks.map (mask) ->
+      ~mask & 0xff
 
     module.exports = (sizeOrData) ->
       if typeof sizeOrData is "string"
@@ -25,33 +30,40 @@ TODO: Would this be simpler as 1 bit arrays?
 
       self = 
         get: (i) ->
-          byteIndex = floor(i / n)
+          byteIndex = i >> 3
           offset = i % n
-  
-          return (view[byteIndex] & masks[offset]) >> (2 * offset)
-  
+
+          return (view[byteIndex] & masks[offset]) >> offset
+
         set: (i, value) ->
-          byteIndex = floor(i / n)
+          byteIndex = i >> 3
           offset = i % n
-  
-          # TODO: this `|=` is cheating since we never erase
-          view[byteIndex] |= (value << (2 * offset)) & masks[offset]
-  
+
+          view[byteIndex] = ((value << offset) & masks[offset]) | (view[byteIndex] & inverseMasks[offset])
+
           return self.get(i)
-  
+
         toJSON: ->
           serialize(view)
 
     mimeType = "application/octet-binary"
 
     deserialize = (dataURL) ->
-      dataString = dataURL.substring(dataURL.indexOf(';'))
+      dataString = dataURL.substring(dataURL.indexOf(';') + 1)
 
       binaryString = atob(dataString)
+      length =  binaryString.length
 
-      buffer = new ArrayBuffer binaryString.length
+      buffer = new ArrayBuffer length
 
-      new Uint8Array(buffer)
+      view = new Uint8Array(buffer)
+
+      i = 0
+      while i < length
+        view[i] = binaryString.charCodeAt(i)
+        i += 1
+
+      return view
 
     serialize = (bytes) ->
       binary = ''
