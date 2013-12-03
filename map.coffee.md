@@ -103,7 +103,7 @@ The primary tactical combat screen.
 
         activeSquadIndex: ->
           # NOTE: Assumes squad length never changes
-          I.currentTurn % I.squads.length
+          self.currentTurn() % I.squads.length
 
         characters: Observable ->
           self.squads().map (squad) ->
@@ -191,7 +191,7 @@ The primary tactical combat screen.
             self.ready()
 
         ready: ->
-          I.currentTurn += 1
+          self.currentTurn(self.currentTurn() + 1)
           self.updateFeatures()
 
           # Refresh newly active squad
