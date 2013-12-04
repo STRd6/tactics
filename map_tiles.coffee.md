@@ -35,22 +35,36 @@ Methods for interacting with tiles witin the map.
 
       self.attrModels "lit", BitArray
       self.attrModels "seen", BitArray
+      
+      boundsCheck = (x, y) ->
+        (0 <= x < self.width()) and (0 <= y < self.height())
+
+      bitArrayLookup = (field) ->
+        (x, y) ->
+          if x.x?
+            {x, y} = x
+
+          if boundsCheck(x, y)
+            field.get(self.activeSquadIndex()).get(x + y * self.width())
 
       self.extend
+        isLit: bitArrayLookup(self.lit)
+
+        isSeen: bitArrayLookup(self.seen)
+
         tileAt: self.tiles().get
 
         # TODO: Add trap detection
         viewTiles: (positions, index) ->
           positions.forEach ({x, y}) ->
-            if (0 <= x < self.width()) and (0 <= y < self.height())
-
+            if boundsCheck(x, y)
               self.lit.get(index).set(x + y * mapWidth, 1)
               self.seen.get(index).set(x + y * mapWidth, 1)
               # TODO: Keep track of seen features
 
         updateVisibleTiles: ->
-          self.eachTile (tile) ->
-            tile.resetLit()
+          self.lit [0...self.squads().length].map ->
+            BitArray(self.tileCount())
 
           self.squads().forEach (squad, index) ->
             squad.characters().filter (character) ->

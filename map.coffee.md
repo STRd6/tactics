@@ -76,7 +76,7 @@ The primary tactical combat screen.
             else
               occupantPassable = true
 
-            !impassable(position) and tile.lit(self.activeSquadIndex()) and occupantPassable
+            !impassable(position) and self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -128,9 +128,8 @@ The primary tactical combat screen.
         opaque: opaque
 
         visibleCharacters: ->
-          index = self.activeSquadIndex()
           self.characters().filter (character) ->
-            tileAt(character.position()).lit(index)
+            self.isLit(character.position())
 
         activeCharacter: Observable ->
           # Dependencies for observable

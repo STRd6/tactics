@@ -3,7 +3,11 @@ Map Rendering
 
 Drawing the map data on the screen.
 
+    CharacterUI = require "./character_ui"
     {Size, Bounds} = require "./lib/util"
+    Resource = require "./resource"
+
+    gridSprite = Resource.sprite("grid_blue")
 
     tileSize = Size(32, 32)
 
@@ -35,30 +39,21 @@ Drawing the map data on the screen.
             character.sprite().draw(canvas, canvasPosition)
 
       drawFog = (canvas) ->
-        # TODO
-        [].forEach ([_, position]) ->
-          bounds = Bounds(position.scale(tileSize), tileSize)
-          bounds.color = "rgba(0, 0, 0, 0.5)"
-  
-          canvas.drawRect(bounds)
+        [0...(self.width() * self.height())].forEach (i) ->
+          x = i % self.width()
+          y = (i / self.width()).floor()
+
+          if self.isSeen(x, y) and !self.isLit(x, y)
+            bounds = Bounds(Point(x, y).scale(tileSize), tileSize)
+            bounds.color = "rgba(0, 0, 0, 0.5)"
+
+            canvas.drawRect(bounds)
 
       backgroundColor = "#222034"
 
       self.extend
-        # TODO: Grid#filter
-        seenTiles: (index) ->
-          results = []
-
-          self.eachTile (tile, position) ->
-            results.push [tile, position] if tile.seen(index)
-
-          results
-
         render: (canvas, t) ->
           canvas.fill backgroundColor
-
-          index = self.activeSquadIndex()
-          seenTiles = self.seenTiles(index)
 
           drawGround(canvas)
 
@@ -69,3 +64,15 @@ Drawing the map data on the screen.
           drawFeatures(canvas)
 
           drawFog(canvas)
+
+        renderUI: (canvas, t) ->
+          canvas.clear()
+
+          self.visibleCharacters().forEach (character) ->
+            if character is self.activeCharacter()
+              CharacterUI.activeTactical(canvas, character)
+            else
+              CharacterUI.tactical(canvas, character)
+
+          self.accessiblePositions()?.forEach (position) ->
+            gridSprite.draw canvas, position.scale(32)
