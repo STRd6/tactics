@@ -225,6 +225,7 @@ The primary tactical combat screen.
             addFeature: self.addFeature
             character: characterAt targetPosition
             characterAt: characterAt
+            impassable: impassable
             message: self.message
             owner: owner
             position: targetPosition
@@ -236,6 +237,7 @@ The primary tactical combat screen.
             addEffect: self.addEffect
             addFeature: self.addFeature
             characterAt: characterAt
+            impassable: impassable
             message: self.message
 
           self.stateBasedActions()

@@ -59,6 +59,7 @@ Drawing the map data on the screen.
             tile.lit(index)
 
           # TODO: Iterate zSorted features + characters on a per chunk basis
+          # TODO: Only draw seen features
           drawFeatures(canvas, true)
           drawCharacters(litTiles, self.characterAt, canvas, t)
           drawFeatures(canvas)

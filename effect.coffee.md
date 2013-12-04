@@ -23,8 +23,8 @@ electricity, I don't know yet.
 
     # Used in Entanglement
     Effect.Plant = (position) ->
-      perform: ({characterAt, message, addFeature, passable}) ->
-        unless passable(position)
+      perform: ({characterAt, message, addFeature, impassable}) ->
+        unless impassable(position)
           # TODO: Check for existing bushes
           addFeature Feature.Bush(position)
 
