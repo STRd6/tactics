@@ -3,6 +3,7 @@ Feature
 
 Features are things that are present within tiles in the tactical combat view.
 
+    Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Type = require "./type"
 
@@ -21,14 +22,16 @@ Features are things that are present within tiles in the tactical combat view.
         "impassable"
         "movementPenalty"
         "opaque"
-        "position"
         "type"
         "zIndex"
       )
 
+      self.include Compositions
       self.include Drawable
 
-      Object.extend self,
+      self.attrModel "position", Point
+
+      self.extend
         destroy: ->
           if !I.destroyed
             I.destroyed = true

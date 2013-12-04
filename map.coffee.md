@@ -7,7 +7,6 @@ The primary tactical combat screen.
     Compositions = require "./lib/compositions"
     Feature = require "./feature"
     Graph = require "./graph"
-    MapGenerator = require "./map_generator"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
     Squad = require "./squad"
@@ -19,7 +18,9 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
-        features: []
+        features: [
+          Feature.Wall({x: 5, y: 10}).I
+        ]
         squads: [{
           # TODO
         }, {
@@ -43,6 +44,22 @@ The primary tactical combat screen.
       activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
 
+      featuresAt = (position) ->
+        self.features().filter (feature) ->
+          feature.position().equal(position)
+
+      # TODO: Think about chunking features in a quad tree or something
+
+      # TODO: Inculde character as an optional parameter
+      impassable = (position) ->
+        featuresAt(position).some (feature) ->
+          feature.impassable()
+
+      # TODO: Include character as an optional parameter
+      opaque = (position) ->
+        featuresAt(position).some (feature) ->
+          feature.opaque()
+
       characterPassable = (character) ->
         (position) ->
           if tile = tileAt(position)
@@ -51,7 +68,7 @@ The primary tactical combat screen.
             else
               occupantPassable = true
 
-            !tile.impassable() and tile.lit(self.activeSquadIndex()) and occupantPassable
+            !impassable(position) and tile.lit(self.activeSquadIndex()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -62,7 +79,7 @@ The primary tactical combat screen.
           character.alive() and (position.x is x and position.y is y)
         .first()
 
-      search = MapSearch(tileAt, characterAt)
+      search = MapSearch()
 
       effectStack = []
       featuresToAdd = []
@@ -100,6 +117,8 @@ The primary tactical combat screen.
 
         eachTile: self.tiles().each
 
+        opaque: opaque
+
         visibleCharacters: ->
           index = self.activeSquadIndex()
           self.characters().filter (character) ->
@@ -135,7 +154,7 @@ The primary tactical combat screen.
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
-                visiblePositions = search.visible(character.position(), character.sight())
+                visiblePositions = search.visible(character.position(), character.sight(), opaque)
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
@@ -246,7 +265,7 @@ The primary tactical combat screen.
             index = self.activeSquadIndex()
             # TODO: Maybe this should be done as SBAs
             path.forEach (position) ->
-              self.viewTiles search.visible(character.position(), character.sight()), index
+              self.viewTiles search.visible(character.position(), character.sight(), opaque), index
 
             self.performAbility(character, self.targettingAbility(), position)
 

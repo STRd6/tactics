@@ -37,7 +37,7 @@ Drawing the map data on the screen.
 
       I.backgroundColor ?= "#222034"
 
-      Object.extend self,
+      self.extend
         # TODO: Grid#filter
         seenTiles: (index) ->
           results = []
