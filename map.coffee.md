@@ -5,6 +5,7 @@ The primary tactical combat screen.
 
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
+    Feature = require "./feature"
     Graph = require "./graph"
     MapGenerator = require "./map_generator"
     MapSearch = require "./map_search"
@@ -18,6 +19,7 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
+        features: []
         squads: [{
           # TODO
         }, {
@@ -33,6 +35,8 @@ The primary tactical combat screen.
       tileAt = self.tileAt
 
       self.attrModels "squads", Squad
+
+      self.attrModels "features", Feature
 
       self.attrObservable "currentTurn"
 
@@ -65,6 +69,21 @@ The primary tactical combat screen.
 
       self.include require("./map_serialization")
 
+      self.include require "finder"
+      oldFind = self.find
+      self.find = (selector) ->
+        results = oldFind(self.features(), selector)
+        
+        # TODO: Hacks!
+        results.within = (position, radius) ->
+          newResults = results.filter (result) ->
+            radius <= Point.distance(result.position(), position())
+          
+          newResults.within = results.within
+          results = newResults
+
+        return results
+
       self.extend
         messages: Observable []
 
@@ -92,18 +111,6 @@ The primary tactical combat screen.
             squad.activeCharacter()
 
           activeSquad()?.activeCharacter()
-
-        updateFeatures: ->
-          # TODO: Think about storing features separately from tiles
-          self.eachTile (tile, position) ->
-            tile.updateFeatures
-              addEffect: self.addEffect
-              characterAt: characterAt
-              message: self.message
-              tileAt: tileAt
-              position: position
-              turn: I.currentTurn / I.squads.length
-              addFeature: self.addFeature
 
         targettingAbility: ->
           if character = self.activeCharacter()
@@ -146,9 +153,9 @@ The primary tactical combat screen.
             self.performEffect effectStack.pop()
 
           while featuresToAdd.length
-            [feature, position] = featuresToAdd.pop()
+            feature = featuresToAdd.pop()
 
-            tileAt(position)?.addFeature(feature)
+            self.features.push feature
 
           # TODO: May not want to do this ALL the time
           self.updateVisibleTiles()
@@ -178,29 +185,38 @@ The primary tactical combat screen.
         addEffect: (effect) ->
           effectStack.push effect
 
-        # TODO: Feature should contain its own position to better match addEffect
-        addFeature: (feature, position) ->
-          feature.I.createdAt = I.currentTurn
-          featuresToAdd.push([feature, position])
+        addFeature: (feature) ->
+          feature.createdAt(I.currentTurn)
+          featuresToAdd.push(feature)
+
+        updateFeatures: ->
+          self.features().forEach (feature) ->
+            feature.update
+              addEffect: self.addEffect
+              addFeature: self.addFeature
+              characterAt: characterAt
+              find: self.find
+              message: self.message
+              turn: I.currentTurn / I.squads.length
 
         performAbility: (owner, ability, targetPosition) ->
           ability.perform
-            owner: owner
             addEffect: self.addEffect
-            character: characterAt targetPosition
-            message: self.message
-            position: targetPosition
             addFeature: self.addFeature
+            character: characterAt targetPosition
+            characterAt: characterAt
+            message: self.message
+            owner: owner
+            position: targetPosition
 
           self.stateBasedActions()
 
         performEffect: (effect) ->
           effect.perform
             addEffect: self.addEffect
+            addFeature: self.addFeature
             characterAt: characterAt
             message: self.message
-            tileAt: self.tileAt
-            addFeature: self.addFeature
 
           self.stateBasedActions()
 
