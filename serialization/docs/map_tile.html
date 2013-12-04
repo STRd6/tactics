@@ -40,28 +40,17 @@ we can have lit and seen as bit arrays.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Drawable = require <span class="string">"./lib/drawable"</span>
 
-<span class="comment"># TODO: We may want to move features out of these arrays</span>
-<span class="comment"># and flatten them into map chunks</span>
-
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
-    features: []
     lit: []
     seen: []
     spriteName: <span class="string">"ground0"</span>
 
   self.include Drawable
 
-  self.attrAccessor <span class="string">"features"</span>, <span class="string">"spriteName"</span>
+  self.attrAccessor <span class="string">"spriteName"</span>
 
   self.extend
-    addFeature: (feature) -&gt;
-      I.features.push feature
-
-    hasType: (type) -&gt;
-      I.features.some (feature) -&gt;
-        feature.type() <span class="keyword">is</span> type
-
     lit: (index) -&gt;
       I.lit[index]
 
@@ -74,20 +63,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     resetLit: -&gt;
       I.lit.forEach (_, i) -&gt;
         I.lit[i] = <span class="literal">false</span>
-
-    updateFeatures: (params) -&gt;
-      I.features = I.features.select (feature) -&gt;
-        feature.update(params)
-
-    <span class="comment"># TODO: Calculate based on character abilities</span>
-    impassable: -&gt;
-      I.features.some (feature) -&gt;
-        feature.impassable()
-
-    <span class="comment"># TODO: Calculate based on character abilities</span>
-    opaque: -&gt;
-      I.features.some (feature) -&gt;
-        feature.opaque()
 
   <span class="keyword">return</span> self</code></pre>
 </div>

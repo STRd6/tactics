@@ -71,12 +71,9 @@ colors = [
 <p><code>calculateOctant</code> is the meat of the algorithm. I basically understand it, but the
 code isn&#39;t really in a position to be modified easily yet.</p>
 <p><a href="http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting">http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting</a> explains it fairly well.</p>
-<p>TODO: Maybe we can avoid passing in tileAt and just use opaque instead.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">calculateOctant</span></span> = (positions, tileAt, opaque, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
-  tile = tileAt(cx, cy)
-
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">calculateOctant</span></span> = (positions, opaque, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) -&gt;
   positions.push Point(cx, cy)
 
   new_start = <span class="number">0</span>
@@ -87,9 +84,6 @@ code isn&#39;t really in a position to be modified easily yet.</p>
   dy = -row
   X = cx + dx * xx + dy * xy
   Y = cy + dx * yx + dy * yy
-
-  <span class="keyword">if</span> id &gt; <span class="number">0</span>
-    markTile(Point(X, Y), <span class="number">4</span>)
 
   <span class="keyword">return</span> <span class="keyword">unless</span> row &lt;= radius
   done = <span class="literal">false</span>
@@ -106,10 +100,9 @@ code isn&#39;t really in a position to be modified easily yet.</p>
       X = cx + dx * xx + dy * xy
       Y = cy + dx * yx + dy * yy
 
-      d = radius - Math.sqrt(dx * dx + dy * dy)
-      debugTile(Point(X, Y), <span class="string">"<span class="subst">#{d.toFixed(<span class="number">2</span>)}</span>"</span>)
+      P = Point(X, Y)
 
-      <span class="keyword">if</span> tile = tileAt(X, Y)
+      <span class="keyword">if</span> (visionBlocked = opaque(P))?
         l_slope = (dx - <span class="number">0.5</span>) / (dy + <span class="number">0.5</span>)
         r_slope = (dx + <span class="number">0.5</span>) / (dy - <span class="number">0.5</span>)
 
@@ -119,22 +112,19 @@ code isn&#39;t really in a position to be modified easily yet.</p>
           <span class="keyword">break</span>
         <span class="keyword">else</span>
           <span class="keyword">if</span> dx * dx + dy * dy &lt; radius_squared
-            positions.push Point(X, Y)
+            positions.push P
 
           <span class="keyword">if</span> blocked
-            <span class="keyword">if</span> opaque(tile)
-              markTile(Point(X, Y), <span class="number">1</span>)
+            <span class="keyword">if</span> visionBlocked
               new_start = r_slope
               <span class="keyword">continue</span>
             <span class="keyword">else</span>
-              markTile(Point(X, Y), <span class="number">2</span>)
               blocked = <span class="literal">false</span>
               start = new_start
           <span class="keyword">else</span>
-            <span class="keyword">if</span> opaque(tile)
-              markTile(Point(X, Y), <span class="number">0</span>)
+            <span class="keyword">if</span> visionBlocked
               blocked = <span class="literal">true</span>
-              calculateOctant positions, tileAt, opaque, cx, cy, i + <span class="number">1</span>, start, l_slope, radius,
+              calculateOctant positions, opaque, cx, cy, i + <span class="number">1</span>, start, l_slope, radius,
                 xx, xy, yx, yy, id + <span class="number">1</span>
               new_start = r_slope
 
@@ -154,7 +144,7 @@ module.exports =</code></pre>
               <p>Calculate the field of vision.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">  calculate: (tileAt, opaque, position, radius) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">  calculate: (opaque, position, radius) -&gt;
     positions = []
 
     [<span class="number">0.</span><span class="number">.7</span>].forEach (i) =&gt;
@@ -163,60 +153,12 @@ module.exports =</code></pre>
       yx = mult[<span class="number">2</span>][i]
       yy = mult[<span class="number">3</span>][i]
 
-      calculateOctant positions, tileAt, opaque, position.x, position.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, radius,
+      calculateOctant positions, opaque, position.x, position.y, <span class="number">0</span>, <span class="number">1.0</span>, <span class="number">0.0</span>, radius,
         xx, xy, yx, yy, <span class="number">0</span>
-
-    tile = tileAt position.x, position.y
 
     positions.push position
 
     <span class="keyword">return</span> positions</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <h2 id="debug-helpers">Debug Helpers</h2>
-
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-6">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">debugTile</span></span> = (position, message) -&gt;
-  <span class="keyword">return</span> <span class="keyword">unless</span> debug
-
-  setTimeout -&gt;
-    message.split(<span class="string">"\n"</span>).forEach (part, i) -&gt;
-      canvas.centerText
-        position: position.add(Point(<span class="number">0.5</span>, <span class="number">0.5</span>)).scale(<span class="number">32</span>).add Point(<span class="number">0</span>, i).scale(<span class="number">12</span>)
-        text: part
-        color: <span class="string">"white"</span>
-  , <span class="number">0</span>
-
-<span class="function"><span class="title">markTile</span></span> = (position, color) -&gt;
-  <span class="keyword">return</span> <span class="keyword">unless</span> debug
-
-  setTimeout -&gt;
-    canvas.drawRect
-      position: position.scale(<span class="number">32</span>)
-      width: <span class="number">32</span>
-      height: <span class="number">32</span>
-      color: colors[color]
-  , <span class="number">0</span></code></pre>
 </div>
         </li>
         

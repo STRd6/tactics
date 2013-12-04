@@ -39,7 +39,6 @@
 Compositions = require <span class="string">"./lib/compositions"</span>
 Feature = require <span class="string">"./feature"</span>
 Graph = require <span class="string">"./graph"</span>
-MapGenerator = require <span class="string">"./map_generator"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 MapTiles = require <span class="string">"./map_tiles"</span>
 Squad = require <span class="string">"./squad"</span>
@@ -51,7 +50,9 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
-    features: []
+    features: [
+      Feature.Wall({x: <span class="number">5</span>, y: <span class="number">10</span>}).I
+    ]
     squads: [{
       <span class="comment"># TODO</span>
     }, {
@@ -75,6 +76,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   activeSquad = Observable -&gt;
     self.squads().wrap(self.currentTurn())
 
+  <span class="function"><span class="title">featuresAt</span></span> = (position) -&gt;
+    self.features().filter (feature) -&gt;
+      feature.position().equal(position)
+
+  <span class="comment"># TODO: Think about chunking features in a quad tree or something</span>
+
+  <span class="comment"># TODO: Inculde character as an optional parameter</span>
+  <span class="function"><span class="title">impassable</span></span> = (position) -&gt;
+    featuresAt(position).some (feature) -&gt;
+      feature.impassable()
+
+  <span class="comment"># TODO: Include character as an optional parameter</span>
+  <span class="function"><span class="title">opaque</span></span> = (position) -&gt;
+    featuresAt(position).some (feature) -&gt;
+      feature.opaque()
+
   <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
     (position) -&gt;
       <span class="keyword">if</span> tile = tileAt(position)
@@ -83,7 +100,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">else</span>
           occupantPassable = <span class="literal">true</span>
 
-        !tile.impassable() <span class="keyword">and</span> tile.lit(self.activeSquadIndex()) <span class="keyword">and</span> occupantPassable
+        !impassable(position) <span class="keyword">and</span> tile.lit(self.activeSquadIndex()) <span class="keyword">and</span> occupantPassable
 
   <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
@@ -94,7 +111,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       character.alive() <span class="keyword">and</span> (position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y)
     .first()
 
-  search = MapSearch(tileAt, characterAt)
+  search = MapSearch()
 
   effectStack = []
   featuresToAdd = []
@@ -132,6 +149,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     eachTile: self.tiles().each
 
+    opaque: opaque
+
     visibleCharacters: -&gt;
       index = self.activeSquadIndex()
       self.characters().filter (character) -&gt;
@@ -167,7 +186,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             positionsInRange = search.adjacent(character.position(), ability.range())
 
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
-            visiblePositions = search.visible(character.position(), character.sight())
+            visiblePositions = search.visible(character.position(), character.sight(), opaque)
             positionsInRange = search.adjacent(character.position(), ability.range())
 
             intersection(
@@ -278,7 +297,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         index = self.activeSquadIndex()
         <span class="comment"># TODO: Maybe this should be done as SBAs</span>
         path.forEach (position) -&gt;
-          self.viewTiles search.visible(character.position(), character.sight()), index
+          self.viewTiles search.visible(character.position(), character.sight(), opaque), index
 
         self.performAbility(character, self.targettingAbility(), position)
 

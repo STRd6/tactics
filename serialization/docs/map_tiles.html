@@ -55,7 +55,7 @@
       height: <span class="number">18</span>
       <span class="comment"># TODO: Make this into bit/byte arrays</span>
       data: [<span class="number">0.</span>.. <span class="number">32</span> * <span class="number">18</span>].map -&gt;
-        features: []
+        {}
 
   I.tiles.constructor = MapTile
   self.attrModel <span class="string">"tiles"</span>, Grid
@@ -73,18 +73,18 @@
       self.eachTile (tile) -&gt;
         tile.resetLit()
 
-      self.squads().forEach (squad, i) -&gt;
+      self.squads().forEach (squad, index) -&gt;
         squad.characters().filter (character) -&gt;
           character.alive()
-        .forEach (duder) -&gt;
+        .forEach (character) -&gt;
           <span class="comment"># Magical vision</span>
-          self.viewTiles duder.magicalVision(), i
+          self.viewTiles character.magicalVision(), index
 
           <span class="comment"># Physical sensing</span>
-          self.viewTiles self.search.adjacent(duder.position()), i
+          self.viewTiles self.search.adjacent(character.position()), index
 
           <span class="comment"># Normal Sight</span>
-          self.viewTiles self.search.visible(duder.position(), duder.sight()), i
+          self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index
 
   <span class="keyword">return</span> self</code></pre>
 </div>

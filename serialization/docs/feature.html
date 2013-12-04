@@ -35,7 +35,8 @@
               <p>Features are things that are present within tiles in the tactical combat view.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Drawable = require <span class="string">"./lib/drawable"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Compositions = require <span class="string">"./lib/compositions"</span>
+Drawable = require <span class="string">"./lib/drawable"</span>
 Type = require <span class="string">"./type"</span>
 
 module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
@@ -53,14 +54,16 @@ module.exports = <span class="function"><span class="title">Feature</span></span
     <span class="string">"impassable"</span>
     <span class="string">"movementPenalty"</span>
     <span class="string">"opaque"</span>
-    <span class="string">"position"</span>
     <span class="string">"type"</span>
     <span class="string">"zIndex"</span>
   )
 
+  self.include Compositions
   self.include Drawable
 
-  Object.extend self,
+  self.attrModel <span class="string">"position"</span>, Point
+
+  self.extend
     destroy: -&gt;
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>
