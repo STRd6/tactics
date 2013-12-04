@@ -65,8 +65,8 @@ Effect.<span class="function"><span class="title">Fire</span></span> = (position
 
 <span class="comment"># Used in Entanglement</span>
 Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;
-  perform: ({characterAt, message, addFeature, passable}) -&gt;
-    <span class="keyword">unless</span> passable(position)
+  perform: ({characterAt, message, addFeature, impassable}) -&gt;
+    <span class="keyword">unless</span> impassable(position)
       <span class="comment"># TODO: Check for existing bushes</span>
       addFeature Feature.Bush(position)
 

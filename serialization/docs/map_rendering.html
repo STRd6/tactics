@@ -91,6 +91,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         tile.lit(index)
 
       <span class="comment"># TODO: Iterate zSorted features + characters on a per chunk basis</span>
+      <span class="comment"># TODO: Only draw seen features</span>
       drawFeatures(canvas, <span class="literal">true</span>)
       drawCharacters(litTiles, self.characterAt, canvas, t)
       drawFeatures(canvas)
