@@ -42,27 +42,11 @@ we can have lit and seen as bit arrays.</p>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
-    lit: []
-    seen: []
     spriteName: <span class="string">"ground0"</span>
 
   self.include Drawable
 
   self.attrAccessor <span class="string">"spriteName"</span>
-
-  self.extend
-    lit: (index) -&gt;
-      I.lit[index]
-
-    seen: (index) -&gt;
-      I.seen[index]
-
-    view: (index) -&gt;
-      I.lit[index] = I.seen[index] = <span class="literal">true</span>
-
-    resetLit: -&gt;
-      I.lit.forEach (_, i) -&gt;
-        I.lit[i] = <span class="literal">false</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>
