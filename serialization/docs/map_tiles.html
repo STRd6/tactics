@@ -34,8 +34,13 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">MapTile = require <span class="string">"./map_tile"</span>
-{Grid} = require <span class="string">"./lib/util"</span></code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">BitArray = require <span class="string">"bit_array"</span>
+MapTile = require <span class="string">"./map_tile"</span>
+{Grid} = require <span class="string">"./lib/util"</span>
+
+mapWidth = <span class="number">32</span>
+mapHeight = <span class="number">18</span>
+numberOfTiles = mapWidth * mapHeight</code></pre>
 </div>
         </li>
         
@@ -51,23 +56,39 @@
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     tiles:
-      width: <span class="number">32</span>
-      height: <span class="number">18</span>
+      width: self.width()
+      height: self.height()
       <span class="comment"># TODO: Make this into bit/byte arrays</span>
       data: [<span class="number">0.</span>.. <span class="number">32</span> * <span class="number">18</span>].map -&gt;
         {}
+    lit: [ 
+      <span class="comment"># TODO: Handle arbitrary number of squads</span>
+      <span class="comment"># TODO: Maybe store these with the squad data itself?</span>
+      self.tileCount()
+      self.tileCount()
+    ]
+    seen: [
+      self.tileCount()
+      self.tileCount()
+    ]
 
   I.tiles.constructor = MapTile
   self.attrModel <span class="string">"tiles"</span>, Grid
+
+  self.attrModels <span class="string">"lit"</span>, BitArray
+  self.attrModels <span class="string">"seen"</span>, BitArray
 
   self.extend
     tileAt: self.tiles().get
 
     <span class="comment"># TODO: Add trap detection</span>
-    <span class="comment"># TODO: Keep track of seen features as well as seen tiles</span>
     viewTiles: (positions, index) -&gt;
-      positions.map(self.tileAt).forEach (tile) -&gt;
-        tile?.view index
+      positions.forEach ({x, y}) -&gt;
+        <span class="keyword">if</span> (<span class="number">0</span> &lt;= x &lt; self.width()) <span class="keyword">and</span> (<span class="number">0</span> &lt;= y &lt; self.height())
+
+          self.lit.get(index).set(x + y * mapWidth, <span class="number">1</span>)
+          self.seen.get(index).set(x + y * mapWidth, <span class="number">1</span>)
+          <span class="comment"># TODO: Keep track of seen features</span>
 
     updateVisibleTiles: -&gt;
       self.eachTile (tile) -&gt;

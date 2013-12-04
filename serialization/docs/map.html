@@ -58,8 +58,16 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     }, {
       race: <span class="string">"goblin"</span>
     }]
+    height: <span class="number">18</span>
+    width: <span class="number">32</span>
 
   self ?= Core(I)
+
+  self.attrAccessor <span class="string">"width"</span>, <span class="string">"height"</span>
+
+  self.extend
+    tileCount: -&gt;
+      I.width * I.height
 
   self.include Compositions
 
