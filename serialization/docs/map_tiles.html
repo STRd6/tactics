@@ -78,21 +78,35 @@ numberOfTiles = mapWidth * mapHeight</code></pre>
   self.attrModels <span class="string">"lit"</span>, BitArray
   self.attrModels <span class="string">"seen"</span>, BitArray
 
+  <span class="function"><span class="title">boundsCheck</span></span> = (x, y) -&gt;
+    (<span class="number">0</span> &lt;= x &lt; self.width()) <span class="keyword">and</span> (<span class="number">0</span> &lt;= y &lt; self.height())
+
+  <span class="function"><span class="title">bitArrayLookup</span></span> = (field) -&gt;
+    (x, y) -&gt;
+      <span class="keyword">if</span> x.x?
+        {x, y} = x
+
+      <span class="keyword">if</span> boundsCheck(x, y)
+        field.get(self.activeSquadIndex()).get(x + y * self.width())
+
   self.extend
+    isLit: bitArrayLookup(self.lit)
+
+    isSeen: bitArrayLookup(self.seen)
+
     tileAt: self.tiles().get
 
     <span class="comment"># TODO: Add trap detection</span>
     viewTiles: (positions, index) -&gt;
       positions.forEach ({x, y}) -&gt;
-        <span class="keyword">if</span> (<span class="number">0</span> &lt;= x &lt; self.width()) <span class="keyword">and</span> (<span class="number">0</span> &lt;= y &lt; self.height())
-
+        <span class="keyword">if</span> boundsCheck(x, y)
           self.lit.get(index).set(x + y * mapWidth, <span class="number">1</span>)
           self.seen.get(index).set(x + y * mapWidth, <span class="number">1</span>)
           <span class="comment"># TODO: Keep track of seen features</span>
 
     updateVisibleTiles: -&gt;
-      self.eachTile (tile) -&gt;
-        tile.resetLit()
+      self.lit [<span class="number">0.</span>..self.squads().length].map -&gt;
+        BitArray(self.tileCount())
 
       self.squads().forEach (squad, index) -&gt;
         squad.characters().filter (character) -&gt;

@@ -108,7 +108,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">else</span>
           occupantPassable = <span class="literal">true</span>
 
-        !impassable(position) <span class="keyword">and</span> tile.lit(self.activeSquadIndex()) <span class="keyword">and</span> occupantPassable
+        !impassable(position) <span class="keyword">and</span> self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) <span class="keyword">and</span> occupantPassable
 
   <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
@@ -160,9 +160,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     opaque: opaque
 
     visibleCharacters: -&gt;
-      index = self.activeSquadIndex()
       self.characters().filter (character) -&gt;
-        tileAt(character.position()).lit(index)
+        self.isLit(character.position())
 
     activeCharacter: Observable -&gt;
       <span class="comment"># Dependencies for observable</span>
