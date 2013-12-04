@@ -68,8 +68,8 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Observe an attribute as a model. Treats the attribute given as an Observable 
-model instance exposting a getter/setter method of the same name. The Model 
+              <p>Observe an attribute as a model. Treats the attribute given as an Observable
+model instance exposting a getter/setter method of the same name. The Model
 constructor must be passed in explicitly.</p>
 
             </div>
@@ -91,12 +91,12 @@ constructor must be passed in explicitly.</p>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Observe an attribute as a list of sub-models. This is the same as <code>attrModel</code> 
+              <p>Observe an attribute as a list of sub-models. This is the same as <code>attrModel</code>
 except the attribute is expected to be an array of models rather than a single one.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">    attrModels: (name, Model) -&gt;
-      <span class="function"><span class="title">models</span></span> = (I[name] <span class="keyword">or</span> []).map (x) -&gt; 
+      <span class="function"><span class="title">models</span></span> = (I[name] <span class="keyword">or</span> []).map (x) -&gt;
         Model(x)
 
       self[name] = Observable(models)

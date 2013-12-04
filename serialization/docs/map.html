@@ -37,6 +37,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Compositions = require <span class="string">"./lib/compositions"</span>
+Feature = require <span class="string">"./feature"</span>
 Graph = require <span class="string">"./graph"</span>
 MapGenerator = require <span class="string">"./map_generator"</span>
 MapSearch = require <span class="string">"./map_search"</span>
@@ -50,6 +51,7 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
+    features: []
     squads: [{
       <span class="comment"># TODO</span>
     }, {
@@ -65,6 +67,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   tileAt = self.tileAt
 
   self.attrModels <span class="string">"squads"</span>, Squad
+
+  self.attrModels <span class="string">"features"</span>, Feature
 
   self.attrObservable <span class="string">"currentTurn"</span>
 
@@ -97,6 +101,21 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.include require(<span class="string">"./map_serialization"</span>)
 
+  self.include require <span class="string">"finder"</span>
+  oldFind = self.find
+  self.<span class="function"><span class="title">find</span></span> = (selector) -&gt;
+    results = oldFind(self.features(), selector)
+
+    <span class="comment"># TODO: Hacks!</span>
+    results.<span class="function"><span class="title">within</span></span> = (position, radius) -&gt;
+      newResults = results.filter (result) -&gt;
+        radius &lt;= Point.distance(result.position(), position())
+
+      newResults.within = results.within
+      results = newResults
+
+    <span class="keyword">return</span> results
+
   self.extend
     messages: Observable []
 
@@ -124,18 +143,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         squad.activeCharacter()
 
       activeSquad()?.activeCharacter()
-
-    updateFeatures: -&gt;
-      <span class="comment"># TODO: Think about storing features separately from tiles</span>
-      self.eachTile (tile, position) -&gt;
-        tile.updateFeatures
-          addEffect: self.addEffect
-          characterAt: characterAt
-          message: self.message
-          tileAt: tileAt
-          position: position
-          turn: I.currentTurn / I.squads.length
-          addFeature: self.addFeature
 
     targettingAbility: -&gt;
       <span class="keyword">if</span> character = self.activeCharacter()
@@ -178,9 +185,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         self.performEffect effectStack.pop()
 
       <span class="keyword">while</span> featuresToAdd.length
-        [feature, position] = featuresToAdd.pop()
+        feature = featuresToAdd.pop()
 
-        tileAt(position)?.addFeature(feature)
+        self.features.push feature
 
       <span class="comment"># TODO: May not want to do this ALL the time</span>
       self.updateVisibleTiles()
@@ -210,29 +217,38 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     addEffect: (effect) -&gt;
       effectStack.push effect
 
-    <span class="comment"># TODO: Feature should contain its own position to better match addEffect</span>
-    addFeature: (feature, position) -&gt;
-      feature.I.createdAt = I.currentTurn
-      featuresToAdd.push([feature, position])
+    addFeature: (feature) -&gt;
+      feature.createdAt(I.currentTurn)
+      featuresToAdd.push(feature)
+
+    updateFeatures: -&gt;
+      self.features().forEach (feature) -&gt;
+        feature.update
+          addEffect: self.addEffect
+          addFeature: self.addFeature
+          characterAt: characterAt
+          find: self.find
+          message: self.message
+          turn: I.currentTurn / I.squads.length
 
     performAbility: (owner, ability, targetPosition) -&gt;
       ability.perform
-        owner: owner
         addEffect: self.addEffect
-        character: characterAt targetPosition
-        message: self.message
-        position: targetPosition
         addFeature: self.addFeature
+        character: characterAt targetPosition
+        characterAt: characterAt
+        message: self.message
+        owner: owner
+        position: targetPosition
 
       self.stateBasedActions()
 
     performEffect: (effect) -&gt;
       effect.perform
         addEffect: self.addEffect
+        addFeature: self.addFeature
         characterAt: characterAt
         message: self.message
-        tileAt: self.tileAt
-        addFeature: self.addFeature
 
       self.stateBasedActions()
 
