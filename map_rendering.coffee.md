@@ -8,34 +8,41 @@ Drawing the map data on the screen.
     tileSize = Size(32, 32)
 
     module.exports = (I={}, self) ->
-      drawGround = (tiles, canvas) ->
-        tiles.forEach ([tile, position]) ->
-          tile.draw canvas, position.scale(tileSize)
-  
+      drawGround = (canvas) ->
+        index = self.activeSquadIndex()
+        seen = self.seen.get(index)
+        [0...(self.width() * self.height())].forEach (i) ->
+          if seen.get(i)
+            x = i % self.width()
+            y = (i / self.width()).floor()
+
+            self.tileAt(x, y).draw canvas, Point(x, y).scale(tileSize)
+
       drawFeatures = (canvas, under) ->
         self.features().forEach (feature) ->
           zIndex = feature.zIndex()
           if (under and zIndex <= 0) or (!under and zIndex > 0)
             feature.draw canvas, feature.position().scale(tileSize)
   
-      drawCharacters = (tiles, characterAt, canvas, t) ->
-        tiles.forEach ([_, position]) ->
-          canvasPosition = position.scale(tileSize)
+      drawCharacters = (canvas, t) ->
+        lit = self.lit.get(self.activeSquadIndex())
+        self.characters().forEach (character) ->
+          {x, y} = position = character.position()
+
+          if lit.get(x + y * self.width())
+            canvasPosition = character.position().scale(tileSize)
   
-          if character = characterAt(position)
-            if character.alive()
-              character.sprite().draw(canvas, canvasPosition)
-            else
-              skeletonSprite.draw(canvas, canvasPosition)
-  
-      drawFog = (tiles, canvas) ->
-        tiles.forEach ([_, position]) ->
+            character.sprite().draw(canvas, canvasPosition)
+
+      drawFog = (canvas) ->
+        # TODO
+        [].forEach ([_, position]) ->
           bounds = Bounds(position.scale(tileSize), tileSize)
           bounds.color = "rgba(0, 0, 0, 0.5)"
   
           canvas.drawRect(bounds)
 
-      I.backgroundColor ?= "#222034"
+      backgroundColor = "#222034"
 
       self.extend
         # TODO: Grid#filter
@@ -48,20 +55,17 @@ Drawing the map data on the screen.
           results
 
         render: (canvas, t) ->
-          canvas.fill I.backgroundColor
+          canvas.fill backgroundColor
 
           index = self.activeSquadIndex()
           seenTiles = self.seenTiles(index)
 
-          drawGround(seenTiles, canvas)
-
-          [litTiles, unlitTiles] = seenTiles.partition ([tile]) ->
-            tile.lit(index)
+          drawGround(canvas)
 
           # TODO: Iterate zSorted features + characters on a per chunk basis
           # TODO: Only draw seen features
           drawFeatures(canvas, true)
-          drawCharacters(litTiles, self.characterAt, canvas, t)
+          drawCharacters(canvas, t)
           drawFeatures(canvas)
 
-          drawFog(unlitTiles, canvas)
+          drawFog(canvas)

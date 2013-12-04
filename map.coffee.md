@@ -26,8 +26,16 @@ The primary tactical combat screen.
         }, {
           race: "goblin"
         }]
+        height: 18
+        width: 32
 
       self ?= Core(I)
+
+      self.attrAccessor "width", "height"
+
+      self.extend
+        tileCount: ->
+          I.width * I.height
 
       self.include Compositions
       
