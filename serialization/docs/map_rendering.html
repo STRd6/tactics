@@ -39,35 +39,34 @@
 
 tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
 
-<span class="function"><span class="title">drawGround</span></span> = (tiles, canvas) -&gt;
-  tiles.forEach ([tile, position]) -&gt;
-    tile.draw canvas, position.scale(tileSize)
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  <span class="function"><span class="title">drawGround</span></span> = (tiles, canvas) -&gt;
+    tiles.forEach ([tile, position]) -&gt;
+      tile.draw canvas, position.scale(tileSize)
 
-<span class="function"><span class="title">drawFeatures</span></span> = (tiles, canvas, under) -&gt;
-  tiles.forEach ([tile, position]) -&gt;
-    tile.features().forEach (feature) -&gt;
+  <span class="function"><span class="title">drawFeatures</span></span> = (canvas, under) -&gt;
+    self.features().forEach (feature) -&gt;
       zIndex = feature.zIndex()
       <span class="keyword">if</span> (under <span class="keyword">and</span> zIndex &lt;= <span class="number">0</span>) <span class="keyword">or</span> (!under <span class="keyword">and</span> zIndex &gt; <span class="number">0</span>)
-        feature.draw canvas, position.scale(tileSize)
+        feature.draw canvas, feature.position().scale(tileSize)
 
-<span class="function"><span class="title">drawCharacters</span></span> = (tiles, characterAt, canvas, t) -&gt;
-  tiles.forEach ([_, position]) -&gt;
-    canvasPosition = position.scale(tileSize)
+  <span class="function"><span class="title">drawCharacters</span></span> = (tiles, characterAt, canvas, t) -&gt;
+    tiles.forEach ([_, position]) -&gt;
+      canvasPosition = position.scale(tileSize)
 
-    <span class="keyword">if</span> character = characterAt(position)
-      <span class="keyword">if</span> character.alive()
-        character.sprite().draw(canvas, canvasPosition)
-      <span class="keyword">else</span>
-        skeletonSprite.draw(canvas, canvasPosition)
+      <span class="keyword">if</span> character = characterAt(position)
+        <span class="keyword">if</span> character.alive()
+          character.sprite().draw(canvas, canvasPosition)
+        <span class="keyword">else</span>
+          skeletonSprite.draw(canvas, canvasPosition)
 
-<span class="function"><span class="title">drawFog</span></span> = (tiles, canvas) -&gt;
-  tiles.forEach ([_, position]) -&gt;
-    bounds = Bounds(position.scale(tileSize), tileSize)
-    bounds.color = <span class="string">"rgba(0, 0, 0, 0.5)"</span>
+  <span class="function"><span class="title">drawFog</span></span> = (tiles, canvas) -&gt;
+    tiles.forEach ([_, position]) -&gt;
+      bounds = Bounds(position.scale(tileSize), tileSize)
+      bounds.color = <span class="string">"rgba(0, 0, 0, 0.5)"</span>
 
-    canvas.drawRect(bounds)
+      canvas.drawRect(bounds)
 
-module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   I.backgroundColor ?= <span class="string">"#222034"</span>
 
   Object.extend self,
@@ -92,9 +91,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         tile.lit(index)
 
       <span class="comment"># TODO: Iterate zSorted features + characters on a per chunk basis</span>
-      drawFeatures(seenTiles, canvas, <span class="literal">true</span>)
+      drawFeatures(canvas, <span class="literal">true</span>)
       drawCharacters(litTiles, self.characterAt, canvas, t)
-      drawFeatures(seenTiles, canvas)
+      drawFeatures(canvas)
 
       drawFog(unlitTiles, canvas)</code></pre>
 </div>

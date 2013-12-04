@@ -57,7 +57,7 @@ electricity, I don&#39;t know yet.</p>
 <span class="comment"># Used in Fireball</span>
 Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
   perform: ({characterAt, message, addFeature}) -&gt;
-    addFeature(Feature.Fire(), position)
+    addFeature(Feature.Fire(position))
 
     <span class="keyword">if</span> character = characterAt(position)
       message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
@@ -79,7 +79,7 @@ Effect.<span class="function"><span class="title">Death</span></span> = (positio
 
     addFeature Feature
       spriteName: <span class="string">"skeleton"</span>
-    , position
+      position: position
 
 Effect.<span class="function"><span class="title">ShrubSight</span></span> = (position, owner) -&gt;
   perform: ({find}) -&gt;

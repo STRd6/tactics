@@ -65,22 +65,27 @@ module.exports = <span class="function"><span class="title">Feature</span></span
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>
 
-    update: ({turn}) -&gt;
+    update: (params) -&gt;
+      {turn} = params
+
+      params.position = self.position()
+
       delta = turn - I.createdAt
 
       <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % <span class="number">1</span> <span class="keyword">is</span> <span class="number">0</span>)
-        I.update?(arguments...)
+        I.update?(params)
 
         <span class="keyword">if</span> I.duration?
-          delta &lt; I.duration
+          <span class="keyword">return</span> delta &lt; I.duration
 
       <span class="keyword">return</span> !I.destroyed
 
   <span class="keyword">return</span> self
 
-Feature.<span class="function"><span class="title">Wall</span></span> = -&gt;
+Feature.<span class="function"><span class="title">Wall</span></span> = (position) -&gt;
   Feature
     impassable: <span class="literal">true</span>
+    position: position
     opaque: <span class="literal">true</span>
     spriteName: <span class="string">"brick_vines"</span> + rand(<span class="number">4</span>)
     type: Type.Stone
@@ -88,6 +93,7 @@ Feature.<span class="function"><span class="title">Wall</span></span> = -&gt;
 Feature.<span class="function"><span class="title">Bush</span></span> = (position) -&gt;
   Feature
     opaque: <span class="literal">true</span>
+    position: position
     spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
     type: Type.Plant
     zIndex: <span class="number">1</span>

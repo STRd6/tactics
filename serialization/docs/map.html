@@ -222,7 +222,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       featuresToAdd.push(feature)
 
     updateFeatures: -&gt;
-      self.features().forEach (feature) -&gt;
+      <span class="comment"># Updating and filtering features to only the active features</span>
+      self.features self.features().filter (feature) -&gt;
         feature.update
           addEffect: self.addEffect
           addFeature: self.addFeature
