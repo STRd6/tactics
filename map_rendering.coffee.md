@@ -7,35 +7,34 @@ Drawing the map data on the screen.
 
     tileSize = Size(32, 32)
 
-    drawGround = (tiles, canvas) ->
-      tiles.forEach ([tile, position]) ->
-        tile.draw canvas, position.scale(tileSize)
-
-    drawFeatures = (tiles, canvas, under) ->
-      tiles.forEach ([tile, position]) ->
-        tile.features().forEach (feature) ->
+    module.exports = (I={}, self) ->
+      drawGround = (tiles, canvas) ->
+        tiles.forEach ([tile, position]) ->
+          tile.draw canvas, position.scale(tileSize)
+  
+      drawFeatures = (canvas, under) ->
+        self.features().forEach (feature) ->
           zIndex = feature.zIndex()
           if (under and zIndex <= 0) or (!under and zIndex > 0)
-            feature.draw canvas, position.scale(tileSize)
+            feature.draw canvas, feature.position().scale(tileSize)
+  
+      drawCharacters = (tiles, characterAt, canvas, t) ->
+        tiles.forEach ([_, position]) ->
+          canvasPosition = position.scale(tileSize)
+  
+          if character = characterAt(position)
+            if character.alive()
+              character.sprite().draw(canvas, canvasPosition)
+            else
+              skeletonSprite.draw(canvas, canvasPosition)
+  
+      drawFog = (tiles, canvas) ->
+        tiles.forEach ([_, position]) ->
+          bounds = Bounds(position.scale(tileSize), tileSize)
+          bounds.color = "rgba(0, 0, 0, 0.5)"
+  
+          canvas.drawRect(bounds)
 
-    drawCharacters = (tiles, characterAt, canvas, t) ->
-      tiles.forEach ([_, position]) ->
-        canvasPosition = position.scale(tileSize)
-
-        if character = characterAt(position)
-          if character.alive()
-            character.sprite().draw(canvas, canvasPosition)
-          else
-            skeletonSprite.draw(canvas, canvasPosition)
-
-    drawFog = (tiles, canvas) ->
-      tiles.forEach ([_, position]) ->
-        bounds = Bounds(position.scale(tileSize), tileSize)
-        bounds.color = "rgba(0, 0, 0, 0.5)"
-
-        canvas.drawRect(bounds)
-
-    module.exports = (I={}, self) ->
       I.backgroundColor ?= "#222034"
 
       Object.extend self,
@@ -60,8 +59,8 @@ Drawing the map data on the screen.
             tile.lit(index)
 
           # TODO: Iterate zSorted features + characters on a per chunk basis
-          drawFeatures(seenTiles, canvas, true)
+          drawFeatures(canvas, true)
           drawCharacters(litTiles, self.characterAt, canvas, t)
-          drawFeatures(seenTiles, canvas)
+          drawFeatures(canvas)
 
           drawFog(unlitTiles, canvas)

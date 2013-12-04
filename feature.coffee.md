@@ -33,22 +33,27 @@ Features are things that are present within tiles in the tactical combat view.
           if !I.destroyed
             I.destroyed = true
 
-        update: ({turn}) ->
+        update: (params) ->
+          {turn} = params
+
+          params.position = self.position()
+
           delta = turn - I.createdAt
 
           if (delta > 0) and (delta % 1 is 0)
-            I.update?(arguments...)
+            I.update?(params)
 
             if I.duration?
-              delta < I.duration
+              return delta < I.duration
 
           return !I.destroyed
 
       return self
 
-    Feature.Wall = ->
+    Feature.Wall = (position) ->
       Feature
         impassable: true
+        position: position
         opaque: true
         spriteName: "brick_vines" + rand(4)
         type: Type.Stone
@@ -56,6 +61,7 @@ Features are things that are present within tiles in the tactical combat view.
     Feature.Bush = (position) ->
       Feature
         opaque: true
+        position: position
         spriteName: "bush" + rand(4)
         type: Type.Plant
         zIndex: 1

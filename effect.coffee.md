@@ -15,7 +15,7 @@ electricity, I don't know yet.
     # Used in Fireball
     Effect.Fire = (position) ->
       perform: ({characterAt, message, addFeature}) ->
-        addFeature(Feature.Fire(), position)
+        addFeature(Feature.Fire(position))
 
         if character = characterAt(position)
           message "#{character.name()} is on fire!"
@@ -37,7 +37,7 @@ electricity, I don't know yet.
 
         addFeature Feature
           spriteName: "skeleton"
-        , position
+          position: position
 
     Effect.ShrubSight = (position, owner) ->
       perform: ({find}) ->

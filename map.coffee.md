@@ -190,7 +190,8 @@ The primary tactical combat screen.
           featuresToAdd.push(feature)
 
         updateFeatures: ->
-          self.features().forEach (feature) ->
+          # Updating and filtering features to only the active features
+          self.features self.features().filter (feature) ->
             feature.update
               addEffect: self.addEffect
               addFeature: self.addFeature
