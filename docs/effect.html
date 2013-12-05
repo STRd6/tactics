@@ -53,57 +53,38 @@ electricity, I don&#39;t know yet.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Effect</span></span> = (I={}, self=Core(I)) -&gt;
-  <span class="comment"># TODO</span>
 
 <span class="comment"># Used in Fireball</span>
 Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
-  perform: ({tileAt, characterAt, message, addFeature}) -&gt;
-    <span class="keyword">if</span> tile = tileAt(position)
-      <span class="comment"># Fireball Effect</span>
-      Object.extend tile,
-        opaque: <span class="literal">false</span>
-        solid: <span class="literal">false</span>
-        features: []
-        sprite: lavaSprites.rand()
+  perform: ({characterAt, message, addFeature}) -&gt;
+    addFeature(Feature.Fire(position))
 
-      addFeature(Feature.Fire(), position)
-
-      <span class="keyword">if</span> character = characterAt(position)
-        message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
-        character.damage(<span class="number">2</span>)
+    <span class="keyword">if</span> character = characterAt(position)
+      message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
+      character.damage(<span class="number">2</span>)
 
 <span class="comment"># Used in Entanglement</span>
 Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;
-  perform: ({characterAt, tileAt, message}) -&gt;
-    <span class="keyword">if</span> tile = tileAt(position)
-      <span class="keyword">unless</span> tile.solid
-        <span class="comment"># TODO: Check for existing bushes</span>
-        <span class="comment"># TODO: Add movement penalty to bush features</span>
-        <span class="comment"># TODO: Transfer opacity computation from to include features</span>
-        tile.opaque = <span class="literal">true</span>
-        tile.features.push Feature.Bush()
+  perform: ({characterAt, message, addFeature, impassable}) -&gt;
+    <span class="keyword">unless</span> impassable(position)
+      <span class="comment"># TODO: Check for existing bushes</span>
+      addFeature Feature.Bush(position)
 
-      <span class="keyword">if</span> character = characterAt(position)
-        message <span class="string">"<span class="subst">#{character.name()}</span> is caught in a shrub!"</span>
+    <span class="keyword">if</span> character = characterAt(position)
+      message <span class="string">"<span class="subst">#{character.name()}</span> is caught in a shrub!"</span>
 
 Effect.<span class="function"><span class="title">Death</span></span> = (position, owner) -&gt;
-  perform: ({tileAt, message}) -&gt;
+  perform: ({message, addFeature}) -&gt;
     message <span class="string">"<span class="subst">#{owner.name()}</span> has been slain."</span>
 
-    <span class="keyword">if</span> tile = tileAt(position)
-      tile.features.push Feature
-        spriteName: <span class="string">"skeleton"</span>
+    addFeature Feature
+      spriteName: <span class="string">"skeleton"</span>
+      position: position
 
 Effect.<span class="function"><span class="title">ShrubSight</span></span> = (position, owner) -&gt;
-  perform: ({tileAt}) -&gt;
-    <span class="keyword">if</span> tile = tileAt(position)
-      <span class="comment"># TODO: Maybe have a featureAt method passed in?</span>
-      hasPlant = tile.features.some (feature) -&gt;
-        feature.type() <span class="keyword">is</span> <span class="string">"plant"</span>
-
-      <span class="comment"># Add magical vision to owner if tile has a `plant` feature</span>
-      <span class="keyword">if</span> hasPlant
-        owner.addMagicalVision(position)</code></pre>
+  perform: ({find}) -&gt;
+    find(<span class="string">"plant"</span>).within(position, <span class="number">13</span>).forEach (plant) -&gt;
+      owner.addMagicalVision(plant.position())</code></pre>
 </div>
         </li>
         

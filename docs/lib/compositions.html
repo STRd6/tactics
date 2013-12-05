@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>TODO</title>
+  <title>lib/compositions</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,10 +18,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="todo">TODO</h1>
+              <h1 id="compositions">Compositions</h1>
 
             </div>
-            <div class="content"><pre><code>
+            <div class="content"><pre><code class="lang-coffeescript">
 </code></pre>
 </div>
         </li>
@@ -32,11 +32,13 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <h2 id="tactical">Tactical</h2>
+              <p>The compositions module provides helper methods to compose nested data models.</p>
+<p>Compositions uses observables to keep the internal data in sync.</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
+
+  self.extend</code></pre>
 </div>
         </li>
         
@@ -46,19 +48,17 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Quadtree for map features</p>
-<p>Display Squad Overview, Click to Activate and Center</p>
-<p>Handle winning and losing</p>
-<p>Simple Ability Animations</p>
-<p>Smooth transitions</p>
-<p>Random Level Generation</p>
-<p>Display Messages</p>
-<p>Map Scrolling</p>
-<h2 id="abilities">Abilities</h2>
+              <p>Observe any number of attributes as simple observables. For each attribute name passed in we expose a public getter/setter method and listen to changes when the value is set.</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">    attrObservable: (names...) -&gt;
+      names.each (name) -&gt;
+        self[name] = Observable(I[name])
+
+        self[name].observe (newValue) -&gt;
+          I[name] = newValue
+
+      <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
@@ -68,13 +68,20 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Healing</p>
-<p>Blink</p>
-<h2 id="overwold-map">Overwold Map</h2>
+              <p>Observe an attribute as a model. Treats the attribute given as an Observable
+model instance exposting a getter/setter method of the same name. The Model
+constructor must be passed in explicitly.</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">    attrModel: (name, Model) -&gt;
+      model = Model(I[name])
+
+      self[name] = Observable(model)
+
+      self[name].observe (newValue) -&gt;
+        I[name] = newValue.I
+
+      <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
@@ -84,14 +91,21 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Start with one screen where you can choose quests/missions</p>
-<h2 id="ai">AI</h2>
-<p>Anything at all</p>
-<h1 id="done">Done</h1>
+              <p>Observe an attribute as a list of sub-models. This is the same as <code>attrModel</code>
+except the attribute is expected to be an array of models rather than a single one.</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">    attrModels: (name, Model) -&gt;
+      <span class="function"><span class="title">models</span></span> = (I[name] <span class="keyword">or</span> []).map (x) -&gt;
+        Model(x)
+
+      self[name] = Observable(models)
+
+      self[name].observe (newValue) -&gt;
+        I[name] = newValue.map (instance) -&gt;
+          instance.I
+
+      <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
@@ -101,11 +115,11 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <h2 id="tactical">Tactical</h2>
+              <p>The JSON representation is kept up to date via the observable properites and resides in <code>I</code>.</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">    toJSON: -&gt;
+      I</code></pre>
 </div>
         </li>
         
@@ -115,34 +129,10 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Disable Ability if can&#39;t pay cost</p>
-<p>Ability Cooldowns</p>
-<p>Passable allies</p>
-<p>Cancel action targetting</p>
-<p>Handle 2 squads on map</p>
-<p>4 characters in each squad</p>
-<p>Remove characters with zero health in SBEs</p>
-<h2 id="abilities">Abilities</h2>
+              <p>Return our public object.</p>
 
             </div>
-            <div class="content"><pre><code>
-</code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-8">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-8">&#182;</a>
-              </div>
-              <p>Ranged attacks</p>
-<p>Fireball</p>
-<p>Regeneration</p>
-
-            </div>
-            <div class="content"><pre><code>
-</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript">  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         
@@ -162,6 +152,6 @@
   }).then(function(PACKAGE) {
     Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
   })
-</script><script src="package.js"></script>
+</script><script src="../package.js"></script>
 </body>
 </html>

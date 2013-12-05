@@ -37,6 +37,8 @@
             <div class="content"><pre><code class="lang-coffeescript">Character = require <span class="string">"./character"</span>
 Class = require <span class="string">"./character_classes"</span>
 
+Compositions = require <span class="string">"./lib/compositions"</span>
+
 extend = Object.extend
 
 <span class="function"><span class="title">create</span></span> = (type, data) -&gt;
@@ -53,20 +55,24 @@ extend = Object.extend
               <p>A team of 4-6 characters who battle it out with other squads in tactical combat.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Squad</span></span> = (I={}) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Squad</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
+    characters: []
     race: <span class="string">"human"</span>
-    x: <span class="number">5</span>
+
+  self.include Compositions
+
+  self.attrModels <span class="string">"characters"</span>, Character
 
   <span class="function"><span class="title">activatableCharacters</span></span> = -&gt;
-    self.characters.filter (character) -&gt;
+    self.characters().filter (character) -&gt;
       character.alive() <span class="keyword">and</span>
       character.actions() &gt; <span class="number">0</span>
 
   <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
     activatableCharacters().first()
 
-  self =
+  self.extend
     activateCharacterAt: (position) -&gt;
       character = activatableCharacters().filter (character) -&gt;
         character.position().equal position
@@ -76,10 +82,9 @@ extend = Object.extend
         self.activeCharacter(character)
 
     activeCharacter: Observable <span class="literal">null</span>
-    characters: Observable []
 
     stateBasedActions: (params) -&gt;
-      self.characters.forEach (character) -&gt;
+      self.characters().forEach (character) -&gt;
         character.stateBasedActions(params)
 
       <span class="keyword">if</span> character = self.activeCharacter()
@@ -87,7 +92,7 @@ extend = Object.extend
           self.activeCharacter nextActivatableCharacter()
 
     ready: -&gt;
-      self.characters.forEach (character) -&gt;
+      self.characters().forEach (character) -&gt;
         character.ready()
 
       self.activeCharacter nextActivatableCharacter()
@@ -97,45 +102,45 @@ extend = Object.extend
     self.characters [
       create <span class="string">"Knight"</span>,
         position:
-          x: I.x - <span class="number">1</span>
+          x: <span class="number">1</span>
           y: <span class="number">7</span>
 
       create <span class="string">"Wizard"</span>,
         position:
-          x: I.x - <span class="number">2</span>
+          x: <span class="number">2</span>
           y: <span class="number">10</span>
 
       create <span class="string">"Archer"</span>,
         position:
-          x: I.x - <span class="number">4</span>
+          x: <span class="number">4</span>
           y: <span class="number">13</span>
 
       create <span class="string">"Archer"</span>,
         position:
-          x: rand(<span class="number">8</span>) + <span class="number">2</span>
+          x: <span class="number">2</span>
           y: <span class="number">3</span>
     ]
   <span class="keyword">else</span>
     self.characters [
       create <span class="string">"Grunt"</span>,
         position:
-          x: I.x - <span class="number">1</span>
+          x: <span class="number">10</span>
           y: <span class="number">7</span>
       create <span class="string">"Grunt"</span>,
         position:
-          x: I.x - <span class="number">2</span>
+          x: <span class="number">8</span>
           y: <span class="number">5</span>
       create <span class="string">"ShrubMage"</span>,
         position:
-          x: I.x - <span class="number">2</span>
+          x: <span class="number">8</span>
           y: <span class="number">10</span>
       create <span class="string">"Grunt"</span>,
         position:
-          x: I.x - <span class="number">4</span>
+          x: <span class="number">12</span>
           y: <span class="number">13</span>
     ]
 
-  self.activeCharacter self.characters.first()
+  self.activeCharacter self.characters().first()
 
   <span class="keyword">return</span> self</code></pre>
 </div>

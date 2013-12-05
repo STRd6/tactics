@@ -37,8 +37,8 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Action = require <span class="string">"./action"</span>
+Drawable = require <span class="string">"./lib/drawable"</span>
 Effect = require <span class="string">"./effect"</span>
-Resource = require <span class="string">"./resource"</span>
 Names = require <span class="string">"./names"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
@@ -88,10 +88,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"strength"</span>
   )
 
-  Object.extend self,
-    sprite: -&gt;
-      Resource.sprite(I.spriteName) <span class="keyword">or</span> Sprite.NONE
+  self.include Drawable
 
+  Object.extend self,
     damage: (amount) -&gt;
       I.health -= amount
 

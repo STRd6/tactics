@@ -94,7 +94,7 @@ be reached immediately from the given position.</p>
 may query its properties and figure out what to do.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">neighborsVisible</span></span> = (position, getTile, getEntities, passable) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">neighborsVisible</span></span> = (position, passable) -&gt;
   <span class="comment"># TODO: Add diagonals if both edges are passable</span>
   cardinalDirections.map (direction) -&gt;
     position.add(direction)
@@ -106,16 +106,11 @@ may query its properties and figure out what to do.</p>
   directionsWithCosts.map ([direction, cost]) -&gt;
     [position.add(direction), cost]
 
-<span class="function"><span class="title">strategy</span></span> = (pattern, getTile, getEntities, index) -&gt;
+<span class="function"><span class="title">strategy</span></span> = (pattern, passable) -&gt;
   (position) -&gt;
-    pattern(position, getTile, getEntities, index)
+    pattern(position, passable)
 
-<span class="comment"># TODO: Calculate based on character abilities</span>
-<span class="function"><span class="title">opaque</span></span> = (tile) -&gt;
-  tile.features.some (feature) -&gt;
-    feature.opaque()
-
-module.<span class="function"><span class="title">exports</span></span> = (getTile, getEntities) -&gt;</code></pre>
+module.<span class="function"><span class="title">exports</span></span> = -&gt;</code></pre>
 </div>
         </li>
         
@@ -132,7 +127,7 @@ through tiles.</p>
             <div class="content"><pre><code class="lang-coffeescript">  accessible: (position, range, passable) -&gt;
     Graph.accessible
       initial: position
-      neighbors: strategy neighborsVisible, getTile, getEntities, passable
+      neighbors: strategy neighborsVisible, passable
       distanceMax: range
 
   adjacent: (position, range=sqrt(<span class="number">2</span>)) -&gt;
@@ -141,14 +136,14 @@ through tiles.</p>
       neighbors: adjacentPositions
       distanceMax: range
 
-  visible: (position, range=<span class="number">1</span>) -&gt;
-    FOV.calculate(getTile, opaque, position, range)
+  visible: (position, range=<span class="number">1</span>, opaque) -&gt;
+    FOV.calculate(opaque, position, range)
 
   movementPath: (position, target, passable) -&gt;
     Graph.aStar
       initial: position
       goal: target
-      neighbors: strategy neighborsVisible, getTile, getEntities, passable
+      neighbors: strategy neighborsVisible, passable
       heuristic: (a, b) -&gt;
         {x, y} = b.subtract(a).abs()
 
