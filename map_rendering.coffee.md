@@ -24,9 +24,12 @@ Drawing the map data on the screen.
 
       drawFeatures = (canvas, under) ->
         self.features().forEach (feature) ->
-          zIndex = feature.zIndex()
-          if (under and zIndex <= 0) or (!under and zIndex > 0)
-            feature.draw canvas, feature.position().scale(tileSize)
+          position = feature.position()
+
+          if self.isSeen(position)
+            zIndex = feature.zIndex()
+            if (under and zIndex <= 0) or (!under and zIndex > 0)
+              feature.draw canvas, position.scale(tileSize)
   
       drawCharacters = (canvas, t) ->
         lit = self.lit.get(self.activeSquadIndex())

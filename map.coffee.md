@@ -18,9 +18,7 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
-        features: [
-          Feature.Wall({x: 5, y: 10}).I
-        ]
+        features: []
         squads: [{
           # TODO
         }, {
@@ -44,6 +42,13 @@ The primary tactical combat screen.
       self.attrModels "squads", Squad
 
       self.attrModels "features", Feature
+      # TODO: Temporary hack to add bushes and walls
+      self.tileCount().times (i) ->
+        position = Point(i % 32, Math.floor(i / 32))
+        if rand() < 0.1
+          self.features.push Feature.Wall(position)
+        else if rand() < 0.25
+          self.features.push Feature.Bush(position)
 
       self.attrObservable "currentTurn"
 

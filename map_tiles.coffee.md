@@ -10,10 +10,8 @@ Map Tiles
     mapHeight = 18
     numberOfTiles = mapWidth * mapHeight
 
-    tileset = [
-      "ground0"
-    ].map (name) ->
-      Resource.sprite(name)
+    tileset = [0...8].map (n) ->
+      Resource.sprite("ground#{n}")
 
 Methods for interacting with tiles witin the map.
 
@@ -32,6 +30,9 @@ Methods for interacting with tiles witin the map.
         ]
 
       self.attrModel "tiles", ByteArray
+      # TODO: Build variations into tileset
+      [0...self.tileCount()].forEach (i) ->
+        self.tiles().set(i, rand(8))
 
       self.attrModels "lit", BitArray
       self.attrModels "seen", BitArray
@@ -52,12 +53,15 @@ Methods for interacting with tiles witin the map.
 
         isSeen: bitArrayLookup(self.seen)
 
+        tileset: ->
+          tileset
+
         tileAt: (x, y) ->
           if x.x?
             {x, y} = x
 
           if boundsCheck(x, y)
-            tileset[self.tiles().get(x + y * self.width())]
+            self.tileset()[self.tiles().get(x + y * self.width())]
 
         # TODO: Add trap detection
         viewTiles: (positions, index) ->
