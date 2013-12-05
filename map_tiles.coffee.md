@@ -3,7 +3,6 @@ Map Tiles
 
     BitArray = require "bit_array"
     ByteArray = require "byte_array"
-    {Grid} = require "./lib/util"
     Resource = require "./resource"
 
     mapWidth = 32
