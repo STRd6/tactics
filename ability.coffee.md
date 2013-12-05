@@ -243,8 +243,7 @@ Should there be range types too? Connected, any, passable, etc?
         cooldown: 3
         targetZone: SELF
         perform: ({position, addEffect, owner}) ->
-          search.adjacent(position, 13).forEach (position) ->
-            addEffect(Effect.ShrubSight(position, owner))
+          addEffect(Effect.ShrubSight(position, owner))
 
       Wait: Ability
         name: "Wait"

@@ -3,15 +3,14 @@ Feature
 
 Features are things that are present within tiles in the tactical combat view.
 
+    Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Type = require "./type"
-
-    # TODO we don't have tileAt, so we can't do all searches
-    search = require("./map_search")()
 
     module.exports = Feature = (I={}, self=Core(I)) ->
       Object.defaults I,
         createdAt: 0
+        destroyed: false
         impassable: false
         movementPenalty: 0
         opaque: false
@@ -19,6 +18,7 @@ Features are things that are present within tiles in the tactical combat view.
         zIndex: -1
 
       self.attrAccessor(
+        "createdAt"
         "impassable"
         "movementPenalty"
         "opaque"
@@ -26,59 +26,62 @@ Features are things that are present within tiles in the tactical combat view.
         "zIndex"
       )
 
+      self.include Compositions
       self.include Drawable
 
-      Object.extend self,
-        update: ({turn}) ->
-          debugger if I.spriteName is "ogre"
+      self.attrModel "position", Point
+
+      self.extend
+        destroy: ->
+          if !I.destroyed
+            I.destroyed = true
+
+        update: (params) ->
+          {turn} = params
+
+          params.position = self.position()
+
           delta = turn - I.createdAt
 
           if (delta > 0) and (delta % 1 is 0)
-            I.update?(arguments...)
+            I.update?(params)
 
             if I.duration?
-              delta < I.duration
-            else
-              true
-          else
-            true
+              return delta < I.duration
+
+          return !I.destroyed
 
       return self
 
-    Feature.Wall = ->
+    Feature.Wall = (position) ->
       Feature
         impassable: true
+        position: position
         opaque: true
         spriteName: "brick_vines" + rand(4)
         type: Type.Stone
 
-    Feature.Bush = ->
+    Feature.Bush = (position) ->
       Feature
         opaque: true
+        position: position
         spriteName: "bush" + rand(4)
         type: Type.Plant
         zIndex: 1
 
-    Feature.Fire = ->
+    Feature.Fire = (position) ->
       Feature
         duration: 1
+        position: position
         spriteName: "ogre"
         type: Type.Fire
         zIndex: 1
-        update: ({addFeature, characterAt, position, message, tileAt}) ->
-          search.adjacent(position).forEach (position) ->
-            if tile = tileAt(position)
-              shrubsOnFire = false
+        update: ({addFeature, characterAt, position, message, find}) ->
+          radius = Math.sqrt(2)
 
-              tile.features().select( (feature) ->
-                # TODO: apply this to all flammable things
-                feature.type() is "plant"
-              ).forEach (plantFeature) ->
-                tile.features().remove(plantFeature)
-                shrubsOnFire = true
-
-              if shrubsOnFire
-                addFeature(Feature.Fire(), position)
+          find("plant").within(position, radius).forEach (plant) ->
+            if plant.destroy()
+              addFeature(Feature.Fire(plant.position()))
 
           if character = characterAt(position)
             amount = 1

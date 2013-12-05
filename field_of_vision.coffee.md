@@ -35,11 +35,7 @@ code isn't really in a position to be modified easily yet.
 
 http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_shadowcasting explains it fairly well.
 
-TODO: Maybe we can avoid passing in tileAt and just use opaque instead.
-
-    calculateOctant = (positions, tileAt, opaque, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
-      tile = tileAt(cx, cy)
-
+    calculateOctant = (positions, opaque, cx, cy, row, start, end, radius, xx, xy, yx, yy, id) ->
       positions.push Point(cx, cy)
 
       new_start = 0
@@ -50,9 +46,6 @@ TODO: Maybe we can avoid passing in tileAt and just use opaque instead.
       dy = -row
       X = cx + dx * xx + dy * xy
       Y = cy + dx * yx + dy * yy
-
-      if id > 0
-        markTile(Point(X, Y), 4)
 
       return unless row <= radius
       done = false
@@ -68,11 +61,10 @@ TODO: Maybe we can avoid passing in tileAt and just use opaque instead.
           dx += 1
           X = cx + dx * xx + dy * xy
           Y = cy + dx * yx + dy * yy
+          
+          P = Point(X, Y)
 
-          d = radius - Math.sqrt(dx * dx + dy * dy)
-          debugTile(Point(X, Y), "#{d.toFixed(2)}")
-
-          if tile = tileAt(X, Y)
+          if (visionBlocked = opaque(P))?
             l_slope = (dx - 0.5) / (dy + 0.5)
             r_slope = (dx + 0.5) / (dy - 0.5)
 
@@ -82,22 +74,19 @@ TODO: Maybe we can avoid passing in tileAt and just use opaque instead.
               break
             else
               if dx * dx + dy * dy < radius_squared
-                positions.push Point(X, Y)
+                positions.push P
 
               if blocked
-                if opaque(tile)
-                  markTile(Point(X, Y), 1)
+                if visionBlocked
                   new_start = r_slope
                   continue
                 else
-                  markTile(Point(X, Y), 2)
                   blocked = false
                   start = new_start
               else
-                if opaque(tile)
-                  markTile(Point(X, Y), 0)
+                if visionBlocked
                   blocked = true
-                  calculateOctant positions, tileAt, opaque, cx, cy, i + 1, start, l_slope, radius,
+                  calculateOctant positions, opaque, cx, cy, i + 1, start, l_slope, radius,
                     xx, xy, yx, yy, id + 1
                   new_start = r_slope
 
@@ -108,7 +97,7 @@ TODO: Maybe we can avoid passing in tileAt and just use opaque instead.
 
 Calculate the field of vision.
 
-      calculate: (tileAt, opaque, position, radius) ->
+      calculate: (opaque, position, radius) ->
         positions = []
 
         [0..7].forEach (i) =>
@@ -117,37 +106,9 @@ Calculate the field of vision.
           yx = mult[2][i]
           yy = mult[3][i]
 
-          calculateOctant positions, tileAt, opaque, position.x, position.y, 0, 1.0, 0.0, radius,
+          calculateOctant positions, opaque, position.x, position.y, 0, 1.0, 0.0, radius,
             xx, xy, yx, yy, 0
-
-        tile = tileAt position.x, position.y
 
         positions.push position
 
         return positions
-
-Debug Helpers
--------------
-
-    debugTile = (position, message) ->
-      return unless debug
-
-      setTimeout ->
-        message.split("\n").forEach (part, i) ->
-          canvas.centerText
-            position: position.add(Point(0.5, 0.5)).scale(32).add Point(0, i).scale(12)
-            text: part
-            color: "white"
-      , 0
-
-    markTile = (position, color) ->
-      return unless debug
-
-      setTimeout ->
-        canvas.drawRect
-          position: position.scale(32)
-          width: 32
-          height: 32
-          color: colors[color]
-      , 0
-

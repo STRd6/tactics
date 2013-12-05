@@ -72,79 +72,47 @@ Extra utilities that may be broken out into separate libraries.
 
 A 2d grid of values.
 
-      Grid: ({width, height}, defaultValue) ->
-        generateValue = (x, y) ->
-          if typeof defaultValue is "function"
-            defaultValue(x, y)
-          else
-            defaultValue
+      Grid: (I={}) ->
+        Object.defaults I,
+          width: 0
+          height: 0
+          data: []
 
-        grid =
-          [0...height].map (y) ->
-            [0...width].map (x) ->
-              generateValue(x, y)
+        constructor = I.constructor ? (x) -> x
+
+        items = I.data.map (x) ->
+          constructor(x)
 
         self =
-          contract: (x, y) ->
-            height -= y
-            width -= x
-
-            grid.length = height
-
-            grid.forEach (row) ->
-              row.length = width
-
-            return self
-
-          copy: ->
-            Grid(width, height, self.get)
-
           get: (x, y) ->
             if x.x?
               {x, y} = x
 
-            return if x < 0 or x >= width
-            return if y < 0 or y >= height
+            return if x < 0 or x >= I.width
+            return if y < 0 or y >= I.height
 
-            grid[y][x]
+            items[x + y * I.width]
 
           set: (x, y, value) ->
             if x.x?
+              value = y
               {x, y} = x
 
-            return if x < 0 or x >= width
-            return if y < 0 or y >= height
+            return if x < 0 or x >= I.width
+            return if y < 0 or y >= I.height
 
-            grid[y][x] = value
+            items[x + y * I.width] = value
 
           each: (iterator) ->
-            grid.forEach (row, y) ->
-              row.forEach (value, x) ->
-                iterator(value, Point(x, y), self)
+            items.forEach (item, n) ->
+              x = n % I.width
+              y = (n / I.width).floor()
+
+              iterator(item, Point(x, y), self)
 
             return self
 
-          expand: (x, y) ->
-            newRows = [0...y].map (y) ->
-              [0...width].map (x) ->
-                generateValue(x, y + height)
-
-            grid = grid.concat newRows
-
-            grid = grid.map (row, y) ->
-              row.concat [0...x].map (x) ->
-                generateValue(width + x, y)
-
-            height = y + height
-            width = x + width
-
-            return self
-
-Return a 1-dimensional array of the data within the grid.
-
-          toArray: ->
-            grid.reduce (a, b) ->
-              a.concat(b)
-            , []
+          toJSON: ->
+            I
 
         return self

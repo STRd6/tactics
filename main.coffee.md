@@ -11,9 +11,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     Canvas = require "touch-canvas"
     Action = require "./action"
-    Resource = require "./resource"
     Map = require "./map"
-    CharacterUI = require "./character_ui"
 
     {Grid, Size} = require "./lib/util"
     Geom = require "./lib/geom"
@@ -21,8 +19,6 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     {width, height} = require("./pixie")
 
     tileExtent = Size 32, 18
-
-    global.allSprites = Object.keys(require("./images")).map Resource.sprite
 
     bgColor = "#222034"
 
@@ -39,7 +35,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     ui =
       messages: Observable [
-        "Hello\n"
+        "Welcome to the arena!\n"
       ]
       actions: Observable [
         Action
@@ -84,7 +80,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       t += 0.3333333
 
       map?.render(canvas, t)
-      updateUiCanvas()
+      map?.renderUI(uiCanvas, t)
     , 33.3333333
 
     uiCanvas = Canvas
@@ -104,21 +100,5 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           update()
       else
         map?.touch tilePosition
-
-    gridSprite = Resource.sprite("grid_blue")
-
-    updateUiCanvas = ->
-      uiCanvas.clear()
-
-      if map
-        map.visibleCharacters().forEach (duder) ->
-          if duder is activeCharacter()
-            CharacterUI.activeTactical(uiCanvas, duder)
-          else if duder.alive()
-            CharacterUI.tactical(uiCanvas, duder)
-
-        if accessiblePositions
-          accessiblePositions.forEach (position) ->
-            gridSprite.draw uiCanvas, position.scale(32)
 
     $(".ui").prepend uiCanvas.element()

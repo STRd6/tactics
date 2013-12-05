@@ -4,9 +4,11 @@ Map
 The primary tactical combat screen.
 
     Ability = require "./ability"
+    Compositions = require "./lib/compositions"
+    Feature = require "./feature"
     Graph = require "./graph"
-    MapGenerator = require "./map_generator"
     MapSearch = require "./map_search"
+    MapTiles = require "./map_tiles"
     Squad = require "./squad"
 
     {
@@ -14,62 +16,70 @@ The primary tactical combat screen.
     } = require "./array_helpers"
 
     module.exports = (I={}, self) ->
+      Object.defaults I,
+        currentTurn: 0
+        features: []
+        squads: [{
+          # TODO
+        }, {
+          race: "goblin"
+        }]
+        height: 18
+        width: 32
+
       self ?= Core(I)
 
-      I.currentTurn = 0
+      self.attrAccessor "width", "height"
 
-      grid = MapGenerator.generate
-        width: 32
-        height: 18
+      self.extend
+        tileCount: ->
+          I.width * I.height
 
-      tileAt = grid.get
+      self.include Compositions
+      
+      self.include MapTiles
 
-      # TODO: Add trap detection
-      # TODO: Keep track of seen features as well as seen tiles
-      viewTiles = (positions, index) ->
-        positions.map(tileAt).forEach (tile) ->
-          tile?.view index
+      self.attrModels "squads", Squad
 
-      updateVisibleTiles = ->
-        grid.each (tile) ->
-          tile.resetLit()
+      self.attrModels "features", Feature
+      # TODO: Temporary hack to add bushes and walls
+      if self.features().length is 0
+        self.tileCount().times (i) ->
+          position = Point(i % 32, Math.floor(i / 32))
+          if rand() < 0.1
+            self.features.push Feature.Wall(position)
+          else if rand() < 0.25
+            self.features.push Feature.Bush(position)
 
-        squads.forEach (squad, i) ->
-          squad.characters().filter (character) ->
-            character.alive()
-          .forEach (duder) ->
-            # Magical vision
-            viewTiles duder.magicalVision(), i
+      self.attrObservable "currentTurn"
 
-            # Physical sensing
-            viewTiles search.adjacent(duder.position()), i
+      activeSquad = Observable ->
+        self.squads().wrap(self.currentTurn())
 
-            # Normal Sight
-            viewTiles search.visible(duder.position(), duder.sight()), i
+      featuresAt = (position) ->
+        self.features().filter (feature) ->
+          feature.position().equal(position)
 
-      squads = [
-        Squad()
-        Squad
-          race: "goblin"
-          x: 30
-      ]
+      # TODO: Think about chunking features in a quad tree or something
 
-      activeSquad = Observable squads.first()
+      # TODO: Inculde character as an optional parameter
+      impassable = (position) ->
+        featuresAt(position).some (feature) ->
+          feature.impassable()
 
-      nextActivatableSquad = ->
-        squads.filter (squad) ->
-          squad.activeCharacter()
-        .first()
+      # TODO: Include character as an optional parameter
+      opaque = (position) ->
+        featuresAt(position).some (feature) ->
+          feature.opaque()
 
       characterPassable = (character) ->
         (position) ->
-          if tile = tileAt(position)
-            if occupant = characterAt(position)
-              occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)
-            else
-              occupantPassable = true
+          if occupant = characterAt(position)
+            occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)
+          else
+            occupantPassable = true
 
-            !tile.impassable() and tile.lit(self.activeSquadIndex()) and occupantPassable
+          !impassable(position) and self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -80,47 +90,54 @@ The primary tactical combat screen.
           character.alive() and (position.x is x and position.y is y)
         .first()
 
-      search = MapSearch(grid.get, characterAt)
+      search = MapSearch()
 
       effectStack = []
       featuresToAdd = []
 
-      Object.extend self,
+      self.include require("./map_serialization")
+
+      self.include require "finder"
+      oldFind = self.find
+      typeMatcher = (type, object) ->
+        object.type() is type
+      self.find = (selector) ->
+        results = oldFind(self.features(), selector, typeMatcher)
+
+        results.within = (position, radius) ->
+          results.filter (result) ->
+            Point.distance(result.position(), position) <= radius
+
+        return results
+
+      self.extend
         messages: Observable []
+
         activeSquadIndex: ->
-          squads.indexOf activeSquad()
+          # NOTE: Assumes squad length never changes
+          self.currentTurn() % I.squads.length
 
         characters: Observable ->
-          squads.map (squad) ->
+          self.squads().map (squad) ->
             squad.characters()
           .flatten()
 
         characterAt: characterAt
 
-        eachTile: grid.each
+        eachTile: self.tiles().each
+
+        opaque: opaque
 
         visibleCharacters: ->
-          index = self.activeSquadIndex()
           self.characters().filter (character) ->
-            tileAt(character.position()).lit(index)
+            self.isLit(character.position())
 
         activeCharacter: Observable ->
           # Dependencies for observable
-          squads.forEach (squad) ->
+          self.squads().forEach (squad) ->
             squad.activeCharacter()
 
           activeSquad()?.activeCharacter()
-
-        updateFeatures: ->
-          grid.each (tile, position) ->
-            tile.updateFeatures
-              addEffect: self.addEffect
-              characterAt: characterAt
-              message: self.message
-              tileAt: tileAt
-              position: position
-              turn: I.currentTurn
-              addFeature: self.addFeature
 
         targettingAbility: ->
           if character = self.activeCharacter()
@@ -145,7 +162,7 @@ The primary tactical combat screen.
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
-                visiblePositions = search.visible(character.position(), character.sight())
+                visiblePositions = search.visible(character.position(), character.sight(), opaque)
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
@@ -154,7 +171,7 @@ The primary tactical combat screen.
                 )
 
         stateBasedActions: ->
-          squads.forEach (squad) ->
+          self.squads().forEach (squad) ->
             squad.stateBasedActions
               addEffect: self.addEffect
 
@@ -163,33 +180,31 @@ The primary tactical combat screen.
             self.performEffect effectStack.pop()
 
           while featuresToAdd.length
-            [feature, position] = featuresToAdd.pop()
+            feature = featuresToAdd.pop()
 
-            tileAt(position)?.features.push(feature)
+            self.features.push feature
 
-          # TODO: May be able to consolidate these into the stack resolution
-          activeSquad nextActivatableSquad()
-
-          updateVisibleTiles()
+          # TODO: May not want to do this ALL the time
+          self.updateVisibleTiles()
 
           unless self.activeCharacter()
-            # End of Round
+            # End of turn
             self.ready()
 
         ready: ->
-          I.currentTurn += 1
+          self.currentTurn(self.currentTurn() + 1)
           self.updateFeatures()
 
-          # Refresh all squads
-          squads.forEach (squad) ->
-            squad.ready()
+          # Refresh newly active squad
+          activeSquad().ready()
 
-          activeSquad nextActivatableSquad()
-
-          if activeSquad()
+          if self.activeCharacter()
             self.stateBasedActions()
           else
-            ;# No survivors
+            # TODO: This squad is wiped out, pop up win condition though we may
+            # want to check as SBAs rather than just on ready event
+
+        search: search
 
         message: (message) ->
           self.messages.push message + "\n"
@@ -197,28 +212,43 @@ The primary tactical combat screen.
         addEffect: (effect) ->
           effectStack.push effect
 
-        addFeature: (feature, position) ->
-          feature.I.createdAt = I.currentTurn
-          featuresToAdd.push([feature, position])
+        addFeature: (feature) ->
+          feature.createdAt(I.currentTurn)
+          featuresToAdd.push(feature)
+
+        updateFeatures: ->
+          # Updating and filtering features to only the active features
+          self.features self.features().filter (feature) ->
+            feature.update
+              addEffect: self.addEffect
+              addFeature: self.addFeature
+              characterAt: characterAt
+              find: self.find
+              message: self.message
+              turn: I.currentTurn / I.squads.length
 
         performAbility: (owner, ability, targetPosition) ->
           ability.perform
-            owner: owner
             addEffect: self.addEffect
-            character: characterAt targetPosition
-            message: self.message
-            position: targetPosition
             addFeature: self.addFeature
+            character: characterAt targetPosition
+            characterAt: characterAt
+            find: self.find
+            impassable: impassable
+            message: self.message
+            owner: owner
+            position: targetPosition
 
           self.stateBasedActions()
 
         performEffect: (effect) ->
           effect.perform
             addEffect: self.addEffect
-            characterAt: characterAt
-            message: self.message
-            tileAt: tileAt
             addFeature: self.addFeature
+            characterAt: characterAt
+            impassable: impassable
+            find: self.find
+            message: self.message
 
           self.stateBasedActions()
 
@@ -247,11 +277,11 @@ The primary tactical combat screen.
             index = self.activeSquadIndex()
             # TODO: Maybe this should be done as SBAs
             path.forEach (position) ->
-              viewTiles search.visible(character.position(), character.sight()), index
+              self.viewTiles search.visible(character.position(), character.sight(), opaque), index
 
             self.performAbility(character, self.targettingAbility(), position)
 
-      updateVisibleTiles()
+      self.updateVisibleTiles()
 
       self.include require("./map_rendering")
 

@@ -44,7 +44,7 @@ be reached immediately from the given position.
 The passed in `get` function returns the tile for a given position so that we
 may query its properties and figure out what to do.
 
-    neighborsVisible = (position, getTile, getEntities, passable) ->
+    neighborsVisible = (position, passable) ->
       # TODO: Add diagonals if both edges are passable
       cardinalDirections.map (direction) ->
         position.add(direction)
@@ -56,16 +56,11 @@ may query its properties and figure out what to do.
       directionsWithCosts.map ([direction, cost]) ->
         [position.add(direction), cost]
 
-    strategy = (pattern, getTile, getEntities, index) ->
+    strategy = (pattern, passable) ->
       (position) ->
-        pattern(position, getTile, getEntities, index)
+        pattern(position, passable)
 
-    # TODO: Calculate based on character abilities
-    # TODO: Probably pass this in just like passable method
-    opaque = (tile) ->
-      tile.opaque()
-
-    module.exports = (getTile, getEntities) ->
+    module.exports = ->
 
 Returns a list of all positions accessible to the duder by normal movement
 through tiles.
@@ -73,7 +68,7 @@ through tiles.
       accessible: (position, range, passable) ->
         Graph.accessible
           initial: position
-          neighbors: strategy neighborsVisible, getTile, getEntities, passable
+          neighbors: strategy neighborsVisible, passable
           distanceMax: range
 
       adjacent: (position, range=sqrt(2)) ->
@@ -82,14 +77,14 @@ through tiles.
           neighbors: adjacentPositions
           distanceMax: range
 
-      visible: (position, range=1) ->
-        FOV.calculate(getTile, opaque, position, range)
+      visible: (position, range=1, opaque) ->
+        FOV.calculate(opaque, position, range)
 
       movementPath: (position, target, passable) ->
         Graph.aStar
           initial: position
           goal: target
-          neighbors: strategy neighborsVisible, getTile, getEntities, passable
+          neighbors: strategy neighborsVisible, passable
           heuristic: (a, b) ->
             {x, y} = b.subtract(a).abs()
 

@@ -55,7 +55,7 @@ Those little guys that run around.
         "sight"
         "strength"
       )
-      
+
       self.include Drawable
 
       Object.extend self,
