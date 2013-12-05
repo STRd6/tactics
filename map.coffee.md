@@ -40,8 +40,6 @@ The primary tactical combat screen.
       self.include Compositions
       
       self.include MapTiles
-      # TODO: Remove this
-      tileAt = self.tileAt
 
       self.attrModels "squads", Squad
 
@@ -70,13 +68,12 @@ The primary tactical combat screen.
 
       characterPassable = (character) ->
         (position) ->
-          if tile = tileAt(position)
-            if occupant = characterAt(position)
-              occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)
-            else
-              occupantPassable = true
+          if occupant = characterAt(position)
+            occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)
+          else
+            occupantPassable = true
 
-            !impassable(position) and self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) and occupantPassable
+          !impassable(position) and self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?

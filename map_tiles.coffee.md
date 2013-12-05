@@ -2,24 +2,25 @@ Map Tiles
 =========
 
     BitArray = require "bit_array"
-    MapTile = require "./map_tile"
+    ByteArray = require "byte_array"
     {Grid} = require "./lib/util"
+    Resource = require "./resource"
 
     mapWidth = 32
     mapHeight = 18
     numberOfTiles = mapWidth * mapHeight
 
+    tileset = [
+      "ground0"
+    ].map (name) ->
+      Resource.sprite(name)
+
 Methods for interacting with tiles witin the map.
 
     module.exports = (I={}, self=Core(I)) ->
       Object.defaults I,
-        tiles:
-          width: self.width()
-          height: self.height()
-          # TODO: Make this into bit/byte arrays
-          data: [0... 32 * 18].map ->
-            {}
-        lit: [ 
+        tiles: self.tileCount()
+        lit: [
           # TODO: Handle arbitrary number of squads
           # TODO: Maybe store these with the squad data itself?
           self.tileCount()
@@ -30,8 +31,7 @@ Methods for interacting with tiles witin the map.
           self.tileCount()
         ]
 
-      I.tiles.constructor = MapTile
-      self.attrModel "tiles", Grid
+      self.attrModel "tiles", ByteArray
 
       self.attrModels "lit", BitArray
       self.attrModels "seen", BitArray
@@ -52,7 +52,12 @@ Methods for interacting with tiles witin the map.
 
         isSeen: bitArrayLookup(self.seen)
 
-        tileAt: self.tiles().get
+        tileAt: (x, y) ->
+          if x.x?
+            {x, y} = x
+
+          if boundsCheck(x, y)
+            tileset[self.tiles().get(x + y * self.width())]
 
         # TODO: Add trap detection
         viewTiles: (positions, index) ->
