@@ -43,10 +43,8 @@ mapWidth = <span class="number">32</span>
 mapHeight = <span class="number">18</span>
 numberOfTiles = mapWidth * mapHeight
 
-tileset = [
-  <span class="string">"ground0"</span>
-].map (name) -&gt;
-  Resource.sprite(name)</code></pre>
+tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n) -&gt;
+  Resource.sprite(<span class="string">"ground<span class="subst">#{n}</span>"</span>)</code></pre>
 </div>
         </li>
         
@@ -74,6 +72,9 @@ tileset = [
     ]
 
   self.attrModel <span class="string">"tiles"</span>, ByteArray
+  <span class="comment"># TODO: Build variations into tileset</span>
+  [<span class="number">0.</span>..self.tileCount()].forEach (i) -&gt;
+    self.tiles().set(i, rand(<span class="number">8</span>))
 
   self.attrModels <span class="string">"lit"</span>, BitArray
   self.attrModels <span class="string">"seen"</span>, BitArray
@@ -94,12 +95,15 @@ tileset = [
 
     isSeen: bitArrayLookup(self.seen)
 
+    tileset: -&gt;
+      tileset
+
     tileAt: (x, y) -&gt;
       <span class="keyword">if</span> x.x?
         {x, y} = x
 
       <span class="keyword">if</span> boundsCheck(x, y)
-        tileset[self.tiles().get(x + y * self.width())]
+        self.tileset()[self.tiles().get(x + y * self.width())]
 
     <span class="comment"># TODO: Add trap detection</span>
     viewTiles: (positions, index) -&gt;

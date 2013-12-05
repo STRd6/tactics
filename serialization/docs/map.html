@@ -50,9 +50,7 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
-    features: [
-      Feature.Wall({x: <span class="number">5</span>, y: <span class="number">10</span>}).I
-    ]
+    features: []
     squads: [{
       <span class="comment"># TODO</span>
     }, {
@@ -76,6 +74,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.attrModels <span class="string">"squads"</span>, Squad
 
   self.attrModels <span class="string">"features"</span>, Feature
+  <span class="comment"># TODO: Temporary hack to add bushes and walls</span>
+  self.tileCount().times (i) -&gt;
+    position = Point(i % <span class="number">32</span>, Math.floor(i / <span class="number">32</span>))
+    <span class="keyword">if</span> rand() &lt; <span class="number">0.1</span>
+      self.features.push Feature.Wall(position)
+    <span class="keyword">else</span> <span class="keyword">if</span> rand() &lt; <span class="number">0.25</span>
+      self.features.push Feature.Bush(position)
 
   self.attrObservable <span class="string">"currentTurn"</span>
 

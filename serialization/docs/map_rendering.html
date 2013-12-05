@@ -56,9 +56,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   <span class="function"><span class="title">drawFeatures</span></span> = (canvas, under) -&gt;
     self.features().forEach (feature) -&gt;
-      zIndex = feature.zIndex()
-      <span class="keyword">if</span> (under <span class="keyword">and</span> zIndex &lt;= <span class="number">0</span>) <span class="keyword">or</span> (!under <span class="keyword">and</span> zIndex &gt; <span class="number">0</span>)
-        feature.draw canvas, feature.position().scale(tileSize)
+      position = feature.position()
+
+      <span class="keyword">if</span> self.isSeen(position)
+        zIndex = feature.zIndex()
+        <span class="keyword">if</span> (under <span class="keyword">and</span> zIndex &lt;= <span class="number">0</span>) <span class="keyword">or</span> (!under <span class="keyword">and</span> zIndex &gt; <span class="number">0</span>)
+          feature.draw canvas, position.scale(tileSize)
 
   <span class="function"><span class="title">drawCharacters</span></span> = (canvas, t) -&gt;
     lit = self.lit.get(self.activeSquadIndex())
