@@ -3,6 +3,8 @@ TODO
 
 Tactical
 --------
+Quadtree for map features
+
 Display Squad Overview, Click to Activate and Center
 
 Handle winning and losing
