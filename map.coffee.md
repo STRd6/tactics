@@ -43,12 +43,13 @@ The primary tactical combat screen.
 
       self.attrModels "features", Feature
       # TODO: Temporary hack to add bushes and walls
-      self.tileCount().times (i) ->
-        position = Point(i % 32, Math.floor(i / 32))
-        if rand() < 0.1
-          self.features.push Feature.Wall(position)
-        else if rand() < 0.25
-          self.features.push Feature.Bush(position)
+      if self.features().length is 0
+        self.tileCount().times (i) ->
+          position = Point(i % 32, Math.floor(i / 32))
+          if rand() < 0.1
+            self.features.push Feature.Wall(position)
+          else if rand() < 0.25
+            self.features.push Feature.Bush(position)
 
       self.attrObservable "currentTurn"
 

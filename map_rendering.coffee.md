@@ -34,12 +34,13 @@ Drawing the map data on the screen.
       drawCharacters = (canvas, t) ->
         lit = self.lit.get(self.activeSquadIndex())
         self.characters().forEach (character) ->
-          {x, y} = position = character.position()
-
-          if lit.get(x + y * self.width())
-            canvasPosition = character.position().scale(tileSize)
+          if character.alive()
+            {x, y} = position = character.position()
   
-            character.sprite().draw(canvas, canvasPosition)
+            if lit.get(x + y * self.width())
+              canvasPosition = character.position().scale(tileSize)
+    
+              character.sprite().draw(canvas, canvasPosition)
 
       drawFog = (canvas) ->
         [0...(self.width() * self.height())].forEach (i) ->
@@ -74,7 +75,7 @@ Drawing the map data on the screen.
           self.visibleCharacters().forEach (character) ->
             if character is self.activeCharacter()
               CharacterUI.activeTactical(canvas, character)
-            else
+            else if character.alive()
               CharacterUI.tactical(canvas, character)
 
           self.accessiblePositions()?.forEach (position) ->
