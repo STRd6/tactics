@@ -35,12 +35,18 @@
               
             </div>
             <div class="content"><pre><code class="lang-coffeescript">BitArray = require <span class="string">"bit_array"</span>
-MapTile = require <span class="string">"./map_tile"</span>
+ByteArray = require <span class="string">"byte_array"</span>
 {Grid} = require <span class="string">"./lib/util"</span>
+Resource = require <span class="string">"./resource"</span>
 
 mapWidth = <span class="number">32</span>
 mapHeight = <span class="number">18</span>
-numberOfTiles = mapWidth * mapHeight</code></pre>
+numberOfTiles = mapWidth * mapHeight
+
+tileset = [
+  <span class="string">"ground0"</span>
+].map (name) -&gt;
+  Resource.sprite(name)</code></pre>
 </div>
         </li>
         
@@ -55,13 +61,8 @@ numberOfTiles = mapWidth * mapHeight</code></pre>
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
-    tiles:
-      width: self.width()
-      height: self.height()
-      <span class="comment"># TODO: Make this into bit/byte arrays</span>
-      data: [<span class="number">0.</span>.. <span class="number">32</span> * <span class="number">18</span>].map -&gt;
-        {}
-    lit: [ 
+    tiles: self.tileCount()
+    lit: [
       <span class="comment"># TODO: Handle arbitrary number of squads</span>
       <span class="comment"># TODO: Maybe store these with the squad data itself?</span>
       self.tileCount()
@@ -72,8 +73,7 @@ numberOfTiles = mapWidth * mapHeight</code></pre>
       self.tileCount()
     ]
 
-  I.tiles.constructor = MapTile
-  self.attrModel <span class="string">"tiles"</span>, Grid
+  self.attrModel <span class="string">"tiles"</span>, ByteArray
 
   self.attrModels <span class="string">"lit"</span>, BitArray
   self.attrModels <span class="string">"seen"</span>, BitArray
@@ -94,7 +94,12 @@ numberOfTiles = mapWidth * mapHeight</code></pre>
 
     isSeen: bitArrayLookup(self.seen)
 
-    tileAt: self.tiles().get
+    tileAt: (x, y) -&gt;
+      <span class="keyword">if</span> x.x?
+        {x, y} = x
+
+      <span class="keyword">if</span> boundsCheck(x, y)
+        tileset[self.tiles().get(x + y * self.width())]
 
     <span class="comment"># TODO: Add trap detection</span>
     viewTiles: (positions, index) -&gt;
