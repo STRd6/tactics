@@ -83,9 +83,7 @@ Effect.<span class="function"><span class="title">Death</span></span> = (positio
 
 Effect.<span class="function"><span class="title">ShrubSight</span></span> = (position, owner) -&gt;
   perform: ({find}) -&gt;
-    console.log <span class="string">"shrubbin"</span>
     find(<span class="string">"plant"</span>).within(position, <span class="number">13</span>).forEach (plant) -&gt;
-      console.log <span class="string">"plant"</span>, plant.position()
       owner.addMagicalVision(plant.position())</code></pre>
 </div>
         </li>
