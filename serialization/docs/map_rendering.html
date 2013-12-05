@@ -66,12 +66,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   <span class="function"><span class="title">drawCharacters</span></span> = (canvas, t) -&gt;
     lit = self.lit.get(self.activeSquadIndex())
     self.characters().forEach (character) -&gt;
-      {x, y} = position = character.position()
+      <span class="keyword">if</span> character.alive()
+        {x, y} = position = character.position()
 
-      <span class="keyword">if</span> lit.get(x + y * self.width())
-        canvasPosition = character.position().scale(tileSize)
+        <span class="keyword">if</span> lit.get(x + y * self.width())
+          canvasPosition = character.position().scale(tileSize)
 
-        character.sprite().draw(canvas, canvasPosition)
+          character.sprite().draw(canvas, canvasPosition)
 
   <span class="function"><span class="title">drawFog</span></span> = (canvas) -&gt;
     [<span class="number">0.</span>..(self.width() * self.height())].forEach (i) -&gt;
@@ -106,7 +107,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.visibleCharacters().forEach (character) -&gt;
         <span class="keyword">if</span> character <span class="keyword">is</span> self.activeCharacter()
           CharacterUI.activeTactical(canvas, character)
-        <span class="keyword">else</span>
+        <span class="keyword">else</span> <span class="keyword">if</span> character.alive()
           CharacterUI.tactical(canvas, character)
 
       self.accessiblePositions()?.forEach (position) -&gt;
