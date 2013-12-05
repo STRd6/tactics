@@ -99,16 +99,14 @@ The primary tactical combat screen.
 
       self.include require "finder"
       oldFind = self.find
+      typeMatcher = (type, object) ->
+        object.type() is type
       self.find = (selector) ->
-        results = oldFind(self.features(), selector)
-        
-        # TODO: Hacks!
+        results = oldFind(self.features(), selector, typeMatcher)
+
         results.within = (position, radius) ->
-          newResults = results.filter (result) ->
-            radius <= Point.distance(result.position(), position())
-          
-          newResults.within = results.within
-          results = newResults
+          results.filter (result) ->
+            Point.distance(result.position(), position) <= radius
 
         return results
 
@@ -235,6 +233,7 @@ The primary tactical combat screen.
             addFeature: self.addFeature
             character: characterAt targetPosition
             characterAt: characterAt
+            find: self.find
             impassable: impassable
             message: self.message
             owner: owner
@@ -248,6 +247,7 @@ The primary tactical combat screen.
             addFeature: self.addFeature
             characterAt: characterAt
             impassable: impassable
+            find: self.find
             message: self.message
 
           self.stateBasedActions()

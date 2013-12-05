@@ -10,7 +10,7 @@ dependencies:
   appcache: "distri/appcache:v0.2.0"
   bit_array: "distri/bit_array:v0.1.0"
   byte_array: "distri/byte_array:v0.1.1"
-  finder: "distri/finder:v0.1.1"
+  finder: "distri/finder:v0.1.2"
   priority_queue: "STRd6/priority_queue:v2.0.0"
   runtime: "STRd6/runtime:v0.2.0"
   sprite: "distri/sprite:v0.2.0"
