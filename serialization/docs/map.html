@@ -131,16 +131,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.include require <span class="string">"finder"</span>
   oldFind = self.find
+  <span class="function"><span class="title">typeMatcher</span></span> = (type, object) -&gt;
+    object.type() <span class="keyword">is</span> type
   self.<span class="function"><span class="title">find</span></span> = (selector) -&gt;
-    results = oldFind(self.features(), selector)
+    results = oldFind(self.features(), selector, typeMatcher)
 
-    <span class="comment"># TODO: Hacks!</span>
     results.<span class="function"><span class="title">within</span></span> = (position, radius) -&gt;
-      newResults = results.filter (result) -&gt;
-        radius &lt;= Point.distance(result.position(), position())
-
-      newResults.within = results.within
-      results = newResults
+      results.filter (result) -&gt;
+        Point.distance(result.position(), position) &lt;= radius
 
     <span class="keyword">return</span> results
 
@@ -267,6 +265,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         addFeature: self.addFeature
         character: characterAt targetPosition
         characterAt: characterAt
+        find: self.find
         impassable: impassable
         message: self.message
         owner: owner
@@ -280,6 +279,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         addFeature: self.addFeature
         characterAt: characterAt
         impassable: impassable
+        find: self.find
         message: self.message
 
       self.stateBasedActions()
