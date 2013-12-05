@@ -41,7 +41,5 @@ electricity, I don't know yet.
 
     Effect.ShrubSight = (position, owner) ->
       perform: ({find}) ->
-        console.log "shrubbin"
         find("plant").within(position, 13).forEach (plant) ->
-          console.log "plant", plant.position()
           owner.addMagicalVision(plant.position())
