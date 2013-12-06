@@ -17,10 +17,43 @@ excessive.
     Sprite = require "sprite"
     images = require "./images"
 
+    spriteCache = {}
+
+    nullImage = new Image
+
+    sourceIndex = 0
+
     Resource =
       dataURL: (name) ->
         images[name]
       sprite: (name) ->
-        Sprite.load images[name]
+        return spriteCache[name] if spriteCache[name]
+
+        if images[name]
+          spriteCache[name] = Sprite.load images[name]
+        else
+          spriteCache[name] = Sprite nullImage
+
+      addSource: (gistId) ->
+        do (index=sourceIndex) ->
+          sourceIndex += 1
+          $.ajax
+            url: "https://api.github.com/gists/#{gistId}"
+            type: "GET"
+            dataType: "jsonp"
+          .success ({data, meta}) ->
+            console.log meta
+
+            remoteImages = JSON.parse data.files["images.json"].content
+
+            Object.keys(remoteImages).forEach (name) ->
+              unless spriteCache[name]?.index > index
+                Sprite.load remoteImages[name], (sprite) ->
+                  if spriteCache[name]
+                    Object.extend spriteCache[name], sprite
+                  else
+                    spriteCache[name] = sprite
+
+                  spriteCache[name].index = index
 
     module.exports = Resource
