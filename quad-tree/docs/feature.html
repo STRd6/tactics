@@ -69,13 +69,18 @@ module.exports = <span class="function"><span class="title">Feature</span></span
         I.destroyed = <span class="literal">true</span>
 
     update: (params) -&gt;
+      <span class="comment"># TODO: Allow for variable number of squads</span>
+      numSquads = <span class="number">2</span>
       {turn} = params
 
       params.position = self.position()
 
       delta = turn - I.createdAt
 
-      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % <span class="number">1</span> <span class="keyword">is</span> <span class="number">0</span>)
+      <span class="keyword">if</span> I.spriteName <span class="keyword">is</span> <span class="string">"ogre"</span>
+        console.log delta
+
+      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % numSquads <span class="keyword">is</span> <span class="number">0</span>)
         I.update?(params)
 
         <span class="keyword">if</span> I.duration?

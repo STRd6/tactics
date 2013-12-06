@@ -107,14 +107,20 @@ QuadTree = require <span class="string">"quadtree"</span></code></pre>
 
     updateFeatures: -&gt;
       <span class="comment"># Updating and filtering features to only the active features</span>
+      <span class="comment"># TODO: Scrap quadtree when removing features</span>
       self.features self.features().filter (feature) -&gt;
-        feature.update
+        kept = feature.update
           addEffect: self.addEffect
           addFeature: self.addFeature
-          characterAt: characterAt
+          characterAt: self.characterAt
           find: self.find
           message: self.message
-          turn: I.currentTurn / I.squads.length
+          turn: I.currentTurn
+
+        <span class="keyword">if</span> !kept
+          quadTree = <span class="literal">null</span>
+
+        kept
 
   <span class="keyword">return</span> self</code></pre>
 </div>
