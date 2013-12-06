@@ -46,6 +46,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   Object.defaults I,
     abilities: [
+      <span class="string">"Move"</span>
       <span class="string">"Melee"</span>
     ]
     actions: <span class="number">2</span>
@@ -61,8 +62,9 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     magicalVision: []
 
   self.attrAccessor(
-    <span class="string">"alive"</span>
+    <span class="string">"abilities"</span>
     <span class="string">"actions"</span>
+    <span class="string">"alive"</span>
     <span class="string">"health"</span>
     <span class="string">"healthMax"</span>
     <span class="string">"magicalVision"</span>
@@ -152,11 +154,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>
           I.cooldowns[name] = <span class="number">0</span>
 
-      <span class="comment"># Reset action statuses</span>
-      actions.forEach (action) -&gt;
-        action.disabled !action.ability.canPay(self)
+      <span class="keyword">return</span>
 
     targettingAbility: Observable()
+    resetTargetting: -&gt;
+      self.targettingAbility <span class="literal">null</span>
 
     updatePosition: (newPosition) -&gt;
       self.position newPosition</code></pre>
@@ -185,31 +187,6 @@ any status effects.</p>
         effect.duration -= <span class="number">1</span>
 
       I.actions = <span class="number">2</span>
-
-  abilities = I.abilities.concat(<span class="string">"Move"</span>, <span class="string">"Wait"</span>, <span class="string">"Cancel"</span>).map (name) -&gt;
-    Ability.Abilities[name]
-
-  actions = abilities.map (ability) -&gt;
-    action = Action
-      name: ability.name()
-      icon: ability.iconName()
-      perform: -&gt;
-        self.targettingAbility(ability)
-
-    <span class="comment"># TODO: Mayb be a cleaner way to do this</span>
-    <span class="comment"># but it's needed for updating enabled/disabled status</span>
-    action.ability = ability
-
-    action.active = Observable -&gt;
-      ability <span class="keyword">is</span> self.targettingAbility()
-
-    <span class="keyword">return</span> action
-
-  self.<span class="function"><span class="title">uiActions</span></span> = -&gt;
-    actions
-
-  self.<span class="function"><span class="title">resetTargetting</span></span> = -&gt;
-    self.targettingAbility <span class="literal">null</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

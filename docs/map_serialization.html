@@ -37,7 +37,10 @@
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   self.extend
     toJSON: -&gt;
-      I</code></pre>
+      Object.extend {}, I,
+        seen: self.seen().map (seen) -&gt; seen.toJSON()
+        lit: self.lit().map (lit) -&gt; lit.toJSON()
+        tiles: self.tiles().toJSON()</code></pre>
 </div>
         </li>
         

@@ -35,7 +35,9 @@
               <p>Methods for drawing components of the character ui.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"./resource"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Action = require <span class="string">"./action"</span>
+Ability = require <span class="string">"./ability"</span>
+Resource = require <span class="string">"./resource"</span>
 {Size} = require <span class="string">"./lib/util"</span>
 
 tileSize = Size(<span class="number">32</span>, <span class="number">32</span>)
@@ -94,7 +96,23 @@ module.exports = CharacterUI =</code></pre>
     canvasPosition = position.scale(tileSize)
 
     canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) -&gt;
-      drawHealth(canvas, character.health(), character.healthMax())</code></pre>
+      drawHealth(canvas, character.health(), character.healthMax())
+
+  actions: (character) -&gt;
+    character.abilities().map (abilityName) -&gt;
+      ability = Ability.Abilities[abilityName]
+
+      action = Action
+        name: ability.name()
+        icon: ability.iconName()
+        perform: -&gt;
+          character.targettingAbility(ability)
+
+      action.active = ability <span class="keyword">is</span> character.targettingAbility()
+
+      action.disabled = !ability.canPay(character)
+
+      <span class="keyword">return</span> action</code></pre>
 </div>
         </li>
         
