@@ -116,6 +116,7 @@ Feature.<span class="function"><span class="title">Fire</span></span> = (positio
     update: ({addFeature, characterAt, position, message, find}) -&gt;
       radius = Math.sqrt(<span class="number">2</span>)
 
+      <span class="comment"># TODO: Only have adding effects here, no finding features</span>
       find(<span class="string">"plant"</span>).within(position, radius).forEach (plant) -&gt;
         <span class="keyword">if</span> plant.destroy()
           addFeature(Feature.Fire(plant.position()))
