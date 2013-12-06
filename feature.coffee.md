@@ -84,6 +84,7 @@ Features are things that are present within tiles in the tactical combat view.
         update: ({addFeature, characterAt, position, message, find}) ->
           radius = Math.sqrt(2)
 
+          # TODO: Only have adding effects here, no finding features
           find("plant").within(position, radius).forEach (plant) ->
             if plant.destroy()
               addFeature(Feature.Fire(plant.position()))

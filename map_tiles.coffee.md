@@ -35,7 +35,7 @@ Methods for interacting with tiles witin the map.
 
       self.attrModels "lit", BitArray
       self.attrModels "seen", BitArray
-      
+
       boundsCheck = (x, y) ->
         (0 <= x < self.width()) and (0 <= y < self.height())
 
