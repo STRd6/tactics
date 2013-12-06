@@ -45,11 +45,44 @@ excessive.</p>
             <div class="content"><pre><code class="lang-coffeescript">Sprite = require <span class="string">"sprite"</span>
 images = require <span class="string">"./images"</span>
 
+spriteCache = {}
+
+nullImage = <span class="keyword">new</span> Image
+
+sourceIndex = <span class="number">0</span>
+
 Resource =
   dataURL: (name) -&gt;
     images[name]
   sprite: (name) -&gt;
-    Sprite.load images[name]
+    <span class="keyword">return</span> spriteCache[name] <span class="keyword">if</span> spriteCache[name]
+
+    <span class="keyword">if</span> images[name]
+      spriteCache[name] = Sprite.load images[name]
+    <span class="keyword">else</span>
+      spriteCache[name] = Sprite nullImage
+
+  addSource: (gistId) -&gt;
+    <span class="keyword">do</span> (index=sourceIndex) -&gt;
+      sourceIndex += <span class="number">1</span>
+      $.ajax
+        url: <span class="string">"https://api.github.com/gists/<span class="subst">#{gistId}</span>"</span>
+        type: <span class="string">"GET"</span>
+        dataType: <span class="string">"jsonp"</span>
+      .success ({data, meta}) -&gt;
+        console.log meta
+
+        remoteImages = JSON.parse data.files[<span class="string">"images.json"</span>].content
+
+        Object.keys(remoteImages).forEach (name) -&gt;
+          <span class="keyword">unless</span> spriteCache[name]?.index &gt; index
+            Sprite.load remoteImages[name], (sprite) -&gt;
+              <span class="keyword">if</span> spriteCache[name]
+                Object.extend spriteCache[name], sprite
+              <span class="keyword">else</span>
+                spriteCache[name] = sprite
+
+              spriteCache[name].index = index
 
 module.exports = Resource</code></pre>
 </div>
