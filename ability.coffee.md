@@ -158,6 +158,18 @@ Should there be range types too? Connected, any, passable, etc?
 
             message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
 
+      Farsight: Ability
+        name: "Farsight"
+        iconName: "farsight"
+        actionCost: 1
+        range: 16
+        targetZone: ANY
+        perform: ({message, owner, position}) ->
+          message "#{owner.name()}'s wizard eyes see all!"
+
+          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
+            owner.addMagicalVision(position)
+
       Melee: Ability
         name: "Attack"
         iconName: "sword"

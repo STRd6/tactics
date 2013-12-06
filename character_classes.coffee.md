@@ -29,6 +29,7 @@ Exploring various character classes here.
         spriteName: "wizard"
         abilities: [
           "Blink"
+          "Farsight"
           "Fireball"
           "Teleport"
         ]
