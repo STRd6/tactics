@@ -12,8 +12,8 @@
 
   .actions
     - each @actions, (action) ->
-      - activeClass = -> "active" if action.active()
-      - disabledClass = -> "disabled" if action.disabled()
+      - activeClass = -> "active" if action.active
+      - disabledClass = -> "disabled" if action.disabled
       .action(class=activeClass class=disabledClass style="background-image: url(#{action.icon})")
         .costs
           .container
@@ -22,6 +22,6 @@
               .cost
         = action.name
         - on "click", ->
-          - unless action.disabled()
+          - unless action.disabled
             - action.perform()
             - ui.actionPerformed()

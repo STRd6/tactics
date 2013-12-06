@@ -6,6 +6,7 @@ Exploring various character classes here.
     module.exports =
       ShrubMage:
         abilities: [
+          "Move"
           "Entanglement"
           "ShrubSight"
         ]
@@ -13,6 +14,7 @@ Exploring various character classes here.
 
       Grunt:
         abilities: [
+          "Move"
           "Melee"
           "Regeneration"
         ]
@@ -29,13 +31,13 @@ Exploring various character classes here.
         spriteName: "wizard"
         abilities: [
           "Blink"
-          "Farsight"
           "Fireball"
-          "Teleport"
+          "Farsight"
         ]
 
       Archer:
         abilities: [
+          "Move"
           "Ranged"
         ]
         spriteName: "elf_archer"

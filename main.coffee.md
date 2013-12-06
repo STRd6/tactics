@@ -10,6 +10,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     require "./setup"
 
     Canvas = require "touch-canvas"
+    CharacterUI = require "./character_ui"
     Action = require "./action"
     Map = require "./map"
     Resource = require "./resource"
@@ -33,7 +34,14 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     $("body").append canvas.element()
 
     global.map = map = null
-    activeCharacter = Observable()
+
+    # TODO: Add actions for between rounds
+    # TODO: Add conditional cancel action
+    updateActions = (character) ->
+      if character
+        ui.actions CharacterUI.actions(character)
+      else
+        ui.actions []
 
     ui =
       messages: Observable [
@@ -48,22 +56,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
             map.messages.observe (messages) ->
               ui.messages(messages.copy())
 
-            activeCharacter = map.activeCharacter
-            activeCharacter.observe (character) ->
-              if character
-                ui.actions character.uiActions()
-              else
-                ui.actions []
-
-            ui.actions activeCharacter().uiActions()
+            map.activeCharacter.observe updateActions
 
             update()
-
-        Action
-          name: "Tutorial"
-          icon: "book"
-          perform: ->
-            alert "Experience is the only teacher."
       ]
       actionPerformed: ->
         update()
@@ -75,6 +70,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     update = ->
       if map
         map.stateBasedActions()
+        updateActions(map.activeCharacter())
         accessiblePositions = map.accessiblePositions()
 
     t = 0
