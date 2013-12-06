@@ -69,13 +69,15 @@ module.exports = <span class="function"><span class="title">Feature</span></span
         I.destroyed = <span class="literal">true</span>
 
     update: (params) -&gt;
+      <span class="comment"># TODO: Allow for variable number of squads</span>
+      numSquads = <span class="number">2</span>
       {turn} = params
 
       params.position = self.position()
 
       delta = turn - I.createdAt
 
-      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % <span class="number">1</span> <span class="keyword">is</span> <span class="number">0</span>)
+      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % numSquads <span class="keyword">is</span> <span class="number">0</span>)
         I.update?(params)
 
         <span class="keyword">if</span> I.duration?
@@ -111,6 +113,7 @@ Feature.<span class="function"><span class="title">Fire</span></span> = (positio
     update: ({addFeature, characterAt, position, message, find}) -&gt;
       radius = Math.sqrt(<span class="number">2</span>)
 
+      <span class="comment"># TODO: Only have adding effects here, no finding features</span>
       find(<span class="string">"plant"</span>).within(position, radius).forEach (plant) -&gt;
         <span class="keyword">if</span> plant.destroy()
           addFeature(Feature.Fire(plant.position()))
