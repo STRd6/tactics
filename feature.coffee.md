@@ -37,13 +37,18 @@ Features are things that are present within tiles in the tactical combat view.
             I.destroyed = true
 
         update: (params) ->
+          # TODO: Allow for variable number of squads
+          numSquads = 2
           {turn} = params
 
           params.position = self.position()
 
           delta = turn - I.createdAt
 
-          if (delta > 0) and (delta % 1 is 0)
+          if I.spriteName is "ogre"
+            console.log delta
+
+          if (delta > 0) and (delta % numSquads is 0)
             I.update?(params)
 
             if I.duration?
@@ -79,6 +84,7 @@ Features are things that are present within tiles in the tactical combat view.
         update: ({addFeature, characterAt, position, message, find}) ->
           radius = Math.sqrt(2)
 
+          # TODO: Only have adding effects here, no finding features
           find("plant").within(position, radius).forEach (plant) ->
             if plant.destroy()
               addFeature(Feature.Fire(plant.position()))

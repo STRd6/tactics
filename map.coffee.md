@@ -5,8 +5,8 @@ The primary tactical combat screen.
 
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
-    Feature = require "./feature"
     Graph = require "./graph"
+    MapFeatures = require "./map_features"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
     Squad = require "./squad"
@@ -36,40 +36,25 @@ The primary tactical combat screen.
           I.width * I.height
 
       self.include Compositions
-      
+
       self.include MapTiles
+      self.include MapFeatures
 
       self.attrModels "squads", Squad
-
-      self.attrModels "features", Feature
-      # TODO: Temporary hack to add bushes and walls
-      if self.features().length is 0
-        self.tileCount().times (i) ->
-          position = Point(i % 32, Math.floor(i / 32))
-          if rand() < 0.1
-            self.features.push Feature.Wall(position)
-          else if rand() < 0.25
-            self.features.push Feature.Bush(position)
 
       self.attrObservable "currentTurn"
 
       activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
 
-      featuresAt = (position) ->
-        self.features().filter (feature) ->
-          feature.position().equal(position)
-
-      # TODO: Think about chunking features in a quad tree or something
-
       # TODO: Inculde character as an optional parameter
       impassable = (position) ->
-        featuresAt(position).some (feature) ->
+        self.featuresAt(position).some (feature) ->
           feature.impassable()
 
       # TODO: Include character as an optional parameter
       opaque = (position) ->
-        featuresAt(position).some (feature) ->
+        self.featuresAt(position).some (feature) ->
           feature.opaque()
 
       characterPassable = (character) ->
@@ -93,7 +78,6 @@ The primary tactical combat screen.
       search = MapSearch()
 
       effectStack = []
-      featuresToAdd = []
 
       self.include require("./map_serialization")
 
@@ -179,10 +163,7 @@ The primary tactical combat screen.
             # TODO: This could fall victim to infinite recursion
             self.performEffect effectStack.pop()
 
-          while featuresToAdd.length
-            feature = featuresToAdd.pop()
-
-            self.features.push feature
+          self.addNewFeatures()
 
           # TODO: May not want to do this ALL the time
           self.updateVisibleTiles()
@@ -211,21 +192,6 @@ The primary tactical combat screen.
 
         addEffect: (effect) ->
           effectStack.push effect
-
-        addFeature: (feature) ->
-          feature.createdAt(I.currentTurn)
-          featuresToAdd.push(feature)
-
-        updateFeatures: ->
-          # Updating and filtering features to only the active features
-          self.features self.features().filter (feature) ->
-            feature.update
-              addEffect: self.addEffect
-              addFeature: self.addFeature
-              characterAt: characterAt
-              find: self.find
-              message: self.message
-              turn: I.currentTurn / I.squads.length
 
         performAbility: (owner, ability, targetPosition) ->
           ability.perform
