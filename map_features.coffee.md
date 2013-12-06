@@ -65,13 +65,19 @@ Features are semi-permanent objects that exist at positions on the map.
 
         updateFeatures: ->
           # Updating and filtering features to only the active features
+          # TODO: Scrap quadtree when removing features
           self.features self.features().filter (feature) ->
-            feature.update
+            kept = feature.update
               addEffect: self.addEffect
               addFeature: self.addFeature
-              characterAt: characterAt
+              characterAt: self.characterAt
               find: self.find
               message: self.message
-              turn: I.currentTurn / I.squads.length
+              turn: I.currentTurn
+
+            if !kept
+              quadTree = null
+
+            kept
 
       return self
