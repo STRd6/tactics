@@ -12,6 +12,8 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Canvas = require "touch-canvas"
     Action = require "./action"
     Map = require "./map"
+    Resource = require "./resource"
+    Resource.addSource("7ffbdcf587f407dda0d6")
 
     {Grid, Size} = require "./lib/util"
     Geom = require "./lib/geom"
