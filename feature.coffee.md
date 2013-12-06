@@ -45,9 +45,6 @@ Features are things that are present within tiles in the tactical combat view.
 
           delta = turn - I.createdAt
 
-          if I.spriteName is "ogre"
-            console.log delta
-
           if (delta > 0) and (delta % numSquads is 0)
             I.update?(params)
 

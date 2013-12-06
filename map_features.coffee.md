@@ -25,7 +25,7 @@ Features are semi-permanent objects that exist at positions on the map.
       quadTree = null
 
       ensureQuadTree = ->
-        unless quadTree 
+        unless quadTree
           quadTree = QuadTree
             x: 0
             y: 0
