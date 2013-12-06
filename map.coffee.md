@@ -5,7 +5,6 @@ The primary tactical combat screen.
 
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
-    Graph = require "./graph"
     MapFeatures = require "./map_features"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
@@ -126,6 +125,8 @@ The primary tactical combat screen.
         targettingAbility: ->
           if character = self.activeCharacter()
             character.targettingAbility()
+
+TODO: Make this easier to control via an AI.
 
         accessiblePositions: ->
           character = self.activeCharacter()
