@@ -14,6 +14,7 @@ Those little guys that run around.
 
       Object.defaults I,
         abilities: [
+          "Move"
           "Melee"
         ]
         actions: 2
@@ -29,8 +30,9 @@ Those little guys that run around.
         magicalVision: []
 
       self.attrAccessor(
-        "alive"
+        "abilities"
         "actions"
+        "alive"
         "health"
         "healthMax"
         "magicalVision"
@@ -111,11 +113,11 @@ Sums up the modifications for an attribute from all the effects.
             if I.cooldowns[name] < 0
               I.cooldowns[name] = 0
 
-          # Reset action statuses
-          actions.forEach (action) ->
-            action.disabled !action.ability.canPay(self)
+          return
 
         targettingAbility: Observable()
+        resetTargetting: ->
+          self.targettingAbility null
 
         updatePosition: (newPosition) ->
           self.position newPosition
@@ -135,30 +137,5 @@ any status effects.
             effect.duration -= 1
 
           I.actions = 2
-
-      abilities = I.abilities.concat("Move", "Wait", "Cancel").map (name) ->
-        Ability.Abilities[name]
-
-      actions = abilities.map (ability) ->
-        action = Action
-          name: ability.name()
-          icon: ability.iconName()
-          perform: ->
-            self.targettingAbility(ability)
-
-        # TODO: Mayb be a cleaner way to do this
-        # but it's needed for updating enabled/disabled status
-        action.ability = ability
-
-        action.active = Observable ->
-          ability is self.targettingAbility()
-
-        return action
-
-      self.uiActions = ->
-        actions
-
-      self.resetTargetting = ->
-        self.targettingAbility null
 
       return self

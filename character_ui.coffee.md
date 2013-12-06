@@ -3,6 +3,8 @@ Character UI
 
 Methods for drawing components of the character ui.
 
+    Action = require "./action"
+    Ability = require "./ability"
     Resource = require "./resource"
     {Size} = require "./lib/util"
 
@@ -45,3 +47,19 @@ Draw the tactical overlay, status, health, max health.
 
         canvas.withTransform Matrix.translation(canvasPosition.x, canvasPosition.y), (canvas) ->
           drawHealth(canvas, character.health(), character.healthMax())
+
+      actions: (character) ->
+        character.abilities().map (abilityName) ->
+          ability = Ability.Abilities[abilityName]
+
+          action = Action
+            name: ability.name()
+            icon: ability.iconName()
+            perform: ->
+              character.targettingAbility(ability)
+
+          action.active = ability is character.targettingAbility()
+
+          action.disabled = !ability.canPay(character)
+
+          return action
