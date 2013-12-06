@@ -35,7 +35,7 @@ Some cool abilities that should be in the game
   - Debuffs
 
     {sqrt} = Math
-    {binomial} = require "./random"
+    {binomial} = require "random"
     Search = require "./map_search"
     Effect = require "./effect"
     Feature = require "./feature"
