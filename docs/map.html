@@ -37,7 +37,6 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Compositions = require <span class="string">"./lib/compositions"</span>
-Graph = require <span class="string">"./graph"</span>
 MapFeatures = require <span class="string">"./map_features"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 MapTiles = require <span class="string">"./map_tiles"</span>
@@ -157,9 +156,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     targettingAbility: -&gt;
       <span class="keyword">if</span> character = self.activeCharacter()
-        character.targettingAbility()
+        character.targettingAbility()</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>TODO: Make this easier to control via an AI.</p>
 
-    accessiblePositions: -&gt;
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    accessiblePositions: -&gt;
       character = self.activeCharacter()
 
       <span class="keyword">if</span> ability = self.targettingAbility()
