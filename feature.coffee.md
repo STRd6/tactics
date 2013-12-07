@@ -12,10 +12,13 @@ Features are things that are present within tiles in the tactical combat view.
         createdAt: 0
         destroyed: false
         impassable: false
+        incorporeal: false
+        invisible: false
         movementPenalty: 0
         opaque: false
         type: Type.Dirt
         zIndex: -1
+        seen: []
 
       self.attrAccessor(
         "createdAt"
@@ -35,6 +38,13 @@ Features are things that are present within tiles in the tactical combat view.
         destroy: ->
           if !I.destroyed
             I.destroyed = true
+
+        view: (index, types) ->
+          if types.magic or (!I.invisible and types.sight) or (!I.incorporeal && types.physical)
+            I.seen[index] = true
+
+        seen: (index) ->
+          I.seen[index]
 
         enter: (params) ->
           I.enter?.call(I, params)

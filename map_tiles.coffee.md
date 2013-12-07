@@ -59,12 +59,15 @@ Methods for interacting with tiles witin the map.
             self.tileset()[self.tiles().get(x + y * self.width())]
 
         # TODO: Add trap detection
-        viewTiles: (positions, index) ->
-          positions.forEach ({x, y}) ->
+        viewTiles: (positions, index, types) ->
+          positions.forEach (position) ->
+            {x, y} = position
+
             if boundsCheck(x, y)
               self.lit.get(index).set(x + y * self.width(), 1)
               self.seen.get(index).set(x + y * self.width(), 1)
-              # TODO: Keep track of seen features
+              self.featuresAt(position).forEach (feature) ->
+                feature.view(index, types)
 
         updateVisibleTiles: ->
           self.lit [0...self.squads().length].map ->
@@ -75,12 +78,15 @@ Methods for interacting with tiles witin the map.
               character.alive()
             .forEach (character) ->
               # Magical vision
-              self.viewTiles character.magicalVision(), index
+              self.viewTiles character.magicalVision(), index,
+                magic: true
 
               # Physical sensing
-              self.viewTiles self.search.adjacent(character.position()), index
+              self.viewTiles self.search.adjacent(character.position()), index,
+                physical: true
 
               # Normal Sight
-              self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index
+              self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index,
+                sight: true
 
       return self
