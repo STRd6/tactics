@@ -23,27 +23,25 @@ The primary tactical combat screen.
         }, {
           race: "goblin"
         }]
-        height: 18
-        width: 32
+        height: 36
+        width: 64
 
       self ?= Core(I)
 
+      self.include Compositions
+
       self.attrAccessor "width", "height"
 
-      self.extend
-        tileCount: ->
-          I.width * I.height
+      self.attrObservable "currentTurn"
 
-      self.include Compositions
+      self.tileCount = ->
+        I.width * I.height
 
       self.include MapTiles
       self.include MapFeatures
 
       self.attrModels "squads", Squad
-
-      self.attrObservable "currentTurn"
-
-      activeSquad = Observable ->
+      self.activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
 
       # TODO: Inculde character as an optional parameter
@@ -59,7 +57,7 @@ The primary tactical combat screen.
       characterPassable = (character) ->
         (position) ->
           if occupant = characterAt(position)
-            occupantPassable = (activeSquad().characters.indexOf(occupant) != -1)
+            occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -1)
           else
             occupantPassable = true
 
@@ -120,7 +118,7 @@ The primary tactical combat screen.
           self.squads().forEach (squad) ->
             squad.activeCharacter()
 
-          activeSquad()?.activeCharacter()
+          self.activeSquad()?.activeCharacter()
 
         targettingAbility: ->
           if character = self.activeCharacter()
@@ -178,7 +176,7 @@ TODO: Make this easier to control via an AI.
           self.updateFeatures()
 
           # Refresh newly active squad
-          activeSquad().ready()
+          self.activeSquad().ready()
 
           if self.activeCharacter()
             self.stateBasedActions()
@@ -227,9 +225,6 @@ TODO: Make this easier to control via an AI.
               self.moveDuder(position)
             else
               self.performAbility(self.activeCharacter(), ability, position)
-
-        touch: (position) ->
-          activeSquad()?.activateCharacterAt(position)
 
         moveDuder: (position) ->
           character = self.activeCharacter()

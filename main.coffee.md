@@ -86,17 +86,6 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       height: height
 
     uiCanvas.on "touch", (position) ->
-      tilePosition = position.scale(tileExtent).floor()
-
-      if accessiblePositions
-        inRange = accessiblePositions.reduce (found, position) ->
-          found or position.equal(tilePosition)
-        , false
-
-        if inRange
-          map.selectTarget tilePosition
-          update()
-      else
-        map?.touch tilePosition
+      map?.touch position
 
     $(".ui").prepend uiCanvas.element()
