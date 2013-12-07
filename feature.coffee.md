@@ -36,6 +36,9 @@ Features are things that are present within tiles in the tactical combat view.
       self.attrModel "position", Point
 
       self.extend
+        dangerous: ->
+          I.trap
+
         destroy: ->
           if !I.destroyed
             I.destroyed = true

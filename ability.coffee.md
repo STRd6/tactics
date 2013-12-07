@@ -126,6 +126,12 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         targetZone: MOVEMENT
         perform: ({addEffect, movementPath, owner}) ->
+          owner.addEffect
+            name: "moving"
+            attribute: "physicalAwareness"
+            amount: -100
+            duration: 1
+
           # Need to reverse because the effects go on a stack.
           positions = movementPath.copy().reverse()
 

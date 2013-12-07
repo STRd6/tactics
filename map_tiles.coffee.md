@@ -84,14 +84,11 @@ Methods for interacting with tiles witin the map.
                 positions: character.magicalVision()
                 type: "magic"
 
-              # TODO: No physical sensing while moving?
-              # Maybe implement as an effect that reduces 'physicalAwareness'
-              # to 0 which lasts until the end of turn when moving.
               # Physical sensing
               self.viewTiles
                 index: index
                 message: message
-                positions: self.search.adjacent(character.position())
+                positions: self.search.adjacent(character.position(), character.physicalAwareness())
                 type: "physical"
 
               # Normal Sight

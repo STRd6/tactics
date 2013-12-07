@@ -8,6 +8,8 @@ Those little guys that run around.
     Drawable = require "./lib/drawable"
     Effect = require "./effect"
     Names = require "./names"
+    
+    {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
@@ -26,6 +28,7 @@ Those little guys that run around.
         magicalVision: []
         movement: 4
         name: Names.male.rand()
+        physicalAwareness: sqrt(2)
         sight: 7
         strength: 1
         stun: 0
@@ -39,6 +42,7 @@ Those little guys that run around.
         "magicalVision"
         "movement"
         "name"
+        "physicalAwareness"
         "position"
         "sight"
         "strength"
@@ -129,6 +133,12 @@ Sums up the modifications for an attribute from all the effects.
 
         aware: () ->
           self.alive() and !self.stunned()
+
+        physicalAwareness: ->
+          if !self.aware()
+            0
+          else
+            I.physicalAwareness + self.mods(name)
 
         targettingAbility: Observable()
         resetTargetting: ->

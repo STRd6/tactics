@@ -56,13 +56,17 @@ The primary tactical combat screen.
           feature.opaque()
 
       characterPassable = (character) ->
+        index = self.activeSquadIndex()
+
         (position) ->
-          if occupant = characterAt(position)
+          if self.featuresAt(position).some((feature) -> feature.seen(index) and feature.dangerous())
+            occupantPassable = false
+          else if occupant = characterAt(position)
             occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -1)
           else
             occupantPassable = true
 
-          !impassable(position) and self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) and occupantPassable
+          !impassable(position) and self.lit.get(index).get(position.x + position.y * self.width()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
