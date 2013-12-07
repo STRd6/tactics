@@ -170,8 +170,8 @@ parameterize it by passing in the character and the ability.
 
           self.addNewFeatures()
 
-          # TODO: May not want to do this ALL the time
-          self.updateVisibleTiles()
+          self.updateVisibleTiles
+            message: self.message
 
           unless self.activeCharacter()
             # End of turn
@@ -255,7 +255,10 @@ parameterize it by passing in the character and the ability.
                 message: self.message
                 event: self.trigger
 
-      self.updateVisibleTiles()
+      # TODO: This should be done by an initial runthrough of state based actions
+      # instead
+      self.updateVisibleTiles
+        message: self.message
 
       self.include require("./map_rendering")
 

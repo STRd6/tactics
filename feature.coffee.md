@@ -16,6 +16,7 @@ Features are things that are present within tiles in the tactical combat view.
         invisible: false
         movementPenalty: 0
         opaque: false
+        trap: false
         type: Type.Dirt
         zIndex: -1
         seen: []
@@ -39,8 +40,14 @@ Features are things that are present within tiles in the tactical combat view.
           if !I.destroyed
             I.destroyed = true
 
-        view: (index, types) ->
-          if types.magic or (!I.invisible and types.sight) or (!I.incorporeal && types.physical)
+        view: (index, type, message) ->
+          if (type is "magic") or (!I.invisible and type is "sight") or (!I.incorporeal and type is "physical")
+            if !I.seen[index]
+              if I.trap
+                message "A trap has been uncovered! #{self.position()}"
+              else if I.invisible
+                message "An invisible object has been uncovered! #{self.position()}"
+
             I.seen[index] = true
 
         seen: (index) ->
@@ -112,6 +119,7 @@ Features are things that are present within tiles in the tactical combat view.
           invisible: true
           position: position
           spriteName: "trap"
+          trap: true
           # TODO: Can't have Feature depend on Effect and Effect depend on Feature
           # so the method passed in should coordinate both
           # We'll migrate all of these to creating named effects with optional

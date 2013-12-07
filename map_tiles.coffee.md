@@ -59,7 +59,7 @@ Methods for interacting with tiles witin the map.
             self.tileset()[self.tiles().get(x + y * self.width())]
 
         # TODO: Add trap detection
-        viewTiles: (positions, index, types) ->
+        viewTiles: ({positions, index, type, message}) ->
           positions.forEach (position) ->
             {x, y} = position
 
@@ -67,9 +67,9 @@ Methods for interacting with tiles witin the map.
               self.lit.get(index).set(x + y * self.width(), 1)
               self.seen.get(index).set(x + y * self.width(), 1)
               self.featuresAt(position).forEach (feature) ->
-                feature.view(index, types)
+                feature.view(index, type, message)
 
-        updateVisibleTiles: ->
+        updateVisibleTiles: ({message}) ->
           self.lit [0...self.squads().length].map ->
             BitArray(self.tileCount())
 
@@ -78,15 +78,27 @@ Methods for interacting with tiles witin the map.
               character.alive()
             .forEach (character) ->
               # Magical vision
-              self.viewTiles character.magicalVision(), index,
-                magic: true
+              self.viewTiles
+                index: index
+                message: message
+                positions: character.magicalVision()
+                type: "magic"
 
+              # TODO: No physical sensing while moving?
+              # Maybe implement as an effect that reduces 'physicalAwareness'
+              # to 0 which lasts until the end of turn when moving.
               # Physical sensing
-              self.viewTiles self.search.adjacent(character.position()), index,
-                physical: true
+              self.viewTiles
+                index: index
+                message: message
+                positions: self.search.adjacent(character.position())
+                type: "physical"
 
               # Normal Sight
-              self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index,
-                sight: true
+              self.viewTiles
+                index: index
+                message: message
+                positions: self.search.visible(character.position(), character.sight(), self.opaque)
+                type: "sight"
 
       return self
