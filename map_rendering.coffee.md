@@ -14,6 +14,17 @@ Tile size in pixels.
     tileSize = Size(32, 32)
     inverseTileSize = Size(1/32, 1/32)
     viewportTileExtent = Size(32, 18)
+    #TODO: Adjustable viewport size
+    viewportSize = Point(1024, 568)
+
+    # Quadratic in-out
+    easing = (t) ->
+      t *= 2
+      if (t < 1) 
+        return 1/2 * t * t
+      t--
+      
+      return -1/2 * (t*(t-2) - 1)
 
     module.exports = (I={}, self) ->
 
@@ -66,12 +77,35 @@ Rendering offset in pixels.
 
       backgroundColor = "#222034"
 
+      self.activeCharacter.observe (character) ->
+        self.scrollTo(character.position())
+        
+      scrollingAnimator = null
+
       self.extend
         transform: ->
           Matrix.translation(-offset.x, -offset.y)
 
         offset: ->
           offset
+
+        scrollTo: (position) ->
+          clearInterval scrollingAnimator
+
+          do (currentOffset=offset) ->
+            startTime = +new Date
+            duration = 300 # ms
+            target = position.scale(tileSize).subtract(viewportSize.scale(0.5))
+
+            scrollingAnimator = setInterval ->
+              t = ((+new Date) - startTime) / duration
+
+              if t < 1
+                offset = Point.interpolate(currentOffset, target, easing(t))
+              else
+                offset = target
+                clearInterval scrollingAnimator
+            , 15
 
 Transforms position (a point from 0, 0 to 1, 1) into a tile position (from 0, 0
 to self.width(), self.height())
