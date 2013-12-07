@@ -21,16 +21,22 @@ electricity, I don't know yet.
           message "#{character.name()} is on fire!"
           character.damage(1)
 
-    Effect.Move = (from, to, translocation=false) ->
+    Effect.Move = (from, to, movingCharacter=null, translocation=false) ->
       perform: ({characterAt, message, impassable}) ->
-        # TODO: May want to check to verify character is the same in case there
-        # ever is a weird swap effect from a trap mid movement.
-        if character = characterAt(from)
+        # If a character is moving themselves we don't want to move anyone
+        if movingCharacter
+          character = movingCharacter if movingCharacter.position().equal(from)
+        else # An effect that will move any character like knockback
+          character = characterAt(from)
+
+        if character
           if impassable(to)
             message "#{character.name()} bumped into an unseen obstruction!"
           else
             # TODO: Enter and exit effects
             character.position(to)
+        else
+          console.log "No character at", from
 
     # Used in Entanglement
     Effect.Plant = (position) ->
