@@ -19,7 +19,18 @@ electricity, I don't know yet.
 
         if character = characterAt(position)
           message "#{character.name()} is on fire!"
-          character.damage(2)
+          character.damage(1)
+
+    Effect.Move = (from, to, translocation=false) ->
+      perform: ({characterAt, message, impassable}) ->
+        # TODO: May want to check to verify character is the same in case there
+        # ever is a weird swap effect from a trap mid movement.
+        if character = characterAt(from)
+          if impassable(to)
+            message "#{character.name()} bumped into an unseen obstruction!"
+          else
+            # TODO: Enter and exit effects
+            character.position(to)
 
     # Used in Entanglement
     Effect.Plant = (position) ->

@@ -91,3 +91,20 @@ Features are things that are present within tiles in the tactical combat view.
 
             character.damage(amount)
             message "The fire burns #{character.name()} for #{amount} damage."
+
+    Feature.Traps = 
+      Effect: (position, effectName) ->
+        Feature
+          effectName: effectName
+          invisible: true
+          position: position
+          spriteName: "trap"
+          # TODO: Can't have Feature depend on Effect and Effect depend on Feature
+          # so the method passed in should coordinate both
+          # We'll migrate all of these to creating named effects with optional
+          # configuration data
+          enter: ({effect}) ->
+            # TODO: Destroy?
+
+            effect @effectName,
+              position: @position

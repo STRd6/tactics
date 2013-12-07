@@ -125,8 +125,15 @@ Should there be range types too? Connected, any, passable, etc?
         iconName: "boots"
         actionCost: 1
         targetZone: MOVEMENT
-        perform: ({owner, position}) ->
-          owner.updatePosition position
+        perform: ({addEffect, movementPath, owner}) ->
+          positions = [owner.position()].concat(movementPath).reverse()
+
+          positions.forEach (position, i) ->
+            to = position
+            from = movementPath[i+1]
+
+            if to and from
+              addEffect Effect.Move(from, to)
 
       Teleport: Ability
         name: "Teleport"

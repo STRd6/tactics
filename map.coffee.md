@@ -193,6 +193,13 @@ TODO: Make this easier to control via an AI.
           effectStack.push effect
 
         performAbility: (owner, ability, targetPosition) ->
+          if Ability.TARGET_ZONE.MOVEMENT
+            movementPath = search.movementPath(
+              owner.position(),
+              targetPosition,
+              characterPassable(owner)
+            )
+
           ability.perform
             addEffect: self.addEffect
             addFeature: self.addFeature
@@ -201,6 +208,7 @@ TODO: Make this easier to control via an AI.
             find: self.find
             impassable: impassable
             message: self.message
+            movementPath: movementPath
             owner: owner
             position: targetPosition
 
@@ -217,31 +225,11 @@ TODO: Make this easier to control via an AI.
 
           self.stateBasedActions()
 
-        selectTarget: (position) ->
+        selectTarget: (targetPosition) ->
           ability = self.targettingAbility()
-
-          switch ability.targetZone()
-            when Ability.TARGET_ZONE.MOVEMENT
-              self.moveDuder(position)
-            else
-              self.performAbility(self.activeCharacter(), ability, position)
-
-        moveDuder: (position) ->
           character = self.activeCharacter()
 
-          path = search.movementPath(
-            character.position(),
-            position,
-            characterPassable(character)
-          )
-
-          if path
-            index = self.activeSquadIndex()
-            # TODO: Maybe this should be done as SBAs
-            path.forEach (position) ->
-              self.viewTiles search.visible(character.position(), character.sight(), opaque), index
-
-            self.performAbility(character, self.targettingAbility(), position)
+          self.performAbility(character, ability, targetPosition)
 
       self.updateVisibleTiles()
 

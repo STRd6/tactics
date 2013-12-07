@@ -78,8 +78,9 @@ Rendering offset in pixels.
       backgroundColor = "#222034"
 
       self.activeCharacter.observe (character) ->
-        self.scrollTo(character.position())
-        
+        if character
+          self.scrollTo(character.position())
+
       scrollingAnimator = null
 
       self.extend

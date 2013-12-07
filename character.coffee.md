@@ -119,9 +119,6 @@ Sums up the modifications for an attribute from all the effects.
         resetTargetting: ->
           self.targettingAbility null
 
-        updatePosition: (newPosition) ->
-          self.position newPosition
-
 Ready is called at the beginning of each turn. It resets the actions and processes
 any status effects.
 
