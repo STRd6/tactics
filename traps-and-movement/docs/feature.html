@@ -44,10 +44,13 @@ module.exports = <span class="function"><span class="title">Feature</span></span
     createdAt: <span class="number">0</span>
     destroyed: <span class="literal">false</span>
     impassable: <span class="literal">false</span>
+    incorporeal: <span class="literal">false</span>
+    invisible: <span class="literal">false</span>
     movementPenalty: <span class="number">0</span>
     opaque: <span class="literal">false</span>
     type: Type.Dirt
     zIndex: -<span class="number">1</span>
+    seen: []
 
   self.attrAccessor(
     <span class="string">"createdAt"</span>
@@ -67,6 +70,13 @@ module.exports = <span class="function"><span class="title">Feature</span></span
     destroy: -&gt;
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>
+
+    view: (index, types) -&gt;
+      <span class="keyword">if</span> types.magic <span class="keyword">or</span> (!I.invisible <span class="keyword">and</span> types.sight) <span class="keyword">or</span> (!I.incorporeal &amp;&amp; types.physical)
+        I.seen[index] = <span class="literal">true</span>
+
+    seen: (index) -&gt;
+      I.seen[index]
 
     enter: (params) -&gt;
       I.enter?.call(I, params)

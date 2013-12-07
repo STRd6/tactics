@@ -61,7 +61,7 @@ viewportSize = Point(<span class="number">1024</span>, <span class="number">568<
 <span class="comment"># Quadratic in-out</span>
 <span class="function"><span class="title">easing</span></span> = (t) -&gt;
   t *= <span class="number">2</span>
-  <span class="keyword">if</span> (t &lt; <span class="number">1</span>) 
+  <span class="keyword">if</span> (t &lt; <span class="number">1</span>)
     <span class="keyword">return</span> <span class="number">1</span>/<span class="number">2</span> * t * t
   t--
 
@@ -101,7 +101,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     self.features().forEach (feature) -&gt;
       position = feature.position()
 
-      <span class="keyword">if</span> self.isSeen(position)
+      <span class="keyword">if</span> self.isSeen(position) <span class="keyword">and</span> feature.seen(self.activeSquadIndex())
         zIndex = feature.zIndex()
         <span class="keyword">if</span> (under <span class="keyword">and</span> zIndex &lt;= <span class="number">0</span>) <span class="keyword">or</span> (!under <span class="keyword">and</span> zIndex &gt; <span class="number">0</span>)
           feature.draw canvas, position.scale(tileSize)

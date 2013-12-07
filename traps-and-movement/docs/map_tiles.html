@@ -101,12 +101,15 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
         self.tileset()[self.tiles().get(x + y * self.width())]
 
     <span class="comment"># TODO: Add trap detection</span>
-    viewTiles: (positions, index) -&gt;
-      positions.forEach ({x, y}) -&gt;
+    viewTiles: (positions, index, types) -&gt;
+      positions.forEach (position) -&gt;
+        {x, y} = position
+
         <span class="keyword">if</span> boundsCheck(x, y)
           self.lit.get(index).set(x + y * self.width(), <span class="number">1</span>)
           self.seen.get(index).set(x + y * self.width(), <span class="number">1</span>)
-          <span class="comment"># TODO: Keep track of seen features</span>
+          self.featuresAt(position).forEach (feature) -&gt;
+            feature.view(index, types)
 
     updateVisibleTiles: -&gt;
       self.lit [<span class="number">0.</span>..self.squads().length].map -&gt;
@@ -117,13 +120,16 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
           character.alive()
         .forEach (character) -&gt;
           <span class="comment"># Magical vision</span>
-          self.viewTiles character.magicalVision(), index
+          self.viewTiles character.magicalVision(), index,
+            magic: <span class="literal">true</span>
 
           <span class="comment"># Physical sensing</span>
-          self.viewTiles self.search.adjacent(character.position()), index
+          self.viewTiles self.search.adjacent(character.position()), index,
+            physical: <span class="literal">true</span>
 
           <span class="comment"># Normal Sight</span>
-          self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index
+          self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index,
+            sight: <span class="literal">true</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>
