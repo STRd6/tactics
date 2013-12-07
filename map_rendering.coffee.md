@@ -36,6 +36,7 @@ Rendering offset in pixels.
 
       drawFeatures = (canvas, under) ->
         # TODO: clipping?
+        # TODO: Select only features in range from quad tree
         self.features().forEach (feature) ->
           position = feature.position()
 

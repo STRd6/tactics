@@ -69,7 +69,6 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     update = ->
       if map
-        map.stateBasedActions()
         updateActions(map.activeCharacter())
         accessiblePositions = map.accessiblePositions()
 
@@ -87,5 +86,6 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     uiCanvas.on "touch", (position) ->
       map?.touch position
+      update()
 
     $(".ui").prepend uiCanvas.element()
