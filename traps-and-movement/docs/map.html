@@ -210,8 +210,8 @@ parameterize it by passing in the character and the ability.</p>
 
       self.addNewFeatures()
 
-      <span class="comment"># TODO: May not want to do this ALL the time</span>
-      self.updateVisibleTiles()
+      self.updateVisibleTiles
+        message: self.message
 
       <span class="keyword">unless</span> self.activeCharacter()
         <span class="comment"># End of turn</span>
@@ -295,7 +295,10 @@ parameterize it by passing in the character and the ability.</p>
             message: self.message
             event: self.trigger
 
-  self.updateVisibleTiles()
+  <span class="comment"># TODO: This should be done by an initial runthrough of state based actions</span>
+  <span class="comment"># instead</span>
+  self.updateVisibleTiles
+    message: self.message
 
   self.include require(<span class="string">"./map_rendering"</span>)
 

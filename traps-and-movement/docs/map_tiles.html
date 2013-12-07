@@ -101,7 +101,7 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
         self.tileset()[self.tiles().get(x + y * self.width())]
 
     <span class="comment"># TODO: Add trap detection</span>
-    viewTiles: (positions, index, types) -&gt;
+    viewTiles: ({positions, index, type, message}) -&gt;
       positions.forEach (position) -&gt;
         {x, y} = position
 
@@ -109,9 +109,9 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
           self.lit.get(index).set(x + y * self.width(), <span class="number">1</span>)
           self.seen.get(index).set(x + y * self.width(), <span class="number">1</span>)
           self.featuresAt(position).forEach (feature) -&gt;
-            feature.view(index, types)
+            feature.view(index, type, message)
 
-    updateVisibleTiles: -&gt;
+    updateVisibleTiles: ({message}) -&gt;
       self.lit [<span class="number">0.</span>..self.squads().length].map -&gt;
         BitArray(self.tileCount())
 
@@ -120,16 +120,28 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
           character.alive()
         .forEach (character) -&gt;
           <span class="comment"># Magical vision</span>
-          self.viewTiles character.magicalVision(), index,
-            magic: <span class="literal">true</span>
+          self.viewTiles
+            index: index
+            message: message
+            positions: character.magicalVision()
+            type: <span class="string">"magic"</span>
 
+          <span class="comment"># TODO: No physical sensing while moving?</span>
+          <span class="comment"># Maybe implement as an effect that reduces 'physicalAwareness'</span>
+          <span class="comment"># to 0 which lasts until the end of turn when moving.</span>
           <span class="comment"># Physical sensing</span>
-          self.viewTiles self.search.adjacent(character.position()), index,
-            physical: <span class="literal">true</span>
+          self.viewTiles
+            index: index
+            message: message
+            positions: self.search.adjacent(character.position())
+            type: <span class="string">"physical"</span>
 
           <span class="comment"># Normal Sight</span>
-          self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index,
-            sight: <span class="literal">true</span>
+          self.viewTiles
+            index: index
+            message: message
+            positions: self.search.visible(character.position(), character.sight(), self.opaque)
+            type: <span class="string">"sight"</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

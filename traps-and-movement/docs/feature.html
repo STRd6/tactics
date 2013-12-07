@@ -48,6 +48,7 @@ module.exports = <span class="function"><span class="title">Feature</span></span
     invisible: <span class="literal">false</span>
     movementPenalty: <span class="number">0</span>
     opaque: <span class="literal">false</span>
+    trap: <span class="literal">false</span>
     type: Type.Dirt
     zIndex: -<span class="number">1</span>
     seen: []
@@ -71,8 +72,14 @@ module.exports = <span class="function"><span class="title">Feature</span></span
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>
 
-    view: (index, types) -&gt;
-      <span class="keyword">if</span> types.magic <span class="keyword">or</span> (!I.invisible <span class="keyword">and</span> types.sight) <span class="keyword">or</span> (!I.incorporeal &amp;&amp; types.physical)
+    view: (index, type, message) -&gt;
+      <span class="keyword">if</span> (type <span class="keyword">is</span> <span class="string">"magic"</span>) <span class="keyword">or</span> (!I.invisible <span class="keyword">and</span> type <span class="keyword">is</span> <span class="string">"sight"</span>) <span class="keyword">or</span> (!I.incorporeal <span class="keyword">and</span> type <span class="keyword">is</span> <span class="string">"physical"</span>)
+        <span class="keyword">if</span> !I.seen[index]
+          <span class="keyword">if</span> I.trap
+            message <span class="string">"A trap has been uncovered! <span class="subst">#{self.position()}</span>"</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> I.invisible
+            message <span class="string">"An invisible object has been uncovered! <span class="subst">#{self.position()}</span>"</span>
+
         I.seen[index] = <span class="literal">true</span>
 
     seen: (index) -&gt;
@@ -144,6 +151,7 @@ Feature.Traps =
       invisible: <span class="literal">true</span>
       position: position
       spriteName: <span class="string">"trap"</span>
+      trap: <span class="literal">true</span>
       <span class="comment"># TODO: Can't have Feature depend on Effect and Effect depend on Feature</span>
       <span class="comment"># so the method passed in should coordinate both</span>
       <span class="comment"># We'll migrate all of these to creating named effects with optional</span>
