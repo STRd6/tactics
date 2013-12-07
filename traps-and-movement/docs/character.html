@@ -55,11 +55,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     effects: []
     health: <span class="number">3</span>
     healthMax: <span class="number">3</span>
+    magicalVision: []
     movement: <span class="number">4</span>
     name: Names.male.rand()
     sight: <span class="number">7</span>
     strength: <span class="number">1</span>
-    magicalVision: []
+    stun: <span class="number">0</span>
 
   self.attrAccessor(
     <span class="string">"abilities"</span>
@@ -154,7 +155,21 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>
           I.cooldowns[name] = <span class="number">0</span>
 
+      <span class="keyword">if</span> I.stun &lt; <span class="number">0</span>
+        I.stun = <span class="number">0</span>
+
       <span class="keyword">return</span>
+
+    stun: (stun) -&gt;
+      console.log <span class="string">"#1 Stunna"</span>, stun
+      I.stun = Math.max(I.stun, stun)
+      I.actions = <span class="number">0</span>
+
+    stunned: -&gt;
+      I.stun &gt; <span class="number">0</span>
+
+    aware: () -&gt;
+      self.alive() <span class="keyword">and</span> !self.stunned()
 
     targettingAbility: Observable()
     resetTargetting: -&gt;
@@ -177,13 +192,18 @@ any status effects.</p>
       <span class="comment"># TODO: Maybe have separate vision effects with their own durations</span>
       I.magicalVision = []
 
+      I.stun -= <span class="number">1</span>
+
       Object.keys(I.cooldowns).forEach (name) -&gt;
         I.cooldowns[name] -= <span class="number">1</span>
 
       I.effects.forEach (effect) -&gt;
         effect.duration -= <span class="number">1</span>
 
-      I.actions = <span class="number">2</span>
+      <span class="keyword">if</span> I.stun <span class="keyword">is</span> <span class="number">0</span>
+        I.actions = <span class="number">2</span>
+      <span class="keyword">else</span>
+        I.actions = <span class="number">0</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

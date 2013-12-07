@@ -68,6 +68,9 @@ module.exports = <span class="function"><span class="title">Feature</span></span
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>
 
+    enter: (params) -&gt;
+      I.enter?.call(I, params)
+
     update: (params) -&gt;
       <span class="comment"># TODO: Allow for variable number of squads</span>
       numSquads = <span class="number">2</span>
@@ -124,7 +127,7 @@ Feature.<span class="function"><span class="title">Fire</span></span> = (positio
         character.damage(amount)
         message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
 
-Feature.Traps = 
+Feature.Traps =
   Effect: (position, effectName) -&gt;
     Feature
       effectName: effectName
@@ -138,8 +141,7 @@ Feature.Traps =
       enter: ({effect}) -&gt;
         <span class="comment"># TODO: Destroy?</span>
 
-        effect <span class="property">@effectName</span>,
-          position: <span class="property">@position</span></code></pre>
+        effect <span class="property">@effectName</span>, <span class="property">@position</span></code></pre>
 </div>
         </li>
         

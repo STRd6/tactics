@@ -37,6 +37,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Compositions = require <span class="string">"./lib/compositions"</span>
+Effect = require <span class="string">"./effect"</span>
 MapFeatures = require <span class="string">"./map_features"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 MapTiles = require <span class="string">"./map_tiles"</span>
@@ -165,6 +166,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p>TODO: Make this easier to control via an AI.</p>
+<p>TODO: This should be more accurately called valid targets, we may want to 
+parameterize it by passing in the character and the ability.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">    accessiblePositions: -&gt;
@@ -173,6 +176,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
           <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
+            <span class="comment"># TODO this auto-perform doesn't belong here, it should be done</span>
+            <span class="comment"># in the caller if one so wishes</span>
             self.performAbility(character, ability, character.position())
 
             <span class="keyword">return</span>
@@ -263,6 +268,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         impassable: impassable
         find: self.find
         message: self.message
+        event: self.trigger
 
       self.stateBasedActions()
 
@@ -271,6 +277,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       character = self.activeCharacter()
 
       self.performAbility(character, ability, targetPosition)
+
+    trigger: (name, params) -&gt;
+      <span class="comment"># TODO: Think more about event listeners</span>
+
+      <span class="keyword">if</span> name <span class="keyword">is</span> <span class="string">"move"</span>
+        self.featuresAt(params.to).forEach (feature) -&gt;
+          feature.enter
+            addEffect: self.addEffect
+            addFeature: self.addFeature
+            characterAt: characterAt
+            effect: (name, params) -&gt;
+              self.addEffect Effect[name](params)
+            impassable: impassable
+            find: self.find
+            message: self.message
+            event: self.trigger
 
   self.updateVisibleTiles()
 
