@@ -5,6 +5,7 @@ The primary tactical combat screen.
 
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
+    Effect = require "./effect"
     MapFeatures = require "./map_features"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
@@ -126,12 +127,17 @@ The primary tactical combat screen.
 
 TODO: Make this easier to control via an AI.
 
+TODO: This should be more accurately called valid targets, we may want to 
+parameterize it by passing in the character and the ability.
+
         accessiblePositions: ->
           character = self.activeCharacter()
 
           if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
+                # TODO this auto-perform doesn't belong here, it should be done
+                # in the caller if one so wishes
                 self.performAbility(character, ability, character.position())
 
                 return
@@ -222,6 +228,7 @@ TODO: Make this easier to control via an AI.
             impassable: impassable
             find: self.find
             message: self.message
+            event: self.trigger
 
           self.stateBasedActions()
 
@@ -230,6 +237,22 @@ TODO: Make this easier to control via an AI.
           character = self.activeCharacter()
 
           self.performAbility(character, ability, targetPosition)
+
+        trigger: (name, params) ->
+          # TODO: Think more about event listeners
+
+          if name is "move"
+            self.featuresAt(params.to).forEach (feature) ->
+              feature.enter
+                addEffect: self.addEffect
+                addFeature: self.addFeature
+                characterAt: characterAt
+                effect: (name, params) ->
+                  self.addEffect Effect[name](params)
+                impassable: impassable
+                find: self.find
+                message: self.message
+                event: self.trigger
 
       self.updateVisibleTiles()
 

@@ -36,6 +36,9 @@ Features are things that are present within tiles in the tactical combat view.
           if !I.destroyed
             I.destroyed = true
 
+        enter: (params) ->
+          I.enter?.call(I, params)
+
         update: (params) ->
           # TODO: Allow for variable number of squads
           numSquads = 2
@@ -92,7 +95,7 @@ Features are things that are present within tiles in the tactical combat view.
             character.damage(amount)
             message "The fire burns #{character.name()} for #{amount} damage."
 
-    Feature.Traps = 
+    Feature.Traps =
       Effect: (position, effectName) ->
         Feature
           effectName: effectName
@@ -106,5 +109,4 @@ Features are things that are present within tiles in the tactical combat view.
           enter: ({effect}) ->
             # TODO: Destroy?
 
-            effect @effectName,
-              position: @position
+            effect @effectName, @position

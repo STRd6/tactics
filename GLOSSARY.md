@@ -41,6 +41,23 @@ there are no more opponents, etc.
 
 Basically inspired by MtG.
 
+Stun
+----
+
+Some effects can stun characters. Stunned characters will be unable to perform
+reactions and their turn is ended (actions reduced to zero). Stun is reduced by
+one level at the start of every turn. If the character has any level of stun
+greater than zero then the character will have no actions for that turn.
+
+Many attacks add a stun of 1 which is cleared at the character's
+following turn and serves to halt reaction abilities.
+
+Some special attacks will have a stun of 2 or 3. The stunned character will
+lose their actions until the stun is removed.
+
+Stun doesn't stack, the maximum of the character's stun level and the effect's
+stun amount is used.
+
 Tribe
 -----
 
