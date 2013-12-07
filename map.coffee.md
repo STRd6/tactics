@@ -5,6 +5,7 @@ The primary tactical combat screen.
 
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
+    Effect = require "./effect"
     MapFeatures = require "./map_features"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
@@ -55,13 +56,17 @@ The primary tactical combat screen.
           feature.opaque()
 
       characterPassable = (character) ->
+        index = self.activeSquadIndex()
+
         (position) ->
-          if occupant = characterAt(position)
+          if self.featuresAt(position).some((feature) -> feature.seen(index) and feature.dangerous())
+            occupantPassable = false
+          else if occupant = characterAt(position)
             occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -1)
           else
             occupantPassable = true
 
-          !impassable(position) and self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) and occupantPassable
+          !impassable(position) and self.lit.get(index).get(position.x + position.y * self.width()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -126,12 +131,17 @@ The primary tactical combat screen.
 
 TODO: Make this easier to control via an AI.
 
+TODO: This should be more accurately called valid targets, we may want to 
+parameterize it by passing in the character and the ability.
+
         accessiblePositions: ->
           character = self.activeCharacter()
 
           if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
+                # TODO this auto-perform doesn't belong here, it should be done
+                # in the caller if one so wishes
                 self.performAbility(character, ability, character.position())
 
                 return
@@ -164,14 +174,15 @@ TODO: Make this easier to control via an AI.
 
           self.addNewFeatures()
 
-          # TODO: May not want to do this ALL the time
-          self.updateVisibleTiles()
+          self.updateVisibleTiles
+            message: self.message
 
           unless self.activeCharacter()
             # End of turn
             self.ready()
 
         ready: ->
+          console.log "Ready"
           self.currentTurn(self.currentTurn() + 1)
           self.updateFeatures()
 
@@ -193,6 +204,13 @@ TODO: Make this easier to control via an AI.
           effectStack.push effect
 
         performAbility: (owner, ability, targetPosition) ->
+          if Ability.TARGET_ZONE.MOVEMENT
+            movementPath = search.movementPath(
+              owner.position(),
+              targetPosition,
+              characterPassable(owner)
+            )
+
           ability.perform
             addEffect: self.addEffect
             addFeature: self.addFeature
@@ -201,6 +219,7 @@ TODO: Make this easier to control via an AI.
             find: self.find
             impassable: impassable
             message: self.message
+            movementPath: movementPath
             owner: owner
             position: targetPosition
 
@@ -214,36 +233,36 @@ TODO: Make this easier to control via an AI.
             impassable: impassable
             find: self.find
             message: self.message
+            event: self.trigger
 
           self.stateBasedActions()
 
-        selectTarget: (position) ->
+        selectTarget: (targetPosition) ->
           ability = self.targettingAbility()
-
-          switch ability.targetZone()
-            when Ability.TARGET_ZONE.MOVEMENT
-              self.moveDuder(position)
-            else
-              self.performAbility(self.activeCharacter(), ability, position)
-
-        moveDuder: (position) ->
           character = self.activeCharacter()
 
-          path = search.movementPath(
-            character.position(),
-            position,
-            characterPassable(character)
-          )
+          self.performAbility(character, ability, targetPosition)
 
-          if path
-            index = self.activeSquadIndex()
-            # TODO: Maybe this should be done as SBAs
-            path.forEach (position) ->
-              self.viewTiles search.visible(character.position(), character.sight(), opaque), index
+        trigger: (name, params) ->
+          # TODO: Think more about event listeners
 
-            self.performAbility(character, self.targettingAbility(), position)
+          if name is "move"
+            self.featuresAt(params.to).forEach (feature) ->
+              feature.enter
+                addEffect: self.addEffect
+                addFeature: self.addFeature
+                characterAt: characterAt
+                effect: (name, params) ->
+                  self.addEffect Effect[name](params)
+                impassable: impassable
+                find: self.find
+                message: self.message
+                event: self.trigger
 
-      self.updateVisibleTiles()
+      # TODO: This should be done by an initial runthrough of state based actions
+      # instead
+      self.updateVisibleTiles
+        message: self.message
 
       self.include require("./map_rendering")
 

@@ -8,6 +8,8 @@ Those little guys that run around.
     Drawable = require "./lib/drawable"
     Effect = require "./effect"
     Names = require "./names"
+    
+    {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
       I.position = Point(I.position)
@@ -23,11 +25,13 @@ Those little guys that run around.
         effects: []
         health: 3
         healthMax: 3
+        magicalVision: []
         movement: 4
         name: Names.male.rand()
+        physicalAwareness: sqrt(2)
         sight: 7
         strength: 1
-        magicalVision: []
+        stun: 0
 
       self.attrAccessor(
         "abilities"
@@ -38,6 +42,7 @@ Those little guys that run around.
         "magicalVision"
         "movement"
         "name"
+        "physicalAwareness"
         "position"
         "sight"
         "strength"
@@ -113,14 +118,31 @@ Sums up the modifications for an attribute from all the effects.
             if I.cooldowns[name] < 0
               I.cooldowns[name] = 0
 
+          if I.stun < 0
+            I.stun = 0
+
           return
+
+        stun: (stun) ->
+          console.log "#1 Stunna", stun
+          I.stun = Math.max(I.stun, stun)
+          I.actions = 0
+
+        stunned: ->
+          I.stun > 0
+
+        aware: () ->
+          self.alive() and !self.stunned()
+
+        physicalAwareness: ->
+          if !self.aware()
+            0
+          else
+            I.physicalAwareness + self.mods(name)
 
         targettingAbility: Observable()
         resetTargetting: ->
           self.targettingAbility null
-
-        updatePosition: (newPosition) ->
-          self.position newPosition
 
 Ready is called at the beginning of each turn. It resets the actions and processes
 any status effects.
@@ -130,12 +152,17 @@ any status effects.
           # TODO: Maybe have separate vision effects with their own durations
           I.magicalVision = []
 
+          I.stun -= 1 if I.stun > 0
+
           Object.keys(I.cooldowns).forEach (name) ->
             I.cooldowns[name] -= 1
 
           I.effects.forEach (effect) ->
             effect.duration -= 1
 
-          I.actions = 2
+          if I.stun is 0
+            I.actions = 2
+          else
+            I.actions = 0
 
       return self

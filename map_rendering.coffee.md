@@ -20,10 +20,10 @@ Tile size in pixels.
     # Quadratic in-out
     easing = (t) ->
       t *= 2
-      if (t < 1) 
+      if (t < 1)
         return 1/2 * t * t
       t--
-      
+
       return -1/2 * (t*(t-2) - 1)
 
     module.exports = (I={}, self) ->
@@ -51,7 +51,7 @@ Rendering offset in pixels.
         self.features().forEach (feature) ->
           position = feature.position()
 
-          if self.isSeen(position)
+          if self.isSeen(position) and feature.seen(self.activeSquadIndex())
             zIndex = feature.zIndex()
             if (under and zIndex <= 0) or (!under and zIndex > 0)
               feature.draw canvas, position.scale(tileSize)
@@ -78,8 +78,9 @@ Rendering offset in pixels.
       backgroundColor = "#222034"
 
       self.activeCharacter.observe (character) ->
-        self.scrollTo(character.position())
-        
+        if character
+          self.scrollTo(character.position())
+
       scrollingAnimator = null
 
       self.extend
@@ -118,13 +119,13 @@ to self.width(), self.height())
 
           canvas.withTransform self.transform(), (canvas)->
             drawGround(canvas)
-  
+
             # TODO: Iterate zSorted features + characters on a per chunk basis
             # TODO: Only draw seen features
             drawFeatures(canvas, true)
             drawCharacters(canvas, t)
             drawFeatures(canvas)
-  
+
             drawFog(canvas)
 
         renderUI: (canvas, t) ->
@@ -136,7 +137,7 @@ to self.width(), self.height())
                 CharacterUI.activeTactical(canvas, character)
               else if character.alive()
                 CharacterUI.tactical(canvas, character)
-  
+
             self.accessiblePositions()?.forEach (position) ->
               gridSprite.draw canvas, position.scale(32)
 

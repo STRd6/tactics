@@ -19,6 +19,8 @@ Features are semi-permanent objects that exist at positions on the map.
           if rand() < 0.1
             self.features.push Feature.Wall(position)
           else if rand() < 0.25
+            self.features.push Feature.Traps.Effect(position, "Fire")
+          else if rand() < 0.25
             self.features.push Feature.Bush(position)
 
       featuresToAdd = []

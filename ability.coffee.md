@@ -125,8 +125,22 @@ Should there be range types too? Connected, any, passable, etc?
         iconName: "boots"
         actionCost: 1
         targetZone: MOVEMENT
-        perform: ({owner, position}) ->
-          owner.updatePosition position
+        perform: ({addEffect, movementPath, owner}) ->
+          owner.addEffect
+            name: "moving"
+            attribute: "physicalAwareness"
+            amount: -100
+            duration: 1
+
+          # Need to reverse because the effects go on a stack.
+          positions = movementPath.copy().reverse()
+
+          positions.forEach (position, i) ->
+            to = position
+            from = positions[i+1]
+
+            if to and from
+              addEffect Effect.Move(from, to, owner)
 
       Teleport: Ability
         name: "Teleport"
@@ -135,7 +149,8 @@ Should there be range types too? Connected, any, passable, etc?
         range: 50
         targetZone: ANY
         perform: ({character, owner, position, message}) ->
-          owner.updatePosition position
+          # TODO: Make this a movement effect so we can trigger traps/events
+          owner.position position
 
           if character
             owner.I.health = 0
@@ -150,7 +165,8 @@ Should there be range types too? Connected, any, passable, etc?
         range: 8
         targetZone: LINE_OF_SIGHT
         perform: ({character, message, owner, position}) ->
-          owner.updatePosition position
+          # TODO: Make this a movement effect so we can trigger traps/events
+          owner.position position
 
           if character
             owner.I.health = 0
