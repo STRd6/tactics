@@ -192,7 +192,7 @@ any status effects.</p>
       <span class="comment"># TODO: Maybe have separate vision effects with their own durations</span>
       I.magicalVision = []
 
-      I.stun -= <span class="number">1</span>
+      I.stun -= <span class="number">1</span> <span class="keyword">if</span> I.stun &gt; <span class="number">0</span>
 
       Object.keys(I.cooldowns).forEach (name) -&gt;
         I.cooldowns[name] -= <span class="number">1</span>

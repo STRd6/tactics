@@ -218,6 +218,7 @@ parameterize it by passing in the character and the ability.</p>
         self.ready()
 
     ready: -&gt;
+      console.log <span class="string">"Ready"</span>
       self.currentTurn(self.currentTurn() + <span class="number">1</span>)
       self.updateFeatures()
 
