@@ -68,6 +68,9 @@ module.exports = <span class="function"><span class="title">Feature</span></span
   self.attrModel <span class="string">"position"</span>, Point
 
   self.extend
+    dangerous: -&gt;
+      I.trap
+
     destroy: -&gt;
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>

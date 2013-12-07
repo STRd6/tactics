@@ -126,14 +126,11 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
             positions: character.magicalVision()
             type: <span class="string">"magic"</span>
 
-          <span class="comment"># TODO: No physical sensing while moving?</span>
-          <span class="comment"># Maybe implement as an effect that reduces 'physicalAwareness'</span>
-          <span class="comment"># to 0 which lasts until the end of turn when moving.</span>
           <span class="comment"># Physical sensing</span>
           self.viewTiles
             index: index
             message: message
-            positions: self.search.adjacent(character.position())
+            positions: self.search.adjacent(character.position(), character.physicalAwareness())
             type: <span class="string">"physical"</span>
 
           <span class="comment"># Normal Sight</span>
