@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>map</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="map">Map</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>The primary tactical combat screen.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
+Compositions = require <span class="string">"./lib/compositions"</span>
+MapFeatures = require <span class="string">"./map_features"</span>
+MapSearch = require <span class="string">"./map_search"</span>
+MapTiles = require <span class="string">"./map_tiles"</span>
+Squad = require <span class="string">"./squad"</span>
+
+{
+  intersection
+} = require <span class="string">"./array_helpers"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
+  Object.defaults I,
+    currentTurn: <span class="number">0</span>
+    features: []
+    squads: [{
+      <span class="comment"># TODO</span>
+    }, {
+      race: <span class="string">"goblin"</span>
+    }]
+    height: <span class="number">36</span>
+    width: <span class="number">64</span>
+
+  self ?= Core(I)
+
+  self.include Compositions
+
+  self.attrAccessor <span class="string">"width"</span>, <span class="string">"height"</span>
+
+  self.attrObservable <span class="string">"currentTurn"</span>
+
+  self.<span class="function"><span class="title">tileCount</span></span> = -&gt;
+    I.width * I.height
+
+  self.include MapTiles
+  self.include MapFeatures
+
+  self.attrModels <span class="string">"squads"</span>, Squad
+  self.activeSquad = Observable -&gt;
+    self.squads().wrap(self.currentTurn())
+
+  <span class="comment"># TODO: Inculde character as an optional parameter</span>
+  <span class="function"><span class="title">impassable</span></span> = (position) -&gt;
+    self.featuresAt(position).some (feature) -&gt;
+      feature.impassable()
+
+  <span class="comment"># TODO: Include character as an optional parameter</span>
+  <span class="function"><span class="title">opaque</span></span> = (position) -&gt;
+    self.featuresAt(position).some (feature) -&gt;
+      feature.opaque()
+
+  <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
+    (position) -&gt;
+      <span class="keyword">if</span> occupant = characterAt(position)
+        occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -<span class="number">1</span>)
+      <span class="keyword">else</span>
+        occupantPassable = <span class="literal">true</span>
+
+      !impassable(position) <span class="keyword">and</span> self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) <span class="keyword">and</span> occupantPassable
+
+  <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
+    <span class="keyword">if</span> x.x?
+      {x, y} = x
+
+    self.characters().filter (character) -&gt;
+      position = character.position()
+      character.alive() <span class="keyword">and</span> (position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y)
+    .first()
+
+  search = MapSearch()
+
+  effectStack = []
+
+  self.include require(<span class="string">"./map_serialization"</span>)
+
+  self.include require <span class="string">"finder"</span>
+  oldFind = self.find
+  <span class="function"><span class="title">typeMatcher</span></span> = (type, object) -&gt;
+    object.type() <span class="keyword">is</span> type
+  self.<span class="function"><span class="title">find</span></span> = (selector) -&gt;
+    results = oldFind(self.features(), selector, typeMatcher)
+
+    results.<span class="function"><span class="title">within</span></span> = (position, radius) -&gt;
+      results.filter (result) -&gt;
+        Point.distance(result.position(), position) &lt;= radius
+
+    <span class="keyword">return</span> results
+
+  self.extend
+    messages: Observable []
+
+    activeSquadIndex: -&gt;
+      <span class="comment"># NOTE: Assumes squad length never changes</span>
+      self.currentTurn() % I.squads.length
+
+    characters: Observable -&gt;
+      self.squads().map (squad) -&gt;
+        squad.characters()
+      .flatten()
+
+    characterAt: characterAt
+
+    eachTile: self.tiles().each
+
+    opaque: opaque
+
+    visibleCharacters: -&gt;
+      self.characters().filter (character) -&gt;
+        self.isLit(character.position())
+
+    activeCharacter: Observable -&gt;
+      <span class="comment"># Dependencies for observable</span>
+      self.squads().forEach (squad) -&gt;
+        squad.activeCharacter()
+
+      self.activeSquad()?.activeCharacter()
+
+    targettingAbility: -&gt;
+      <span class="keyword">if</span> character = self.activeCharacter()
+        character.targettingAbility()</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>TODO: Make this easier to control via an AI.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    accessiblePositions: -&gt;
+      character = self.activeCharacter()
+
+      <span class="keyword">if</span> ability = self.targettingAbility()
+        <span class="keyword">switch</span> ability.targetZone()
+          <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
+            self.performAbility(character, ability, character.position())
+
+            <span class="keyword">return</span>
+          <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
+            accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
+
+            accessiblePositions.reject (position) -&gt;
+              characterAt(position)
+
+          <span class="keyword">when</span> Ability.TARGET_ZONE.ANY
+            positionsInRange = search.adjacent(character.position(), ability.range())
+
+          <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
+            visiblePositions = search.visible(character.position(), character.sight(), opaque)
+            positionsInRange = search.adjacent(character.position(), ability.range())
+
+            intersection(
+              visiblePositions
+              positionsInRange
+            )
+
+    stateBasedActions: -&gt;
+      self.squads().forEach (squad) -&gt;
+        squad.stateBasedActions
+          addEffect: self.addEffect
+
+      <span class="keyword">while</span> effectStack.length
+        <span class="comment"># TODO: This could fall victim to infinite recursion</span>
+        self.performEffect effectStack.pop()
+
+      self.addNewFeatures()
+
+      <span class="comment"># TODO: May not want to do this ALL the time</span>
+      self.updateVisibleTiles()
+
+      <span class="keyword">unless</span> self.activeCharacter()
+        <span class="comment"># End of turn</span>
+        self.ready()
+
+    ready: -&gt;
+      self.currentTurn(self.currentTurn() + <span class="number">1</span>)
+      self.updateFeatures()
+
+      <span class="comment"># Refresh newly active squad</span>
+      self.activeSquad().ready()
+
+      <span class="keyword">if</span> self.activeCharacter()
+        self.stateBasedActions()
+      <span class="keyword">else</span>
+        <span class="comment"># TODO: This squad is wiped out, pop up win condition though we may</span>
+        <span class="comment"># want to check as SBAs rather than just on ready event</span>
+
+    search: search
+
+    message: (message) -&gt;
+      self.messages.push message + <span class="string">"\n"</span>
+
+    addEffect: (effect) -&gt;
+      effectStack.push effect
+
+    performAbility: (owner, ability, targetPosition) -&gt;
+      ability.perform
+        addEffect: self.addEffect
+        addFeature: self.addFeature
+        character: characterAt targetPosition
+        characterAt: characterAt
+        find: self.find
+        impassable: impassable
+        message: self.message
+        owner: owner
+        position: targetPosition
+
+      self.stateBasedActions()
+
+    performEffect: (effect) -&gt;
+      effect.perform
+        addEffect: self.addEffect
+        addFeature: self.addFeature
+        characterAt: characterAt
+        impassable: impassable
+        find: self.find
+        message: self.message
+
+      self.stateBasedActions()
+
+    selectTarget: (position) -&gt;
+      ability = self.targettingAbility()
+
+      <span class="keyword">switch</span> ability.targetZone()
+        <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
+          self.moveDuder(position)
+        <span class="keyword">else</span>
+          self.performAbility(self.activeCharacter(), ability, position)
+
+    moveDuder: (position) -&gt;
+      character = self.activeCharacter()
+
+      path = search.movementPath(
+        character.position(),
+        position,
+        characterPassable(character)
+      )
+
+      <span class="keyword">if</span> path
+        index = self.activeSquadIndex()
+        <span class="comment"># TODO: Maybe this should be done as SBAs</span>
+        path.forEach (position) -&gt;
+          self.viewTiles search.visible(character.position(), character.sight(), opaque), index
+
+        self.performAbility(character, self.targettingAbility(), position)
+
+  self.updateVisibleTiles()
+
+  self.include require(<span class="string">"./map_rendering"</span>)
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
