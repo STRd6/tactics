@@ -178,6 +178,7 @@ parameterize it by passing in the character and the ability.
             self.ready()
 
         ready: ->
+          console.log "Ready"
           self.currentTurn(self.currentTurn() + 1)
           self.updateFeatures()
 

@@ -142,7 +142,7 @@ any status effects.
           # TODO: Maybe have separate vision effects with their own durations
           I.magicalVision = []
 
-          I.stun -= 1
+          I.stun -= 1 if I.stun > 0
 
           Object.keys(I.cooldowns).forEach (name) ->
             I.cooldowns[name] -= 1
