@@ -63,16 +63,22 @@ Effect.<span class="function"><span class="title">Fire</span></span> = (position
       message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
       character.damage(<span class="number">1</span>)
 
-Effect.<span class="function"><span class="title">Move</span></span> = (from, to, translocation=<span class="literal">false</span>) -&gt;
+Effect.<span class="function"><span class="title">Move</span></span> = (from, to, movingCharacter=<span class="literal">null</span>, translocation=<span class="literal">false</span>) -&gt;
   perform: ({characterAt, message, impassable}) -&gt;
-    <span class="comment"># TODO: May want to check to verify character is the same in case there</span>
-    <span class="comment"># ever is a weird swap effect from a trap mid movement.</span>
-    <span class="keyword">if</span> character = characterAt(from)
+    <span class="comment"># If a character is moving themselves we don't want to move anyone</span>
+    <span class="keyword">if</span> movingCharacter
+      character = movingCharacter <span class="keyword">if</span> movingCharacter.position().equal(from)
+    <span class="keyword">else</span> <span class="comment"># An effect that will move any character like knockback</span>
+      character = characterAt(from)
+
+    <span class="keyword">if</span> character
       <span class="keyword">if</span> impassable(to)
         message <span class="string">"<span class="subst">#{character.name()}</span> bumped into an unseen obstruction!"</span>
       <span class="keyword">else</span>
         <span class="comment"># TODO: Enter and exit effects</span>
         character.position(to)
+    <span class="keyword">else</span>
+      console.log <span class="string">"No character at"</span>, from
 
 <span class="comment"># Used in Entanglement</span>
 Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;

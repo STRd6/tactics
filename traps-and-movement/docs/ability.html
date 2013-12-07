@@ -159,14 +159,15 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     targetZone: MOVEMENT
     perform: ({addEffect, movementPath, owner}) -&gt;
-      positions = [owner.position()].concat(movementPath).reverse()
+      <span class="comment"># Need to reverse because the effects go on a stack.</span>
+      positions = movementPath.copy().reverse()
 
       positions.forEach (position, i) -&gt;
         to = position
-        from = movementPath[i+<span class="number">1</span>]
+        from = positions[i+<span class="number">1</span>]
 
         <span class="keyword">if</span> to <span class="keyword">and</span> from
-          addEffect Effect.Move(from, to)
+          addEffect Effect.Move(from, to, owner)
 
   Teleport: Ability
     name: <span class="string">"Teleport"</span>
@@ -175,7 +176,8 @@ Ability.Abilities =
     range: <span class="number">50</span>
     targetZone: ANY
     perform: ({character, owner, position, message}) -&gt;
-      owner.updatePosition position
+      <span class="comment"># TODO: Make this a movement effect so we can trigger traps/events</span>
+      owner.position position
 
       <span class="keyword">if</span> character
         owner.I.health = <span class="number">0</span>
@@ -190,7 +192,8 @@ Ability.Abilities =
     range: <span class="number">8</span>
     targetZone: LINE_OF_SIGHT
     perform: ({character, message, owner, position}) -&gt;
-      owner.updatePosition position
+      <span class="comment"># TODO: Make this a movement effect so we can trigger traps/events</span>
+      owner.position position
 
       <span class="keyword">if</span> character
         owner.I.health = <span class="number">0</span>
