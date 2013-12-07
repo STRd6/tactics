@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>character</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="character">Character</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Those little guys that run around.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
+Action = require <span class="string">"./action"</span>
+Drawable = require <span class="string">"./lib/drawable"</span>
+Effect = require <span class="string">"./effect"</span>
+Names = require <span class="string">"./names"</span>
+
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
+  I.position = Point(I.position)
+
+  Object.defaults I,
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"Melee"</span>
+    ]
+    actions: <span class="number">2</span>
+    alive: <span class="literal">true</span>
+    cooldowns: {}
+    effects: []
+    health: <span class="number">3</span>
+    healthMax: <span class="number">3</span>
+    movement: <span class="number">4</span>
+    name: Names.male.rand()
+    sight: <span class="number">7</span>
+    strength: <span class="number">1</span>
+    magicalVision: []
+
+  self.attrAccessor(
+    <span class="string">"abilities"</span>
+    <span class="string">"actions"</span>
+    <span class="string">"alive"</span>
+    <span class="string">"health"</span>
+    <span class="string">"healthMax"</span>
+    <span class="string">"magicalVision"</span>
+    <span class="string">"movement"</span>
+    <span class="string">"name"</span>
+    <span class="string">"position"</span>
+    <span class="string">"sight"</span>
+    <span class="string">"strength"</span>
+  )
+
+  <span class="function"><span class="title">effectModifiable</span></span> = (names...) -&gt;
+    names.forEach (name) -&gt;
+      method = self[name]
+
+      self[name] = (args...) -&gt;
+        <span class="keyword">if</span> args.length &gt; <span class="number">0</span>
+          method(args...)
+        <span class="keyword">else</span>
+          method() + self.mods(name)
+
+  effectModifiable(
+    <span class="string">"sight"</span>
+    <span class="string">"strength"</span>
+  )
+
+  self.include Drawable
+
+  Object.extend self,
+    damage: (amount) -&gt;
+      I.health -= amount
+
+    heal: (amount) -&gt;
+      I.health += amount
+
+    cooldown: (ability) -&gt;
+      I.cooldowns[ability.name()] <span class="keyword">or</span> <span class="number">0</span>
+
+    setCooldown: (ability) -&gt;
+      I.cooldowns[ability.name()] = ability.cooldown()
+
+    addMagicalVision: (position) -&gt;
+      I.magicalVision.push position
+
+    addEffect: (effect) -&gt;
+      I.effects.push effect</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Sums up the modifications for an attribute from all the effects.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    mods: (attribute) -&gt;
+      I.effects.reduce (total, effect) -&gt;
+        <span class="keyword">if</span> effect.attribute <span class="keyword">is</span> attribute
+          total + effect.amount
+        <span class="keyword">else</span>
+          total
+      , <span class="number">0</span>
+
+    stateBasedActions: ({addEffect}) -&gt;
+      <span class="keyword">return</span> <span class="keyword">if</span> !I.alive
+
+      <span class="comment"># Clear expired effects</span>
+      I.effects = I.effects.filter (effect) -&gt;
+        effect.duration &gt; <span class="number">0</span>
+
+      <span class="comment"># Cap health</span>
+      <span class="keyword">if</span> I.health &gt; I.healthMax
+        I.health = I.healthMax
+
+      <span class="comment"># Clamping actions and cooldowns</span>
+      <span class="keyword">if</span> I.health &lt;= <span class="number">0</span>
+        <span class="comment"># Died</span>
+        I.alive = <span class="literal">false</span>
+        I.actions = <span class="number">0</span>
+
+        <span class="comment"># Push death effect</span>
+        addEffect Effect.Death(self.position(), self)
+
+      Object.keys(I.cooldowns).forEach (name) -&gt;
+        <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>
+          I.cooldowns[name] = <span class="number">0</span>
+
+      <span class="keyword">return</span>
+
+    targettingAbility: Observable()
+    resetTargetting: -&gt;
+      self.targettingAbility <span class="literal">null</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Ready is called at the beginning of each turn. It resets the actions and processes
+any status effects.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    ready: -&gt;
+      <span class="comment"># Remove all magical vision</span>
+      <span class="comment"># TODO: Maybe have separate vision effects with their own durations</span>
+      I.magicalVision = []
+
+      Object.keys(I.cooldowns).forEach (name) -&gt;
+        I.cooldowns[name] -= <span class="number">1</span>
+
+      I.effects.forEach (effect) -&gt;
+        effect.duration -= <span class="number">1</span>
+
+      I.actions = <span class="number">2</span>
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
