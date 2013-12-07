@@ -5,10 +5,6 @@ Map Tiles
     ByteArray = require "byte_array"
     Resource = require "./resource"
 
-    mapWidth = 32
-    mapHeight = 18
-    numberOfTiles = mapWidth * mapHeight
-
     tileset = [0...8].map (n) ->
       Resource.sprite("ground#{n}")
 
@@ -66,8 +62,8 @@ Methods for interacting with tiles witin the map.
         viewTiles: (positions, index) ->
           positions.forEach ({x, y}) ->
             if boundsCheck(x, y)
-              self.lit.get(index).set(x + y * mapWidth, 1)
-              self.seen.get(index).set(x + y * mapWidth, 1)
+              self.lit.get(index).set(x + y * self.width(), 1)
+              self.seen.get(index).set(x + y * self.width(), 1)
               # TODO: Keep track of seen features
 
         updateVisibleTiles: ->
