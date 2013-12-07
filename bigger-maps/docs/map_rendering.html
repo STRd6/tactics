@@ -86,6 +86,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   <span class="function"><span class="title">drawFeatures</span></span> = (canvas, under) -&gt;
     <span class="comment"># TODO: clipping?</span>
+    <span class="comment"># TODO: Select only features in range from quad tree</span>
     self.features().forEach (feature) -&gt;
       position = feature.position()
 

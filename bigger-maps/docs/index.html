@@ -99,7 +99,6 @@ accessiblePositions = <span class="literal">null</span>
 
 <span class="function"><span class="title">update</span></span> = -&gt;
   <span class="keyword">if</span> map
-    map.stateBasedActions()
     updateActions(map.activeCharacter())
     accessiblePositions = map.accessiblePositions()
 
@@ -117,6 +116,7 @@ uiCanvas = Canvas
 
 uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (position) -&gt;
   map?.touch position
+  update()
 
 $(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>
 </div>
