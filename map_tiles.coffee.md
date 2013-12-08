@@ -3,16 +3,25 @@ Map Tiles
 
     BitArray = require "bit_array"
     ByteArray = require "byte_array"
-    Resource = require "./resource"
 
-    tileset = [0...8].map (n) ->
-      Resource.sprite("ground#{n}")
+    Tileset = require "./tileset"
 
 Methods for interacting with tiles witin the map.
 
     module.exports = (I={}, self=Core(I)) ->
       Object.defaults I,
-        tiles: self.tileCount()
+        width: 32
+        height: 18
+
+      tileset = Tileset()
+
+      self.attrAccessor "width", "height"
+
+      self.tileCount = ->
+        I.width * I.height
+
+      Object.defaults I,
+        tiles: "data:application/octet-binary;BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQsFBQUFBQsFBQUFBQUFBQUFBQUFBQULBQUFBQUFBQUFBQUFBQUFBRoaBQUFBQUFCwUFBQsFBQUFBQUFBQsFBQUFBQUFGhoaGhoaGhoaGhoFBQUFBQUFBQUFCwUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQsFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQULBQULBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQUFBQULBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFBQUFBQUFGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBQUFBQUFBQULBQUFGhoaGhoaBQUFBQUFBQULBQUFBQUFBQUFCwUFBQUFBQUFBQUFBQUFBQUFCwUFBQUFBQUFBQsFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQsFBQUFBQULBQUFBQUFBQUFBQUL"
         lit: [
           # TODO: Handle arbitrary number of squads
           # TODO: Maybe store these with the squad data itself?
@@ -25,9 +34,6 @@ Methods for interacting with tiles witin the map.
         ]
 
       self.attrModel "tiles", ByteArray
-      # TODO: Build variations into tileset
-      [0...self.tileCount()].forEach (i) ->
-        self.tiles().set(i, rand(8))
 
       self.attrModels "lit", BitArray
       self.attrModels "seen", BitArray
@@ -48,15 +54,32 @@ Methods for interacting with tiles witin the map.
 
         isSeen: bitArrayLookup(self.seen)
 
-        tileset: ->
-          tileset
+        # TODO: Inculde character as an optional parameter
+        impassable: (position) ->
+          if tileset.isImpassable(self.tileIndexAt(position))
+            return true
 
-        tileAt: (x, y) ->
-          if x.x?
-            {x, y} = x
+          self.featuresAt(position).some (feature) ->
+            feature.impassable()
+
+        # TODO: Include character as an optional parameter
+        opaque: (position) ->
+          if tileset.isOpaque(self.tileIndexAt(position))
+            return true
+
+          self.featuresAt(position).some (feature) ->
+            feature.opaque()
+
+        tileIndexAt: (position) ->
+          {x, y} = position
+          self.tiles().get(x + y * self.width())
+
+        tileAt: (position) ->
+          {x, y} = position
 
           if boundsCheck(x, y)
-            self.tileset()[self.tiles().get(x + y * self.width())]
+            index = self.tileIndexAt(position)
+            tileset.tileFor(index, x, y)
 
         # TODO: Add trap detection
         viewTiles: ({positions, index, type, message}) ->

@@ -12,17 +12,6 @@ Features are semi-permanent objects that exist at positions on the map.
 
       self.attrModels "features", Feature
 
-      # TODO: Temporary hack to add bushes and walls
-      if self.features().length is 0
-        self.tileCount().times (i) ->
-          position = Point(i % 32, Math.floor(i / 32))
-          if rand() < 0.1
-            self.features.push Feature.Wall(position)
-          else if rand() < 0.025
-            self.features.push Feature.Traps.Effect(position, "Fire")
-          else if rand() < 0.25
-            self.features.push Feature.Bush(position)
-
       featuresToAdd = []
       quadTree = null
 
