@@ -100,20 +100,20 @@ extend = Object.extend
   <span class="comment"># TODO: Load characters from data</span>
   <span class="keyword">if</span> I.race <span class="keyword">is</span> <span class="string">"human"</span>
     self.characters [
-      <span class="comment">#create "Knight",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 1</span>
-      <span class="comment">#    y: 7</span>
+      create <span class="string">"Knight"</span>,
+        position:
+          x: <span class="number">1</span>
+          y: <span class="number">7</span>
 
-      <span class="comment">#create "Wizard",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 2</span>
-      <span class="comment">#    y: 10</span>
+      create <span class="string">"Wizard"</span>,
+        position:
+          x: <span class="number">2</span>
+          y: <span class="number">10</span>
 
-      <span class="comment">#create "Archer",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 4</span>
-      <span class="comment">#    y: 13</span>
+      create <span class="string">"Archer"</span>,
+        position:
+          x: <span class="number">4</span>
+          y: <span class="number">13</span>
 
       create <span class="string">"Scout"</span>,
         position:
@@ -122,30 +122,25 @@ extend = Object.extend
     ]
   <span class="keyword">else</span>
     self.characters [
-      <span class="comment">#create "Grunt",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 10</span>
-      <span class="comment">#    y: 7</span>
+      create <span class="string">"Grunt"</span>,
+        position:
+          x: <span class="number">10</span>
+          y: <span class="number">16</span>
 
-      <span class="comment">#create "Grunt",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 8</span>
-      <span class="comment">#    y: 5</span>
+      create <span class="string">"Grunt"</span>,
+        position:
+          x: <span class="number">12</span>
+          y: <span class="number">14</span>
 
-      <span class="comment">#create "ShrubMage",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 8</span>
-      <span class="comment">#    y: 10</span>
-
-      <span class="comment">#create "Grunt",</span>
-      <span class="comment">#  position:</span>
-      <span class="comment">#    x: 12</span>
-      <span class="comment">#    y: 13</span>
+      create <span class="string">"ShrubMage"</span>,
+        position:
+          x: <span class="number">14</span>
+          y: <span class="number">16</span>
 
       create <span class="string">"Giant"</span>,
         position:
-          x: <span class="number">4</span>
-          y: <span class="number">7</span>
+          x: <span class="number">16</span>
+          y: <span class="number">17</span>
     ]
 
   self.activeCharacter self.characters().first()
