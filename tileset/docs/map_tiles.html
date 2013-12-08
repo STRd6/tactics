@@ -91,6 +91,11 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
       <span class="keyword">if</span> boundsCheck(x, y)
         field.get(self.activeSquadIndex()).get(x + y * self.width())
 
+  <span class="function"><span class="title">toSingleDimension</span></span> = (position) -&gt;
+    {x, y} = position
+
+    x + y * self.width()
+
   self.extend
     isLit: bitArrayLookup(self.lit)
 
@@ -113,24 +118,27 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
         feature.opaque()
 
     tileIndexAt: (position) -&gt;
-      {x, y} = position
-      self.tiles().get(x + y * self.width())
+      self.tiles().get(toSingleDimension(position))
 
     tileAt: (position) -&gt;
       {x, y} = position
 
       <span class="keyword">if</span> boundsCheck(x, y)
         index = self.tileIndexAt(position)
+        <span class="comment"># TODO: Refine tile variation selector</span>
         tileset.tileFor(index, x, y)
 
-    <span class="comment"># TODO: Add trap detection</span>
+    replaceTileAt: (position) -&gt;
+      self.tiles().set(toSingleDimension(position))
+
     viewTiles: ({positions, index, type, message}) -&gt;
       positions.forEach (position) -&gt;
         {x, y} = position
 
         <span class="keyword">if</span> boundsCheck(x, y)
-          self.lit.get(index).set(x + y * self.width(), <span class="number">1</span>)
-          self.seen.get(index).set(x + y * self.width(), <span class="number">1</span>)
+          n = toSingleDimension(position)
+          self.lit.get(index).set(n, <span class="number">1</span>)
+          self.seen.get(index).set(n, <span class="number">1</span>)
           self.featuresAt(position).forEach (feature) -&gt;
             feature.view(index, type, message)
 
@@ -162,6 +170,20 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
             message: message
             positions: self.search.visible(character.position(), character.sight(), self.opaque)
             type: character.visionType()
+
+  <span class="comment"># Add Features from tileset</span>
+  <span class="comment"># In order to use a layerless editor we transform some tile values into </span>
+  <span class="comment"># others and create a given feature at the position</span>
+  I.height.times (y) -&gt;
+    I.width.times (x) -&gt;
+      position = {x, y}
+      {feature, index} = tileset.dataAt self.tileIndexAt(position)
+
+      <span class="keyword">if</span> feature
+        index ?= tileset.defaultIndex()
+        self.tiles().set(toSingleDimension(position), index)
+
+        self.addFeatureByName(feature, position)
 
   <span class="keyword">return</span> self</code></pre>
 </div>

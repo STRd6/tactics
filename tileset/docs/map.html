@@ -50,7 +50,6 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
-    features: []
     squads: [{
       <span class="comment"># TODO</span>
     }, {
@@ -63,8 +62,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.attrObservable <span class="string">"currentTurn"</span>
 
-  self.include MapTiles
   self.include MapFeatures
+  self.include MapTiles
 
   self.attrModels <span class="string">"squads"</span>, Squad
   self.activeSquad = Observable -&gt;
@@ -282,10 +281,7 @@ parameterize it by passing in the character and the ability.</p>
             message: self.message
             event: self.trigger
 
-  <span class="comment"># TODO: This should be done by an initial runthrough of state based actions</span>
-  <span class="comment"># instead</span>
-  self.updateVisibleTiles
-    message: self.message
+  self.stateBasedActions()
 
   self.include require(<span class="string">"./map_rendering"</span>)
 
