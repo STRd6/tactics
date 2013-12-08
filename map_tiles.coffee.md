@@ -96,6 +96,6 @@ Methods for interacting with tiles witin the map.
                 index: index
                 message: message
                 positions: self.search.visible(character.position(), character.sight(), self.opaque)
-                type: "sight"
+                type: character.visionType()
 
       return self

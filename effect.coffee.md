@@ -44,6 +44,19 @@ electricity, I don't know yet.
         else
           console.log "No character at", from
 
+    Effect.Stomp = (position, owner) ->
+      perform: ({characterAt, message, search, featuresAt}) ->
+        # TODO: Add cracked / destroyed sprite
+        # TODO: Screen shake
+        search.adjacent(position).forEach (position) ->
+          if character = characterAt(position)
+            unless character is owner
+              message "#{character.name()} has been shaken by #{owner.name()}'s mighty stomp."
+              character.damage(1)
+              character.stun(2)
+
+          featuresAt(position).invoke "destroy"
+
     # Used in Entanglement
     Effect.Plant = (position) ->
       perform: ({characterAt, message, addFeature, impassable}) ->

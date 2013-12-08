@@ -131,7 +131,7 @@ The primary tactical combat screen.
 
 TODO: Make this easier to control via an AI.
 
-TODO: This should be more accurately called valid targets, we may want to 
+TODO: This should be more accurately called valid targets, we may want to
 parameterize it by passing in the character and the ability.
 
         accessiblePositions: ->
@@ -234,6 +234,8 @@ parameterize it by passing in the character and the ability.
             find: self.find
             message: self.message
             event: self.trigger
+            search: search
+            featuresAt: self.featuresAt
 
           self.stateBasedActions()
 
