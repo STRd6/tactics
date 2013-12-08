@@ -86,8 +86,8 @@ Methods for interacting with tiles witin the map.
             # TODO: Refine tile variation selector
             tileset.tileFor(index, x, y)
 
-        replaceTileAt: (position) ->
-          self.tiles().set(toSingleDimension(position))
+        replaceTileAt: (position, index=tileset.defaultIndex()) ->
+          self.tiles().set(toSingleDimension(position), index)
 
         viewTiles: ({positions, index, type, message}) ->
           positions.forEach (position) ->

@@ -191,14 +191,8 @@ parameterize it by passing in the character and the ability.
               characterPassable(owner)
             )
 
-          ability.perform
-            addEffect: self.addEffect
-            addFeature: self.addFeature
+          ability.perform self.methodObject
             character: characterAt targetPosition
-            characterAt: characterAt
-            find: self.find
-            impassable: self.impassable
-            message: self.message
             movementPath: movementPath
             owner: owner
             position: targetPosition
@@ -206,18 +200,24 @@ parameterize it by passing in the character and the ability.
           self.stateBasedActions()
 
         performEffect: (effect) ->
-          effect.perform
+          effect.perform self.methodObject()
+
+          self.stateBasedActions()
+
+        methodObject: (extraParams={}) ->
+          Object.extend
             addEffect: self.addEffect
             addFeature: self.addFeature
             characterAt: characterAt
-            impassable: self.impassable
-            find: self.find
-            message: self.message
             event: self.trigger
-            search: search
             featuresAt: self.featuresAt
-
-          self.stateBasedActions()
+            find: self.find
+            impassable: self.impassable
+            message: self.message
+            replaceTileAt: self.replaceTileAt
+            search: search
+            turn: I.currentTurn
+          , extraParams
 
         selectTarget: (targetPosition) ->
           ability = self.targettingAbility()

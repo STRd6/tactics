@@ -45,7 +45,7 @@ electricity, I don't know yet.
           console.log "No character at", from
 
     Effect.Stomp = (position, owner) ->
-      perform: ({characterAt, message, search, featuresAt}) ->
+      perform: ({characterAt, message, search, featuresAt, replaceTileAt}) ->
         # TODO: Add cracked / destroyed sprite
         # TODO: Screen shake
         search.adjacent(position).forEach (position) ->
@@ -56,6 +56,9 @@ electricity, I don't know yet.
               character.stun(2)
 
           featuresAt(position).invoke "destroy"
+
+          # Revert tiles to default
+          replaceTileAt(position)
 
     # Used in Entanglement
     Effect.Plant = (position) ->
