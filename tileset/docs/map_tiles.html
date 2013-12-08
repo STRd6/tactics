@@ -128,8 +128,8 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
         <span class="comment"># TODO: Refine tile variation selector</span>
         tileset.tileFor(index, x, y)
 
-    replaceTileAt: (position) -&gt;
-      self.tiles().set(toSingleDimension(position))
+    replaceTileAt: (position, index=tileset.defaultIndex()) -&gt;
+      self.tiles().set(toSingleDimension(position), index)
 
     viewTiles: ({positions, index, type, message}) -&gt;
       positions.forEach (position) -&gt;

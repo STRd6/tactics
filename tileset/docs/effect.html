@@ -87,7 +87,7 @@ Effect.<span class="function"><span class="title">Move</span></span> = (from, to
       console.log <span class="string">"No character at"</span>, from
 
 Effect.<span class="function"><span class="title">Stomp</span></span> = (position, owner) -&gt;
-  perform: ({characterAt, message, search, featuresAt}) -&gt;
+  perform: ({characterAt, message, search, featuresAt, replaceTileAt}) -&gt;
     <span class="comment"># TODO: Add cracked / destroyed sprite</span>
     <span class="comment"># TODO: Screen shake</span>
     search.adjacent(position).forEach (position) -&gt;
@@ -98,6 +98,9 @@ Effect.<span class="function"><span class="title">Stomp</span></span> = (positio
           character.stun(<span class="number">2</span>)
 
       featuresAt(position).invoke <span class="string">"destroy"</span>
+
+      <span class="comment"># Revert tiles to default</span>
+      replaceTileAt(position)
 
 <span class="comment"># Used in Entanglement</span>
 Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;
