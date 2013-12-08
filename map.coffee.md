@@ -18,7 +18,6 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
-        features: []
         squads: [{
           # TODO
         }, {
@@ -31,8 +30,8 @@ The primary tactical combat screen.
 
       self.attrObservable "currentTurn"
 
-      self.include MapTiles
       self.include MapFeatures
+      self.include MapTiles
 
       self.attrModels "squads", Squad
       self.activeSquad = Observable ->
@@ -242,10 +241,7 @@ parameterize it by passing in the character and the ability.
                 message: self.message
                 event: self.trigger
 
-      # TODO: This should be done by an initial runthrough of state based actions
-      # instead
-      self.updateVisibleTiles
-        message: self.message
+      self.stateBasedActions()
 
       self.include require("./map_rendering")
 

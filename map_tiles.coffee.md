@@ -49,6 +49,11 @@ Methods for interacting with tiles witin the map.
           if boundsCheck(x, y)
             field.get(self.activeSquadIndex()).get(x + y * self.width())
 
+      toSingleDimension = (position) ->
+        {x, y} = position
+
+        x + y * self.width()
+
       self.extend
         isLit: bitArrayLookup(self.lit)
 
@@ -71,24 +76,27 @@ Methods for interacting with tiles witin the map.
             feature.opaque()
 
         tileIndexAt: (position) ->
-          {x, y} = position
-          self.tiles().get(x + y * self.width())
+          self.tiles().get(toSingleDimension(position))
 
         tileAt: (position) ->
           {x, y} = position
 
           if boundsCheck(x, y)
             index = self.tileIndexAt(position)
+            # TODO: Refine tile variation selector
             tileset.tileFor(index, x, y)
 
-        # TODO: Add trap detection
+        replaceTileAt: (position) ->
+          self.tiles().set(toSingleDimension(position))
+
         viewTiles: ({positions, index, type, message}) ->
           positions.forEach (position) ->
             {x, y} = position
 
             if boundsCheck(x, y)
-              self.lit.get(index).set(x + y * self.width(), 1)
-              self.seen.get(index).set(x + y * self.width(), 1)
+              n = toSingleDimension(position)
+              self.lit.get(index).set(n, 1)
+              self.seen.get(index).set(n, 1)
               self.featuresAt(position).forEach (feature) ->
                 feature.view(index, type, message)
 
@@ -120,5 +128,19 @@ Methods for interacting with tiles witin the map.
                 message: message
                 positions: self.search.visible(character.position(), character.sight(), self.opaque)
                 type: character.visionType()
+
+      # Add Features from tileset
+      # In order to use a layerless editor we transform some tile values into 
+      # others and create a given feature at the position
+      I.height.times (y) ->
+        I.width.times (x) ->
+          position = {x, y}
+          {feature, index} = tileset.dataAt self.tileIndexAt(position)
+
+          if feature
+            index ?= tileset.defaultIndex()
+            self.tiles().set(toSingleDimension(position), index)
+
+            self.addFeatureByName(feature, position)
 
       return self

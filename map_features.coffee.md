@@ -36,6 +36,11 @@ Features are semi-permanent objects that exist at positions on the map.
           feature.createdAt(I.currentTurn)
           featuresToAdd.push(feature)
 
+        addFeatureByName: (name, params) ->
+          feature = Feature[name](params)
+          feature.createdAt(I.currentTurn)
+          featuresToAdd.push(feature)
+
         addNewFeatures: ->
           ensureQuadTree()
 

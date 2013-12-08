@@ -19,12 +19,16 @@ art.
           5:
             name: "ground"
             count: 8
+          11:
+            feature: "Bush"
           26:
             name: "brick_vines"
             count: 4
             impassable: true
             opaque: true
         defaultIndex: 5
+
+      self.attrAccessor "defaultIndex"
 
       self.include Compositions
 
@@ -42,8 +46,9 @@ art.
         else
           {name, count, impassable, opaque} = nameOrObject
 
-          tileSprites[index] = [0...count].map (n) ->
-            Resource.sprite("#{name}#{n}")
+          if name
+            tileSprites[index] = [0...count].map (n) ->
+              Resource.sprite("#{name}#{n}")
 
           if impassable
             self.impassable().set(index, 1)
@@ -54,6 +59,9 @@ art.
       notFound = {}
 
       self.extend
+        dataAt: (index) ->
+          I.spriteNames[index]
+
         isImpassable: (index) ->
           self.impassable().get(index)
 
