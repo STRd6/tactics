@@ -10,31 +10,48 @@ art.
 
     n = 256
 
-    tileset = new Array(n)
-
-    tileset[5] = [0...8].map (n) ->
-      Resource.sprite("ground#{n}")
-
-    tileset[11] = tileset[5]
-
-    tileset[26] = [0...4].map (n) ->
-      Resource.sprite("brick_vines#{n}")
-
-    notFound = {}
-
     module.exports = (I={}, self=Core(I)) ->
       Object.defaults I,
         impassable: n
         opaque: n
+        size: 256
+        spriteNames: # TODO: This should probably be an array
+          5:
+            name: "ground"
+            count: 8
+          26:
+            name: "brick_vines"
+            count: 4
+            impassable: true
+            opaque: true
+        defaultIndex: 5
 
       self.include Compositions
 
       self.attrModel "impassable", BitArray
       self.attrModel "opaque", BitArray
 
-      # TODO: Don't hard code this
-      self.impassable().set(26, 1)
-      self.opaque().set(26, 1)
+      tileSprites = new Array(n)
+
+      # Using keys to handle "sparse" arrays.
+      Object.keys(I.spriteNames).map (index) ->
+        nameOrObject = I.spriteNames[index]
+
+        if typeof nameOrObject is "string"
+          tileSprites[index] = [Resource.sprite(nameOrObject)]
+        else
+          {name, count, impassable, opaque} = nameOrObject
+
+          tileSprites[index] = [0...count].map (n) ->
+            Resource.sprite("#{name}#{n}")
+
+          if impassable
+            self.impassable().set(index, 1)
+          
+          if opaque
+            self.opaque().set(index, 1)
+
+      notFound = {}
 
       self.extend
         isImpassable: (index) ->
@@ -44,14 +61,14 @@ art.
           self.opaque().get(index)
 
         tileFor: (index, x, y) ->
-          if group = tileset[index]
+          if group = tileSprites[index]
             group.wrap(x + y)
           else
             unless notFound[index]
               console.error "Index not present in tileset: index #{index}"
               notFound[index] = true
 
-            tileset[defaultIndex].wrap(x + y)
+            tileSprites[I.defaultIndex].wrap(x + y)
 
         toJSON: ->
           Object.extend {}, I,
