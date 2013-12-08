@@ -52,31 +52,48 @@ art.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript">n = <span class="number">256</span>
 
-tileset = <span class="keyword">new</span> Array(n)
-
-tileset[<span class="number">5</span>] = [<span class="number">0.</span>.<span class="number">.8</span>].map (n) -&gt;
-  Resource.sprite(<span class="string">"ground<span class="subst">#{n}</span>"</span>)
-
-tileset[<span class="number">11</span>] = tileset[<span class="number">5</span>]
-
-tileset[<span class="number">26</span>] = [<span class="number">0.</span>.<span class="number">.4</span>].map (n) -&gt;
-  Resource.sprite(<span class="string">"brick_vines<span class="subst">#{n}</span>"</span>)
-
-notFound = {}
-
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     impassable: n
     opaque: n
+    size: <span class="number">256</span>
+    spriteNames: <span class="comment"># TODO: This should probably be an array</span>
+      <span class="number">5</span>:
+        name: <span class="string">"ground"</span>
+        count: <span class="number">8</span>
+      <span class="number">26</span>:
+        name: <span class="string">"brick_vines"</span>
+        count: <span class="number">4</span>
+        impassable: <span class="literal">true</span>
+        opaque: <span class="literal">true</span>
+    defaultIndex: <span class="number">5</span>
 
   self.include Compositions
 
   self.attrModel <span class="string">"impassable"</span>, BitArray
   self.attrModel <span class="string">"opaque"</span>, BitArray
 
-  <span class="comment"># TODO: Don't hard code this</span>
-  self.impassable().set(<span class="number">26</span>, <span class="number">1</span>)
-  self.opaque().set(<span class="number">26</span>, <span class="number">1</span>)
+  tileSprites = <span class="keyword">new</span> Array(n)
+
+  <span class="comment"># Using keys to handle "sparse" arrays.</span>
+  Object.keys(I.spriteNames).map (index) -&gt;
+    nameOrObject = I.spriteNames[index]
+
+    <span class="keyword">if</span> <span class="keyword">typeof</span> nameOrObject <span class="keyword">is</span> <span class="string">"string"</span>
+      tileSprites[index] = [Resource.sprite(nameOrObject)]
+    <span class="keyword">else</span>
+      {name, count, impassable, opaque} = nameOrObject
+
+      tileSprites[index] = [<span class="number">0.</span>..count].map (n) -&gt;
+        Resource.sprite(<span class="string">"<span class="subst">#{name}</span><span class="subst">#{n}</span>"</span>)
+
+      <span class="keyword">if</span> impassable
+        self.impassable().set(index, <span class="number">1</span>)
+
+      <span class="keyword">if</span> opaque
+        self.opaque().set(index, <span class="number">1</span>)
+
+  notFound = {}
 
   self.extend
     isImpassable: (index) -&gt;
@@ -86,14 +103,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.opaque().get(index)
 
     tileFor: (index, x, y) -&gt;
-      <span class="keyword">if</span> group = tileset[index]
+      <span class="keyword">if</span> group = tileSprites[index]
         group.wrap(x + y)
       <span class="keyword">else</span>
         <span class="keyword">unless</span> notFound[index]
           console.error <span class="string">"Index not present in tileset: index <span class="subst">#{index}</span>"</span>
           notFound[index] = <span class="literal">true</span>
 
-        tileset[defaultIndex].wrap(x + y)
+        tileSprites[I.defaultIndex].wrap(x + y)
 
     toJSON: -&gt;
       Object.extend {}, I,
