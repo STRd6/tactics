@@ -43,7 +43,7 @@ Rendering offset in pixels.
         seen = self.seen.get(index)
         screenPositions.forEach (position) ->
           if self.isSeen(position)
-            self.tileAt(position).draw canvas, position.scale(tileSize)
+            self.tileAt(position)?.draw canvas, position.scale(tileSize)
 
       drawFeatures = (canvas, under) ->
         # TODO: clipping?

@@ -58,20 +58,20 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
       # TODO: Load characters from data
       if I.race is "human"
         self.characters [
-          #create "Knight",
-          #  position:
-          #    x: 1
-          #    y: 7
+          create "Knight",
+            position:
+              x: 1
+              y: 7
 
-          #create "Wizard",
-          #  position:
-          #    x: 2
-          #    y: 10
+          create "Wizard",
+            position:
+              x: 2
+              y: 10
 
-          #create "Archer",
-          #  position:
-          #    x: 4
-          #    y: 13
+          create "Archer",
+            position:
+              x: 4
+              y: 13
 
           create "Scout",
             position:
@@ -80,30 +80,25 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         ]
       else
         self.characters [
-          #create "Grunt",
-          #  position:
-          #    x: 10
-          #    y: 7
+          create "Grunt",
+            position:
+              x: 10
+              y: 16
 
-          #create "Grunt",
-          #  position:
-          #    x: 8
-          #    y: 5
+          create "Grunt",
+            position:
+              x: 12
+              y: 14
 
-          #create "ShrubMage",
-          #  position:
-          #    x: 8
-          #    y: 10
-
-          #create "Grunt",
-          #  position:
-          #    x: 12
-          #    y: 13
+          create "ShrubMage",
+            position:
+              x: 14
+              y: 16
 
           create "Giant",
             position:
-              x: 4
-              y: 7
+              x: 16
+              y: 17
         ]
 
       self.activeCharacter self.characters().first()

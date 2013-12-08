@@ -12,17 +12,6 @@ Features are semi-permanent objects that exist at positions on the map.
 
       self.attrModels "features", Feature
 
-      # TODO: Temporary hack to add bushes and walls
-      if self.features().length is 0
-        self.tileCount().times (i) ->
-          position = Point(i % 32, Math.floor(i / 32))
-          if rand() < 0.1
-            self.features.push Feature.Wall(position)
-          else if rand() < 0.025
-            self.features.push Feature.Traps.Effect(position, "Fire")
-          else if rand() < 0.25
-            self.features.push Feature.Bush(position)
-
       featuresToAdd = []
       quadTree = null
 
@@ -47,6 +36,11 @@ Features are semi-permanent objects that exist at positions on the map.
           feature.createdAt(I.currentTurn)
           featuresToAdd.push(feature)
 
+        addFeatureByName: (name, params) ->
+          feature = Feature[name](params)
+          feature.createdAt(I.currentTurn)
+          featuresToAdd.push(feature)
+
         addNewFeatures: ->
           ensureQuadTree()
 
@@ -67,15 +61,8 @@ Features are semi-permanent objects that exist at positions on the map.
 
         updateFeatures: ->
           # Updating and filtering features to only the active features
-          # TODO: Scrap quadtree when removing features
           self.features self.features().filter (feature) ->
-            kept = feature.update
-              addEffect: self.addEffect
-              addFeature: self.addFeature
-              characterAt: self.characterAt
-              find: self.find
-              message: self.message
-              turn: I.currentTurn
+            kept = feature.update self.methodObject()
 
             if !kept
               quadTree = null

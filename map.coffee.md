@@ -18,42 +18,24 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
-        features: []
         squads: [{
           # TODO
         }, {
           race: "goblin"
         }]
-        height: 36
-        width: 64
 
       self ?= Core(I)
 
       self.include Compositions
 
-      self.attrAccessor "width", "height"
-
       self.attrObservable "currentTurn"
 
-      self.tileCount = ->
-        I.width * I.height
-
-      self.include MapTiles
       self.include MapFeatures
+      self.include MapTiles
 
       self.attrModels "squads", Squad
       self.activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
-
-      # TODO: Inculde character as an optional parameter
-      impassable = (position) ->
-        self.featuresAt(position).some (feature) ->
-          feature.impassable()
-
-      # TODO: Include character as an optional parameter
-      opaque = (position) ->
-        self.featuresAt(position).some (feature) ->
-          feature.opaque()
 
       characterPassable = (character) ->
         index = self.activeSquadIndex()
@@ -66,7 +48,7 @@ The primary tactical combat screen.
           else
             occupantPassable = true
 
-          !impassable(position) and self.lit.get(index).get(position.x + position.y * self.width()) and occupantPassable
+          !self.impassable(position) and self.lit.get(index).get(position.x + position.y * self.width()) and occupantPassable
 
       characterAt = (x, y) ->
         if x.x?
@@ -112,8 +94,6 @@ The primary tactical combat screen.
 
         eachTile: self.tiles().each
 
-        opaque: opaque
-
         visibleCharacters: ->
           self.characters().filter (character) ->
             self.isLit(character.position())
@@ -155,7 +135,7 @@ parameterize it by passing in the character and the ability.
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
-                visiblePositions = search.visible(character.position(), character.sight(), opaque)
+                visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
@@ -211,14 +191,8 @@ parameterize it by passing in the character and the ability.
               characterPassable(owner)
             )
 
-          ability.perform
-            addEffect: self.addEffect
-            addFeature: self.addFeature
+          ability.perform self.methodObject
             character: characterAt targetPosition
-            characterAt: characterAt
-            find: self.find
-            impassable: impassable
-            message: self.message
             movementPath: movementPath
             owner: owner
             position: targetPosition
@@ -226,18 +200,24 @@ parameterize it by passing in the character and the ability.
           self.stateBasedActions()
 
         performEffect: (effect) ->
-          effect.perform
+          effect.perform self.methodObject()
+
+          self.stateBasedActions()
+
+        methodObject: (extraParams={}) ->
+          Object.extend
             addEffect: self.addEffect
             addFeature: self.addFeature
             characterAt: characterAt
-            impassable: impassable
-            find: self.find
-            message: self.message
             event: self.trigger
-            search: search
             featuresAt: self.featuresAt
-
-          self.stateBasedActions()
+            find: self.find
+            impassable: self.impassable
+            message: self.message
+            replaceTileAt: self.replaceTileAt
+            search: search
+            turn: I.currentTurn
+          , extraParams
 
         selectTarget: (targetPosition) ->
           ability = self.targettingAbility()
@@ -256,15 +236,12 @@ parameterize it by passing in the character and the ability.
                 characterAt: characterAt
                 effect: (name, params) ->
                   self.addEffect Effect[name](params)
-                impassable: impassable
+                impassable: self.impassable
                 find: self.find
                 message: self.message
                 event: self.trigger
 
-      # TODO: This should be done by an initial runthrough of state based actions
-      # instead
-      self.updateVisibleTiles
-        message: self.message
+      self.stateBasedActions()
 
       self.include require("./map_rendering")
 
