@@ -40,6 +40,9 @@ Action = require <span class="string">"./action"</span>
 Drawable = require <span class="string">"./lib/drawable"</span>
 Effect = require <span class="string">"./effect"</span>
 Names = require <span class="string">"./names"</span>
+Passive = require <span class="string">"./passive"</span>
+
+{sqrt, min, max} = Math
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   I.position = Point(I.position)
@@ -49,17 +52,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="string">"Move"</span>
       <span class="string">"Melee"</span>
     ]
+    passives: []
     actions: <span class="number">2</span>
     alive: <span class="literal">true</span>
     cooldowns: {}
     effects: []
     health: <span class="number">3</span>
     healthMax: <span class="number">3</span>
+    magicalVision: []
     movement: <span class="number">4</span>
     name: Names.male.rand()
+    physicalAwareness: sqrt(<span class="number">2</span>)
     sight: <span class="number">7</span>
     strength: <span class="number">1</span>
-    magicalVision: []
+    stun: <span class="number">0</span>
 
   self.attrAccessor(
     <span class="string">"abilities"</span>
@@ -70,6 +76,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"magicalVision"</span>
     <span class="string">"movement"</span>
     <span class="string">"name"</span>
+    <span class="string">"physicalAwareness"</span>
     <span class="string">"position"</span>
     <span class="string">"sight"</span>
     <span class="string">"strength"</span>
@@ -154,14 +161,31 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">if</span> I.cooldowns[name] &lt; <span class="number">0</span>
           I.cooldowns[name] = <span class="number">0</span>
 
+      <span class="keyword">if</span> I.stun &lt; <span class="number">0</span>
+        I.stun = <span class="number">0</span>
+
       <span class="keyword">return</span>
+
+    stun: (stun) -&gt;
+      console.log <span class="string">"#1 Stunna"</span>, stun
+      I.stun = Math.max(I.stun, stun)
+      I.actions = <span class="number">0</span>
+
+    stunned: -&gt;
+      I.stun &gt; <span class="number">0</span>
+
+    aware: () -&gt;
+      self.alive() <span class="keyword">and</span> !self.stunned()
+
+    physicalAwareness: -&gt;
+      <span class="keyword">if</span> !self.aware()
+        <span class="number">0</span>
+      <span class="keyword">else</span>
+        I.physicalAwareness + self.mods(name)
 
     targettingAbility: Observable()
     resetTargetting: -&gt;
-      self.targettingAbility <span class="literal">null</span>
-
-    updatePosition: (newPosition) -&gt;
-      self.position newPosition</code></pre>
+      self.targettingAbility <span class="literal">null</span></code></pre>
 </div>
         </li>
         
@@ -180,13 +204,27 @@ any status effects.</p>
       <span class="comment"># TODO: Maybe have separate vision effects with their own durations</span>
       I.magicalVision = []
 
+      I.stun -= <span class="number">1</span> <span class="keyword">if</span> I.stun &gt; <span class="number">0</span>
+
       Object.keys(I.cooldowns).forEach (name) -&gt;
         I.cooldowns[name] -= <span class="number">1</span>
 
       I.effects.forEach (effect) -&gt;
         effect.duration -= <span class="number">1</span>
 
-      I.actions = <span class="number">2</span>
+      <span class="keyword">if</span> I.stun <span class="keyword">is</span> <span class="number">0</span>
+        I.actions = <span class="number">2</span>
+      <span class="keyword">else</span>
+        I.actions = <span class="number">0</span>
+
+    passives: -&gt;
+      I.passives.map (name) -&gt;
+        Passive.Passives[name]
+
+    visionType: -&gt;
+      self.passives().reduce (memo, passive) -&gt;
+        memo <span class="keyword">or</span> passive.visionType
+      , <span class="literal">undefined</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>

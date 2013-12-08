@@ -158,8 +158,22 @@ Ability.Abilities =
     iconName: <span class="string">"boots"</span>
     actionCost: <span class="number">1</span>
     targetZone: MOVEMENT
-    perform: ({owner, position}) -&gt;
-      owner.updatePosition position
+    perform: ({addEffect, movementPath, owner}) -&gt;
+      owner.addEffect
+        name: <span class="string">"moving"</span>
+        attribute: <span class="string">"physicalAwareness"</span>
+        amount: -<span class="number">100</span>
+        duration: <span class="number">1</span>
+
+      <span class="comment"># Need to reverse because the effects go on a stack.</span>
+      positions = movementPath.copy().reverse()
+
+      positions.forEach (position, i) -&gt;
+        to = position
+        from = positions[i+<span class="number">1</span>]
+
+        <span class="keyword">if</span> to <span class="keyword">and</span> from
+          addEffect Effect.Move(from, to, owner)
 
   Teleport: Ability
     name: <span class="string">"Teleport"</span>
@@ -168,7 +182,8 @@ Ability.Abilities =
     range: <span class="number">50</span>
     targetZone: ANY
     perform: ({character, owner, position, message}) -&gt;
-      owner.updatePosition position
+      <span class="comment"># TODO: Make this a movement effect so we can trigger traps/events</span>
+      owner.position position
 
       <span class="keyword">if</span> character
         owner.I.health = <span class="number">0</span>
@@ -183,7 +198,8 @@ Ability.Abilities =
     range: <span class="number">8</span>
     targetZone: LINE_OF_SIGHT
     perform: ({character, message, owner, position}) -&gt;
-      owner.updatePosition position
+      <span class="comment"># TODO: Make this a movement effect so we can trigger traps/events</span>
+      owner.position position
 
       <span class="keyword">if</span> character
         owner.I.health = <span class="number">0</span>
@@ -268,6 +284,16 @@ Ability.Abilities =
     perform: ({position, addEffect}) -&gt;
       search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
         addEffect(Effect.Plant(position))
+
+  Stomp: Ability
+    name: <span class="string">"Stomp"</span>
+    iconName: <span class="string">"stomp"</span>
+    range: <span class="number">1</span>
+    actionCost: <span class="number">2</span>
+    cooldown: <span class="number">2</span>
+    targetZone: SELF
+    perform: ({position, addEffect, owner}) -&gt;
+      addEffect(Effect.Stomp(position, owner))
 
   Fireball: Ability
     name: <span class="string">"Fireball"</span>

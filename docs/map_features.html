@@ -48,20 +48,11 @@ QuadTree = require <span class="string">"quadtree"</span></code></pre>
               <p>Features are semi-permanent objects that exist at positions on the map.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I))-&gt;
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     features: []
 
   self.attrModels <span class="string">"features"</span>, Feature
-
-  <span class="comment"># TODO: Temporary hack to add bushes and walls</span>
-  <span class="keyword">if</span> self.features().length <span class="keyword">is</span> <span class="number">0</span>
-    self.tileCount().times (i) -&gt;
-      position = Point(i % <span class="number">32</span>, Math.floor(i / <span class="number">32</span>))
-      <span class="keyword">if</span> rand() &lt; <span class="number">0.1</span>
-        self.features.push Feature.Wall(position)
-      <span class="keyword">else</span> <span class="keyword">if</span> rand() &lt; <span class="number">0.25</span>
-        self.features.push Feature.Bush(position)
 
   featuresToAdd = []
   quadTree = <span class="literal">null</span>
@@ -87,6 +78,11 @@ QuadTree = require <span class="string">"quadtree"</span></code></pre>
       feature.createdAt(I.currentTurn)
       featuresToAdd.push(feature)
 
+    addFeatureByName: (name, params) -&gt;
+      feature = Feature[name](params)
+      feature.createdAt(I.currentTurn)
+      featuresToAdd.push(feature)
+
     addNewFeatures: -&gt;
       ensureQuadTree()
 
@@ -107,15 +103,8 @@ QuadTree = require <span class="string">"quadtree"</span></code></pre>
 
     updateFeatures: -&gt;
       <span class="comment"># Updating and filtering features to only the active features</span>
-      <span class="comment"># TODO: Scrap quadtree when removing features</span>
       self.features self.features().filter (feature) -&gt;
-        kept = feature.update
-          addEffect: self.addEffect
-          addFeature: self.addFeature
-          characterAt: self.characterAt
-          find: self.find
-          message: self.message
-          turn: I.currentTurn
+        kept = feature.update self.methodObject()
 
         <span class="keyword">if</span> !kept
           quadTree = <span class="literal">null</span>

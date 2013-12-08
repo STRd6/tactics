@@ -37,6 +37,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Compositions = require <span class="string">"./lib/compositions"</span>
+Effect = require <span class="string">"./effect"</span>
 MapFeatures = require <span class="string">"./map_features"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 MapTiles = require <span class="string">"./map_tiles"</span>
@@ -49,53 +50,37 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
-    features: []
     squads: [{
       <span class="comment"># TODO</span>
     }, {
       race: <span class="string">"goblin"</span>
     }]
-    height: <span class="number">18</span>
-    width: <span class="number">32</span>
 
   self ?= Core(I)
 
-  self.attrAccessor <span class="string">"width"</span>, <span class="string">"height"</span>
-
-  self.extend
-    tileCount: -&gt;
-      I.width * I.height
-
   self.include Compositions
-
-  self.include MapTiles
-  self.include MapFeatures
-
-  self.attrModels <span class="string">"squads"</span>, Squad
 
   self.attrObservable <span class="string">"currentTurn"</span>
 
-  activeSquad = Observable -&gt;
+  self.include MapFeatures
+  self.include MapTiles
+
+  self.attrModels <span class="string">"squads"</span>, Squad
+  self.activeSquad = Observable -&gt;
     self.squads().wrap(self.currentTurn())
 
-  <span class="comment"># TODO: Inculde character as an optional parameter</span>
-  <span class="function"><span class="title">impassable</span></span> = (position) -&gt;
-    self.featuresAt(position).some (feature) -&gt;
-      feature.impassable()
-
-  <span class="comment"># TODO: Include character as an optional parameter</span>
-  <span class="function"><span class="title">opaque</span></span> = (position) -&gt;
-    self.featuresAt(position).some (feature) -&gt;
-      feature.opaque()
-
   <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
+    index = self.activeSquadIndex()
+
     (position) -&gt;
-      <span class="keyword">if</span> occupant = characterAt(position)
-        occupantPassable = (activeSquad().characters.indexOf(occupant) != -<span class="number">1</span>)
+      <span class="keyword">if</span> self.featuresAt(position).some((feature) -&gt; feature.seen(index) <span class="keyword">and</span> feature.dangerous())
+        occupantPassable = <span class="literal">false</span>
+      <span class="keyword">else</span> <span class="keyword">if</span> occupant = characterAt(position)
+        occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -<span class="number">1</span>)
       <span class="keyword">else</span>
         occupantPassable = <span class="literal">true</span>
 
-      !impassable(position) <span class="keyword">and</span> self.lit.get(self.activeSquadIndex()).get(position.x + position.y * self.width()) <span class="keyword">and</span> occupantPassable
+      !self.impassable(position) <span class="keyword">and</span> self.lit.get(index).get(position.x + position.y * self.width()) <span class="keyword">and</span> occupantPassable
 
   <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
     <span class="keyword">if</span> x.x?
@@ -141,8 +126,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
     eachTile: self.tiles().each
 
-    opaque: opaque
-
     visibleCharacters: -&gt;
       self.characters().filter (character) -&gt;
         self.isLit(character.position())
@@ -152,7 +135,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       self.squads().forEach (squad) -&gt;
         squad.activeCharacter()
 
-      activeSquad()?.activeCharacter()
+      self.activeSquad()?.activeCharacter()
 
     targettingAbility: -&gt;
       <span class="keyword">if</span> character = self.activeCharacter()
@@ -167,6 +150,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
               <p>TODO: Make this easier to control via an AI.</p>
+<p>TODO: This should be more accurately called valid targets, we may want to
+parameterize it by passing in the character and the ability.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">    accessiblePositions: -&gt;
@@ -175,6 +160,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
           <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
+            <span class="comment"># TODO this auto-perform doesn't belong here, it should be done</span>
+            <span class="comment"># in the caller if one so wishes</span>
             self.performAbility(character, ability, character.position())
 
             <span class="keyword">return</span>
@@ -188,7 +175,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             positionsInRange = search.adjacent(character.position(), ability.range())
 
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
-            visiblePositions = search.visible(character.position(), character.sight(), opaque)
+            visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
             positionsInRange = search.adjacent(character.position(), ability.range())
 
             intersection(
@@ -207,19 +194,20 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
       self.addNewFeatures()
 
-      <span class="comment"># TODO: May not want to do this ALL the time</span>
-      self.updateVisibleTiles()
+      self.updateVisibleTiles
+        message: self.message
 
       <span class="keyword">unless</span> self.activeCharacter()
         <span class="comment"># End of turn</span>
         self.ready()
 
     ready: -&gt;
+      console.log <span class="string">"Ready"</span>
       self.currentTurn(self.currentTurn() + <span class="number">1</span>)
       self.updateFeatures()
 
       <span class="comment"># Refresh newly active squad</span>
-      activeSquad().ready()
+      self.activeSquad().ready()
 
       <span class="keyword">if</span> self.activeCharacter()
         self.stateBasedActions()
@@ -236,60 +224,64 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       effectStack.push effect
 
     performAbility: (owner, ability, targetPosition) -&gt;
-      ability.perform
-        addEffect: self.addEffect
-        addFeature: self.addFeature
+      <span class="keyword">if</span> Ability.TARGET_ZONE.MOVEMENT
+        movementPath = search.movementPath(
+          owner.position(),
+          targetPosition,
+          characterPassable(owner)
+        )
+
+      ability.perform self.methodObject
         character: characterAt targetPosition
-        characterAt: characterAt
-        find: self.find
-        impassable: impassable
-        message: self.message
+        movementPath: movementPath
         owner: owner
         position: targetPosition
 
       self.stateBasedActions()
 
     performEffect: (effect) -&gt;
-      effect.perform
-        addEffect: self.addEffect
-        addFeature: self.addFeature
-        characterAt: characterAt
-        impassable: impassable
-        find: self.find
-        message: self.message
+      effect.perform self.methodObject()
 
       self.stateBasedActions()
 
-    selectTarget: (position) -&gt;
+    methodObject: (extraParams={}) -&gt;
+      Object.extend
+        addEffect: self.addEffect
+        addFeature: self.addFeature
+        characterAt: characterAt
+        event: self.trigger
+        featuresAt: self.featuresAt
+        find: self.find
+        impassable: self.impassable
+        message: self.message
+        replaceTileAt: self.replaceTileAt
+        search: search
+        turn: I.currentTurn
+      , extraParams
+
+    selectTarget: (targetPosition) -&gt;
       ability = self.targettingAbility()
-
-      <span class="keyword">switch</span> ability.targetZone()
-        <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
-          self.moveDuder(position)
-        <span class="keyword">else</span>
-          self.performAbility(self.activeCharacter(), ability, position)
-
-    touch: (position) -&gt;
-      activeSquad()?.activateCharacterAt(position)
-
-    moveDuder: (position) -&gt;
       character = self.activeCharacter()
 
-      path = search.movementPath(
-        character.position(),
-        position,
-        characterPassable(character)
-      )
+      self.performAbility(character, ability, targetPosition)
 
-      <span class="keyword">if</span> path
-        index = self.activeSquadIndex()
-        <span class="comment"># TODO: Maybe this should be done as SBAs</span>
-        path.forEach (position) -&gt;
-          self.viewTiles search.visible(character.position(), character.sight(), opaque), index
+    trigger: (name, params) -&gt;
+      <span class="comment"># TODO: Think more about event listeners</span>
 
-        self.performAbility(character, self.targettingAbility(), position)
+      <span class="keyword">if</span> name <span class="keyword">is</span> <span class="string">"move"</span>
+        self.featuresAt(params.to).forEach (feature) -&gt;
+          feature.enter
+            addEffect: self.addEffect
+            addFeature: self.addFeature
+            characterAt: characterAt
+            effect: (name, params) -&gt;
+              self.addEffect Effect[name](params)
+            impassable: self.impassable
+            find: self.find
+            message: self.message
+            event: self.trigger
 
-  self.updateVisibleTiles()
+  self.stateBasedActions()
 
   self.include require(<span class="string">"./map_rendering"</span>)
 

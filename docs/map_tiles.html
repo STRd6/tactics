@@ -36,14 +36,8 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">BitArray = require <span class="string">"bit_array"</span>
 ByteArray = require <span class="string">"byte_array"</span>
-Resource = require <span class="string">"./resource"</span>
 
-mapWidth = <span class="number">32</span>
-mapHeight = <span class="number">18</span>
-numberOfTiles = mapWidth * mapHeight
-
-tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n) -&gt;
-  Resource.sprite(<span class="string">"ground<span class="subst">#{n}</span>"</span>)</code></pre>
+Tileset = require <span class="string">"./tileset"</span></code></pre>
 </div>
         </li>
         
@@ -58,7 +52,18 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
-    tiles: self.tileCount()
+    width: <span class="number">32</span>
+    height: <span class="number">18</span>
+
+  tileset = Tileset()
+
+  self.attrAccessor <span class="string">"width"</span>, <span class="string">"height"</span>
+
+  self.<span class="function"><span class="title">tileCount</span></span> = -&gt;
+    I.width * I.height
+
+  Object.defaults I,
+    tiles: <span class="string">"data:application/octet-binary;BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQsFBQUFBQsFBQUFBQUFBQUFBQUFBQULBQUFBQUFBQUFBQUFBQUFBRoaBQUFBQUFCwUFBQsFBQUFBQUFBQsFBQUFBQUFGhoaGhoaGhoaGhoFBQUFBQUFBQUFCwUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQsFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQULBQULBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQUFBQULBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFBQUFBQUFGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBQUFBQUFBQULBQUFGhoaGhoaBQUFBQUFBQULBQUFBQUFBQUFCwUFBQUFBQUFBQUFBQUFBQUFCwUFBQUFBQUFBQsFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQsFBQUFBQULBQUFBQUFBQUFBQUL"</span>
     lit: [
       <span class="comment"># TODO: Handle arbitrary number of squads</span>
       <span class="comment"># TODO: Maybe store these with the squad data itself?</span>
@@ -71,9 +76,6 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
     ]
 
   self.attrModel <span class="string">"tiles"</span>, ByteArray
-  <span class="comment"># TODO: Build variations into tileset</span>
-  [<span class="number">0.</span>..self.tileCount()].forEach (i) -&gt;
-    self.tiles().set(i, rand(<span class="number">8</span>))
 
   self.attrModels <span class="string">"lit"</span>, BitArray
   self.attrModels <span class="string">"seen"</span>, BitArray
@@ -89,30 +91,58 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
       <span class="keyword">if</span> boundsCheck(x, y)
         field.get(self.activeSquadIndex()).get(x + y * self.width())
 
+  <span class="function"><span class="title">toSingleDimension</span></span> = (position) -&gt;
+    {x, y} = position
+
+    x + y * self.width()
+
   self.extend
     isLit: bitArrayLookup(self.lit)
 
     isSeen: bitArrayLookup(self.seen)
 
-    tileset: -&gt;
-      tileset
+    <span class="comment"># TODO: Inculde character as an optional parameter</span>
+    impassable: (position) -&gt;
+      <span class="keyword">if</span> tileset.isImpassable(self.tileIndexAt(position))
+        <span class="keyword">return</span> <span class="literal">true</span>
 
-    tileAt: (x, y) -&gt;
-      <span class="keyword">if</span> x.x?
-        {x, y} = x
+      self.featuresAt(position).some (feature) -&gt;
+        feature.impassable()
+
+    <span class="comment"># TODO: Include character as an optional parameter</span>
+    opaque: (position) -&gt;
+      <span class="keyword">if</span> tileset.isOpaque(self.tileIndexAt(position))
+        <span class="keyword">return</span> <span class="literal">true</span>
+
+      self.featuresAt(position).some (feature) -&gt;
+        feature.opaque()
+
+    tileIndexAt: (position) -&gt;
+      self.tiles().get(toSingleDimension(position))
+
+    tileAt: (position) -&gt;
+      {x, y} = position
 
       <span class="keyword">if</span> boundsCheck(x, y)
-        self.tileset()[self.tiles().get(x + y * self.width())]
+        index = self.tileIndexAt(position)
+        <span class="comment"># TODO: Refine tile variation selector</span>
+        tileset.tileFor(index, x, y)
 
-    <span class="comment"># TODO: Add trap detection</span>
-    viewTiles: (positions, index) -&gt;
-      positions.forEach ({x, y}) -&gt;
+    replaceTileAt: (position, index=tileset.defaultIndex()) -&gt;
+      self.tiles().set(toSingleDimension(position), index)
+
+    viewTiles: ({positions, index, type, message}) -&gt;
+      positions.forEach (position) -&gt;
+        {x, y} = position
+
         <span class="keyword">if</span> boundsCheck(x, y)
-          self.lit.get(index).set(x + y * mapWidth, <span class="number">1</span>)
-          self.seen.get(index).set(x + y * mapWidth, <span class="number">1</span>)
-          <span class="comment"># TODO: Keep track of seen features</span>
+          n = toSingleDimension(position)
+          self.lit.get(index).set(n, <span class="number">1</span>)
+          self.seen.get(index).set(n, <span class="number">1</span>)
+          self.featuresAt(position).forEach (feature) -&gt;
+            feature.view(index, type, message)
 
-    updateVisibleTiles: -&gt;
+    updateVisibleTiles: ({message}) -&gt;
       self.lit [<span class="number">0.</span>..self.squads().length].map -&gt;
         BitArray(self.tileCount())
 
@@ -121,13 +151,39 @@ tileset = [<span class="number">0.</span>.<span class="number">.8</span>].map (n
           character.alive()
         .forEach (character) -&gt;
           <span class="comment"># Magical vision</span>
-          self.viewTiles character.magicalVision(), index
+          self.viewTiles
+            index: index
+            message: message
+            positions: character.magicalVision()
+            type: <span class="string">"magic"</span>
 
           <span class="comment"># Physical sensing</span>
-          self.viewTiles self.search.adjacent(character.position()), index
+          self.viewTiles
+            index: index
+            message: message
+            positions: self.search.adjacent(character.position(), character.physicalAwareness())
+            type: <span class="string">"physical"</span>
 
           <span class="comment"># Normal Sight</span>
-          self.viewTiles self.search.visible(character.position(), character.sight(), self.opaque), index
+          self.viewTiles
+            index: index
+            message: message
+            positions: self.search.visible(character.position(), character.sight(), self.opaque)
+            type: character.visionType()
+
+  <span class="comment"># Add Features from tileset</span>
+  <span class="comment"># In order to use a layerless editor we transform some tile values into </span>
+  <span class="comment"># others and create a given feature at the position</span>
+  I.height.times (y) -&gt;
+    I.width.times (x) -&gt;
+      position = {x, y}
+      {feature, index} = tileset.dataAt self.tileIndexAt(position)
+
+      <span class="keyword">if</span> feature
+        index ?= tileset.defaultIndex()
+        self.tiles().set(toSingleDimension(position), index)
+
+        self.addFeatureByName(feature, position)
 
   <span class="keyword">return</span> self</code></pre>
 </div>

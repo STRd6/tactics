@@ -44,10 +44,14 @@ module.exports = <span class="function"><span class="title">Feature</span></span
     createdAt: <span class="number">0</span>
     destroyed: <span class="literal">false</span>
     impassable: <span class="literal">false</span>
+    incorporeal: <span class="literal">false</span>
+    invisible: <span class="literal">false</span>
     movementPenalty: <span class="number">0</span>
     opaque: <span class="literal">false</span>
+    trap: <span class="literal">false</span>
     type: Type.Dirt
     zIndex: -<span class="number">1</span>
+    seen: []
 
   self.attrAccessor(
     <span class="string">"createdAt"</span>
@@ -64,9 +68,28 @@ module.exports = <span class="function"><span class="title">Feature</span></span
   self.attrModel <span class="string">"position"</span>, Point
 
   self.extend
+    dangerous: -&gt;
+      I.trap
+
     destroy: -&gt;
       <span class="keyword">if</span> !I.destroyed
         I.destroyed = <span class="literal">true</span>
+
+    view: (index, type, message) -&gt;
+      <span class="keyword">if</span> (type <span class="keyword">is</span> <span class="string">"magic"</span>) <span class="keyword">or</span> (!I.invisible <span class="keyword">and</span> type <span class="keyword">is</span> <span class="string">"sight"</span>) <span class="keyword">or</span> (!I.incorporeal <span class="keyword">and</span> type <span class="keyword">is</span> <span class="string">"physical"</span>)
+        <span class="keyword">if</span> !I.seen[index]
+          <span class="keyword">if</span> I.trap
+            message <span class="string">"A trap has been uncovered! <span class="subst">#{self.position()}</span>"</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> I.invisible
+            message <span class="string">"An invisible object has been uncovered! <span class="subst">#{self.position()}</span>"</span>
+
+        I.seen[index] = <span class="literal">true</span>
+
+    seen: (index) -&gt;
+      I.seen[index]
+
+    enter: (params) -&gt;
+      I.enter?.call(I, params)
 
     update: (params) -&gt;
       <span class="comment"># TODO: Allow for variable number of squads</span>
@@ -122,7 +145,24 @@ Feature.<span class="function"><span class="title">Fire</span></span> = (positio
         amount = <span class="number">1</span>
 
         character.damage(amount)
-        message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span></code></pre>
+        message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
+
+Feature.Traps =
+  Effect: (position, effectName) -&gt;
+    Feature
+      effectName: effectName
+      invisible: <span class="literal">true</span>
+      position: position
+      spriteName: <span class="string">"trap"</span>
+      trap: <span class="literal">true</span>
+      <span class="comment"># TODO: Can't have Feature depend on Effect and Effect depend on Feature</span>
+      <span class="comment"># so the method passed in should coordinate both</span>
+      <span class="comment"># We'll migrate all of these to creating named effects with optional</span>
+      <span class="comment"># configuration data</span>
+      enter: ({effect}) -&gt;
+        <span class="comment"># TODO: Destroy?</span>
+
+        effect <span class="property">@effectName</span>, <span class="property">@position</span></code></pre>
 </div>
         </li>
         
