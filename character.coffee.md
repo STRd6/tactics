@@ -8,7 +8,8 @@ Those little guys that run around.
     Drawable = require "./lib/drawable"
     Effect = require "./effect"
     Names = require "./names"
-    
+    Passive = require "./passive"
+
     {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
@@ -19,6 +20,7 @@ Those little guys that run around.
           "Move"
           "Melee"
         ]
+        passives: []
         actions: 2
         alive: true
         cooldowns: {}
@@ -164,5 +166,14 @@ any status effects.
             I.actions = 2
           else
             I.actions = 0
+
+        passives: ->
+          I.passives.map (name) ->
+            Passive.Passives[name]
+
+        visionType: ->
+          self.passives().reduce (memo, passive) ->
+            memo or passive.visionType
+          , undefined
 
       return self
