@@ -16,11 +16,19 @@ art.
         opaque: n
         size: 256
         spriteNames: # TODO: This should probably be an array
+          2:
+            name: "brick_vines" # TODO: Cave wall
+            count: 4
+            impassable: true
+            opaque: true
           5:
             name: "ground"
             count: 8
           11:
             feature: "Bush"
+          22:
+            name: "ground" # TODO: Cave floor
+            count: "8"
           26:
             name: "brick_vines"
             count: 4
@@ -52,7 +60,7 @@ art.
 
           if impassable
             self.impassable().set(index, 1)
-          
+
           if opaque
             self.opaque().set(index, 1)
 
