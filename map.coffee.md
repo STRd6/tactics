@@ -208,6 +208,7 @@ parameterize it by passing in the character and the ability.
           Object.extend
             addEffect: self.addEffect
             addFeature: self.addFeature
+            animate: self.animate
             characterAt: characterAt
             event: self.trigger
             featuresAt: self.featuresAt

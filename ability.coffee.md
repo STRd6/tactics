@@ -180,8 +180,11 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         range: 16
         targetZone: ANY
-        perform: ({message, owner, position}) ->
-          message "#{owner.name()}'s wizard eyes see all!"
+        perform: ({animate, owner, position}) ->
+          animate
+            message: "#{owner.name()}'s wizard eyes see all!"
+            position: position
+            duration: 2000
 
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             owner.addMagicalVision(position)
