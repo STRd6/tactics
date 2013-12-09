@@ -19,6 +19,16 @@ Display Messages
 
 Map Scrolling
 
+Field Of Vision Bug
+-------------------
+
+    C...
+    ....
+    ....
+    ...O
+
+Character C standing to the upper left of O has O hidden when it should be shown.
+
 Abilities
 ---------
 Healing

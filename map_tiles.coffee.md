@@ -21,7 +21,7 @@ Methods for interacting with tiles witin the map.
         I.width * I.height
 
       Object.defaults I,
-        tiles: "data:application/octet-binary;BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQsFBQUFBQsFBQUFBQUFBQUFBQUFBQULBQUFBQUFBQUFBQUFBQUFBRoaBQUFBQUFCwUFBQsFBQUFBQUFBQsFBQUFBQUFGhoaGhoaGhoaGhoFBQUFBQUFBQUFCwUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQsFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQULBQULBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQUFBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFBRoaGhoaGhoaGhoaGhoaGhoaGhoaGhoFBQUFBQULBQUFBQUaGhoaGhoaGhoaGhoaGhoaGhoaBQUFBQUFBQUFBQUFBQUFGhoaGhoaGhoaGhoaGhoaGgUFBQUFBQUFBQUFBQUFBQULBQUFGhoaGhoaBQUFBQUFBQULBQUFBQUFBQUFCwUFBQUFBQUFBQUFBQUFBQUFCwUFBQUFBQUFBQsFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQsFBQUFBQULBQUFBQUFBQUFBQUL"
+        tiles: "data:application/octet-binary;AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICFhYWFhYWAgICAgICAgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAgICAgICAgICFhYWFhYWFhYWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYWFhYWFhYWAgICFhYWFhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYCAgIWFhYWFhYWFhYWFhYWFhYWFhYWFhYWAgIWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAhYWFhYWAgICAgICFhYCAgICAgICAgICAgIWFgICAgICFhYWFhYCAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgICAgICAgICAgICFhYCAgICAgICAgICAgIWFgICAgICAgICAgICAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgIWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgIWFhYWFhYCAgICAgIWFhYWFhYWFhYWFhYWFhYWFhYCAhYWFhYWFgICAgICAhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC"
         lit: [
           # TODO: Handle arbitrary number of squads
           # TODO: Maybe store these with the squad data itself?
@@ -130,17 +130,22 @@ Methods for interacting with tiles witin the map.
                 type: character.visionType()
 
       # Add Features from tileset
-      # In order to use a layerless editor we transform some tile values into 
+      # In order to use a layerless editor we transform some tile values into
       # others and create a given feature at the position
       I.height.times (y) ->
         I.width.times (x) ->
           position = {x, y}
-          {feature, index} = tileset.dataAt self.tileIndexAt(position)
+          tileIndex = self.tileIndexAt(position)
 
-          if feature
-            index ?= tileset.defaultIndex()
-            self.tiles().set(toSingleDimension(position), index)
+          if data = tileset.dataAt tileIndex
+            {feature, index} = data
 
-            self.addFeatureByName(feature, position)
+            if feature
+              index ?= tileset.defaultIndex()
+              self.tiles().set(toSingleDimension(position), index)
+
+              self.addFeatureByName(feature, position)
+          else
+            console.error "Could not find data for tile index: #{tileIndex}"
 
       return self

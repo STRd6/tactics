@@ -61,17 +61,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           create "Knight",
             position:
               x: 1
-              y: 7
+              y: 1
 
           create "Wizard",
             position:
               x: 2
-              y: 10
+              y: 4
 
           create "Archer",
             position:
               x: 4
-              y: 13
+              y: 2
 
           create "Scout",
             position:
@@ -82,12 +82,12 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         self.characters [
           create "Grunt",
             position:
-              x: 10
+              x: 18
               y: 16
 
           create "Grunt",
             position:
-              x: 12
+              x: 20
               y: 14
 
           create "ShrubMage",
@@ -98,7 +98,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           create "Giant",
             position:
               x: 16
-              y: 17
+              y: 14
         ]
 
       self.activeCharacter self.characters().first()
