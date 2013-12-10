@@ -181,9 +181,8 @@ Ability.Abilities =
     actionCost: <span class="number">2</span>
     range: <span class="number">50</span>
     targetZone: ANY
-    perform: ({character, owner, position, message}) -&gt;
-      <span class="comment"># TODO: Make this a movement effect so we can trigger traps/events</span>
-      owner.position position
+    perform: ({addEffect, character, owner, position, message}) -&gt;
+      addEffect Effect.Move(owner.position(), position)
 
       <span class="keyword">if</span> character
         owner.I.health = <span class="number">0</span>
@@ -197,9 +196,8 @@ Ability.Abilities =
     actionCost: <span class="number">1</span>
     range: <span class="number">8</span>
     targetZone: LINE_OF_SIGHT
-    perform: ({character, message, owner, position}) -&gt;
-      <span class="comment"># TODO: Make this a movement effect so we can trigger traps/events</span>
-      owner.position position
+    perform: ({addEffect, character, message, owner, position}) -&gt;
+      addEffect Effect.Move(owner.position(), position)
 
       <span class="keyword">if</span> character
         owner.I.health = <span class="number">0</span>

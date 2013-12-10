@@ -87,6 +87,8 @@ extend = Object.extend
       self.characters().forEach (character) -&gt;
         character.stateBasedActions(params)
 
+      <span class="comment"># TODO: This isn't really a state based action, more of a UI helper</span>
+      <span class="comment"># for the player</span>
       <span class="keyword">if</span> character = self.activeCharacter()
         <span class="keyword">if</span> character.actions() <span class="keyword">is</span> <span class="number">0</span>
           self.activeCharacter nextActivatableCharacter()
