@@ -258,7 +258,7 @@
     "map_hotkeys.coffee.md": {
       "path": "map_hotkeys.coffee.md",
       "mode": "100644",
-      "content": "Map Hotkeys\n===========\n\n    Hotkeys = require \"hotkeys\"\n\n    module.exports = (I={}, self=Core(I)) ->\n      self.include Hotkeys\n\n      self.addHotkey \"1\", ->\n        addEventListener \"message\", (event) ->\n          if event.source is pixelEditorWindow\n            console.log event\n        , false\n\n        pixelEditorWindow = window.open \"http://strd6.github.io/pixel-editor/?4\", \"\", \"width=640,height=480\"\n\n      return self\n",
+      "content": "Map Hotkeys\n===========\n\n    Hotkeys = require \"hotkeys\"\n\n    module.exports = (I={}, self=Core(I)) ->\n      self.include Hotkeys\n\n      self.addHotkey \"1\", ->\n        addEventListener \"message\", (event) ->\n          if event.source is pixelEditorWindow\n            console.log event\n        , false\n\n        window.pew = pixelEditorWindow = window.open \"http://strd6.github.io/pixel-editor/\", \"\", \"width=640,height=480\"\n\n      return self\n",
       "type": "blob"
     }
   },
@@ -450,7 +450,7 @@
     },
     "map_hotkeys": {
       "path": "map_hotkeys",
-      "content": "(function() {\n  var Hotkeys;\n\n  Hotkeys = require(\"hotkeys\");\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    self.include(Hotkeys);\n    self.addHotkey(\"1\", function() {\n      var pixelEditorWindow;\n      addEventListener(\"message\", function(event) {\n        if (event.source === pixelEditorWindow) {\n          return console.log(event);\n        }\n      }, false);\n      return pixelEditorWindow = window.open(\"http://strd6.github.io/pixel-editor/?4\", \"\", \"width=640,height=480\");\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=map_hotkeys.coffee",
+      "content": "(function() {\n  var Hotkeys;\n\n  Hotkeys = require(\"hotkeys\");\n\n  module.exports = function(I, self) {\n    if (I == null) {\n      I = {};\n    }\n    if (self == null) {\n      self = Core(I);\n    }\n    self.include(Hotkeys);\n    self.addHotkey(\"1\", function() {\n      var pixelEditorWindow;\n      addEventListener(\"message\", function(event) {\n        if (event.source === pixelEditorWindow) {\n          return console.log(event);\n        }\n      }, false);\n      return window.pew = pixelEditorWindow = window.open(\"http://strd6.github.io/pixel-editor/\", \"\", \"width=640,height=480\");\n    });\n    return self;\n  };\n\n}).call(this);\n\n//# sourceURL=map_hotkeys.coffee",
       "type": "blob"
     }
   },
