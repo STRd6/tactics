@@ -32,6 +32,8 @@ Rendering offset in pixels.
 
       offset = Point(0, 0)
 
+      animationQueue = []
+
       screenPositions = [0...(self.width() * self.height())].map (i) ->
         x = i % self.width()
         y = (i / self.width()).floor()
@@ -79,7 +81,8 @@ Rendering offset in pixels.
 
       self.activeCharacter.observe (character) ->
         if character
-          self.scrollTo(character.position())
+          self.animate
+            position: character.position()
 
       scrollingAnimator = null
 
@@ -90,12 +93,16 @@ Rendering offset in pixels.
         offset: ->
           offset
 
-        scrollTo: (position) ->
+        animate: (event) ->
+          animationQueue.push event
+
+Scroll the camera to the given position. Duration in ms.
+
+        scrollTo: (position, duration=300) ->
           clearInterval scrollingAnimator
 
           do (currentOffset=offset) ->
             startTime = +new Date
-            duration = 300 # ms
             target = position.scale(tileSize).subtract(viewportSize.scale(0.5))
 
             scrollingAnimator = setInterval ->
@@ -156,3 +163,19 @@ to self.width(), self.height())
               self.selectTarget tilePosition
           else
             self.activeSquad().activateCharacterAt(tilePosition)
+
+      # Kick off animation processing loop
+      processAnimation = ->
+        if event = animationQueue.shift()
+          {message, position, duration} = event
+
+          self.scrollTo position if position
+          self.message message if message
+
+          setTimeout processAnimation, (duration or 300)
+        else
+          setTimeout processAnimation, 15
+
+      processAnimation()
+
+      return self

@@ -148,9 +148,8 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 2
         range: 50
         targetZone: ANY
-        perform: ({character, owner, position, message}) ->
-          # TODO: Make this a movement effect so we can trigger traps/events
-          owner.position position
+        perform: ({addEffect, character, owner, position, message}) ->
+          addEffect Effect.Move(owner.position(), position)
 
           if character
             owner.I.health = 0
@@ -164,9 +163,8 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         range: 8
         targetZone: LINE_OF_SIGHT
-        perform: ({character, message, owner, position}) ->
-          # TODO: Make this a movement effect so we can trigger traps/events
-          owner.position position
+        perform: ({addEffect, character, message, owner, position}) ->
+          addEffect Effect.Move(owner.position(), position)
 
           if character
             owner.I.health = 0
@@ -180,8 +178,11 @@ Should there be range types too? Connected, any, passable, etc?
         actionCost: 1
         range: 16
         targetZone: ANY
-        perform: ({message, owner, position}) ->
-          message "#{owner.name()}'s wizard eyes see all!"
+        perform: ({animate, owner, position}) ->
+          animate
+            message: "#{owner.name()}'s wizard eyes see all!"
+            position: position
+            duration: 2000
 
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             owner.addMagicalVision(position)
