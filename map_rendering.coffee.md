@@ -168,7 +168,7 @@ to self.width(), self.height())
       processAnimation = ->
         if event = animationQueue.shift()
           {message, position, duration} = event
-          
+
           self.scrollTo position if position
           self.message message if message
 

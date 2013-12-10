@@ -45,6 +45,8 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           self.characters().forEach (character) ->
             character.stateBasedActions(params)
 
+          # TODO: This isn't really a state based action, more of a UI helper
+          # for the player
           if character = self.activeCharacter()
             if character.actions() is 0
               self.activeCharacter nextActivatableCharacter()
