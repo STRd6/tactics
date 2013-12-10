@@ -39,14 +39,13 @@
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
   self.include Hotkeys
 
-  self.addHotkey <span class="string">"f2"</span>, -&gt;
-    console.log <span class="string">"wat"</span>
-    pixelEditorWindow = window.open <span class="string">"http://strd6.github.io/pixel-editor/"</span>
-
+  self.addHotkey <span class="string">"1"</span>, -&gt;
     addEventListener <span class="string">"message"</span>, (event) -&gt;
       <span class="keyword">if</span> event.source <span class="keyword">is</span> pixelEditorWindow
         console.log event
     , <span class="literal">false</span>
+
+    pixelEditorWindow = window.open <span class="string">"http://strd6.github.io/pixel-editor/?4"</span>, <span class="string">""</span>, <span class="string">"width=640,height=480"</span>
 
   <span class="keyword">return</span> self</code></pre>
 </div>
