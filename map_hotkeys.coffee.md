@@ -12,6 +12,6 @@ Map Hotkeys
             console.log event
         , false
 
-        pixelEditorWindow = window.open "http://strd6.github.io/pixel-editor/?4", "", "width=640,height=480"
+        window.pew = pixelEditorWindow = window.open "http://strd6.github.io/pixel-editor/", "", "width=640,height=480"
 
       return self
