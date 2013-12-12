@@ -103,6 +103,8 @@ module.exports = CharacterUI =</code></pre>
       ability = Ability.Abilities[abilityName]
 
       action = Action
+        cooldown: ability.cooldown()
+        cost: ability.actionCost()
         name: ability.name()
         icon: ability.iconName()
         perform: -&gt;

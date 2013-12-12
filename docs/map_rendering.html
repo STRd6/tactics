@@ -82,6 +82,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
             </div>
             <div class="content"><pre><code class="lang-coffeescript">  offset = Point(<span class="number">0</span>, <span class="number">0</span>)
 
+  animationQueue = []
+
   screenPositions = [<span class="number">0.</span>..(self.width() * self.height())].map (i) -&gt;
     x = i % self.width()
     y = (i / self.width()).floor()
@@ -129,7 +131,8 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.activeCharacter.observe (character) -&gt;
     <span class="keyword">if</span> character
-      self.scrollTo(character.position())
+      self.animate
+        position: character.position()
 
   scrollingAnimator = <span class="literal">null</span>
 
@@ -140,12 +143,25 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     offset: -&gt;
       offset
 
-    scrollTo: (position) -&gt;
+    animate: (event) -&gt;
+      animationQueue.push event</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Scroll the camera to the given position. Duration in ms.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    scrollTo: (position, duration=<span class="number">300</span>) -&gt;
       clearInterval scrollingAnimator
 
       <span class="keyword">do</span> (currentOffset=offset) -&gt;
         startTime = +<span class="keyword">new</span> Date
-        duration = <span class="number">300</span> <span class="comment"># ms</span>
         target = position.scale(tileSize).subtract(viewportSize.scale(<span class="number">0.5</span>))
 
         scrollingAnimator = setInterval -&gt;
@@ -161,10 +177,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         </li>
         
         
-        <li id="section-5">
+        <li id="section-6">
             <div class="annotation">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Transforms position (a point from 0, 0 to 1, 1) into a tile position (from 0, 0
 to self.width(), self.height())</p>
@@ -214,7 +230,23 @@ to self.width(), self.height())</p>
         <span class="keyword">if</span> inRange
           self.selectTarget tilePosition
       <span class="keyword">else</span>
-        self.activeSquad().activateCharacterAt(tilePosition)</code></pre>
+        self.activeSquad().activateCharacterAt(tilePosition)
+
+  <span class="comment"># Kick off animation processing loop</span>
+  <span class="function"><span class="title">processAnimation</span></span> = -&gt;
+    <span class="keyword">if</span> event = animationQueue.shift()
+      {message, position, duration} = event
+
+      self.scrollTo position <span class="keyword">if</span> position
+      self.message message <span class="keyword">if</span> message
+
+      setTimeout processAnimation, (duration <span class="keyword">or</span> <span class="number">300</span>)
+    <span class="keyword">else</span>
+      setTimeout processAnimation, <span class="number">15</span>
+
+  processAnimation()
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

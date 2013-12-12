@@ -41,6 +41,7 @@ Effect = require <span class="string">"./effect"</span>
 MapFeatures = require <span class="string">"./map_features"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 MapTiles = require <span class="string">"./map_tiles"</span>
+MapRendering = require <span class="string">"./map_rendering"</span>
 Squad = require <span class="string">"./squad"</span>
 
 {
@@ -75,21 +76,12 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     (position) -&gt;
       <span class="keyword">if</span> self.featuresAt(position).some((feature) -&gt; feature.seen(index) <span class="keyword">and</span> feature.dangerous())
         occupantPassable = <span class="literal">false</span>
-      <span class="keyword">else</span> <span class="keyword">if</span> occupant = characterAt(position)
+      <span class="keyword">else</span> <span class="keyword">if</span> occupant = self.characterAt(position)
         occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -<span class="number">1</span>)
       <span class="keyword">else</span>
         occupantPassable = <span class="literal">true</span>
 
       !self.impassable(position) <span class="keyword">and</span> self.lit.get(index).get(position.x + position.y * self.width()) <span class="keyword">and</span> occupantPassable
-
-  <span class="function"><span class="title">characterAt</span></span> = (x, y) -&gt;
-    <span class="keyword">if</span> x.x?
-      {x, y} = x
-
-    self.characters().filter (character) -&gt;
-      position = character.position()
-      character.alive() <span class="keyword">and</span> (position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y)
-    .first()
 
   search = MapSearch()
 
@@ -122,7 +114,14 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         squad.characters()
       .flatten()
 
-    characterAt: characterAt
+    characterAt: (x, y) -&gt;
+      <span class="keyword">if</span> x.x?
+        {x, y} = x
+
+      self.characters().filter (character) -&gt;
+        position = character.position()
+        character.alive() <span class="keyword">and</span> (position.x <span class="keyword">is</span> x <span class="keyword">and</span> position.y <span class="keyword">is</span> y)
+      .first()
 
     eachTile: self.tiles().each
 
@@ -169,7 +168,7 @@ parameterize it by passing in the character and the ability.</p>
             accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
 
             accessiblePositions.reject (position) -&gt;
-              characterAt(position)
+              self.characterAt(position)
 
           <span class="keyword">when</span> Ability.TARGET_ZONE.ANY
             positionsInRange = search.adjacent(character.position(), ability.range())
@@ -184,19 +183,21 @@ parameterize it by passing in the character and the ability.</p>
             )
 
     stateBasedActions: -&gt;
-      self.squads().forEach (squad) -&gt;
-        squad.stateBasedActions
-          addEffect: self.addEffect
-
       <span class="keyword">while</span> effectStack.length
         <span class="comment"># TODO: This could fall victim to infinite recursion</span>
         self.performEffect effectStack.pop()
 
       self.addNewFeatures()
 
+      self.squads().forEach (squad) -&gt;
+        squad.stateBasedActions
+          addEffect: self.addEffect
+
       self.updateVisibleTiles
         message: self.message
 
+      <span class="comment"># TODO: This isn't really state based actions, it should be an explicit</span>
+      <span class="comment"># end turn created from the UI automaticall or the player manually</span>
       <span class="keyword">unless</span> self.activeCharacter()
         <span class="comment"># End of turn</span>
         self.ready()
@@ -232,7 +233,7 @@ parameterize it by passing in the character and the ability.</p>
         )
 
       ability.perform self.methodObject
-        character: characterAt targetPosition
+        character: self.characterAt targetPosition
         movementPath: movementPath
         owner: owner
         position: targetPosition
@@ -248,7 +249,10 @@ parameterize it by passing in the character and the ability.</p>
       Object.extend
         addEffect: self.addEffect
         addFeature: self.addFeature
-        characterAt: characterAt
+        animate: self.animate
+        characterAt: self.characterAt
+        effect: (name, params) -&gt;
+          self.addEffect Effect[name](params)
         event: self.trigger
         featuresAt: self.featuresAt
         find: self.find
@@ -270,20 +274,14 @@ parameterize it by passing in the character and the ability.</p>
 
       <span class="keyword">if</span> name <span class="keyword">is</span> <span class="string">"move"</span>
         self.featuresAt(params.to).forEach (feature) -&gt;
-          feature.enter
-            addEffect: self.addEffect
-            addFeature: self.addFeature
-            characterAt: characterAt
-            effect: (name, params) -&gt;
-              self.addEffect Effect[name](params)
-            impassable: self.impassable
-            find: self.find
-            message: self.message
-            event: self.trigger
+          feature.enter self.methodObject()
+
+  self.include MapRendering
+  self.animate
+    position: self.activeCharacter().position()
+    duration: <span class="number">0</span>
 
   self.stateBasedActions()
-
-  self.include require(<span class="string">"./map_rendering"</span>)
 
   <span class="keyword">return</span> self</code></pre>
 </div>
