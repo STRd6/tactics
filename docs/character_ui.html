@@ -99,7 +99,7 @@ module.exports = CharacterUI =</code></pre>
       drawHealth(canvas, character.health(), character.healthMax())
 
   actions: (character) -&gt;
-    character.abilities().map (abilityName) -&gt;
+    actions = character.abilities().map (abilityName) -&gt;
       ability = Ability.Abilities[abilityName]
 
       action = Action
@@ -114,7 +114,15 @@ module.exports = CharacterUI =</code></pre>
 
       action.disabled = !ability.canPay(character)
 
-      <span class="keyword">return</span> action</code></pre>
+      <span class="keyword">return</span> action
+
+    <span class="keyword">if</span> character.targettingAbility()
+      actions.concat Action
+        name: <span class="string">"Cancel"</span>
+        perform: -&gt;
+          character.targettingAbility(<span class="literal">null</span>)
+    <span class="keyword">else</span>
+      actions</code></pre>
 </div>
         </li>
         
