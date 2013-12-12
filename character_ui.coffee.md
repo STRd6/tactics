@@ -53,6 +53,8 @@ Draw the tactical overlay, status, health, max health.
           ability = Ability.Abilities[abilityName]
 
           action = Action
+            cooldown: ability.cooldown()
+            cost: ability.actionCost()
             name: ability.name()
             icon: ability.iconName()
             perform: ->
