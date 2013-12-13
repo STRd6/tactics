@@ -85,7 +85,7 @@ The primary tactical combat screen.
         characterAt: (x, y) ->
           if x.x?
             {x, y} = x
-  
+
           self.characters().filter (character) ->
             position = character.position()
             character.alive() and (position.x is x and position.y is y)
@@ -211,8 +211,8 @@ parameterize it by passing in the character and the ability.
             addFeature: self.addFeature
             animate: self.animate
             characterAt: self.characterAt
-            effect: (name, params) ->
-              self.addEffect Effect[name](params)
+            effect: (name, params...) ->
+              self.addEffect Effect[name](params...)
             event: self.trigger
             featuresAt: self.featuresAt
             find: self.find
