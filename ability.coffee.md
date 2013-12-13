@@ -81,13 +81,18 @@ Some cool abilities that should be in the game
 
         validTargets: (owner, tileAt) ->
 
+        compile: ->
+          Function(CoffeeScript.compile """
+            return ({addEffect, animate, character, effect, owner, position, message, movementPath}) ->
+            #{indent I.code}
+          """, bare: true)(params)
+
         perform: (params) ->
           {owner} = params
 
           self.payCosts(owner)
 
-          # TODO: Not sure if this should be on I
-          I.perform(params)
+          self.compile()(params)
 
           owner.resetTargetting()
 
@@ -119,184 +124,12 @@ Should there be range types too? Connected, any, passable, etc?
       FIXED: 1
       REST: 2
 
-    Ability.Abilities =
-      Move: Ability
-        name: "Move"
-        iconName: "boots"
-        actionCost: 1
-        targetZone: MOVEMENT
-        perform: ({addEffect, movementPath, owner}) ->
-          owner.addEffect
-            name: "moving"
-            attribute: "physicalAwareness"
-            amount: -100
-            duration: 1
-
-          # Need to reverse because the effects go on a stack.
-          positions = movementPath.copy().reverse()
-
-          positions.forEach (position, i) ->
-            to = position
-            from = positions[i+1]
-
-            if to and from
-              addEffect Effect.Move(from, to, owner)
-
-      Teleport: Ability
-        name: "Teleport"
-        iconName: "teleport"
-        actionCost: 2
-        range: 50
-        targetZone: ANY
-        perform: ({addEffect, character, owner, position, message}) ->
-          addEffect Effect.Move(owner.position(), position)
-
-          if character
-            owner.I.health = 0
-            character.I.health = 0
-
-            message "#{owner.name()} teleports into #{character.name()}. There are no survivors."
-
-      Blink: Ability
-        name: "Blink"
-        iconName: "blink"
-        actionCost: 1
-        range: 8
-        targetZone: LINE_OF_SIGHT
-        perform: ({addEffect, character, message, owner, position}) ->
-          addEffect Effect.Move(owner.position(), position)
-
-          if character
-            owner.I.health = 0
-            character.I.health = 0
-
-            message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
-
-      Farsight: Ability
-        name: "Farsight"
-        iconName: "farsight"
-        actionCost: 1
-        range: 16
-        targetZone: ANY
-        perform: ({animate, owner, position}) ->
-          animate
-            message: "#{owner.name()}'s wizard eyes see all!"
-            position: position
-            duration: 2000
-
-          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            owner.addMagicalVision(position)
-
-      Melee: Ability
-        name: "Attack"
-        iconName: "sword"
-        range: sqrt(2)
-        actionCost: 1
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({owner, character, message}) ->
-          if character
-            amount = binomial(owner.strength()) + 1
-            character.damage amount
-
-            message "#{owner.name()} strikes #{character.name()} for #{amount}"
-
-      Ranged: Ability
-        name: "Attack"
-        iconName: "longbow"
-        range: 7
-        actionCost: 1
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({owner, character, message}) ->
-          if character
-            amount = binomial(owner.strength())
-            character.damage amount
-
-            message "#{owner.name()} strikes #{character.name()} for #{amount}"
-
-      Blind: Ability
-        name: "Blind"
-        iconName: "blind"
-        range: 8
-        actionCost: 1
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({character}) ->
-          if character
-            character.addEffect
-              name: "blindness"
-              attribute: "sight"
-              amount: -100
-              duration: 3
-
-      Regeneration: Ability
-        name: "Regeneration"
-        iconName: "regeneration"
-        actionCost: 1
-        costType: REST
-        targetZone: SELF
-        perform: ({owner, message}) ->
-          amount = 1
-          owner.heal(amount)
-          message "#{owner.name()} regenerates #{amount} health."
-
-      Entanglement: Ability
-        name: "Entanglement"
-        iconName: "bush0"
-        range: 7
-        actionCost: 2
-        cooldown: 3
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({position, addEffect}) ->
-          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect.Plant(position))
-
-      Stomp: Ability
-        name: "Stomp"
-        iconName: "stomp"
-        range: 1
-        actionCost: 2
-        cooldown: 2
-        targetZone: SELF
-        perform: ({position, addEffect, owner}) ->
-          addEffect(Effect.Stomp(position, owner))
-
-      Fireball: Ability
-        name: "Fireball"
-        iconName: "fireball"
-        range: 7
-        actionCost: 2
-        cooldown: 3
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({position, addEffect}) ->
-          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect.Fire(position))
-
-      ShrubSight: Ability
-        name: "ShrubSight"
-        iconName: "bush1"
-        actionCost: 1
-        cooldown: 3
-        targetZone: SELF
-        perform: ({position, addEffect, owner}) ->
-          addEffect(Effect.ShrubSight(position, owner))
-
-      Wait: Ability
-        name: "Wait"
-        iconName: "hourglass"
-        actionCost: 0
-        costType: REST
-        targetZone: SELF
-        perform: ->
-
-      Cancel: Ability
-        name: "Cancel"
-        actionCost: 0
-        targetZone: TARGET_ZONE.SELF
-        perform: ({owner}) ->
-          owner.targettingAbility null
+    Ability.Abilities = require("./abilities")
 
     module.exports = Ability
+
+Helpers
+-------
+
+    indent = (text, indent="  ") ->
+      text.replace(/^/gm, "#{indent}")
