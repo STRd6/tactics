@@ -136,6 +136,13 @@ Sums up the modifications for an attribute from all the effects.
         aware: () ->
           self.alive() and !self.stunned()
 
+Effects to occur when this character enters a tile.
+
+        enterEffects: ->
+          self.passives().map (passive) ->
+            passive.enter
+          .compact()
+
         physicalAwareness: ->
           if !self.aware()
             0

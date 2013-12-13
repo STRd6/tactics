@@ -58,50 +58,73 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           self.activeCharacter nextActivatableCharacter()
 
       # TODO: Load characters from data
-      if I.race is "human"
-        self.characters [
-          create "Knight",
-            position:
-              x: 1
-              y: 1
-
-          create "Wizard",
-            position:
-              x: 2
-              y: 4
-
-          create "Archer",
-            position:
-              x: 4
-              y: 2
-
-          create "Scout",
-            position:
-              x: 2
-              y: 3
-        ]
-      else
-        self.characters [
-          create "Grunt",
-            position:
-              x: 18
-              y: 16
-
-          create "Grunt",
-            position:
-              x: 20
-              y: 14
-
-          create "ShrubMage",
-            position:
-              x: 14
-              y: 16
-
-          create "Giant",
-            position:
-              x: 16
-              y: 14
-        ]
+      switch I.race
+        when "human"
+          self.characters [
+            create "Knight",
+              position:
+                x: 1
+                y: 1
+  
+            create "Wizard",
+              position:
+                x: 2
+                y: 4
+  
+            create "Archer",
+              position:
+                x: 4
+                y: 2
+  
+            create "Scout",
+              position:
+                x: 2
+                y: 3
+          ]
+        when "undead"
+          self.characters [
+            create "Lich",
+              position:
+                x: 1
+                y: 1
+  
+            create "Wizard",
+              position:
+                x: 2
+                y: 4
+  
+            create "Archer",
+              position:
+                x: 4
+                y: 2
+  
+            create "Scout",
+              position:
+                x: 2
+                y: 3
+          ]
+        else
+          self.characters [
+            create "Grunt",
+              position:
+                x: 18
+                y: 16
+  
+            create "Grunt",
+              position:
+                x: 20
+                y: 14
+  
+            create "ShrubMage",
+              position:
+                x: 14
+                y: 16
+  
+            create "Giant",
+              position:
+                x: 16
+                y: 14
+          ]
 
       self.activeCharacter self.characters().first()
 

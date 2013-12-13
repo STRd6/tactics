@@ -39,6 +39,14 @@ Exploring various character classes here.
         healthMax: 4
         spriteName: "human"
 
+      Lich:
+        health: 4
+        healthMax: 4
+        spriteName: "lich"
+        passives: [
+          "Clairvoyance"
+        ]
+
       Scout:
         actions: 3
         health: 2

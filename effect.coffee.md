@@ -12,6 +12,13 @@ electricity, I don't know yet.
 
     module.exports = Effect = (I={}, self=Core(I)) ->
 
+    Effect.Clairvoyance = (position, owner) ->
+      radius = 7
+
+      perform: ({search}) ->
+        search.adjacent(position, radius).forEach (position) ->
+          owner.addMagicalVision(position)
+
     # Used in Fireball
     Effect.Fire = (position) ->
       perform: ({characterAt, message, addFeature}) ->
@@ -39,6 +46,7 @@ electricity, I don't know yet.
             character.position(to)
             # Enter and exit effects (traps, reaction abilities)
             event "move",
+              character: character
               from: from
               to: to
 
