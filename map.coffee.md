@@ -85,7 +85,7 @@ The primary tactical combat screen.
         characterAt: (x, y) ->
           if x.x?
             {x, y} = x
-  
+
           self.characters().filter (character) ->
             position = character.position()
             character.alive() and (position.x is x and position.y is y)

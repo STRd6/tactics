@@ -36,12 +36,10 @@ Some cool abilities that should be in the game
 
     {sqrt} = Math
     {binomial} = require "random"
-    Search = require "./map_search"
+    # TODO: Shouldn't need to require this
     Effect = require "./effect"
-    Feature = require "./feature"
 
-    # TODO we don't have tileAt, so we can't do all searches
-    search = Search()
+    {COST_TYPE, TARGET_ZONE} = Constants = require "./ability_constants"
 
     Ability = (I={}, self=Core(I)) ->
       Object.defaults I,
@@ -49,7 +47,7 @@ Some cool abilities that should be in the game
         actionCost: 1
         cooldown: 0
         name: "?"
-        costType: Ability.COST_TYPE.FIXED
+        costType: COST_TYPE.FIXED
 
       self.attrAccessor(
         "actionCost"
@@ -79,11 +77,9 @@ Some cool abilities that should be in the game
             else
               throw "Unknown action cost type"
 
-        validTargets: (owner, tileAt) ->
-
         compile: ->
           Function(CoffeeScript.compile """
-            return ({addEffect, animate, character, effect, owner, position, message, movementPath}) ->
+            return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) ->
             #{indent I.code}
           """, bare: true)(params)
 
@@ -104,27 +100,9 @@ be handled as a triggered ability that the knight get's a melee attack after
 moving adjacent to an enemy, rather than having a special movement style ability
 that target's an enemy, but has movement range and connectedness constraints.
 
-Should there be range types too? Connected, any, passable, etc?
-
-    {SELF, MOVEMENT, LINE_OF_SIGHT, ANY} = Ability.TARGET_ZONE = TARGET_ZONE =
-      SELF: 1 # The character itself, skips targetting step
-      LINE_OF_SIGHT: 2 # Any tile within character's line of sight and within range
-      VISIBLE: 3 # Any tile visible to squad within range
-      MOVEMENT: 4 # Visible, passable, connected, movement penalties and bonuses apply
-      ANY: 15 # Any tile within range
-
-    Ability.TARGET_TYPE = TARGET_TYPE =
-      FRIENDLY: 1
-      ENEMY: 2
-      OPEN: 3
-      WALL: 4
-      ANY: 15
-
-    {FIXED, REST} = Ability.COST_TYPE = COST_TYPE =
-      FIXED: 1
-      REST: 2
-
     Ability.Abilities = require("./abilities")
+    
+    Object.extend Ability, Constants
 
     module.exports = Ability
 
