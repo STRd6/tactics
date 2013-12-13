@@ -61,6 +61,7 @@ tile.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript">{sqrt} = Math
 {binomial} = require <span class="string">"random"</span>
+objectMap = require <span class="string">"./lib/object_map"</span>
 <span class="comment"># TODO: Shouldn't need to require this</span>
 Effect = require <span class="string">"./effect"</span>
 
@@ -103,10 +104,13 @@ Effect = require <span class="string">"./effect"</span>
           <span class="keyword">throw</span> <span class="string">"Unknown action cost type"</span>
 
     compile: -&gt;
-      Function(CoffeeScript.compile <span class="string">"""
+      <span class="comment"># TODO: Not too happy about passing binomial sqrt in like this, but</span>
+      <span class="comment"># maybe it's the way to go. It should be encapsulated in some kind of</span>
+      <span class="comment"># ENV wrapper if so.</span>
+      Function(<span class="string">"sqrt"</span>, <span class="string">"binomial"</span>, CoffeeScript.compile <span class="string">"""
         return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) -&gt;
         <span class="subst">#{indent I.code}</span>
-      """</span>, bare: <span class="literal">true</span>)(params)
+      """</span>, bare: <span class="literal">true</span>)(sqrt, binomial)
 
     perform: (params) -&gt;
       {owner} = params
@@ -134,7 +138,7 @@ moving adjacent to an enemy, rather than having a special movement style ability
 that target&#39;s an enemy, but has movement range and connectedness constraints.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Ability.Abilities = require(<span class="string">"./abilities"</span>)
+            <div class="content"><pre><code class="lang-coffeescript">Ability.Abilities = objectMap(require(<span class="string">"./abilities"</span>), Ability)
 
 Object.extend Ability, Constants
 

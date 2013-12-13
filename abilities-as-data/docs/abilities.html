@@ -20,18 +20,20 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Constants = require <span class="string">"./ability_constants"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Constants = require "./ability_constants"
 
 {SELF, MOVEMENT, LINE_OF_SIGHT, ANY} =  Constants.TARGET_ZONE
 {REST, FIXED} = Constants.COST_TYPE
 
+{sqrt} = Math
+
 module.exports =
   Move:
-    name: <span class="string">"Move"</span>
-    iconName: <span class="string">"boots"</span>
-    actionCost: <span class="number">1</span>
+    name: "Move"
+    iconName: "boots"
+    actionCost: 1
     targetZone: MOVEMENT
-    code: <span class="string">"""
+    code: '''
       owner.addEffect
         name: "moving"
         attribute: "physicalAwareness"
@@ -46,178 +48,170 @@ module.exports =
         from = positions[i+1]
 
         if to and from
-          addEffect Effect.Move(from, to, owner)
-    """</span>
+          effect "Move", from, to, owner
+    '''
 
   Teleport:
-    name: <span class="string">"Teleport"</span>
-    iconName: <span class="string">"teleport"</span>
-    actionCost: <span class="number">2</span>
-    range: <span class="number">50</span>
+    name: "Teleport"
+    iconName: "teleport"
+    actionCost: 2
+    range: 50
     targetZone: ANY
-    code: <span class="string">"""
-      addEffect Effect.Move(owner.position(), position)
+    code: '''
+      effect "Move", owner.position(), position
 
       if character
         owner.I.health = 0
         character.I.health = 0
 
-        message "<span class="subst">#{owner.name()}</span> teleports into <span class="subst">#{character.name()}</span>. There are no survivors."
-    """</span>
+        message "#{owner.name()} teleports into #{character.name()}. There are no survivors."
+    '''
 
   Blink:
-    name: <span class="string">"Blink"</span>
-    iconName: <span class="string">"blink"</span>
-    actionCost: <span class="number">1</span>
-    range: <span class="number">8</span>
+    name: "Blink"
+    iconName: "blink"
+    actionCost: 1
+    range: 8
     targetZone: LINE_OF_SIGHT
-    code: <span class="string">"""
-      addEffect Effect.Move(owner.position(), position)
+    code: '''
+      effect "Move", owner.position(), position
 
       if character
         owner.I.health = 0
         character.I.health = 0
 
-        message "<span class="subst">#{owner.name()}</span> teleports into <span class="subst">#{character.name()}</span>. Life ends in the blink of an eye."
-    """</span>
+        message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
+    '''
 
   Farsight:
-    name: <span class="string">"Farsight"</span>
-    iconName: <span class="string">"farsight"</span>
-    actionCost: <span class="number">1</span>
-    range: <span class="number">16</span>
+    name: "Farsight"
+    iconName: "farsight"
+    actionCost: 1
+    range: 16
     targetZone: ANY
-    code: <span class="string">"""
+    code: '''
       animate
-        message: "<span class="subst">#{owner.name()}</span>'s wizard eyes see all!"
+        message: "#{owner.name()}'s wizard eyes see all!"
         position: position
         duration: 2000
 
       search.adjacent(position, 1 + sqrt(2)).forEach (position) -&gt;
         owner.addMagicalVision(position)
-    """</span>
+    '''
 
   Melee:
-    name: <span class="string">"Attack"</span>
-    iconName: <span class="string">"sword"</span>
-    range: sqrt(<span class="number">2</span>)
-    actionCost: <span class="number">1</span>
+    name: "Attack"
+    iconName: "sword"
+    range: sqrt(2)
+    actionCost: 1
     costType: REST
     targetZone: LINE_OF_SIGHT
-    code: <span class="string">"""
+    code: '''
       if character
         amount = binomial(owner.strength()) + 1
         character.damage amount
 
-        message "<span class="subst">#{owner.name()}</span> strikes <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"
-    """</span>
+        message "#{owner.name()} strikes #{character.name()} for #{amount}"
+    '''
 
   Ranged:
-    name: <span class="string">"Attack"</span>
-    iconName: <span class="string">"longbow"</span>
-    range: <span class="number">7</span>
-    actionCost: <span class="number">1</span>
+    name: "Attack"
+    iconName: "longbow"
+    range: 7
+    actionCost: 1
     costType: REST
     targetZone: LINE_OF_SIGHT
-    code: <span class="string">"""
+    code: '''
       if character
         amount = binomial(owner.strength())
         character.damage amount
 
-        message "<span class="subst">#{owner.name()}</span> strikes <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"
-    """</span>
+        message "#{owner.name()} strikes #{character.name()} for #{amount}"
+    '''
 
   Blind:
-    name: <span class="string">"Blind"</span>
-    iconName: <span class="string">"blind"</span>
-    range: <span class="number">8</span>
-    actionCost: <span class="number">1</span>
+    name: "Blind"
+    iconName: "blind"
+    range: 8
+    actionCost: 1
     costType: REST
     targetZone: LINE_OF_SIGHT
-    code: <span class="string">"""
+    code: '''
       if character
         character.addEffect
           name: "blindness"
           attribute: "sight"
           amount: -100
           duration: 3
-    """</span>
+    '''
 
   Regeneration:
-    name: <span class="string">"Regeneration"</span>
-    iconName: <span class="string">"regeneration"</span>
-    actionCost: <span class="number">1</span>
+    name: "Regeneration"
+    iconName: "regeneration"
+    actionCost: 1
     costType: REST
     targetZone: SELF
-    code: <span class="string">"""
+    code: '''
       amount = 1
       owner.heal(amount)
-      message "<span class="subst">#{owner.name()}</span> regenerates <span class="subst">#{amount}</span> health."
-    """</span>
+      message "#{owner.name()} regenerates #{amount} health."
+    '''
 
   Entanglement:
-    name: <span class="string">"Entanglement"</span>
-    iconName: <span class="string">"bush0"</span>
-    range: <span class="number">7</span>
-    actionCost: <span class="number">2</span>
-    cooldown: <span class="number">3</span>
+    name: "Entanglement"
+    iconName: "bush0"
+    range: 7
+    actionCost: 2
+    cooldown: 3
     costType: REST
     targetZone: LINE_OF_SIGHT
-    code: <span class="string">"""
+    code: '''
       search.adjacent(position, 1 + sqrt(2)).forEach (position) -&gt;
-        addEffect(Effect.Plant(position))
-    """</span>
+        effect "Plant", position
+    '''
 
   Stomp:
-    name: <span class="string">"Stomp"</span>
-    iconName: <span class="string">"stomp"</span>
-    range: <span class="number">1</span>
-    actionCost: <span class="number">2</span>
-    cooldown: <span class="number">2</span>
+    name: "Stomp"
+    iconName: "stomp"
+    range: 1
+    actionCost: 2
+    cooldown: 2
     targetZone: SELF
-    code: <span class="string">"""
-      addEffect(Effect.Stomp(position, owner))
-    """</span>
+    code: '''
+      effect "Stomp", position, owner
+    '''
 
   Fireball:
-    name: <span class="string">"Fireball"</span>
-    iconName: <span class="string">"fireball"</span>
-    range: <span class="number">7</span>
-    actionCost: <span class="number">2</span>
-    cooldown: <span class="number">3</span>
+    name: "Fireball"
+    iconName: "fireball"
+    range: 7
+    actionCost: 2
+    cooldown: 3
     costType: REST
     targetZone: LINE_OF_SIGHT
-    code: <span class="string">"""
+    code: '''
       search.adjacent(position, 1 + sqrt(2)).forEach (position) -&gt;
-        addEffect(Effect.Fire(position))
-    """</span>
+        effect "Fire", position
+    '''
 
   ShrubSight:
-    name: <span class="string">"ShrubSight"</span>
-    iconName: <span class="string">"bush1"</span>
-    actionCost: <span class="number">1</span>
-    cooldown: <span class="number">3</span>
+    name: "ShrubSight"
+    iconName: "bush1"
+    actionCost: 1
+    cooldown: 3
     targetZone: SELF
-    code: <span class="string">"""
-      addEffect(Effect.ShrubSight(position, owner))
-    """</span>
+    code: '''
+      effect "ShrubSight", position, owner
+    '''
 
   Wait:
-    name: <span class="string">"Wait"</span>
-    iconName: <span class="string">"hourglass"</span>
-    actionCost: <span class="number">0</span>
+    name: "Wait"
+    iconName: "hourglass"
+    actionCost: 0
     costType: REST
     targetZone: SELF
-    code: <span class="string">"""
-    """</span>
-
-  Cancel:
-    name: <span class="string">"Cancel"</span>
-    actionCost: <span class="number">0</span>
-    targetZone: TARGET_ZONE.SELF
-    code: <span class="string">"""
-      owner.targettingAbility null
-    """</span></code></pre>
+    code: '''
+    '''</code></pre>
 </div>
         </li>
         
