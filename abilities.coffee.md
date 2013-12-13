@@ -3,6 +3,8 @@
     {SELF, MOVEMENT, LINE_OF_SIGHT, ANY} =  Constants.TARGET_ZONE
     {REST, FIXED} = Constants.COST_TYPE
 
+    {sqrt} = Math
+
     module.exports =
       Move:
         name: "Move"
@@ -24,7 +26,7 @@
             from = positions[i+1]
 
             if to and from
-              addEffect Effect.Move(from, to, owner)
+              effect "Move", from, to, owner
         '''
 
       Teleport:
@@ -34,7 +36,7 @@
         range: 50
         targetZone: ANY
         code: '''
-          addEffect Effect.Move(owner.position(), position)
+          effect "Move", owner.position(), position
 
           if character
             owner.I.health = 0
@@ -50,7 +52,7 @@
         range: 8
         targetZone: LINE_OF_SIGHT
         code: '''
-          addEffect Effect.Move(owner.position(), position)
+          effect "Move", owner.position(), position
 
           if character
             owner.I.health = 0
@@ -143,7 +145,7 @@
         targetZone: LINE_OF_SIGHT
         code: '''
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect.Plant(position))
+            effect "Plant", position
         '''
 
       Stomp:
@@ -154,7 +156,7 @@
         cooldown: 2
         targetZone: SELF
         code: '''
-          addEffect(Effect.Stomp(position, owner))
+          effect "Stomp", position, owner
         '''
 
       Fireball:
@@ -167,7 +169,7 @@
         targetZone: LINE_OF_SIGHT
         code: '''
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect.Fire(position))
+            effect "Fire", position
         '''
 
       ShrubSight:
@@ -177,7 +179,7 @@
         cooldown: 3
         targetZone: SELF
         code: '''
-          addEffect(Effect.ShrubSight(position, owner))
+          effect "ShrubSight", position, owner
         '''
 
       Wait:
@@ -187,12 +189,4 @@
         costType: REST
         targetZone: SELF
         code: '''
-        '''
-
-      Cancel:
-        name: "Cancel"
-        actionCost: 0
-        targetZone: TARGET_ZONE.SELF
-        code: '''
-          owner.targettingAbility null
         '''

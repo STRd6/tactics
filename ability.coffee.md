@@ -36,6 +36,7 @@ Some cool abilities that should be in the game
 
     {sqrt} = Math
     {binomial} = require "random"
+    objectMap = require "./lib/object_map"
     # TODO: Shouldn't need to require this
     Effect = require "./effect"
 
@@ -78,10 +79,13 @@ Some cool abilities that should be in the game
               throw "Unknown action cost type"
 
         compile: ->
-          Function(CoffeeScript.compile """
+          # TODO: Not too happy about passing binomial sqrt in like this, but
+          # maybe it's the way to go. It should be encapsulated in some kind of
+          # ENV wrapper if so.
+          Function("sqrt", "binomial", CoffeeScript.compile """
             return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) ->
             #{indent I.code}
-          """, bare: true)(params)
+          """, bare: true)(sqrt, binomial)
 
         perform: (params) ->
           {owner} = params
@@ -100,8 +104,8 @@ be handled as a triggered ability that the knight get's a melee attack after
 moving adjacent to an enemy, rather than having a special movement style ability
 that target's an enemy, but has movement range and connectedness constraints.
 
-    Ability.Abilities = require("./abilities")
-    
+    Ability.Abilities = objectMap(require("./abilities"), Ability)
+
     Object.extend Ability, Constants
 
     module.exports = Ability
