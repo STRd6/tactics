@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>abilities</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Constants = require <span class="string">"./ability_constants"</span>
+
+{SELF, MOVEMENT, LINE_OF_SIGHT, ANY} =  Constants.TARGET_ZONE
+{REST, FIXED} = Constants.COST_TYPE
+
+module.exports =
+  Move:
+    name: <span class="string">"Move"</span>
+    iconName: <span class="string">"boots"</span>
+    actionCost: <span class="number">1</span>
+    targetZone: MOVEMENT
+    code: <span class="string">"""
+      owner.addEffect
+        name: "moving"
+        attribute: "physicalAwareness"
+        amount: -100
+        duration: 1
+
+      # Need to reverse because the effects go on a stack.
+      positions = movementPath.copy().reverse()
+
+      positions.forEach (position, i) -&gt;
+        to = position
+        from = positions[i+1]
+
+        if to and from
+          addEffect Effect.Move(from, to, owner)
+    """</span>
+
+  Teleport:
+    name: <span class="string">"Teleport"</span>
+    iconName: <span class="string">"teleport"</span>
+    actionCost: <span class="number">2</span>
+    range: <span class="number">50</span>
+    targetZone: ANY
+    code: <span class="string">"""
+      addEffect Effect.Move(owner.position(), position)
+
+      if character
+        owner.I.health = 0
+        character.I.health = 0
+
+        message "<span class="subst">#{owner.name()}</span> teleports into <span class="subst">#{character.name()}</span>. There are no survivors."
+    """</span>
+
+  Blink:
+    name: <span class="string">"Blink"</span>
+    iconName: <span class="string">"blink"</span>
+    actionCost: <span class="number">1</span>
+    range: <span class="number">8</span>
+    targetZone: LINE_OF_SIGHT
+    code: <span class="string">"""
+      addEffect Effect.Move(owner.position(), position)
+
+      if character
+        owner.I.health = 0
+        character.I.health = 0
+
+        message "<span class="subst">#{owner.name()}</span> teleports into <span class="subst">#{character.name()}</span>. Life ends in the blink of an eye."
+    """</span>
+
+  Farsight:
+    name: <span class="string">"Farsight"</span>
+    iconName: <span class="string">"farsight"</span>
+    actionCost: <span class="number">1</span>
+    range: <span class="number">16</span>
+    targetZone: ANY
+    code: <span class="string">"""
+      animate
+        message: "<span class="subst">#{owner.name()}</span>'s wizard eyes see all!"
+        position: position
+        duration: 2000
+
+      search.adjacent(position, 1 + sqrt(2)).forEach (position) -&gt;
+        owner.addMagicalVision(position)
+    """</span>
+
+  Melee:
+    name: <span class="string">"Attack"</span>
+    iconName: <span class="string">"sword"</span>
+    range: sqrt(<span class="number">2</span>)
+    actionCost: <span class="number">1</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    code: <span class="string">"""
+      if character
+        amount = binomial(owner.strength()) + 1
+        character.damage amount
+
+        message "<span class="subst">#{owner.name()}</span> strikes <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"
+    """</span>
+
+  Ranged:
+    name: <span class="string">"Attack"</span>
+    iconName: <span class="string">"longbow"</span>
+    range: <span class="number">7</span>
+    actionCost: <span class="number">1</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    code: <span class="string">"""
+      if character
+        amount = binomial(owner.strength())
+        character.damage amount
+
+        message "<span class="subst">#{owner.name()}</span> strikes <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"
+    """</span>
+
+  Blind:
+    name: <span class="string">"Blind"</span>
+    iconName: <span class="string">"blind"</span>
+    range: <span class="number">8</span>
+    actionCost: <span class="number">1</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    code: <span class="string">"""
+      if character
+        character.addEffect
+          name: "blindness"
+          attribute: "sight"
+          amount: -100
+          duration: 3
+    """</span>
+
+  Regeneration:
+    name: <span class="string">"Regeneration"</span>
+    iconName: <span class="string">"regeneration"</span>
+    actionCost: <span class="number">1</span>
+    costType: REST
+    targetZone: SELF
+    code: <span class="string">"""
+      amount = 1
+      owner.heal(amount)
+      message "<span class="subst">#{owner.name()}</span> regenerates <span class="subst">#{amount}</span> health."
+    """</span>
+
+  Entanglement:
+    name: <span class="string">"Entanglement"</span>
+    iconName: <span class="string">"bush0"</span>
+    range: <span class="number">7</span>
+    actionCost: <span class="number">2</span>
+    cooldown: <span class="number">3</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    code: <span class="string">"""
+      search.adjacent(position, 1 + sqrt(2)).forEach (position) -&gt;
+        addEffect(Effect.Plant(position))
+    """</span>
+
+  Stomp:
+    name: <span class="string">"Stomp"</span>
+    iconName: <span class="string">"stomp"</span>
+    range: <span class="number">1</span>
+    actionCost: <span class="number">2</span>
+    cooldown: <span class="number">2</span>
+    targetZone: SELF
+    code: <span class="string">"""
+      addEffect(Effect.Stomp(position, owner))
+    """</span>
+
+  Fireball:
+    name: <span class="string">"Fireball"</span>
+    iconName: <span class="string">"fireball"</span>
+    range: <span class="number">7</span>
+    actionCost: <span class="number">2</span>
+    cooldown: <span class="number">3</span>
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    code: <span class="string">"""
+      search.adjacent(position, 1 + sqrt(2)).forEach (position) -&gt;
+        addEffect(Effect.Fire(position))
+    """</span>
+
+  ShrubSight:
+    name: <span class="string">"ShrubSight"</span>
+    iconName: <span class="string">"bush1"</span>
+    actionCost: <span class="number">1</span>
+    cooldown: <span class="number">3</span>
+    targetZone: SELF
+    code: <span class="string">"""
+      addEffect(Effect.ShrubSight(position, owner))
+    """</span>
+
+  Wait:
+    name: <span class="string">"Wait"</span>
+    iconName: <span class="string">"hourglass"</span>
+    actionCost: <span class="number">0</span>
+    costType: REST
+    targetZone: SELF
+    code: <span class="string">"""
+    """</span>
+
+  Cancel:
+    name: <span class="string">"Cancel"</span>
+    actionCost: <span class="number">0</span>
+    targetZone: TARGET_ZONE.SELF
+    code: <span class="string">"""
+      owner.targettingAbility null
+    """</span></code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
