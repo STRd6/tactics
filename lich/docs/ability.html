@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>ability</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="ability">Ability</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Abilities of characters can be activated in the tactical screen.</p>
+<p>Abilities can target:</p>
+<ul>
+<li>Self</li>
+<li>LoS</li>
+<li>Visible to Squad</li>
+<li>Any tile within range</li>
+</ul>
+<p>Abilities may have additional range restrictions.</p>
+<p>Abilities don&#39;t necessarily have to target a character, they may target a map
+tile.</p>
+<p>Abilities usually consume all remaining character actions.</p>
+<p>Some abilities may need both actions unused to activate.</p>
+<p>Some abilities may have a cooldown.</p>
+<p>Some abilities may require zero actions to activate and only have a cooldown.</p>
+<p>Some abilities may be situational (like Force Door being only available targetting the door adjacent to the character)</p>
+<p>Some cool abilities that should be in the game</p>
+<ul>
+<li>Overwatch</li>
+<li>Heal</li>
+<li>Dig</li>
+<li>Teleport</li>
+<li>Buffs</li>
+<li>Debuffs</li>
+</ul>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">{sqrt} = Math
+{binomial} = require <span class="string">"random"</span>
+objectMap = require <span class="string">"./lib/object_map"</span>
+<span class="comment"># TODO: Shouldn't need to require this</span>
+Effect = require <span class="string">"./effect"</span>
+
+{COST_TYPE, TARGET_ZONE} = Constants = require <span class="string">"./ability_constants"</span>
+
+<span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
+  Object.defaults I,
+    range: <span class="number">1</span>
+    actionCost: <span class="number">1</span>
+    cooldown: <span class="number">0</span>
+    name: <span class="string">"?"</span>
+    costType: COST_TYPE.FIXED
+
+  self.attrAccessor(
+    <span class="string">"actionCost"</span>
+    <span class="string">"actionType"</span>
+    <span class="string">"cooldown"</span>
+    <span class="string">"costType"</span>
+    <span class="string">"iconName"</span>
+    <span class="string">"name"</span>
+    <span class="string">"range"</span>
+    <span class="string">"targetType"</span>
+    <span class="string">"targetZone"</span>
+  )
+
+  Object.extend self,
+    canPay: (owner) -&gt;
+      (owner.actions() &gt;= self.actionCost()) <span class="keyword">and</span>
+      (owner.cooldown(self) <span class="keyword">is</span> <span class="number">0</span>)
+
+    payCosts: (owner) -&gt;
+      owner.setCooldown(self)
+
+      <span class="keyword">switch</span> self.costType()
+        <span class="keyword">when</span> COST_TYPE.REST
+          owner.actions(<span class="number">0</span>)
+        <span class="keyword">when</span> COST_TYPE.FIXED
+          owner.actions owner.actions() - self.actionCost()
+        <span class="keyword">else</span>
+          <span class="keyword">throw</span> <span class="string">"Unknown action cost type"</span>
+
+    compile: -&gt;
+      <span class="comment"># TODO: Not too happy about passing binomial sqrt in like this, but</span>
+      <span class="comment"># maybe it's the way to go. It should be encapsulated in some kind of</span>
+      <span class="comment"># ENV wrapper if so.</span>
+      Function(<span class="string">"sqrt"</span>, <span class="string">"binomial"</span>, CoffeeScript.compile <span class="string">"""
+        return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) -&gt;
+        <span class="subst">#{indent I.code}</span>
+      """</span>, bare: <span class="literal">true</span>)(sqrt, binomial)
+
+    perform: (params) -&gt;
+      {owner} = params
+
+      self.payCosts(owner)
+
+      self.compile()(params)
+
+      owner.resetTargetting()
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Wherever possible we should reduce complexity and compose simpler actions rather
+than special case complex ones. For example: A knight&#39;s charging attack could
+be handled as a triggered ability that the knight get&#39;s a melee attack after
+moving adjacent to an enemy, rather than having a special movement style ability
+that target&#39;s an enemy, but has movement range and connectedness constraints.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Ability.Abilities = objectMap(require(<span class="string">"./abilities"</span>), Ability)
+
+Object.extend Ability, Constants
+
+module.exports = Ability</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">indent</span></span> = (text, indent=<span class="string">"  "</span>) -&gt;
+  text.replace(<span class="regexp">/^/gm</span>, <span class="string">"<span class="subst">#{indent}</span>"</span>)</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
