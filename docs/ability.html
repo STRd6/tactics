@@ -61,12 +61,11 @@ tile.</p>
             </div>
             <div class="content"><pre><code class="lang-coffeescript">{sqrt} = Math
 {binomial} = require <span class="string">"random"</span>
-Search = require <span class="string">"./map_search"</span>
+objectMap = require <span class="string">"./lib/object_map"</span>
+<span class="comment"># TODO: Shouldn't need to require this</span>
 Effect = require <span class="string">"./effect"</span>
-Feature = require <span class="string">"./feature"</span>
 
-<span class="comment"># TODO we don't have tileAt, so we can't do all searches</span>
-search = Search()
+{COST_TYPE, TARGET_ZONE} = Constants = require <span class="string">"./ability_constants"</span>
 
 <span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
@@ -74,7 +73,7 @@ search = Search()
     actionCost: <span class="number">1</span>
     cooldown: <span class="number">0</span>
     name: <span class="string">"?"</span>
-    costType: Ability.COST_TYPE.FIXED
+    costType: COST_TYPE.FIXED
 
   self.attrAccessor(
     <span class="string">"actionCost"</span>
@@ -104,15 +103,21 @@ search = Search()
         <span class="keyword">else</span>
           <span class="keyword">throw</span> <span class="string">"Unknown action cost type"</span>
 
-    validTargets: (owner, tileAt) -&gt;
+    compile: -&gt;
+      <span class="comment"># TODO: Not too happy about passing binomial sqrt in like this, but</span>
+      <span class="comment"># maybe it's the way to go. It should be encapsulated in some kind of</span>
+      <span class="comment"># ENV wrapper if so.</span>
+      Function(<span class="string">"sqrt"</span>, <span class="string">"binomial"</span>, CoffeeScript.compile <span class="string">"""
+        return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) -&gt;
+        <span class="subst">#{indent I.code}</span>
+      """</span>, bare: <span class="literal">true</span>)(sqrt, binomial)
 
     perform: (params) -&gt;
       {owner} = params
 
       self.payCosts(owner)
 
-      <span class="comment"># TODO: Not sure if this should be on I</span>
-      I.perform(params)
+      self.compile()(params)
 
       owner.resetTargetting()
 
@@ -131,208 +136,40 @@ than special case complex ones. For example: A knight&#39;s charging attack coul
 be handled as a triggered ability that the knight get&#39;s a melee attack after
 moving adjacent to an enemy, rather than having a special movement style ability
 that target&#39;s an enemy, but has movement range and connectedness constraints.</p>
-<p>Should there be range types too? Connected, any, passable, etc?</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">{SELF, MOVEMENT, LINE_OF_SIGHT, ANY} = Ability.TARGET_ZONE = TARGET_ZONE =
-  SELF: <span class="number">1</span> <span class="comment"># The character itself, skips targetting step</span>
-  LINE_OF_SIGHT: <span class="number">2</span> <span class="comment"># Any tile within character's line of sight and within range</span>
-  VISIBLE: <span class="number">3</span> <span class="comment"># Any tile visible to squad within range</span>
-  MOVEMENT: <span class="number">4</span> <span class="comment"># Visible, passable, connected, movement penalties and bonuses apply</span>
-  ANY: <span class="number">15</span> <span class="comment"># Any tile within range</span>
+            <div class="content"><pre><code class="lang-coffeescript">Ability.Abilities = objectMap(require(<span class="string">"./abilities"</span>), Ability)
 
-Ability.TARGET_TYPE = TARGET_TYPE =
-  FRIENDLY: <span class="number">1</span>
-  ENEMY: <span class="number">2</span>
-  OPEN: <span class="number">3</span>
-  WALL: <span class="number">4</span>
-  ANY: <span class="number">15</span>
-
-{FIXED, REST} = Ability.COST_TYPE = COST_TYPE =
-  FIXED: <span class="number">1</span>
-  REST: <span class="number">2</span>
-
-Ability.Abilities =
-  Move: Ability
-    name: <span class="string">"Move"</span>
-    iconName: <span class="string">"boots"</span>
-    actionCost: <span class="number">1</span>
-    targetZone: MOVEMENT
-    perform: ({addEffect, movementPath, owner}) -&gt;
-      owner.addEffect
-        name: <span class="string">"moving"</span>
-        attribute: <span class="string">"physicalAwareness"</span>
-        amount: -<span class="number">100</span>
-        duration: <span class="number">1</span>
-
-      <span class="comment"># Need to reverse because the effects go on a stack.</span>
-      positions = movementPath.copy().reverse()
-
-      positions.forEach (position, i) -&gt;
-        to = position
-        from = positions[i+<span class="number">1</span>]
-
-        <span class="keyword">if</span> to <span class="keyword">and</span> from
-          addEffect Effect.Move(from, to, owner)
-
-  Teleport: Ability
-    name: <span class="string">"Teleport"</span>
-    iconName: <span class="string">"teleport"</span>
-    actionCost: <span class="number">2</span>
-    range: <span class="number">50</span>
-    targetZone: ANY
-    perform: ({addEffect, character, owner, position, message}) -&gt;
-      addEffect Effect.Move(owner.position(), position)
-
-      <span class="keyword">if</span> character
-        owner.I.health = <span class="number">0</span>
-        character.I.health = <span class="number">0</span>
-
-        message <span class="string">"<span class="subst">#{owner.name()}</span> teleports into <span class="subst">#{character.name()}</span>. There are no survivors."</span>
-
-  Blink: Ability
-    name: <span class="string">"Blink"</span>
-    iconName: <span class="string">"blink"</span>
-    actionCost: <span class="number">1</span>
-    range: <span class="number">8</span>
-    targetZone: LINE_OF_SIGHT
-    perform: ({addEffect, character, message, owner, position}) -&gt;
-      addEffect Effect.Move(owner.position(), position)
-
-      <span class="keyword">if</span> character
-        owner.I.health = <span class="number">0</span>
-        character.I.health = <span class="number">0</span>
-
-        message <span class="string">"<span class="subst">#{owner.name()}</span> teleports into <span class="subst">#{character.name()}</span>. Life ends in the blink of an eye."</span>
-
-  Farsight: Ability
-    name: <span class="string">"Farsight"</span>
-    iconName: <span class="string">"farsight"</span>
-    actionCost: <span class="number">1</span>
-    range: <span class="number">16</span>
-    targetZone: ANY
-    perform: ({animate, owner, position}) -&gt;
-      animate
-        message: <span class="string">"<span class="subst">#{owner.name()}</span>'s wizard eyes see all!"</span>
-        position: position
-        duration: <span class="number">2000</span>
-
-      search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
-        owner.addMagicalVision(position)
-
-  Melee: Ability
-    name: <span class="string">"Attack"</span>
-    iconName: <span class="string">"sword"</span>
-    range: sqrt(<span class="number">2</span>)
-    actionCost: <span class="number">1</span>
-    costType: REST
-    targetZone: LINE_OF_SIGHT
-    perform: ({owner, character, message}) -&gt;
-      <span class="keyword">if</span> character
-        amount = binomial(owner.strength()) + <span class="number">1</span>
-        character.damage amount
-
-        message <span class="string">"<span class="subst">#{owner.name()}</span> strikes <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"</span>
-
-  Ranged: Ability
-    name: <span class="string">"Attack"</span>
-    iconName: <span class="string">"longbow"</span>
-    range: <span class="number">7</span>
-    actionCost: <span class="number">1</span>
-    costType: REST
-    targetZone: LINE_OF_SIGHT
-    perform: ({owner, character, message}) -&gt;
-      <span class="keyword">if</span> character
-        amount = binomial(owner.strength())
-        character.damage amount
-
-        message <span class="string">"<span class="subst">#{owner.name()}</span> strikes <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span>"</span>
-
-  Blind: Ability
-    name: <span class="string">"Blind"</span>
-    iconName: <span class="string">"blind"</span>
-    range: <span class="number">8</span>
-    actionCost: <span class="number">1</span>
-    costType: REST
-    targetZone: LINE_OF_SIGHT
-    perform: ({character}) -&gt;
-      <span class="keyword">if</span> character
-        character.addEffect
-          name: <span class="string">"blindness"</span>
-          attribute: <span class="string">"sight"</span>
-          amount: -<span class="number">100</span>
-          duration: <span class="number">3</span>
-
-  Regeneration: Ability
-    name: <span class="string">"Regeneration"</span>
-    iconName: <span class="string">"regeneration"</span>
-    actionCost: <span class="number">1</span>
-    costType: REST
-    targetZone: SELF
-    perform: ({owner, message}) -&gt;
-      amount = <span class="number">1</span>
-      owner.heal(amount)
-      message <span class="string">"<span class="subst">#{owner.name()}</span> regenerates <span class="subst">#{amount}</span> health."</span>
-
-  Entanglement: Ability
-    name: <span class="string">"Entanglement"</span>
-    iconName: <span class="string">"bush0"</span>
-    range: <span class="number">7</span>
-    actionCost: <span class="number">2</span>
-    cooldown: <span class="number">3</span>
-    costType: REST
-    targetZone: LINE_OF_SIGHT
-    perform: ({position, addEffect}) -&gt;
-      search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
-        addEffect(Effect.Plant(position))
-
-  Stomp: Ability
-    name: <span class="string">"Stomp"</span>
-    iconName: <span class="string">"stomp"</span>
-    range: <span class="number">1</span>
-    actionCost: <span class="number">2</span>
-    cooldown: <span class="number">2</span>
-    targetZone: SELF
-    perform: ({position, addEffect, owner}) -&gt;
-      addEffect(Effect.Stomp(position, owner))
-
-  Fireball: Ability
-    name: <span class="string">"Fireball"</span>
-    iconName: <span class="string">"fireball"</span>
-    range: <span class="number">7</span>
-    actionCost: <span class="number">2</span>
-    cooldown: <span class="number">3</span>
-    costType: REST
-    targetZone: LINE_OF_SIGHT
-    perform: ({position, addEffect}) -&gt;
-      search.adjacent(position, <span class="number">1</span> + sqrt(<span class="number">2</span>)).forEach (position) -&gt;
-        addEffect(Effect.Fire(position))
-
-  ShrubSight: Ability
-    name: <span class="string">"ShrubSight"</span>
-    iconName: <span class="string">"bush1"</span>
-    actionCost: <span class="number">1</span>
-    cooldown: <span class="number">3</span>
-    targetZone: SELF
-    perform: ({position, addEffect, owner}) -&gt;
-      addEffect(Effect.ShrubSight(position, owner))
-
-  Wait: Ability
-    name: <span class="string">"Wait"</span>
-    iconName: <span class="string">"hourglass"</span>
-    actionCost: <span class="number">0</span>
-    costType: REST
-    targetZone: SELF
-    perform: -&gt;
-
-  Cancel: Ability
-    name: <span class="string">"Cancel"</span>
-    actionCost: <span class="number">0</span>
-    targetZone: TARGET_ZONE.SELF
-    perform: ({owner}) -&gt;
-      owner.targettingAbility <span class="literal">null</span>
+Object.extend Ability, Constants
 
 module.exports = Ability</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2 id="helpers">Helpers</h2>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">indent</span></span> = (text, indent=<span class="string">"  "</span>) -&gt;
+  text.replace(<span class="regexp">/^/gm</span>, <span class="string">"<span class="subst">#{indent}</span>"</span>)</code></pre>
 </div>
         </li>
         
