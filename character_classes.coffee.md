@@ -58,6 +58,10 @@ Exploring various character classes here.
           "EagleEye"
         ]
 
+      Skeleton:
+        sight: 5
+        spriteName: "skeletal_warrior"
+
       Wizard:
         health: 2
         healthMax: 2

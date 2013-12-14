@@ -88,17 +88,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
                 x: 1
                 y: 1
   
-            create "Wizard",
+            create "Skeleton",
               position:
                 x: 2
                 y: 4
   
-            create "Archer",
+            create "Skeleton",
               position:
                 x: 4
                 y: 2
   
-            create "Scout",
+            create "Skeleton",
               position:
                 x: 2
                 y: 3
