@@ -32,12 +32,11 @@ Features are semi-permanent objects that exist at positions on the map.
         quadTree.insert p
 
       self.extend
-        addFeature: (feature) ->
-          feature.createdAt(I.currentTurn)
-          featuresToAdd.push(feature)
+        feature: (name, params...) ->
+          self.addFeature Feature[name](params...)
 
-        addFeatureByName: (name, params) ->
-          feature = Feature[name](params)
+        # TODO: Phase addFeature out in favor of `feature` style
+        addFeature: (feature) ->
           feature.createdAt(I.currentTurn)
           featuresToAdd.push(feature)
 

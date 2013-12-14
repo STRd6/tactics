@@ -68,8 +68,10 @@ Those little guys that run around.
       self.include Drawable
 
       Object.extend self,
-        damage: (amount) ->
-          I.health -= amount
+        damage: (amount, type) ->
+          damageTotal = self.damageMod(amount, type)
+
+          I.health -= damageTotal
 
         heal: (amount) ->
           I.health += amount
@@ -95,6 +97,22 @@ Sums up the modifications for an attribute from all the effects.
             else
               total
           , 0
+
+        damageMod: (amount, type="Physical") ->
+          if self.immune(type)
+            return 0
+
+          # TODO: Resistances
+
+          return amount
+
+        immune: (type) ->
+          self.immunities().include(type)
+
+        immunities: (type) ->
+          self.passives().map (passive) ->
+            passive.immune
+          .compact()
 
         stateBasedActions: ({addEffect}) ->
           return if !I.alive

@@ -83,7 +83,7 @@ Some cool abilities that should be in the game
           # maybe it's the way to go. It should be encapsulated in some kind of
           # ENV wrapper if so.
           Function("sqrt", "binomial", CoffeeScript.compile """
-            return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) ->
+            return ({animate, character, effect, feature, message, movementPath, owner, position, search}) ->
             #{indent I.code}
           """, bare: true)(sqrt, binomial)
 

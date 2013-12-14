@@ -215,6 +215,7 @@ parameterize it by passing in the character and the ability.
             characterAt: self.characterAt
             effect: self.effect
             event: self.trigger
+            feature: self.feature
             featuresAt: self.featuresAt
             find: self.find
             impassable: self.impassable

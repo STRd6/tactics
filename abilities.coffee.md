@@ -61,6 +61,16 @@
             message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
         '''
 
+      Death:
+        name: "Death"
+        iconName: "black_cloud"
+        actionCost: 2
+        range: 8
+        targetZone: ANY
+        code: '''
+          effect "PestilentVapor", position
+        '''
+
       Farsight:
         name: "Farsight"
         iconName: "farsight"
