@@ -43,7 +43,14 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       else
         ui.actions []
 
+    updateCharacters = (characters) ->
+      if characters
+        ui.characters characters
+      else
+        ui.characters []
+
     ui =
+      characters: Observable []
       messages: Observable [
         "Welcome to the arena!\n"
       ]
@@ -70,6 +77,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     update = ->
       if map
         updateActions(map.activeCharacter())
+        updateCharacters(map.characters())
         accessiblePositions = map.accessiblePositions()
 
     t = 0
