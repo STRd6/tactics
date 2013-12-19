@@ -12,7 +12,9 @@
   .characters_container
     - each @characters, (character) ->
       - activeClass = -> "active" if map.activeCharacter() is character
-      .character(class=activeClass)
+      - stunned = "stunned" if character.stunned()
+      .character(class="#{activeClass stunned}")
+        %img.bolt(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAJCAYAAAD6reaeAAAAJ0lEQVQIW2NkwAT/GdHE/gP5jMiCYAGQIpggXAAmCBJAAVQyE8UYAFBxCQhl+Rv2AAAAAElFTkSuQmCC")
         .health
           - character.health().times ->
             %img.heart(src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAXklEQVQYV2NkAII1Rkb/QXTIuXOMIBqbGCNIka6qIVjy8u3zYMXYxFAEYYphGpE1YyiEWQ2jYbaA3YRsFbJCmCKQGIrjsVkJ0whXiGwysklYFcIUIwcTToXoniFZIQACVkALUKk9JAAAAABJRU5ErkJggg==")
@@ -29,8 +31,10 @@
         .costs
           .container
             - action.cost?.times ->
-              .cost
+              - typeClass = -> "rest" if action.costType?() is 2
+              .cost(class=typeClass)
         = action.name
+
         - on "click", ->
           - unless action.disabled
             - action.perform()

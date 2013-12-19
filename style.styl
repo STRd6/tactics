@@ -24,7 +24,7 @@ canvas, .ui
   width: 24px
 
   &:before
-    content: "⌛"
+    content: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAMklEQVQIW2NkQID/SGxGEBtMAAFIAsaG80ECyBIobGySMBP/o0siWcsAlsRrJ0w1hmsBn/oOBZ7vc+sAAAAASUVORK5CYII=")
 
 .ui
   height: 100%
@@ -41,6 +41,19 @@ canvas, .ui
   position: absolute
   top: 0
   right: 0
+
+.bolt
+  display: none
+  position: absolute
+  bottom: 2px
+  right: 3px
+
+.character
+  &.stunned
+    -webkit-filter: grayscale(100%)
+
+    .bolt
+      display: block
 
 .health
   height: 10px
@@ -177,3 +190,6 @@ canvas, .ui
     margin-right: 2px
     border: 1px solid white
     float: left
+
+    &.rest
+      background: rgb(217, 87, 99)
