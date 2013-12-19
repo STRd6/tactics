@@ -22,17 +22,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
 
       self.attrModels "characters", Character
 
-      activatableCharacters = ->
-        self.characters().filter (character) ->
-          character.alive() and
-          character.actions() > 0
-
       nextActivatableCharacter = ->
-        activatableCharacters().first()
+        self.activatableCharacters().first()
 
       self.extend
+        activatableCharacters: ->
+          self.characters().filter (character) ->
+            character.alive() and
+            character.actions() > 0
+
         activateCharacterAt: (position) ->
-          character = activatableCharacters().filter (character) ->
+          character = self.activatableCharacters().filter (character) ->
             character.position().equal position
           .first()
 
@@ -65,17 +65,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               position:
                 x: 1
                 y: 1
-  
+
             create "Wizard",
               position:
                 x: 2
                 y: 4
-  
+
             create "Archer",
               position:
                 x: 4
                 y: 2
-  
+
             create "Scout",
               position:
                 x: 2
@@ -87,17 +87,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               position:
                 x: 1
                 y: 1
-  
+
             create "Skeleton",
               position:
                 x: 2
                 y: 4
-  
+
             create "Skeleton",
               position:
                 x: 4
                 y: 2
-  
+
             create "Skeleton",
               position:
                 x: 2
@@ -109,17 +109,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
               position:
                 x: 18
                 y: 16
-  
+
             create "Grunt",
               position:
                 x: 20
                 y: 14
-  
+
             create "ShrubMage",
               position:
                 x: 14
                 y: 16
-  
+
             create "Giant",
               position:
                 x: 16

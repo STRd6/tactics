@@ -45,7 +45,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     updateCharacters = (characters) ->
       if characters
-        ui.characters characters.copy()
+        ui.characters characters.copy().reverse()
       else
         ui.characters []
 
@@ -59,6 +59,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           name: "New Game"
           icon: "new_game"
           perform: ->
+            # HACK hide the name of the game
+            $(".title").hide()
+
             global.map = map = Map()
             map.messages.observe (messages) ->
               ui.messages(messages.copy())
@@ -77,7 +80,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     update = ->
       if map
         updateActions(map.activeCharacter())
-        updateCharacters(map.characters())
+        updateCharacters(map.activeSquad().characters())
         accessiblePositions = map.accessiblePositions()
 
     t = 0
