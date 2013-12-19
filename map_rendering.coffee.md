@@ -77,6 +77,15 @@ Rendering offset in pixels.
 
             canvas.drawRect(bounds)
 
+      drawDebug = (canvas) ->
+        if character = self.activeCharacter()
+          if positions = character.debugPositions()
+            positions.forEach (position) ->
+              bounds = Bounds(Point(position).scale(tileSize), tileSize)
+              bounds.color = "rgba(0, 255, 0, 0.5)"
+  
+              canvas.drawRect(bounds)
+
       backgroundColor = "#222034"
 
       self.activeCharacter.observe (character) ->
@@ -134,6 +143,8 @@ to self.width(), self.height())
             drawFeatures(canvas)
 
             drawFog(canvas)
+
+            drawDebug(canvas)
 
         renderUI: (canvas, t) ->
           canvas.clear()

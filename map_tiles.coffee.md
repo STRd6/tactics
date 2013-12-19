@@ -123,10 +123,12 @@ Methods for interacting with tiles witin the map.
                 type: "physical"
 
               # Normal Sight
+              visibleTiles = self.search.visible(character.position(), character.sight(), self.opaque)
+              character.debugPositions visibleTiles
               self.viewTiles
                 index: index
                 message: message
-                positions: self.search.visible(character.position(), character.sight(), self.opaque)
+                positions: visibleTiles
                 type: character.visionType()
 
       # Add Features from tileset

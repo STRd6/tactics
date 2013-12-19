@@ -39,6 +39,7 @@ Those little guys that run around.
         "abilities"
         "actions"
         "alive"
+        "debugPositions"
         "health"
         "healthMax"
         "magicalVision"
