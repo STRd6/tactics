@@ -150,6 +150,10 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
         squad.characters().filter (character) -&gt;
           character.alive()
         .forEach (character) -&gt;
+          character.visionEffects().forEach (effectName) -&gt;
+            <span class="comment"># TODO: Consolidate these to be I params</span>
+            self.effectInstant effectName, character.position(), character
+
           <span class="comment"># Magical vision</span>
           self.viewTiles
             index: index

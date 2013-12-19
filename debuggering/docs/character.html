@@ -212,6 +212,11 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         passive.enter
       .compact()
 
+    visionEffects: -&gt;
+      self.passives().map (passive) -&gt;
+        passive.visionEffect
+      .compact()
+
     physicalAwareness: -&gt;
       <span class="keyword">if</span> !self.aware()
         <span class="number">0</span>
