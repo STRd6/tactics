@@ -36,12 +36,11 @@ Some cool abilities that should be in the game
 
     {sqrt} = Math
     {binomial} = require "random"
-    Search = require "./map_search"
+    objectMap = require "./lib/object_map"
+    # TODO: Shouldn't need to require this
     Effect = require "./effect"
-    Feature = require "./feature"
 
-    # TODO we don't have tileAt, so we can't do all searches
-    search = Search()
+    {COST_TYPE, TARGET_ZONE} = Constants = require "./ability_constants"
 
     Ability = (I={}, self=Core(I)) ->
       Object.defaults I,
@@ -49,7 +48,7 @@ Some cool abilities that should be in the game
         actionCost: 1
         cooldown: 0
         name: "?"
-        costType: Ability.COST_TYPE.FIXED
+        costType: COST_TYPE.FIXED
 
       self.attrAccessor(
         "actionCost"
@@ -79,15 +78,21 @@ Some cool abilities that should be in the game
             else
               throw "Unknown action cost type"
 
-        validTargets: (owner, tileAt) ->
+        compile: ->
+          # TODO: Not too happy about passing binomial sqrt in like this, but
+          # maybe it's the way to go. It should be encapsulated in some kind of
+          # ENV wrapper if so.
+          Function("sqrt", "binomial", CoffeeScript.compile """
+            return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) ->
+            #{indent I.code}
+          """, bare: true)(sqrt, binomial)
 
         perform: (params) ->
           {owner} = params
 
           self.payCosts(owner)
 
-          # TODO: Not sure if this should be on I
-          I.perform(params)
+          self.compile()(params)
 
           owner.resetTargetting()
 
@@ -99,203 +104,14 @@ be handled as a triggered ability that the knight get's a melee attack after
 moving adjacent to an enemy, rather than having a special movement style ability
 that target's an enemy, but has movement range and connectedness constraints.
 
-Should there be range types too? Connected, any, passable, etc?
+    Ability.Abilities = objectMap(require("./abilities"), Ability)
 
-    {SELF, MOVEMENT, LINE_OF_SIGHT, ANY} = Ability.TARGET_ZONE = TARGET_ZONE =
-      SELF: 1 # The character itself, skips targetting step
-      LINE_OF_SIGHT: 2 # Any tile within character's line of sight and within range
-      VISIBLE: 3 # Any tile visible to squad within range
-      MOVEMENT: 4 # Visible, passable, connected, movement penalties and bonuses apply
-      ANY: 15 # Any tile within range
-
-    Ability.TARGET_TYPE = TARGET_TYPE =
-      FRIENDLY: 1
-      ENEMY: 2
-      OPEN: 3
-      WALL: 4
-      ANY: 15
-
-    {FIXED, REST} = Ability.COST_TYPE = COST_TYPE =
-      FIXED: 1
-      REST: 2
-
-    Ability.Abilities =
-      Move: Ability
-        name: "Move"
-        iconName: "boots"
-        actionCost: 1
-        targetZone: MOVEMENT
-        perform: ({addEffect, movementPath, owner}) ->
-          owner.addEffect
-            name: "moving"
-            attribute: "physicalAwareness"
-            amount: -100
-            duration: 1
-
-          # Need to reverse because the effects go on a stack.
-          positions = movementPath.copy().reverse()
-
-          positions.forEach (position, i) ->
-            to = position
-            from = positions[i+1]
-
-            if to and from
-              addEffect Effect.Move(from, to, owner)
-
-      Teleport: Ability
-        name: "Teleport"
-        iconName: "teleport"
-        actionCost: 2
-        range: 50
-        targetZone: ANY
-        perform: ({character, owner, position, message}) ->
-          # TODO: Make this a movement effect so we can trigger traps/events
-          owner.position position
-
-          if character
-            owner.I.health = 0
-            character.I.health = 0
-
-            message "#{owner.name()} teleports into #{character.name()}. There are no survivors."
-
-      Blink: Ability
-        name: "Blink"
-        iconName: "blink"
-        actionCost: 1
-        range: 8
-        targetZone: LINE_OF_SIGHT
-        perform: ({character, message, owner, position}) ->
-          # TODO: Make this a movement effect so we can trigger traps/events
-          owner.position position
-
-          if character
-            owner.I.health = 0
-            character.I.health = 0
-
-            message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
-
-      Farsight: Ability
-        name: "Farsight"
-        iconName: "farsight"
-        actionCost: 1
-        range: 16
-        targetZone: ANY
-        perform: ({message, owner, position}) ->
-          message "#{owner.name()}'s wizard eyes see all!"
-
-          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            owner.addMagicalVision(position)
-
-      Melee: Ability
-        name: "Attack"
-        iconName: "sword"
-        range: sqrt(2)
-        actionCost: 1
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({owner, character, message}) ->
-          if character
-            amount = binomial(owner.strength()) + 1
-            character.damage amount
-
-            message "#{owner.name()} strikes #{character.name()} for #{amount}"
-
-      Ranged: Ability
-        name: "Attack"
-        iconName: "longbow"
-        range: 7
-        actionCost: 1
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({owner, character, message}) ->
-          if character
-            amount = binomial(owner.strength())
-            character.damage amount
-
-            message "#{owner.name()} strikes #{character.name()} for #{amount}"
-
-      Blind: Ability
-        name: "Blind"
-        iconName: "blind"
-        range: 8
-        actionCost: 1
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({character}) ->
-          if character
-            character.addEffect
-              name: "blindness"
-              attribute: "sight"
-              amount: -100
-              duration: 3
-
-      Regeneration: Ability
-        name: "Regeneration"
-        iconName: "regeneration"
-        actionCost: 1
-        costType: REST
-        targetZone: SELF
-        perform: ({owner, message}) ->
-          amount = 1
-          owner.heal(amount)
-          message "#{owner.name()} regenerates #{amount} health."
-
-      Entanglement: Ability
-        name: "Entanglement"
-        iconName: "bush0"
-        range: 7
-        actionCost: 2
-        cooldown: 3
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({position, addEffect}) ->
-          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect.Plant(position))
-
-      Stomp: Ability
-        name: "Stomp"
-        iconName: "stomp"
-        range: 1
-        actionCost: 2
-        cooldown: 2
-        targetZone: SELF
-        perform: ({position, addEffect, owner}) ->
-          addEffect(Effect.Stomp(position, owner))
-
-      Fireball: Ability
-        name: "Fireball"
-        iconName: "fireball"
-        range: 7
-        actionCost: 2
-        cooldown: 3
-        costType: REST
-        targetZone: LINE_OF_SIGHT
-        perform: ({position, addEffect}) ->
-          search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
-            addEffect(Effect.Fire(position))
-
-      ShrubSight: Ability
-        name: "ShrubSight"
-        iconName: "bush1"
-        actionCost: 1
-        cooldown: 3
-        targetZone: SELF
-        perform: ({position, addEffect, owner}) ->
-          addEffect(Effect.ShrubSight(position, owner))
-
-      Wait: Ability
-        name: "Wait"
-        iconName: "hourglass"
-        actionCost: 0
-        costType: REST
-        targetZone: SELF
-        perform: ->
-
-      Cancel: Ability
-        name: "Cancel"
-        actionCost: 0
-        targetZone: TARGET_ZONE.SELF
-        perform: ({owner}) ->
-          owner.targettingAbility null
+    Object.extend Ability, Constants
 
     module.exports = Ability
+
+Helpers
+-------
+
+    indent = (text, indent="  ") ->
+      text.replace(/^/gm, "#{indent}")

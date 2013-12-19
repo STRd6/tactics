@@ -23,7 +23,7 @@ electricity, I don't know yet.
           message "#{character.name()} is on fire!"
 
     Effect.Move = (from, to, movingCharacter=null) ->
-      perform: ({characterAt, message, impassable, event}) ->
+      perform: ({animate, characterAt, message, impassable, event}) ->
         # If a character is moving themselves we don't want to move anyone else
         # We also don't want to keep moving them if they lose awareness (death, stun).
         if movingCharacter
@@ -41,11 +41,15 @@ electricity, I don't know yet.
             event "move",
               from: from
               to: to
+
+            animate
+              position: to
+              duration: 100
         else
           console.log "No character at", from
 
     Effect.Stomp = (position, owner) ->
-      perform: ({characterAt, message, search, featuresAt}) ->
+      perform: ({characterAt, message, search, featuresAt, replaceTileAt}) ->
         # TODO: Add cracked / destroyed sprite
         # TODO: Screen shake
         search.adjacent(position).forEach (position) ->
@@ -57,16 +61,22 @@ electricity, I don't know yet.
 
           featuresAt(position).invoke "destroy"
 
+          # Revert tiles to default
+          replaceTileAt(position)
+
     # Used in Entanglement
     Effect.Plant = (position) ->
-      perform: ({characterAt, message, addFeature, impassable}) ->
+      perform: ({animate, characterAt, message, addFeature, impassable}) ->
         unless impassable(position)
           # TODO: Check for existing bushes
           addFeature Feature.Bush(position)
 
         if character = characterAt(position)
           character.stun(1)
-          message "#{character.name()} is caught in a shrub!"
+
+          animate
+            message: "#{character.name()} is caught in a shrub!"
+            duration: 100
 
     Effect.Death = (position, owner) ->
       perform: ({message, addFeature}) ->

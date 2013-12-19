@@ -9,6 +9,7 @@ The primary tactical combat screen.
     MapFeatures = require "./map_features"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
+    MapRendering = require "./map_rendering"
     Squad = require "./squad"
 
     {
@@ -18,42 +19,24 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
-        features: []
         squads: [{
           # TODO
         }, {
           race: "goblin"
         }]
-        height: 36
-        width: 64
 
       self ?= Core(I)
 
       self.include Compositions
 
-      self.attrAccessor "width", "height"
-
       self.attrObservable "currentTurn"
 
-      self.tileCount = ->
-        I.width * I.height
-
-      self.include MapTiles
       self.include MapFeatures
+      self.include MapTiles
 
       self.attrModels "squads", Squad
       self.activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
-
-      # TODO: Inculde character as an optional parameter
-      impassable = (position) ->
-        self.featuresAt(position).some (feature) ->
-          feature.impassable()
-
-      # TODO: Include character as an optional parameter
-      opaque = (position) ->
-        self.featuresAt(position).some (feature) ->
-          feature.opaque()
 
       characterPassable = (character) ->
         index = self.activeSquadIndex()
@@ -61,21 +44,12 @@ The primary tactical combat screen.
         (position) ->
           if self.featuresAt(position).some((feature) -> feature.seen(index) and feature.dangerous())
             occupantPassable = false
-          else if occupant = characterAt(position)
+          else if occupant = self.characterAt(position)
             occupantPassable = (self.activeSquad().characters.indexOf(occupant) != -1)
           else
             occupantPassable = true
 
-          !impassable(position) and self.lit.get(index).get(position.x + position.y * self.width()) and occupantPassable
-
-      characterAt = (x, y) ->
-        if x.x?
-          {x, y} = x
-
-        self.characters().filter (character) ->
-          position = character.position()
-          character.alive() and (position.x is x and position.y is y)
-        .first()
+          !self.impassable(position) and self.lit.get(index).get(position.x + position.y * self.width()) and occupantPassable
 
       search = MapSearch()
 
@@ -108,11 +82,16 @@ The primary tactical combat screen.
             squad.characters()
           .flatten()
 
-        characterAt: characterAt
+        characterAt: (x, y) ->
+          if x.x?
+            {x, y} = x
+
+          self.characters().filter (character) ->
+            position = character.position()
+            character.alive() and (position.x is x and position.y is y)
+          .first()
 
         eachTile: self.tiles().each
-
-        opaque: opaque
 
         visibleCharacters: ->
           self.characters().filter (character) ->
@@ -149,13 +128,13 @@ parameterize it by passing in the character and the ability.
                 accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
 
                 accessiblePositions.reject (position) ->
-                  characterAt(position)
+                  self.characterAt(position)
 
               when Ability.TARGET_ZONE.ANY
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
-                visiblePositions = search.visible(character.position(), character.sight(), opaque)
+                visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
@@ -164,19 +143,21 @@ parameterize it by passing in the character and the ability.
                 )
 
         stateBasedActions: ->
-          self.squads().forEach (squad) ->
-            squad.stateBasedActions
-              addEffect: self.addEffect
-
           while effectStack.length
             # TODO: This could fall victim to infinite recursion
             self.performEffect effectStack.pop()
 
           self.addNewFeatures()
 
+          self.squads().forEach (squad) ->
+            squad.stateBasedActions
+              addEffect: self.addEffect
+
           self.updateVisibleTiles
             message: self.message
 
+          # TODO: This isn't really state based actions, it should be an explicit
+          # end turn created from the UI automaticall or the player manually
           unless self.activeCharacter()
             # End of turn
             self.ready()
@@ -211,14 +192,8 @@ parameterize it by passing in the character and the ability.
               characterPassable(owner)
             )
 
-          ability.perform
-            addEffect: self.addEffect
-            addFeature: self.addFeature
-            character: characterAt targetPosition
-            characterAt: characterAt
-            find: self.find
-            impassable: impassable
-            message: self.message
+          ability.perform self.methodObject
+            character: self.characterAt targetPosition
             movementPath: movementPath
             owner: owner
             position: targetPosition
@@ -226,18 +201,27 @@ parameterize it by passing in the character and the ability.
           self.stateBasedActions()
 
         performEffect: (effect) ->
-          effect.perform
-            addEffect: self.addEffect
-            addFeature: self.addFeature
-            characterAt: characterAt
-            impassable: impassable
-            find: self.find
-            message: self.message
-            event: self.trigger
-            search: search
-            featuresAt: self.featuresAt
+          effect.perform self.methodObject()
 
           self.stateBasedActions()
+
+        methodObject: (extraParams={}) ->
+          Object.extend
+            addEffect: self.addEffect
+            addFeature: self.addFeature
+            animate: self.animate
+            characterAt: self.characterAt
+            effect: (name, params...) ->
+              self.addEffect Effect[name](params...)
+            event: self.trigger
+            featuresAt: self.featuresAt
+            find: self.find
+            impassable: self.impassable
+            message: self.message
+            replaceTileAt: self.replaceTileAt
+            search: search
+            turn: I.currentTurn
+          , extraParams
 
         selectTarget: (targetPosition) ->
           ability = self.targettingAbility()
@@ -250,22 +234,13 @@ parameterize it by passing in the character and the ability.
 
           if name is "move"
             self.featuresAt(params.to).forEach (feature) ->
-              feature.enter
-                addEffect: self.addEffect
-                addFeature: self.addFeature
-                characterAt: characterAt
-                effect: (name, params) ->
-                  self.addEffect Effect[name](params)
-                impassable: impassable
-                find: self.find
-                message: self.message
-                event: self.trigger
+              feature.enter self.methodObject()
 
-      # TODO: This should be done by an initial runthrough of state based actions
-      # instead
-      self.updateVisibleTiles
-        message: self.message
+      self.include MapRendering
+      self.animate
+        position: self.activeCharacter().position()
+        duration: 0
 
-      self.include require("./map_rendering")
+      self.stateBasedActions()
 
       return self

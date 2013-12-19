@@ -45,6 +45,8 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           self.characters().forEach (character) ->
             character.stateBasedActions(params)
 
+          # TODO: This isn't really a state based action, more of a UI helper
+          # for the player
           if character = self.activeCharacter()
             if character.actions() is 0
               self.activeCharacter nextActivatableCharacter()
@@ -61,17 +63,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           create "Knight",
             position:
               x: 1
-              y: 7
+              y: 1
 
           create "Wizard",
             position:
               x: 2
-              y: 10
+              y: 4
 
           create "Archer",
             position:
               x: 4
-              y: 13
+              y: 2
 
           create "Scout",
             position:
@@ -82,23 +84,23 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         self.characters [
           create "Grunt",
             position:
-              x: 10
-              y: 7
-
-          create "ShrubMage",
-            position:
-              x: 8
-              y: 10
+              x: 18
+              y: 16
 
           create "Grunt",
             position:
-              x: 12
-              y: 13
+              x: 20
+              y: 14
+
+          create "ShrubMage",
+            position:
+              x: 14
+              y: 16
 
           create "Giant",
             position:
-              x: 4
-              y: 7
+              x: 16
+              y: 14
         ]
 
       self.activeCharacter self.characters().first()

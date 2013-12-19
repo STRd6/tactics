@@ -49,10 +49,11 @@ Draw the tactical overlay, status, health, max health.
           drawHealth(canvas, character.health(), character.healthMax())
 
       actions: (character) ->
-        character.abilities().map (abilityName) ->
+        actions = character.abilities().map (abilityName) ->
           ability = Ability.Abilities[abilityName]
 
           action = Action
+            cooldown: ability.cooldown()
             cost: ability.actionCost()
             name: ability.name()
             icon: ability.iconName()
@@ -64,3 +65,11 @@ Draw the tactical overlay, status, health, max health.
           action.disabled = !ability.canPay(character)
 
           return action
+
+        if character.targettingAbility()
+          actions.concat Action
+            name: "Cancel"
+            perform: ->
+              character.targettingAbility(null)
+        else
+          actions
