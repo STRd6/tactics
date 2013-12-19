@@ -42,6 +42,10 @@ canvas, .ui
   top: 0
   right: 0
 
+.health
+  height: 10px
+  text-align: center
+
 .character
   width: 70px
   height: 90px
@@ -51,6 +55,10 @@ canvas, .ui
   margin: 0.5em
   margin-left: 0
   position: relative
+
+  &.active
+    border: 2px solid rgb(99, 155, 255)
+    box-sizing: border-box
 
   .avatar
     display: inline-block
