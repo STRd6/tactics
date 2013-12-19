@@ -203,6 +203,11 @@ parameterize it by passing in the character and the ability.
         effect: (name, params...) ->
           self.addEffect Effect[name](params...)
 
+        # TODO: Kind of a hack, don't call StateBasedActions
+        effectInstant: (name, params...) ->
+          effect = Effect[name](params...)
+          effect.perform self.methodObject()
+
         performEffect: (effect) ->
           effect.perform self.methodObject()
 
@@ -239,7 +244,7 @@ parameterize it by passing in the character and the ability.
               feature.enter self.methodObject()
 
             if character = params.character
-              character.enterEffects().forEach (effectName) -> 
+              character.enterEffects().forEach (effectName) ->
                 # TODO: Consolidate these to be I params
                 self.effect effectName, params.to, params.character
 

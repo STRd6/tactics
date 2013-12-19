@@ -39,6 +39,7 @@ Those little guys that run around.
         "abilities"
         "actions"
         "alive"
+        "debugPositions"
         "health"
         "healthMax"
         "magicalVision"
@@ -159,6 +160,11 @@ Effects to occur when this character enters a tile.
         enterEffects: ->
           self.passives().map (passive) ->
             passive.enter
+          .compact()
+
+        visionEffects: ->
+          self.passives().map (passive) ->
+            passive.visionEffect
           .compact()
 
         physicalAwareness: ->

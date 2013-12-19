@@ -108,6 +108,10 @@ Methods for interacting with tiles witin the map.
             squad.characters().filter (character) ->
               character.alive()
             .forEach (character) ->
+              character.visionEffects().forEach (effectName) ->
+                # TODO: Consolidate these to be I params
+                self.effectInstant effectName, character.position(), character
+
               # Magical vision
               self.viewTiles
                 index: index
@@ -123,10 +127,12 @@ Methods for interacting with tiles witin the map.
                 type: "physical"
 
               # Normal Sight
+              visibleTiles = self.search.visible(character.position(), character.sight(), self.opaque)
+              character.debugPositions visibleTiles
               self.viewTiles
                 index: index
                 message: message
-                positions: self.search.visible(character.position(), character.sight(), self.opaque)
+                positions: visibleTiles
                 type: character.visionType()
 
       # Add Features from tileset

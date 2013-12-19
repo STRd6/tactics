@@ -7,7 +7,7 @@ Passives are abilities that are always in effect for a character.
 
     Passive.Passives =
       Clairvoyance:
-        enter: "Clairvoyance"
+        visionEffect: "Clairvoyance"
 
       EagleEye:
         visionType: "magic"
