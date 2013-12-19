@@ -144,7 +144,7 @@ to self.width(), self.height())
 
             drawFog(canvas)
 
-            drawDebug(canvas)
+            # drawDebug(canvas)
 
         renderUI: (canvas, t) ->
           canvas.clear()

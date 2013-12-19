@@ -110,7 +110,7 @@ Methods for interacting with tiles witin the map.
             .forEach (character) ->
               character.visionEffects().forEach (effectName) ->
                 # TODO: Consolidate these to be I params
-                self.effectInstant effectName, params.to, params.character
+                self.effectInstant effectName, character.position(), character
 
               # Magical vision
               self.viewTiles

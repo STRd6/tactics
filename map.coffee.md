@@ -204,7 +204,7 @@ parameterize it by passing in the character and the ability.
           self.addEffect Effect[name](params...)
 
         # TODO: Kind of a hack, don't call StateBasedActions
-        effectInstant: (name, params...)
+        effectInstant: (name, params...) ->
           effect = Effect[name](params...)
           effect.perform self.methodObject()
 
