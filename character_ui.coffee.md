@@ -60,6 +60,9 @@ Draw the tactical overlay, status, health, max health.
             perform: ->
               character.targettingAbility(ability)
 
+          if type = ability.costType
+            action.costType = type
+
           action.active = ability is character.targettingAbility()
 
           action.disabled = !ability.canPay(character)
