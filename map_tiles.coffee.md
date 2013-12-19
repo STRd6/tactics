@@ -108,6 +108,10 @@ Methods for interacting with tiles witin the map.
             squad.characters().filter (character) ->
               character.alive()
             .forEach (character) ->
+              character.visionEffects().forEach (effectName) ->
+                # TODO: Consolidate these to be I params
+                self.effectInstant effectName, params.to, params.character
+
               # Magical vision
               self.viewTiles
                 index: index

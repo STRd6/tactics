@@ -162,6 +162,11 @@ Effects to occur when this character enters a tile.
             passive.enter
           .compact()
 
+        visionEffects: ->
+          self.passives().map (passive) ->
+            passive.visionEffect
+          .compact()
+
         physicalAwareness: ->
           if !self.aware()
             0
