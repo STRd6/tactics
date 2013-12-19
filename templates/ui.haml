@@ -1,6 +1,7 @@
 - ui = this
 
 .ui
+  %h1.title Tactics
   .messages_container
     %pre.messages
       - each @messages, (message) ->
@@ -17,6 +18,13 @@
       - squadClass = -> if map.squads()[0].characters().indexOf(character) >= 0 then "squad1" else "squad2"
 
       .character(class=activeClass class=stunnedClass class=deadClass class=squadClass)
+        / - on "click", (e) ->
+        /   - return if $(e.currentTarget).is(".stunned, .dead")
+        /   - name = $(e.currentTarget).find(".name").text()
+        /   - squad = map.activeSquad()
+        /   - character = squad.activatableCharacters().filter((c) -> c?.name() is name).first()
+        /   - squad.activeCharacter(character) if character
+
         .bolt
         .health
           - character.health().times ->
@@ -35,7 +43,8 @@
           .container
             - action.cost?.times ->
               - typeClass = -> "rest" if action.costType?() is 2
-              .cost(class=typeClass)
+              - title = if typeClass() is "rest" then "Uses remaining actions for this turn" else "Uses #{action.cost} actions"
+              .cost(class=typeClass title=title)
         = action.name
 
         - on "click", ->

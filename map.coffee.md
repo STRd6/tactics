@@ -180,6 +180,9 @@ parameterize it by passing in the character and the ability.
 
         message: (message) ->
           self.messages.push message + "\n"
+          $(".messages").animate
+            scrollTop: $('.messages')[0].scrollHeight
+          , 1000
 
         addEffect: (effect) ->
           effectStack.push effect
