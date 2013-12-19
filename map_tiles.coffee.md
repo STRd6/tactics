@@ -144,7 +144,7 @@ Methods for interacting with tiles witin the map.
               index ?= tileset.defaultIndex()
               self.tiles().set(toSingleDimension(position), index)
 
-              self.addFeatureByName(feature, position)
+              self.feature(feature, position)
           else
             console.error "Could not find data for tile index: #{tileIndex}"
 

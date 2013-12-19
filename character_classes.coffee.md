@@ -39,6 +39,19 @@ Exploring various character classes here.
         healthMax: 4
         spriteName: "human"
 
+      Lich:
+        health: 4
+        healthMax: 4
+        spriteName: "lich"
+        abilities: [
+          "Blink"
+          "Death"
+        ]
+        passives: [
+          "Clairvoyance"
+          "Undead"
+        ]
+
       Scout:
         actions: 3
         health: 2
@@ -48,6 +61,13 @@ Exploring various character classes here.
         sight: 9
         passives: [
           "EagleEye"
+        ]
+
+      Skeleton:
+        sight: 5
+        spriteName: "skeletal_warrior"
+        passives: [
+          "Undead"
         ]
 
       Wizard:

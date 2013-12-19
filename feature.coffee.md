@@ -7,6 +7,8 @@ Features are things that are present within tiles in the tactical combat view.
     Drawable = require "./lib/drawable"
     Type = require "./type"
 
+    {sqrt} = Math
+
     module.exports = Feature = (I={}, self=Core(I)) ->
       Object.defaults I,
         createdAt: 0
@@ -36,6 +38,7 @@ Features are things that are present within tiles in the tactical combat view.
       self.attrModel "position", Point
 
       self.extend
+        # TODO: Dangerous should depend on the character
         dangerous: ->
           I.trap
 
@@ -94,6 +97,32 @@ Features are things that are present within tiles in the tactical combat view.
         type: Type.Plant
         zIndex: 1
 
+    Feature.PestilentVapor = (position) ->
+      Feature
+        duration: 1
+        position: position
+        spriteName: "pestilent_vapor"
+        zIndex: 1
+        update: ({feature, message, position, search}) ->
+          radius = sqrt(2)
+
+          message "The pestilent vapor erupts into a cloud of death!"
+
+          search.adjacent(position, radius).forEach (position) ->
+            feature "DeathCloud", position
+
+    Feature.DeathCloud = (position) ->
+      Feature
+        duration: 1
+        position: position
+        spriteName: "black_cloud"
+        zIndex: 1
+        update: ({characterAt, message}) ->
+          if character = characterAt(position)
+            message "#{character.name()} is surrounded by choking fumes!"
+
+            character.damage 10, "Death"
+
     Feature.Fire = (position) ->
       Feature
         duration: 1
@@ -102,7 +131,7 @@ Features are things that are present within tiles in the tactical combat view.
         type: Type.Fire
         zIndex: 1
         update: ({addFeature, characterAt, position, message, find}) ->
-          radius = Math.sqrt(2)
+          radius = sqrt(2)
 
           # TODO: Only have adding effects here, no finding features
           find("plant").within(position, radius).forEach (plant) ->

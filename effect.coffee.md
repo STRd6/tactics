@@ -1,16 +1,20 @@
 Effect
 ======
 
+    # TODO: Shouldn't have to depend on Feature
     Feature = require "./feature"
-    Resource = require "./resource"
-
-    lavaSprites = [0..11].map (n) ->
-      Resource.sprite("lava#{n}")
 
 Effects are things like explosions or dispelling undead. Maybe even fire or
 electricity, I don't know yet.
 
     module.exports = Effect = (I={}, self=Core(I)) ->
+
+    Effect.Clairvoyance = (position, owner) ->
+      radius = 7
+
+      perform: ({search}) ->
+        search.adjacent(position, radius).forEach (position) ->
+          owner.addMagicalVision(position)
 
     # Used in Fireball
     Effect.Fire = (position) ->
@@ -39,6 +43,7 @@ electricity, I don't know yet.
             character.position(to)
             # Enter and exit effects (traps, reaction abilities)
             event "move",
+              character: character
               from: from
               to: to
 
@@ -47,6 +52,10 @@ electricity, I don't know yet.
               duration: 100
         else
           console.log "No character at", from
+
+    Effect.PestilentVapor = (position) ->
+      perform: ({feature}) ->
+        feature "PestilentVapor", position
 
     Effect.Stomp = (position, owner) ->
       perform: ({characterAt, message, search, featuresAt, replaceTileAt}) ->
