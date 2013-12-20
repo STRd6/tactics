@@ -44,6 +44,7 @@ Exploring various character classes here.
         health: 4
         healthMax: 4
         spriteName: "lich"
+        sight: 0
         abilities: [
           "Blink"
           "Death"
