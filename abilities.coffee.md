@@ -117,6 +117,20 @@
             message "#{owner.name()} strikes #{character.name()} for #{amount}"
         '''
 
+      Berserk:
+        name: "Berserk"
+        iconName: "sword"
+        range: sqrt(2)
+        actionCost: 1
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          if character
+            amount = binomial(owner.strength()) + 1
+            character.damage amount
+
+            message "#{owner.name()} strikes #{character.name()} for #{amount}"
+        '''
+
       Blind:
         name: "Blind"
         iconName: "blind"

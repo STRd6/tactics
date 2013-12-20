@@ -31,6 +31,7 @@ Exploring various character classes here.
         abilities: [
           "Move"
           "Stomp"
+          "Berserk"
         ]
         sight: 5
 
