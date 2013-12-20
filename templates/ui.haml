@@ -1,6 +1,12 @@
 - ui = this
 
 .ui
+  .winner_container
+    %h1.winner
+    %h3.restart
+      = "Play Again?"
+      - on "click", ->
+        - location.reload()
   %h1.title Tactics
   .messages_container
     %pre.messages
