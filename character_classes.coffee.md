@@ -14,6 +14,16 @@ Exploring various character classes here.
           "ShrubSight"
         ]
 
+      Harpy:
+        spriteName: "harpy"
+        abilities: [
+          "Blink"
+          "Melee"
+        ]
+        health: 3
+        healthMax: 3
+        name: Names.monster.rand()
+
       Grunt:
         spriteName: "goblin"
         abilities: [
