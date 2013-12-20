@@ -57,6 +57,7 @@ Some cool abilities that should be in the game
         "costType"
         "iconName"
         "name"
+        "description"
         "range"
         "targetType"
         "targetZone"
