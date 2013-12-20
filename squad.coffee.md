@@ -88,7 +88,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
                 x: 1
                 y: 1
 
-            create "Skeleton",
+            create "Harpy",
               position:
                 x: 2
                 y: 4
@@ -110,7 +110,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
                 x: 18
                 y: 16
 
-            create "Grunt",
+            create "Wizard",
               position:
                 x: 20
                 y: 14

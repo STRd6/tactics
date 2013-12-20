@@ -65,6 +65,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       actions: Observable [
         Action
           name: "New Game"
+          description: "Start a new battle."
           icon: "new_game"
           perform: ->
             # HACK hide the name of the game

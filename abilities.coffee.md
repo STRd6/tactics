@@ -8,6 +8,7 @@
     module.exports =
       Move:
         name: "Move"
+        description: "Old boot-y. Hoof it to your next position."
         iconName: "boots"
         actionCost: 1
         targetZone: MOVEMENT
@@ -31,6 +32,7 @@
 
       Teleport:
         name: "Teleport"
+        description: "Magically appear in a far away location."
         iconName: "teleport"
         actionCost: 2
         range: 50
@@ -47,6 +49,7 @@
 
       Blink:
         name: "Blink"
+        description: "Move somewhere you can see in the blink of an eye."
         iconName: "blink"
         actionCost: 1
         range: 8
@@ -63,6 +66,7 @@
 
       Death:
         name: "Death"
+        description: "It's probably Ebola. Be careful."
         iconName: "black_cloud"
         actionCost: 2
         range: 8
@@ -73,6 +77,7 @@
 
       Farsight:
         name: "Farsight"
+        description: "Use your mind's eye to visualize lands you've never seen."
         iconName: "farsight"
         actionCost: 1
         range: 16
@@ -89,6 +94,7 @@
 
       Melee:
         name: "Attack"
+        description: "Hit enemies with it until they die."
         iconName: "sword"
         range: sqrt(2)
         actionCost: 1
@@ -104,6 +110,7 @@
 
       Ranged:
         name: "Attack"
+        description: "Nice for those who don't like to get their hands dirty."
         iconName: "longbow"
         range: 7
         actionCost: 1
@@ -119,6 +126,7 @@
 
       Berserk:
         name: "Berserk"
+        description: "My hate for you is ticking clock."
         iconName: "sword"
         range: sqrt(2)
         actionCost: 1
@@ -133,6 +141,7 @@
 
       Blind:
         name: "Blind"
+        description: "Use this when your enemies are too good at seeing you."
         iconName: "blind"
         range: 8
         actionCost: 1
@@ -149,6 +158,7 @@
 
       Regeneration:
         name: "Regeneration"
+        description: "Those who regenerate today live to fight another day."
         iconName: "regeneration"
         actionCost: 1
         costType: REST
@@ -161,6 +171,7 @@
 
       Entanglement:
         name: "Entanglement"
+        description: "It's like the times you used to pick blackberries as a kid."
         iconName: "bush0"
         range: 7
         actionCost: 2
@@ -174,6 +185,7 @@
 
       Stomp:
         name: "Stomp"
+        description: "Destroy everything around you."
         iconName: "stomp"
         range: 1
         actionCost: 2
@@ -185,6 +197,7 @@
 
       Fireball:
         name: "Fireball"
+        description: "Immolated ball of death. Watch out for dry brush."
         iconName: "fireball"
         range: 7
         actionCost: 2
@@ -198,6 +211,7 @@
 
       ShrubSight:
         name: "ShrubSight"
+        description: "Somehow you know where all the plants are."
         iconName: "bush1"
         actionCost: 1
         cooldown: 3
@@ -208,6 +222,7 @@
 
       Wait:
         name: "Wait"
+        description: "Do this if you don't have any other good moves."
         iconName: "hourglass"
         actionCost: 0
         costType: REST
