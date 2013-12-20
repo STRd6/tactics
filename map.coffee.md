@@ -135,10 +135,11 @@ parameterize it by passing in the character and the ability.
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
+                magicalVision = character.magicalVision()
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
-                  visiblePositions
+                  visiblePositions.concat(magicalVision)
                   positionsInRange
                 )
 
