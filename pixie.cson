@@ -10,6 +10,7 @@ dependencies:
   appcache: "distri/appcache:v0.2.0"
   bit_array: "distri/bit_array:v0.1.0"
   byte_array: "distri/byte_array:v0.1.1"
+  "console-module": "distri/console-module:v0.1.0" 
   finder: "distri/finder:v0.1.3"
   priority_queue: "STRd6/priority_queue:v2.0.0"
   quadtree: "distri/quadtree:v0.1.1"

@@ -83,7 +83,7 @@ Rendering offset in pixels.
             positions.forEach (position) ->
               bounds = Bounds(Point(position).scale(tileSize), tileSize)
               bounds.color = "rgba(0, 255, 0, 0.5)"
-  
+
               canvas.drawRect(bounds)
 
       backgroundColor = "#222034"
