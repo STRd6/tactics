@@ -74,12 +74,11 @@ QuadTree = require <span class="string">"quadtree"</span></code></pre>
     quadTree.insert p
 
   self.extend
-    addFeature: (feature) -&gt;
-      feature.createdAt(I.currentTurn)
-      featuresToAdd.push(feature)
+    feature: (name, params...) -&gt;
+      self.addFeature Feature[name](params...)
 
-    addFeatureByName: (name, params) -&gt;
-      feature = Feature[name](params)
+    <span class="comment"># TODO: Phase addFeature out in favor of `feature` style</span>
+    addFeature: (feature) -&gt;
       feature.createdAt(I.currentTurn)
       featuresToAdd.push(feature)
 

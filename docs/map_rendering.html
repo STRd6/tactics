@@ -127,6 +127,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
         canvas.drawRect(bounds)
 
+  <span class="function"><span class="title">drawDebug</span></span> = (canvas) -&gt;
+    <span class="keyword">if</span> character = self.activeCharacter()
+      <span class="keyword">if</span> positions = character.debugPositions()
+        positions.forEach (position) -&gt;
+          bounds = Bounds(Point(position).scale(tileSize), tileSize)
+          bounds.color = <span class="string">"rgba(0, 255, 0, 0.5)"</span>
+
+          canvas.drawRect(bounds)
+
   backgroundColor = <span class="string">"#222034"</span>
 
   self.activeCharacter.observe (character) -&gt;
@@ -202,6 +211,8 @@ to self.width(), self.height())</p>
         drawFeatures(canvas)
 
         drawFog(canvas)
+
+        drawDebug(canvas)
 
     renderUI: (canvas, t) -&gt;
       canvas.clear()

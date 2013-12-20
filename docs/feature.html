@@ -39,6 +39,8 @@
 Drawable = require <span class="string">"./lib/drawable"</span>
 Type = require <span class="string">"./type"</span>
 
+{sqrt} = Math
+
 module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     createdAt: <span class="number">0</span>
@@ -68,6 +70,7 @@ module.exports = <span class="function"><span class="title">Feature</span></span
   self.attrModel <span class="string">"position"</span>, Point
 
   self.extend
+    <span class="comment"># TODO: Dangerous should depend on the character</span>
     dangerous: -&gt;
       I.trap
 
@@ -126,6 +129,32 @@ Feature.<span class="function"><span class="title">Bush</span></span> = (positio
     type: Type.Plant
     zIndex: <span class="number">1</span>
 
+Feature.<span class="function"><span class="title">PestilentVapor</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    position: position
+    spriteName: <span class="string">"pestilent_vapor"</span>
+    zIndex: <span class="number">1</span>
+    update: ({feature, message, position, search}) -&gt;
+      radius = sqrt(<span class="number">2</span>)
+
+      message <span class="string">"The pestilent vapor erupts into a cloud of death!"</span>
+
+      search.adjacent(position, radius).forEach (position) -&gt;
+        feature <span class="string">"DeathCloud"</span>, position
+
+Feature.<span class="function"><span class="title">DeathCloud</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    position: position
+    spriteName: <span class="string">"black_cloud"</span>
+    zIndex: <span class="number">1</span>
+    update: ({characterAt, message}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is surrounded by choking fumes!"</span>
+
+        character.damage <span class="number">10</span>, <span class="string">"Death"</span>
+
 Feature.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
   Feature
     duration: <span class="number">1</span>
@@ -134,7 +163,7 @@ Feature.<span class="function"><span class="title">Fire</span></span> = (positio
     type: Type.Fire
     zIndex: <span class="number">1</span>
     update: ({addFeature, characterAt, position, message, find}) -&gt;
-      radius = Math.sqrt(<span class="number">2</span>)
+      radius = sqrt(<span class="number">2</span>)
 
       <span class="comment"># TODO: Only have adding effects here, no finding features</span>
       find(<span class="string">"plant"</span>).within(position, radius).forEach (plant) -&gt;

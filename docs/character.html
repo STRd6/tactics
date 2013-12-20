@@ -71,6 +71,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"abilities"</span>
     <span class="string">"actions"</span>
     <span class="string">"alive"</span>
+    <span class="string">"debugPositions"</span>
     <span class="string">"health"</span>
     <span class="string">"healthMax"</span>
     <span class="string">"magicalVision"</span>
@@ -100,8 +101,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   self.include Drawable
 
   Object.extend self,
-    damage: (amount) -&gt;
-      I.health -= amount
+    damage: (amount, type) -&gt;
+      damageTotal = self.damageMod(amount, type)
+
+      I.health -= damageTotal
 
     heal: (amount) -&gt;
       I.health += amount
@@ -136,6 +139,22 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">else</span>
           total
       , <span class="number">0</span>
+
+    damageMod: (amount, type=<span class="string">"Physical"</span>) -&gt;
+      <span class="keyword">if</span> self.immune(type)
+        <span class="keyword">return</span> <span class="number">0</span>
+
+      <span class="comment"># TODO: Resistances</span>
+
+      <span class="keyword">return</span> amount
+
+    immune: (type) -&gt;
+      self.immunities().include(type)
+
+    immunities: (type) -&gt;
+      self.passives().map (passive) -&gt;
+        passive.immune
+      .compact()
 
     stateBasedActions: ({addEffect}) -&gt;
       <span class="keyword">return</span> <span class="keyword">if</span> !I.alive
@@ -175,7 +194,28 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       I.stun &gt; <span class="number">0</span>
 
     aware: () -&gt;
-      self.alive() <span class="keyword">and</span> !self.stunned()
+      self.alive() <span class="keyword">and</span> !self.stunned()</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Effects to occur when this character enters a tile.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">    enterEffects: -&gt;
+      self.passives().map (passive) -&gt;
+        passive.enter
+      .compact()
+
+    visionEffects: -&gt;
+      self.passives().map (passive) -&gt;
+        passive.visionEffect
+      .compact()
 
     physicalAwareness: -&gt;
       <span class="keyword">if</span> !self.aware()
@@ -190,10 +230,10 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         </li>
         
         
-        <li id="section-4">
+        <li id="section-5">
             <div class="annotation">
               <div class="pilwrap">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>Ready is called at the beginning of each turn. It resets the actions and processes
 any status effects.</p>

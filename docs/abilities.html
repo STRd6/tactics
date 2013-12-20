@@ -83,6 +83,16 @@ module.exports =
         message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
     '''
 
+  Death:
+    name: "Death"
+    iconName: "black_cloud"
+    actionCost: 2
+    range: 8
+    targetZone: ANY
+    code: '''
+      effect "PestilentVapor", position
+    '''
+
   Farsight:
     name: "Farsight"
     iconName: "farsight"
@@ -124,6 +134,20 @@ module.exports =
     code: '''
       if character
         amount = binomial(owner.strength())
+        character.damage amount
+
+        message "#{owner.name()} strikes #{character.name()} for #{amount}"
+    '''
+
+  Berserk:
+    name: "Berserk"
+    iconName: "sword"
+    range: sqrt(2)
+    actionCost: 1
+    targetZone: LINE_OF_SIGHT
+    code: '''
+      if character
+        amount = binomial(owner.strength()) + 1
         character.damage amount
 
         message "#{owner.name()} strikes #{character.name()} for #{amount}"

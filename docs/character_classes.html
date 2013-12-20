@@ -63,6 +63,7 @@ module.exports =
     abilities: [
       <span class="string">"Move"</span>
       <span class="string">"Stomp"</span>
+      <span class="string">"Berserk"</span>
     ]
     sight: <span class="number">5</span>
 
@@ -70,6 +71,20 @@ module.exports =
     health: <span class="number">4</span>
     healthMax: <span class="number">4</span>
     spriteName: <span class="string">"human"</span>
+
+  Lich:
+    health: <span class="number">4</span>
+    healthMax: <span class="number">4</span>
+    spriteName: <span class="string">"lich"</span>
+    sight: <span class="number">0</span>
+    abilities: [
+      <span class="string">"Blink"</span>
+      <span class="string">"Death"</span>
+    ]
+    passives: [
+      <span class="string">"Clairvoyance"</span>
+      <span class="string">"Undead"</span>
+    ]
 
   Scout:
     actions: <span class="number">3</span>
@@ -80,6 +95,13 @@ module.exports =
     sight: <span class="number">9</span>
     passives: [
       <span class="string">"EagleEye"</span>
+    ]
+
+  Skeleton:
+    sight: <span class="number">5</span>
+    spriteName: <span class="string">"skeletal_warrior"</span>
+    passives: [
+      <span class="string">"Undead"</span>
     ]
 
   Wizard:

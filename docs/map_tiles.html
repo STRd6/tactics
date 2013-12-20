@@ -150,11 +150,17 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
         squad.characters().filter (character) -&gt;
           character.alive()
         .forEach (character) -&gt;
+          character.visionEffects().forEach (effectName) -&gt;
+            <span class="comment"># TODO: Consolidate these to be I params</span>
+            self.effectInstant effectName, character.position(), character
+
           <span class="comment"># Magical vision</span>
+          magicalVision = character.magicalVision()
+          character.debugPositions magicalVision
           self.viewTiles
             index: index
             message: message
-            positions: character.magicalVision()
+            positions: magicalVision
             type: <span class="string">"magic"</span>
 
           <span class="comment"># Physical sensing</span>
@@ -165,10 +171,12 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
             type: <span class="string">"physical"</span>
 
           <span class="comment"># Normal Sight</span>
+          visibleTiles = self.search.visible(character.position(), character.sight(), self.opaque)
+          <span class="comment"># character.debugPositions visibleTiles</span>
           self.viewTiles
             index: index
             message: message
-            positions: self.search.visible(character.position(), character.sight(), self.opaque)
+            positions: visibleTiles
             type: character.visionType()
 
   <span class="comment"># Add Features from tileset</span>
@@ -186,7 +194,7 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
           index ?= tileset.defaultIndex()
           self.tiles().set(toSingleDimension(position), index)
 
-          self.addFeatureByName(feature, position)
+          self.feature(feature, position)
       <span class="keyword">else</span>
         console.error <span class="string">"Could not find data for tile index: <span class="subst">#{tileIndex}</span>"</span>
 

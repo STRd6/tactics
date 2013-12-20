@@ -52,7 +52,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
   Object.defaults I,
     currentTurn: <span class="number">0</span>
     squads: [{
-      <span class="comment"># TODO</span>
+      race: <span class="string">"undead"</span>
     }, {
       race: <span class="string">"goblin"</span>
     }]
@@ -175,10 +175,11 @@ parameterize it by passing in the character and the ability.</p>
 
           <span class="keyword">when</span> Ability.TARGET_ZONE.LINE_OF_SIGHT
             visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
+            magicalVision = character.magicalVision()
             positionsInRange = search.adjacent(character.position(), ability.range())
 
             intersection(
-              visiblePositions
+              visiblePositions.concat(magicalVision)
               positionsInRange
             )
 
@@ -220,6 +221,9 @@ parameterize it by passing in the character and the ability.</p>
 
     message: (message) -&gt;
       self.messages.push message + <span class="string">"\n"</span>
+      $(<span class="string">".messages"</span>).animate
+        scrollTop: $(<span class="string">'.messages'</span>)[<span class="number">0</span>].scrollHeight
+      , <span class="number">1000</span>
 
     addEffect: (effect) -&gt;
       effectStack.push effect
@@ -240,6 +244,14 @@ parameterize it by passing in the character and the ability.</p>
 
       self.stateBasedActions()
 
+    effect: (name, params...) -&gt;
+      self.addEffect Effect[name](params...)
+
+    <span class="comment"># TODO: Kind of a hack, don't call StateBasedActions</span>
+    effectInstant: (name, params...) -&gt;
+      effect = Effect[name](params...)
+      effect.perform self.methodObject()
+
     performEffect: (effect) -&gt;
       effect.perform self.methodObject()
 
@@ -247,13 +259,12 @@ parameterize it by passing in the character and the ability.</p>
 
     methodObject: (extraParams={}) -&gt;
       Object.extend
-        addEffect: self.addEffect
         addFeature: self.addFeature
         animate: self.animate
         characterAt: self.characterAt
-        effect: (name, params...) -&gt;
-          self.addEffect Effect[name](params...)
+        effect: self.effect
         event: self.trigger
+        feature: self.feature
         featuresAt: self.featuresAt
         find: self.find
         impassable: self.impassable
@@ -275,6 +286,11 @@ parameterize it by passing in the character and the ability.</p>
       <span class="keyword">if</span> name <span class="keyword">is</span> <span class="string">"move"</span>
         self.featuresAt(params.to).forEach (feature) -&gt;
           feature.enter self.methodObject()
+
+        <span class="keyword">if</span> character = params.character
+          character.enterEffects().forEach (effectName) -&gt;
+            <span class="comment"># TODO: Consolidate these to be I params</span>
+            self.effect effectName, params.to, params.character
 
   self.include MapRendering
   self.animate

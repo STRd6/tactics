@@ -73,7 +73,22 @@ global.map = map = <span class="literal">null</span>
   <span class="keyword">else</span>
     ui.actions []
 
+<span class="function"><span class="title">updateCharacters</span></span> = (characters) -&gt;
+  <span class="keyword">if</span> characters
+    ui.characters characters.copy().reverse()
+  <span class="keyword">else</span>
+    ui.characters []
+
+<span class="function"><span class="title">checkForWinner</span></span> = -&gt;
+  <span class="keyword">if</span> map.squads()[<span class="number">0</span>].characters().filter((c) -&gt; c.alive()).length <span class="keyword">is</span> <span class="number">0</span>
+    $(<span class="string">".winner"</span>).text(<span class="string">"<span class="subst">#{map.squads()[<span class="number">1</span>].I.race}</span> squad wins!"</span>)
+    $(<span class="string">".winner_container"</span>).show()
+  <span class="keyword">else</span> <span class="keyword">if</span> map.squads()[<span class="number">1</span>].characters().filter((c) -&gt; c.alive()).length <span class="keyword">is</span> <span class="number">0</span>
+    $(<span class="string">".winner"</span>).text(<span class="string">"<span class="subst">#{map.squads()[<span class="number">0</span>].I.race}</span> squad wins!"</span>)
+    $(<span class="string">".winner_container"</span>).show()
+
 ui =
+  characters: Observable []
   messages: Observable [
     <span class="string">"Welcome to the arena!\n"</span>
   ]
@@ -82,6 +97,9 @@ ui =
       name: <span class="string">"New Game"</span>
       icon: <span class="string">"new_game"</span>
       perform: -&gt;
+        <span class="comment"># HACK hide the name of the game</span>
+        $(<span class="string">".title"</span>).hide()
+
         global.map = map = Map()
         map.messages.observe (messages) -&gt;
           ui.messages(messages.copy())
@@ -100,7 +118,9 @@ accessiblePositions = <span class="literal">null</span>
 <span class="function"><span class="title">update</span></span> = -&gt;
   <span class="keyword">if</span> map
     updateActions(map.activeCharacter())
+    updateCharacters(map.activeSquad().characters())
     accessiblePositions = map.accessiblePositions()
+    checkForWinner()
 
 t = <span class="number">0</span>
 setInterval -&gt;

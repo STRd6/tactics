@@ -34,11 +34,8 @@
               </div>
               
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Feature = require <span class="string">"./feature"</span>
-Resource = require <span class="string">"./resource"</span>
-
-lavaSprites = [<span class="number">0.</span><span class="number">.11</span>].map (n) -&gt;
-  Resource.sprite(<span class="string">"lava<span class="subst">#{n}</span>"</span>)</code></pre>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># TODO: Shouldn't have to depend on Feature</span>
+Feature = require <span class="string">"./feature"</span></code></pre>
 </div>
         </li>
         
@@ -53,6 +50,13 @@ electricity, I don&#39;t know yet.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Effect</span></span> = (I={}, self=Core(I)) -&gt;
+
+Effect.<span class="function"><span class="title">Clairvoyance</span></span> = (position, owner) -&gt;
+  radius = <span class="number">7</span>
+
+  perform: ({search}) -&gt;
+    search.adjacent(position, radius).forEach (position) -&gt;
+      owner.addMagicalVision(position)
 
 <span class="comment"># Used in Fireball</span>
 Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
@@ -81,6 +85,7 @@ Effect.<span class="function"><span class="title">Move</span></span> = (from, to
         character.position(to)
         <span class="comment"># Enter and exit effects (traps, reaction abilities)</span>
         event <span class="string">"move"</span>,
+          character: character
           from: from
           to: to
 
@@ -89,6 +94,10 @@ Effect.<span class="function"><span class="title">Move</span></span> = (from, to
           duration: <span class="number">100</span>
     <span class="keyword">else</span>
       console.log <span class="string">"No character at"</span>, from
+
+Effect.<span class="function"><span class="title">PestilentVapor</span></span> = (position) -&gt;
+  perform: ({feature}) -&gt;
+    feature <span class="string">"PestilentVapor"</span>, position
 
 Effect.<span class="function"><span class="title">Stomp</span></span> = (position, owner) -&gt;
   perform: ({characterAt, message, search, featuresAt, replaceTileAt}) -&gt;

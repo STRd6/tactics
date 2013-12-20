@@ -108,7 +108,7 @@ Effect = require <span class="string">"./effect"</span>
       <span class="comment"># maybe it's the way to go. It should be encapsulated in some kind of</span>
       <span class="comment"># ENV wrapper if so.</span>
       Function(<span class="string">"sqrt"</span>, <span class="string">"binomial"</span>, CoffeeScript.compile <span class="string">"""
-        return ({addEffect, animate, character, effect, message, movementPath, owner, position, search}) -&gt;
+        return ({animate, character, effect, feature, message, movementPath, owner, position, search}) -&gt;
         <span class="subst">#{indent I.code}</span>
       """</span>, bare: <span class="literal">true</span>)(sqrt, binomial)
 

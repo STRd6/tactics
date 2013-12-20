@@ -64,17 +64,17 @@ extend = Object.extend
 
   self.attrModels <span class="string">"characters"</span>, Character
 
-  <span class="function"><span class="title">activatableCharacters</span></span> = -&gt;
-    self.characters().filter (character) -&gt;
-      character.alive() <span class="keyword">and</span>
-      character.actions() &gt; <span class="number">0</span>
-
   <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
-    activatableCharacters().first()
+    self.activatableCharacters().first()
 
   self.extend
+    activatableCharacters: -&gt;
+      self.characters().filter (character) -&gt;
+        character.alive() <span class="keyword">and</span>
+        character.actions() &gt; <span class="number">0</span>
+
     activateCharacterAt: (position) -&gt;
-      character = activatableCharacters().filter (character) -&gt;
+      character = self.activatableCharacters().filter (character) -&gt;
         character.position().equal position
       .first()
 
@@ -100,50 +100,73 @@ extend = Object.extend
       self.activeCharacter nextActivatableCharacter()
 
   <span class="comment"># TODO: Load characters from data</span>
-  <span class="keyword">if</span> I.race <span class="keyword">is</span> <span class="string">"human"</span>
-    self.characters [
-      create <span class="string">"Knight"</span>,
-        position:
-          x: <span class="number">1</span>
-          y: <span class="number">1</span>
+  <span class="keyword">switch</span> I.race
+    <span class="keyword">when</span> <span class="string">"human"</span>
+      self.characters [
+        create <span class="string">"Knight"</span>,
+          position:
+            x: <span class="number">1</span>
+            y: <span class="number">1</span>
 
-      create <span class="string">"Wizard"</span>,
-        position:
-          x: <span class="number">2</span>
-          y: <span class="number">4</span>
+        create <span class="string">"Wizard"</span>,
+          position:
+            x: <span class="number">2</span>
+            y: <span class="number">4</span>
 
-      create <span class="string">"Archer"</span>,
-        position:
-          x: <span class="number">4</span>
-          y: <span class="number">2</span>
+        create <span class="string">"Archer"</span>,
+          position:
+            x: <span class="number">4</span>
+            y: <span class="number">2</span>
 
-      create <span class="string">"Scout"</span>,
-        position:
-          x: <span class="number">2</span>
-          y: <span class="number">3</span>
-    ]
-  <span class="keyword">else</span>
-    self.characters [
-      create <span class="string">"Grunt"</span>,
-        position:
-          x: <span class="number">18</span>
-          y: <span class="number">16</span>
+        create <span class="string">"Scout"</span>,
+          position:
+            x: <span class="number">2</span>
+            y: <span class="number">3</span>
+      ]
+    <span class="keyword">when</span> <span class="string">"undead"</span>
+      self.characters [
+        create <span class="string">"Lich"</span>,
+          position:
+            x: <span class="number">1</span>
+            y: <span class="number">1</span>
 
-      create <span class="string">"Grunt"</span>,
-        position:
-          x: <span class="number">20</span>
-          y: <span class="number">14</span>
+        create <span class="string">"Skeleton"</span>,
+          position:
+            x: <span class="number">2</span>
+            y: <span class="number">4</span>
 
-      create <span class="string">"ShrubMage"</span>,
-        position:
-          x: <span class="number">14</span>
-          y: <span class="number">16</span>
+        create <span class="string">"Skeleton"</span>,
+          position:
+            x: <span class="number">4</span>
+            y: <span class="number">2</span>
 
-      create <span class="string">"Giant"</span>,
-        position:
-          x: <span class="number">16</span>
-          y: <span class="number">14</span>
-    ]
+        create <span class="string">"Skeleton"</span>,
+          position:
+            x: <span class="number">2</span>
+            y: <span class="number">3</span>
+      ]
+    <span class="keyword">else</span>
+      self.characters [
+        create <span class="string">"Grunt"</span>,
+          position:
+            x: <span class="number">18</span>
+            y: <span class="number">16</span>
+
+        create <span class="string">"Grunt"</span>,
+          position:
+            x: <span class="number">20</span>
+            y: <span class="number">14</span>
+
+        create <span class="string">"ShrubMage"</span>,
+          position:
+            x: <span class="number">14</span>
+            y: <span class="number">16</span>
+
+        create <span class="string">"Giant"</span>,
+          position:
+            x: <span class="number">16</span>
+            y: <span class="number">14</span>
+      ]
 
   self.activeCharacter self.characters().first()
 
