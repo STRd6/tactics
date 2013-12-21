@@ -20,6 +20,7 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
+        messages: []
         squads: [{
           race: "undead"
         }, {
@@ -39,6 +40,8 @@ The primary tactical combat screen.
       self.attrModels "squads", Squad
       self.activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
+
+      self.attrObservable "messages"
 
       characterPassable = (character) ->
         index = self.activeSquadIndex()
@@ -73,8 +76,6 @@ The primary tactical combat screen.
         return results
 
       self.extend
-        messages: Observable []
-
         activeSquadIndex: ->
           # NOTE: Assumes squad length never changes
           self.currentTurn() % I.squads.length
@@ -183,9 +184,6 @@ parameterize it by passing in the character and the ability.
 
         message: (message) ->
           self.messages.push message + "\n"
-          $(".messages").animate
-            scrollTop: $('.messages')[0].scrollHeight
-          , 1000
 
         addEffect: (effect) ->
           effectStack.push effect

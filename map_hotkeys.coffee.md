@@ -14,4 +14,7 @@ Map Hotkeys
 
         window.pew = pixelEditorWindow = window.open "http://strd6.github.io/pixel-editor/", "", "width=640,height=480"
 
+      self.addHotkey "f5", ->
+        console.log self.toJSON()
+
       return self
