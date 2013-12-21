@@ -108,11 +108,17 @@ Methods for interacting with tiles witin the map.
             squad.characters().filter (character) ->
               character.alive()
             .forEach (character) ->
+              character.visionEffects().forEach (effectName) ->
+                # TODO: Consolidate these to be I params
+                self.effectInstant effectName, character.position(), character
+
               # Magical vision
+              magicalVision = character.magicalVision()
+              character.debugPositions magicalVision
               self.viewTiles
                 index: index
                 message: message
-                positions: character.magicalVision()
+                positions: magicalVision
                 type: "magic"
 
               # Physical sensing
@@ -123,10 +129,12 @@ Methods for interacting with tiles witin the map.
                 type: "physical"
 
               # Normal Sight
+              visibleTiles = self.search.visible(character.position(), character.sight(), self.opaque)
+              # character.debugPositions visibleTiles
               self.viewTiles
                 index: index
                 message: message
-                positions: self.search.visible(character.position(), character.sight(), self.opaque)
+                positions: visibleTiles
                 type: character.visionType()
 
       # Add Features from tileset
@@ -144,7 +152,7 @@ Methods for interacting with tiles witin the map.
               index ?= tileset.defaultIndex()
               self.tiles().set(toSingleDimension(position), index)
 
-              self.addFeatureByName(feature, position)
+              self.feature(feature, position)
           else
             console.error "Could not find data for tile index: #{tileIndex}"
 

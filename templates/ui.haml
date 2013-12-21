@@ -1,6 +1,13 @@
 - ui = this
 
 .ui
+  .winner_container
+    %h1.winner
+    %h3.restart
+      = "Play Again?"
+      - on "click", ->
+        - location.reload()
+  %h1.title Tactics
   .messages_container
     %pre.messages
       - each @messages, (message) ->
@@ -9,18 +16,44 @@
       = "="
       - on "click", (e) ->
         - $(e.currentTarget).parent().toggleClass("hidden")
+  .characters_container
+    - each @characters, (character) ->
+      - activeClass = -> "active" if map.activeCharacter() is character
+      - stunnedClass = -> "stunned" if character.stunned()
+      - deadClass = -> "dead" unless character.alive()
+      - squadClass = -> if map.squads()[0].characters().indexOf(character) >= 0 then "squad1" else "squad2"
+
+      .character(class=activeClass class=stunnedClass class=deadClass class=squadClass)
+        / - on "click", (e) ->
+        /   - return if $(e.currentTarget).is(".stunned, .dead")
+        /   - name = $(e.currentTarget).find(".name").text()
+        /   - squad = map.activeSquad()
+        /   - character = squad.activatableCharacters().filter((c) -> c?.name() is name).first()
+        /   - squad.activeCharacter(character) if character
+
+        .bolt
+        .health
+          - character.health().times ->
+            %span.heart
+        .avatar
+        .name= character.name()
 
   .actions
     - each @actions, (action) ->
       - activeClass = -> "active" if action.active
       - disabledClass = -> "disabled" if action.disabled
-      .action(class=activeClass class=disabledClass style="background-image: url(#{action.icon})")
+      - title = -> action.description || ""
+      .action(class=activeClass class=disabledClass style="background-image: url(#{action.icon})" title=title)
+        - if action.cooldown
+          .cooldown= action.cooldown
         .costs
           .container
-            - cost = action?.ability?.actionCost() || 0
-            - cost.times ->
-              .cost
+            - action.cost?.times ->
+              - typeClass = -> "rest" if action.costType?() is 2
+              - title = if typeClass() is "rest" then "Uses remaining actions for this turn" else "Uses #{action.cost} actions"
+              .cost(class=typeClass title=title)
         = action.name
+
         - on "click", ->
           - unless action.disabled
             - action.perform()

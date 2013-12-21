@@ -21,7 +21,7 @@ The primary tactical combat screen.
       Object.defaults I,
         currentTurn: 0
         squads: [{
-          # TODO
+          race: "undead"
         }, {
           race: "goblin"
         }]
@@ -137,10 +137,11 @@ parameterize it by passing in the character and the ability.
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
+                magicalVision = character.magicalVision()
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
-                  visiblePositions
+                  visiblePositions.concat(magicalVision)
                   positionsInRange
                 )
 
@@ -182,6 +183,9 @@ parameterize it by passing in the character and the ability.
 
         message: (message) ->
           self.messages.push message + "\n"
+          $(".messages").animate
+            scrollTop: $('.messages')[0].scrollHeight
+          , 1000
 
         addEffect: (effect) ->
           effectStack.push effect
@@ -202,6 +206,14 @@ parameterize it by passing in the character and the ability.
 
           self.stateBasedActions()
 
+        effect: (name, params...) ->
+          self.addEffect Effect[name](params...)
+
+        # TODO: Kind of a hack, don't call StateBasedActions
+        effectInstant: (name, params...) ->
+          effect = Effect[name](params...)
+          effect.perform self.methodObject()
+
         performEffect: (effect) ->
           effect.perform self.methodObject()
 
@@ -209,13 +221,12 @@ parameterize it by passing in the character and the ability.
 
         methodObject: (extraParams={}) ->
           Object.extend
-            addEffect: self.addEffect
             addFeature: self.addFeature
             animate: self.animate
             characterAt: self.characterAt
-            effect: (name, params) ->
-              self.addEffect Effect[name](params)
+            effect: self.effect
             event: self.trigger
+            feature: self.feature
             featuresAt: self.featuresAt
             find: self.find
             impassable: self.impassable
@@ -237,6 +248,11 @@ parameterize it by passing in the character and the ability.
           if name is "move"
             self.featuresAt(params.to).forEach (feature) ->
               feature.enter self.methodObject()
+
+            if character = params.character
+              character.enterEffects().forEach (effectName) ->
+                # TODO: Consolidate these to be I params
+                self.effect effectName, params.to, params.character
 
       self.include MapRendering
       self.animate

@@ -43,15 +43,34 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       else
         ui.actions []
 
+    updateCharacters = (characters) ->
+      if characters
+        ui.characters characters.copy().reverse()
+      else
+        ui.characters []
+
+    checkForWinner = ->
+      if map.squads()[0].characters().filter((c) -> c.alive()).length is 0
+        $(".winner").text("#{map.squads()[1].I.race} squad wins!")
+        $(".winner_container").show()
+      else if map.squads()[1].characters().filter((c) -> c.alive()).length is 0
+        $(".winner").text("#{map.squads()[0].I.race} squad wins!")
+        $(".winner_container").show()
+
     ui =
+      characters: Observable []
       messages: Observable [
         "Welcome to the arena!\n"
       ]
       actions: Observable [
         Action
           name: "New Game"
+          description: "Start a new battle."
           icon: "new_game"
           perform: ->
+            # HACK hide the name of the game
+            $(".title").hide()
+
             global.map = map = Map()
             map.messages.observe (messages) ->
               ui.messages(messages.copy())
@@ -70,7 +89,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     update = ->
       if map
         updateActions(map.activeCharacter())
+        updateCharacters(map.activeSquad().characters())
         accessiblePositions = map.accessiblePositions()
+        checkForWinner()
 
     t = 0
     setInterval ->

@@ -14,6 +14,16 @@ Exploring various character classes here.
           "ShrubSight"
         ]
 
+      Harpy:
+        spriteName: "harpy"
+        abilities: [
+          "Blink"
+          "Melee"
+        ]
+        health: 3
+        healthMax: 3
+        name: Names.monster.rand()
+
       Grunt:
         spriteName: "goblin"
         abilities: [
@@ -31,6 +41,7 @@ Exploring various character classes here.
         abilities: [
           "Move"
           "Stomp"
+          "Berserk"
         ]
         sight: 5
 
@@ -38,6 +49,20 @@ Exploring various character classes here.
         health: 4
         healthMax: 4
         spriteName: "human"
+
+      Lich:
+        health: 4
+        healthMax: 4
+        spriteName: "lich"
+        sight: 0
+        abilities: [
+          "Blink"
+          "Death"
+        ]
+        passives: [
+          "Clairvoyance"
+          "Undead"
+        ]
 
       Scout:
         actions: 3
@@ -48,6 +73,13 @@ Exploring various character classes here.
         sight: 9
         passives: [
           "EagleEye"
+        ]
+
+      Skeleton:
+        sight: 5
+        spriteName: "skeletal_warrior"
+        passives: [
+          "Undead"
         ]
 
       Wizard:
