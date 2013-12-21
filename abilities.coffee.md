@@ -6,6 +6,32 @@
     {sqrt} = Math
 
     module.exports =
+      Slide:
+        name: "Slide"
+        description: "Like a slug, this leaves behind a slime trail."
+        iconName: "boots"
+        actionCost: 1
+        targetZone: MOVEMENT
+        code: '''
+          owner.addEffect
+            name: "moving"
+            attribute: "physicalAwareness"
+            amount: -100
+            duration: 1
+
+          # Need to reverse because the effects go on a stack.
+          positions = movementPath.copy().reverse()
+
+          positions.forEach (position, i) ->
+            to = position
+            from = positions[i+1]
+
+            if to and from
+              # add slimes for all positions except where you end up
+              effect "Slime", from
+              effect "Move", from, to, owner
+        '''
+
       Move:
         name: "Move"
         description: "Old boot-y. Hoof it to your next position."

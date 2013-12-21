@@ -93,7 +93,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
                 x: 2
                 y: 4
 
-            create "Skeleton",
+            create "Slime",
               position:
                 x: 4
                 y: 2

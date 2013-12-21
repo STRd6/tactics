@@ -6,6 +6,13 @@ Exploring various character classes here.
     Names = require "./names"
 
     module.exports =
+      Slime:
+        spriteName: "jelly"
+        abilities: [
+          "Slide"
+          "Melee"
+        ]
+
       ShrubMage:
         spriteName: "kobold"
         abilities: [

@@ -73,6 +73,11 @@ electricity, I don't know yet.
           # Revert tiles to default
           replaceTileAt(position)
 
+    # Used in Slide
+    Effect.Slime = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Slime(position)
+
     # Used in Entanglement
     Effect.Plant = (position) ->
       perform: ({animate, characterAt, message, addFeature, impassable}) ->
