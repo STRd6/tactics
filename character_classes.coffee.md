@@ -12,12 +12,18 @@ Exploring various character classes here.
           "Scorch"
           "Melee"
         ]
+        passives: [
+          "Fireproof"
+        ]
 
       AcidSlime:
         spriteName: "slime"
         abilities: [
           "Corrode"
           "Melee"
+        ]
+        passives: [
+          "Uncorrodible"
         ]
 
       OilSlime:

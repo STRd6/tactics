@@ -86,6 +86,12 @@ Features are things that are present within tiles in the tactical combat view.
         position: position
         spriteName: "acid"
         type: Type.Acid
+        update: ({characterAt, position, message}) ->
+          if character = characterAt(position)
+            amount = 1
+
+            character.damage(amount, "Acid")
+            message "The acid burns #{character.name()} for #{amount} damage."
 
     Feature.Slime = (position) ->
       Feature
@@ -153,7 +159,7 @@ Features are things that are present within tiles in the tactical combat view.
           if character = characterAt(position)
             amount = 1
 
-            character.damage(amount)
+            character.damage(amount, "Fire")
             message "The fire burns #{character.name()} for #{amount} damage."
 
     Feature.Traps =

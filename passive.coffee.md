@@ -16,3 +16,9 @@ TODO: Figure out creature type passives.
 
       Undead:
         immune: "Death"
+
+      Fireproof:
+        immune: "Fire"
+
+      Uncorrodible:
+        immune: "Acid"
