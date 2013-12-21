@@ -11,6 +11,8 @@ dependencies:
   bit_array: "distri/bit_array:v0.1.0"
   byte_array: "distri/byte_array:v0.1.1"
   finder: "distri/finder:v0.1.3"
+  hotkeys: "distri/hotkeys:v0.2.0"
+  "jquery-utils": "distri/jquery-utils:v0.2.0"
   priority_queue: "STRd6/priority_queue:v2.0.0"
   quadtree: "distri/quadtree:v0.1.1"
   random: "distri/random:v0.2.0"

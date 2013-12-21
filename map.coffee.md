@@ -7,6 +7,7 @@ The primary tactical combat screen.
     Compositions = require "./lib/compositions"
     Effect = require "./effect"
     MapFeatures = require "./map_features"
+    MapHotkeys = require "./map_hotkeys"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
     MapRendering = require "./map_rendering"
@@ -33,6 +34,7 @@ The primary tactical combat screen.
 
       self.include MapFeatures
       self.include MapTiles
+      self.include MapHotkeys
 
       self.attrModels "squads", Squad
       self.activeSquad = Observable ->
