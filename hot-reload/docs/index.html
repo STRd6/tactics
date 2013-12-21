@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>main</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="tactics">Tactics</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>A game about squad based dungeon combat.</p>
+<p>You manage a tribe of humble humanoids over a thousand years.</p>
+<p>Will you conquer the world? Will they all die? That&#39;s between you and the RNG.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">require <span class="string">"./setup"</span>
+
+Canvas = require <span class="string">"touch-canvas"</span>
+CharacterUI = require <span class="string">"./character_ui"</span>
+Action = require <span class="string">"./action"</span>
+Map = require <span class="string">"./map"</span>
+Resource = require <span class="string">"./resource"</span>
+Resource.addSource(<span class="string">"7ffbdcf587f407dda0d6"</span>)
+
+{Grid, Size} = require <span class="string">"./lib/util"</span>
+Geom = require <span class="string">"./lib/geom"</span>
+
+{width, height} = require(<span class="string">"./pixie"</span>)
+
+tileExtent = Size <span class="number">32</span>, <span class="number">18</span>
+
+bgColor = <span class="string">"#222034"</span>
+
+global.canvas = canvas = Canvas
+  width: width
+  height: height
+
+canvas.fill bgColor
+
+$(<span class="string">"body"</span>).append canvas.element()
+
+<span class="comment"># TODO: Eliminate this closured map, or move it into game as a component</span>
+map = <span class="literal">null</span>
+
+<span class="function"><span class="title">launchGame</span></span> = (data={}) -&gt;
+  <span class="comment"># HACK hide the name of the game</span>
+  $(<span class="string">".title"</span>).hide()
+
+  <span class="comment"># HACK: Exposing map to dev console</span>
+  global.map = map = Map(data)
+
+  <span class="comment"># TODO better observable proxying</span>
+  map.messages.observe (messages) -&gt;
+    ui.messages(messages.copy())
+
+  map.activeCharacter.observe updateActions
+
+  update()
+
+<span class="comment"># TODO: Add actions for between rounds</span>
+<span class="comment"># TODO: Add conditional cancel action</span>
+<span class="function"><span class="title">updateActions</span></span> = (character) -&gt;
+  <span class="keyword">if</span> character
+    ui.actions CharacterUI.actions(character)
+  <span class="keyword">else</span>
+    ui.actions []
+
+<span class="function"><span class="title">updateCharacters</span></span> = (characters) -&gt;
+  <span class="keyword">if</span> characters
+    ui.characters characters.copy().reverse()
+  <span class="keyword">else</span>
+    ui.characters []
+
+<span class="function"><span class="title">checkForWinner</span></span> = -&gt;
+  <span class="keyword">if</span> map.squads()[<span class="number">0</span>].characters().filter((c) -&gt; c.alive()).length <span class="keyword">is</span> <span class="number">0</span>
+    $(<span class="string">".winner"</span>).text(<span class="string">"<span class="subst">#{map.squads()[<span class="number">1</span>].I.race}</span> squad wins!"</span>)
+    $(<span class="string">".winner_container"</span>).show()
+  <span class="keyword">else</span> <span class="keyword">if</span> map.squads()[<span class="number">1</span>].characters().filter((c) -&gt; c.alive()).length <span class="keyword">is</span> <span class="number">0</span>
+    $(<span class="string">".winner"</span>).text(<span class="string">"<span class="subst">#{map.squads()[<span class="number">0</span>].I.race}</span> squad wins!"</span>)
+    $(<span class="string">".winner_container"</span>).show()
+
+ui =
+  characters: Observable []
+  messages: Observable [
+    <span class="string">"Welcome to the arena!\n"</span>
+  ]
+  actions: Observable [
+    Action
+      name: <span class="string">"New Game"</span>
+      description: <span class="string">"Start a new battle."</span>
+      icon: <span class="string">"new_game"</span>
+      perform: -&gt;
+        launchGame()
+  ]
+  actionPerformed: -&gt;
+    update()
+
+$(<span class="string">"body"</span>).append require(<span class="string">"./templates/ui"</span>)(ui)
+
+accessiblePositions = <span class="literal">null</span>
+
+<span class="function"><span class="title">update</span></span> = -&gt;
+  <span class="keyword">if</span> map
+    updateActions(map.activeCharacter())
+    updateCharacters(map.activeSquad().characters())
+    accessiblePositions = map.accessiblePositions()
+    checkForWinner()
+
+t = <span class="number">0</span>
+setInterval -&gt;
+  t += <span class="number">0.3333333</span>
+
+  map?.render(canvas, t)
+  map?.renderUI(uiCanvas, t)
+, <span class="number">33.3333333</span>
+
+uiCanvas = Canvas
+  width: width
+  height: height
+
+uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (position) -&gt;
+  map?.touch position
+  update()
+
+$(<span class="string">".ui"</span>).prepend uiCanvas.element()
+
+<span class="comment"># Testing reloading map</span>
+$(document).bind <span class="string">"keydown"</span>, <span class="string">"f6"</span>, -&gt;
+  data = JSON.parse JSON.stringify map
+  console.log data
+  launchGame data</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
