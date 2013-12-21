@@ -73,6 +73,14 @@ electricity, I don't know yet.
           # Revert tiles to default
           replaceTileAt(position)
 
+    Effect.Corrode = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Acid(position)
+
+    Effect.Scorch = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Fire(position)
+
     # Used in Slide
     Effect.Slime = (position) ->
       perform: ({addFeature}) ->

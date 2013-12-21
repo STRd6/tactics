@@ -6,8 +6,22 @@ Exploring various character classes here.
     Names = require "./names"
 
     module.exports =
-      Slime:
+      FireSlime:
         spriteName: "jelly"
+        abilities: [
+          "Scorch"
+          "Melee"
+        ]
+
+      AcidSlime:
+        spriteName: "slime"
+        abilities: [
+          "Corrode"
+          "Melee"
+        ]
+
+      OilSlime:
+        spriteName: "ooze"
         abilities: [
           "Slide"
           "Melee"

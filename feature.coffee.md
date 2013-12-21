@@ -81,11 +81,17 @@ Features are things that are present within tiles in the tactical combat view.
 
       return self
 
+    Feature.Acid = (position) ->
+      Feature
+        position: position
+        spriteName: "acid"
+        type: Type.Acid
+
     Feature.Slime = (position) ->
       Feature
         position: position
         spriteName: "oil"
-        type: Type.Ice
+        type: Type.Oil
 
     Feature.Wall = (position) ->
       Feature

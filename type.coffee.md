@@ -26,4 +26,6 @@ List
       Plant
       Stone
       Water
+      Oil
+      Acid
     """

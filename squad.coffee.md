@@ -88,17 +88,17 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
                 x: 1
                 y: 1
 
-            create "Harpy",
+            create "AcidSlime",
               position:
                 x: 2
                 y: 4
 
-            create "Slime",
+            create "OilSlime",
               position:
                 x: 4
                 y: 2
 
-            create "Skeleton",
+            create "FireSlime",
               position:
                 x: 2
                 y: 3
