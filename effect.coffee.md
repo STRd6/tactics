@@ -62,23 +62,18 @@ electricity, I don't know yet.
         feature "PestilentVapor", position
 
     Effect.Crush = (position) ->
-      perform: ({featuresAt, replaceTileAt}) ->
+      perform: ({featuresAt}) ->
         # TODO figure out why this doesn't
         # remove the tiles immediately. It
         # happens the next round.
         featuresAt(position).invoke "destroy"
 
-        # Revert tiles to default
-        replaceTileAt(position)
-
     Effect.Demolish = (position, owner) ->
       perform: ({message, featuresAt, replaceTileAt}) ->
-        # TODO figure out why you can't find Walls using featuresAt
-        if (features = featuresAt(position)).length
-          featuresAt(position).invoke "destroy"
-          replaceTileAt(position)
+        featuresAt(position).invoke "destroy"
+        replaceTileAt(position)
 
-          message "#{owner.name()} demolishes everything in their path."
+        message "#{owner.name()} demolishes everything in their path."
 
     Effect.Stomp = (position, owner) ->
       perform: ({characterAt, message, search, featuresAt, replaceTileAt}) ->

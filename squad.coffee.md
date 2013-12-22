@@ -77,12 +77,13 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             character.actions() > 0
 
         activateCharacterAt: (position) ->
-          character = self.activatableCharacters().filter (character) ->
+          if character = self.characterAt(position)
+            self.activeCharacter(character)
+
+        characterAt: (position) ->
+          self.activatableCharacters().filter (character) ->
             character.position().equal position
           .first()
-
-          if character
-            self.activeCharacter(character)
 
         activeCharacter: Observable null
 

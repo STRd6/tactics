@@ -172,8 +172,12 @@ to self.width(), self.height())
 
             if inRange
               self.selectTarget tilePosition
-          else
+          else if self.activeSquad().characterAt(tilePosition)
             self.activeSquad().activateCharacterAt(tilePosition)
+          else
+            # HACK to allow "scrolling" the map
+            self.animate
+              position: tilePosition
 
       # Kick off animation processing loop
       processAnimation = ->
