@@ -71,11 +71,11 @@ Draw the tactical overlay, status, health, max health.
           return action
 
         if character.targettingAbility()
-          actions.concat Action
+          actions.push Action
             name: "Cancel"
             description: "Cancel using the current action."
             icon: "cancel"
             perform: ->
               character.targettingAbility(null)
-        else
-          actions
+
+        actions

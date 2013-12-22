@@ -11,6 +11,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     Canvas = require "touch-canvas"
     CharacterUI = require "./character_ui"
+    Ability = require "./ability"
     Action = require "./action"
     Map = require "./map"
     Resource = require "./resource"
@@ -51,11 +52,30 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
       update()
 
-    # TODO: Add actions for between rounds
-    # TODO: Add conditional cancel action
+    # TODO: Right justify these
+    # TODO: Add "End Round" action
+    metaActions = [
+      Action
+        name: "Wait"
+        icon: "hourglass"
+        right: true
+        perform: ->
+          character = map.activeCharacter()
+          map.performAbility(character, Ability.Abilities.Wait, character.position())
+    ]
+
+    blankActions = [0...12].map ->
+      Action
+        blank: true
+
+    characterActions = (character) ->
+      actions = CharacterUI.actions(character)
+      actions.last().last = true
+      actions.concat blankActions.slice(actions.length + metaActions.length), metaActions
+
     updateActions = (character) ->
       if character
-        ui.actions CharacterUI.actions(character)
+        ui.actions characterActions(character)
       else
         ui.actions []
 
