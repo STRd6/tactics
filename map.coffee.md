@@ -124,11 +124,7 @@ parameterize it by passing in the character and the ability.
           if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
-                # TODO this auto-perform doesn't belong here, it should be done
-                # in the caller if one so wishes
-                self.performAbility(character, ability, character.position())
-
-                return
+                [character.position()]
               when Ability.TARGET_ZONE.MOVEMENT
                 accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
 
@@ -191,7 +187,7 @@ parameterize it by passing in the character and the ability.
           effectStack.push effect
 
         performAbility: (owner, ability, targetPosition) ->
-          if Ability.TARGET_ZONE.MOVEMENT
+          if ability.targetZone() is Ability.TARGET_ZONE.MOVEMENT
             movementPath = search.movementPath(
               owner.position(),
               targetPosition,

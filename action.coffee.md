@@ -13,10 +13,12 @@ Clicking on them makes them happen.
       self = {}
 
       Object.defaults self, I,
+        active: false
+        disabled: false
+        last: false
         name: "Action"
 
-      self.active = false
-      self.disabled = false
-      self.icon = Resource.dataURL(I.icon)
+      Object.extend self,
+        icon: Resource.dataURL(I.icon)
 
       return self

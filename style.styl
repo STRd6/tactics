@@ -1,12 +1,13 @@
-html, body
-  margin: 0
+html
   height: 100%
-  user-select:none
 
 body
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif
   font-weight: 300
   font-size: 12px
+  height: 100%
+  margin: 0
+  user-select:none
 
 canvas, .ui
   position: absolute
@@ -193,15 +194,18 @@ canvas, .ui
     border-right: none
     cursor: pointer
     display: inline-block
+    height: 64px
     padding: 4px
     pointer-events: auto
     position: relative
-    width: 64px
-    height: 64px
     text-align: center
     vertical-align: bottom
+    width: 64px
 
-    &:last-child
+    &.blank
+      visibility: hidden
+
+    &:last-child, &.last
       border-right: 1px solid
 
     &:active, &.active
