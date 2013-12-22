@@ -78,6 +78,10 @@ Exploring various character classes here.
           "Move"
           "Stomp"
           "Berserk"
+          "Demolish"
+        ]
+        passives: [
+          "LeadFoot"
         ]
         sight: 5
         type: "Giant"

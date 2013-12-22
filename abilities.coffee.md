@@ -184,6 +184,17 @@
             effect "Plant", position
         '''
 
+      Demolish:
+        name: "Demolish"
+        description: "Smash everything on a single tile."
+        iconName: "brick"
+        range: sqrt(2)
+        actionCost: 1
+        targetZone: ANY
+        code: '''
+          effect "Demolish", position, owner
+        '''
+
       Stomp:
         name: "Stomp"
         description: "Destroy everything around you."

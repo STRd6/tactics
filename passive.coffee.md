@@ -31,3 +31,6 @@ TODO: Figure out creature type passives.
 
       OilTrail:
         enter: "Oil"
+
+      LeadFoot:
+        enter: "Crush"
