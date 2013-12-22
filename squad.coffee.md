@@ -61,6 +61,10 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
 
       self.include Compositions
 
+      self.attrAccessor(
+        "race"
+      )
+
       self.attrModels "characters", Character
 
       nextActivatableCharacter = ->
