@@ -113,6 +113,7 @@ Exploring various character classes here.
         health: 2
         healthMax: 2
         spriteName: "wizard"
+        animation: ["wizard0", "wizard1"]
         abilities: [
           "Blink"
           "Fireball"

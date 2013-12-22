@@ -7,7 +7,10 @@ Drawable
     module.exports = (I={}, self=Core(I)) ->
       self.extend
         draw: ->
-          self.sprite()?.draw arguments...
+          if anim = self.currentAnimation?()
+            anim.draw(arguments...)
+          else
+            self.sprite()?.draw arguments...
 
         sprite: ->
           Resource.sprite(I.spriteName)

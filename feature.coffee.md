@@ -3,6 +3,7 @@ Feature
 
 Features are things that are present within tiles in the tactical combat view.
 
+    Animation = require "./lib/animation"
     Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Type = require "./type"
@@ -36,8 +37,12 @@ Features are things that are present within tiles in the tactical combat view.
       self.include Drawable
 
       self.attrModel "position", Point
+      self.attrModel "animation", Animation
 
       self.extend
+        currentAnimation: ->
+          self.animation()
+
         # TODO: Dangerous should depend on the character
         dangerous: ->
           I.trap
@@ -146,6 +151,7 @@ Features are things that are present within tiles in the tactical combat view.
         duration: 1
         position: position
         spriteName: "fire"
+        # animation: ["fire"]
         type: Type.Fire
         zIndex: 1
         update: ({addFeature, characterAt, position, message, find}) ->

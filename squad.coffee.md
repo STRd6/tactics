@@ -83,7 +83,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           ]
         when "undead"
           self.characters [
-            create "Lich",
+            create "Wizard",
               position:
                 x: 1
                 y: 1
