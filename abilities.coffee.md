@@ -61,7 +61,8 @@
             owner.I.health = 0
             character.I.health = 0
 
-            message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
+            message "#{owner.name()} teleports into #{character.name()}."
+            message "Life ends in the blink of an eye."
         '''
 
       Death:

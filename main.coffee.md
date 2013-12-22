@@ -81,7 +81,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     updateCharacters = (characters) ->
       if characters
-        ui.characters characters.copy().reverse()
+        ui.characters characters.copy()
       else
         ui.characters []
 

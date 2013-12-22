@@ -63,6 +63,7 @@ canvas, .ui
     margin: auto
 
 .characters_container
+  color: black
   position: absolute
   top: 0
   right: 0
@@ -113,46 +114,47 @@ canvas, .ui
 .character
   border: 1px solid black
   cursor: pointer
-  width: 76px
+  width: 150px
   height: 99px
   background-color: #847E87
-  float: right
   display: inline-block
   position: relative
   box-sizing: border-box
+  margin: 1px
+  vertical-align: top
 
   &.active
-    border: 1px solid rgb(99, 155, 255)
+    background-color: rgb(99, 155, 255)
 
   .avatar
     display: inline-block
     top: 0
     bottom: 0
-    left: 0
-    right: 0
+    left: 5%
     margin: auto
     width: 32px
     height: 32px
     position: absolute
     zoom: 1.5
 
-  .name
+  .info
     position: absolute
-    bottom: 0
-    left: 0
-    right: 0
-    margin: auto
-    text-align: center
+    left: 60px
+    top: 23px
 
-.messages_container
+  .name
+    margin: 0
+
+.hud
   position: relative
+  background-color: rgba(0, 0, 0, 0.75)
   box-sizing: border-box
   color: white
   margin: 0
   padding: 0
   height: 100px
   top: 0
-  width: 40%
+  width: 100%
   transition-property: top
   transition-duration: 0.200s
 
@@ -179,7 +181,7 @@ canvas, .ui
   background-color: rgba(0, 0, 0, 0.75)
   box-sizing: border-box
   overflow: auto
-  width: 100%
+  width: 35%
   height: 100%
   margin: 0
 

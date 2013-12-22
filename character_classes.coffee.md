@@ -16,6 +16,7 @@ Exploring various character classes here.
           "Fireproof"
           "FireTrail"
         ]
+        type: "Slime"
 
       AcidSlime:
         spriteName: "slime"
@@ -27,6 +28,7 @@ Exploring various character classes here.
           "Uncorrodible"
           "AcidTrail"
         ]
+        type: "Slime"
 
       OilSlime:
         spriteName: "ooze"
@@ -37,6 +39,7 @@ Exploring various character classes here.
         passives: [
           "OilTrail"
         ]
+        type: "Slime"
 
       ShrubMage:
         spriteName: "kobold"
@@ -45,6 +48,7 @@ Exploring various character classes here.
           "Entanglement"
           "ShrubSight"
         ]
+        type: "Mage"
 
       Harpy:
         spriteName: "harpy"
@@ -76,6 +80,7 @@ Exploring various character classes here.
           "Berserk"
         ]
         sight: 5
+        type: "Giant"
 
       Knight:
         health: 4
@@ -95,6 +100,7 @@ Exploring various character classes here.
           "Clairvoyance"
           "Undead"
         ]
+        type: "Mage"
 
       Scout:
         actions: 3
@@ -124,6 +130,7 @@ Exploring various character classes here.
           "Fireball"
           "Farsight"
         ]
+        type: "Mage"
 
       Archer:
         spriteName: "elf_archer"

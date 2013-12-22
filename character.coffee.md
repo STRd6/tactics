@@ -37,6 +37,7 @@ Those little guys that run around.
         sight: 7
         strength: 1
         stun: 0
+        type: "Grunt"
 
       self.include Compositions
 
@@ -52,6 +53,7 @@ Those little guys that run around.
         "physicalAwareness"
         "sight"
         "strength"
+        "type"
       )
 
       self.attrModel "position", Point
