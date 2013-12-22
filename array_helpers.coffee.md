@@ -18,7 +18,7 @@ Returns the index of the element in the array if present, undefined if not.
 
     unique = (array) ->
       array.reduce (results, element) ->
-        results.push element unless indexOf(results, element)
+        results.push element unless indexOf(results, element)?
         results
       , []
 
