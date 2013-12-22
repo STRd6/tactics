@@ -41,8 +41,42 @@ Compositions = require <span class="string">"./lib/compositions"</span>
 
 extend = Object.extend
 
-<span class="function"><span class="title">create</span></span> = (type, data) -&gt;
-  Character extend data, Class[type]</code></pre>
+<span class="function"><span class="title">create</span></span> = (type, position) -&gt;
+  Character extend
+    position: position
+  , Class[type]
+
+defaultCharacters = 
+  goblin: [
+    <span class="string">"Grunt"</span>
+    <span class="string">"Wizard"</span>
+    <span class="string">"ShrubMage"</span>
+    <span class="string">"Giant"</span>
+  ]
+  human: [
+    <span class="string">"Knight"</span>
+    <span class="string">"Archer"</span>
+    <span class="string">"Scout"</span>
+    <span class="string">"Wizard"</span>
+  ]
+  undead: [
+    <span class="string">"Lich"</span>
+    <span class="string">"Harpy"</span>
+    <span class="string">"Skeleton"</span>
+    <span class="string">"Skeleton"</span>
+  ]
+
+defaultPositions = [[
+  Point(<span class="number">1</span>, <span class="number">1</span>)
+  Point(<span class="number">2</span>, <span class="number">4</span>)
+  Point(<span class="number">2</span>, <span class="number">3</span>)
+  Point(<span class="number">4</span>, <span class="number">2</span>)
+],[
+  Point(<span class="number">18</span>, <span class="number">16</span>)
+  Point(<span class="number">14</span>, <span class="number">16</span>)
+  Point(<span class="number">16</span>, <span class="number">14</span>)
+  Point(<span class="number">20</span>, <span class="number">14</span>)
+]]</code></pre>
 </div>
         </li>
         
@@ -58,6 +92,7 @@ extend = Object.extend
             <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Squad</span></span> = (I={}, self=Core(I)) -&gt;
   Object.defaults I,
     characters: []
+    index: <span class="number">0</span>
     race: <span class="string">"human"</span>
 
   self.include Compositions
@@ -99,76 +134,16 @@ extend = Object.extend
 
       self.activeCharacter nextActivatableCharacter()
 
-  <span class="comment"># TODO: Load characters from data</span>
-  <span class="keyword">switch</span> I.race
-    <span class="keyword">when</span> <span class="string">"human"</span>
-      self.characters [
-        create <span class="string">"Knight"</span>,
-          position:
-            x: <span class="number">1</span>
-            y: <span class="number">1</span>
+    toJSON: -&gt;
+      Object.extend I,
+        characters: self.characters().invoke <span class="string">"toJSON"</span>
 
-        create <span class="string">"Wizard"</span>,
-          position:
-            x: <span class="number">2</span>
-            y: <span class="number">4</span>
+  <span class="keyword">if</span> self.characters().length <span class="keyword">is</span> <span class="number">0</span>
+    <span class="comment"># Load from presets</span>
+    self.characters defaultCharacters[I.race].map (type, i) -&gt;
+      create type, defaultPositions[I.index][i]
 
-        create <span class="string">"Archer"</span>,
-          position:
-            x: <span class="number">4</span>
-            y: <span class="number">2</span>
-
-        create <span class="string">"Scout"</span>,
-          position:
-            x: <span class="number">2</span>
-            y: <span class="number">3</span>
-      ]
-    <span class="keyword">when</span> <span class="string">"undead"</span>
-      self.characters [
-        create <span class="string">"Lich"</span>,
-          position:
-            x: <span class="number">1</span>
-            y: <span class="number">1</span>
-
-        create <span class="string">"Skeleton"</span>,
-          position:
-            x: <span class="number">2</span>
-            y: <span class="number">4</span>
-
-        create <span class="string">"Skeleton"</span>,
-          position:
-            x: <span class="number">4</span>
-            y: <span class="number">2</span>
-
-        create <span class="string">"Skeleton"</span>,
-          position:
-            x: <span class="number">2</span>
-            y: <span class="number">3</span>
-      ]
-    <span class="keyword">else</span>
-      self.characters [
-        create <span class="string">"Grunt"</span>,
-          position:
-            x: <span class="number">18</span>
-            y: <span class="number">16</span>
-
-        create <span class="string">"Grunt"</span>,
-          position:
-            x: <span class="number">20</span>
-            y: <span class="number">14</span>
-
-        create <span class="string">"ShrubMage"</span>,
-          position:
-            x: <span class="number">14</span>
-            y: <span class="number">16</span>
-
-        create <span class="string">"Giant"</span>,
-          position:
-            x: <span class="number">16</span>
-            y: <span class="number">14</span>
-      ]
-
-  self.activeCharacter self.characters().first()
+  self.activeCharacter nextActivatableCharacter()
 
   <span class="keyword">return</span> self</code></pre>
 </div>

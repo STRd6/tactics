@@ -41,6 +41,7 @@
 
 Canvas = require <span class="string">"touch-canvas"</span>
 CharacterUI = require <span class="string">"./character_ui"</span>
+Ability = require <span class="string">"./ability"</span>
 Action = require <span class="string">"./action"</span>
 Map = require <span class="string">"./map"</span>
 Resource = require <span class="string">"./resource"</span>
@@ -63,13 +64,48 @@ canvas.fill bgColor
 
 $(<span class="string">"body"</span>).append canvas.element()
 
-global.map = map = <span class="literal">null</span>
+<span class="comment"># TODO: Eliminate this closured map, or move it into game as a component</span>
+map = <span class="literal">null</span>
 
-<span class="comment"># TODO: Add actions for between rounds</span>
-<span class="comment"># TODO: Add conditional cancel action</span>
+<span class="function"><span class="title">launchGame</span></span> = (data={}) -&gt;
+  <span class="comment"># HACK hide the name of the game</span>
+  $(<span class="string">".title"</span>).hide()
+
+  <span class="comment"># HACK: Exposing map to dev console</span>
+  global.map = map = Map(data)
+
+  <span class="comment"># TODO better observable proxying</span>
+  map.messages.observe (messages) -&gt;
+    ui.messages(messages.copy())
+
+  map.activeCharacter.observe updateActions
+
+  update()
+
+<span class="comment"># TODO: Right justify these</span>
+<span class="comment"># TODO: Add "End Round" action</span>
+metaActions = [
+  Action
+    name: <span class="string">"Wait"</span>
+    icon: <span class="string">"hourglass"</span>
+    right: <span class="literal">true</span>
+    perform: -&gt;
+      character = map.activeCharacter()
+      map.performAbility(character, Ability.Abilities.Wait, character.position())
+]
+
+blankActions = [<span class="number">0.</span>.<span class="number">.12</span>].map -&gt;
+  Action
+    blank: <span class="literal">true</span>
+
+<span class="function"><span class="title">characterActions</span></span> = (character) -&gt;
+  actions = CharacterUI.actions(character)
+  actions.last().last = <span class="literal">true</span>
+  actions.concat blankActions.slice(actions.length + metaActions.length), metaActions
+
 <span class="function"><span class="title">updateActions</span></span> = (character) -&gt;
   <span class="keyword">if</span> character
-    ui.actions CharacterUI.actions(character)
+    ui.actions characterActions(character)
   <span class="keyword">else</span>
     ui.actions []
 
@@ -95,18 +131,10 @@ ui =
   actions: Observable [
     Action
       name: <span class="string">"New Game"</span>
+      description: <span class="string">"Start a new battle."</span>
       icon: <span class="string">"new_game"</span>
       perform: -&gt;
-        <span class="comment"># HACK hide the name of the game</span>
-        $(<span class="string">".title"</span>).hide()
-
-        global.map = map = Map()
-        map.messages.observe (messages) -&gt;
-          ui.messages(messages.copy())
-
-        map.activeCharacter.observe updateActions
-
-        update()
+        launchGame()
   ]
   actionPerformed: -&gt;
     update()
@@ -138,7 +166,13 @@ uiCanvas.<span class="literal">on</span> <span class="string">"touch"</span>, (p
   map?.touch position
   update()
 
-$(<span class="string">".ui"</span>).prepend uiCanvas.element()</code></pre>
+$(<span class="string">".ui"</span>).prepend uiCanvas.element()
+
+<span class="comment"># Testing reloading map</span>
+$(document).bind <span class="string">"keydown"</span>, <span class="string">"f6"</span>, -&gt;
+  data = JSON.parse JSON.stringify map
+  console.log data
+  launchGame data</code></pre>
 </div>
         </li>
         

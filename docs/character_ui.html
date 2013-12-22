@@ -106,6 +106,7 @@ module.exports = CharacterUI =</code></pre>
         cooldown: ability.cooldown()
         cost: ability.actionCost()
         name: ability.name()
+        description: ability.description()
         icon: ability.iconName()
         perform: -&gt;
           character.targettingAbility(ability)
@@ -120,13 +121,14 @@ module.exports = CharacterUI =</code></pre>
       <span class="keyword">return</span> action
 
     <span class="keyword">if</span> character.targettingAbility()
-      actions.concat Action
+      actions.push Action
         name: <span class="string">"Cancel"</span>
+        description: <span class="string">"Cancel using the current action."</span>
         icon: <span class="string">"cancel"</span>
         perform: -&gt;
           character.targettingAbility(<span class="literal">null</span>)
-    <span class="keyword">else</span>
-      actions</code></pre>
+
+    actions</code></pre>
 </div>
         </li>
         

@@ -39,6 +39,7 @@
 Compositions = require <span class="string">"./lib/compositions"</span>
 Effect = require <span class="string">"./effect"</span>
 MapFeatures = require <span class="string">"./map_features"</span>
+MapHotkeys = require <span class="string">"./map_hotkeys"</span>
 MapSearch = require <span class="string">"./map_search"</span>
 MapTiles = require <span class="string">"./map_tiles"</span>
 MapRendering = require <span class="string">"./map_rendering"</span>
@@ -51,10 +52,13 @@ Squad = require <span class="string">"./squad"</span>
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
   Object.defaults I,
     currentTurn: <span class="number">0</span>
+    messages: []
     squads: [{
       race: <span class="string">"undead"</span>
+      index: <span class="number">0</span>
     }, {
       race: <span class="string">"goblin"</span>
+      index: <span class="number">1</span>
     }]
 
   self ?= Core(I)
@@ -65,10 +69,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.include MapFeatures
   self.include MapTiles
+  self.include MapHotkeys
 
   self.attrModels <span class="string">"squads"</span>, Squad
   self.activeSquad = Observable -&gt;
     self.squads().wrap(self.currentTurn())
+
+  self.attrObservable <span class="string">"messages"</span>
 
   <span class="function"><span class="title">characterPassable</span></span> = (character) -&gt;
     index = self.activeSquadIndex()
@@ -103,8 +110,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="keyword">return</span> results
 
   self.extend
-    messages: Observable []
-
     activeSquadIndex: -&gt;
       <span class="comment"># NOTE: Assumes squad length never changes</span>
       self.currentTurn() % I.squads.length
@@ -159,11 +164,7 @@ parameterize it by passing in the character and the ability.</p>
       <span class="keyword">if</span> ability = self.targettingAbility()
         <span class="keyword">switch</span> ability.targetZone()
           <span class="keyword">when</span> Ability.TARGET_ZONE.SELF
-            <span class="comment"># TODO this auto-perform doesn't belong here, it should be done</span>
-            <span class="comment"># in the caller if one so wishes</span>
-            self.performAbility(character, ability, character.position())
-
-            <span class="keyword">return</span>
+            [character.position()]
           <span class="keyword">when</span> Ability.TARGET_ZONE.MOVEMENT
             accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
 
@@ -221,15 +222,12 @@ parameterize it by passing in the character and the ability.</p>
 
     message: (message) -&gt;
       self.messages.push message + <span class="string">"\n"</span>
-      $(<span class="string">".messages"</span>).animate
-        scrollTop: $(<span class="string">'.messages'</span>)[<span class="number">0</span>].scrollHeight
-      , <span class="number">1000</span>
 
     addEffect: (effect) -&gt;
       effectStack.push effect
 
     performAbility: (owner, ability, targetPosition) -&gt;
-      <span class="keyword">if</span> Ability.TARGET_ZONE.MOVEMENT
+      <span class="keyword">if</span> ability.targetZone() <span class="keyword">is</span> Ability.TARGET_ZONE.MOVEMENT
         movementPath = search.movementPath(
           owner.position(),
           targetPosition,

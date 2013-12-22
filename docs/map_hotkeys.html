@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>setup</title>
+  <title>map_hotkeys</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="setup">Setup</h1>
+              <h1 id="map-hotkeys">Map Hotkeys</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,21 +32,25 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Set up our runtime styles and expose some stuff for debugging.</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># For debug purposes</span>
-global.PACKAGE = PACKAGE
-global.require = require
+            <div class="content"><pre><code class="lang-coffeescript">Hotkeys = require <span class="string">"hotkeys"</span>
 
-require <span class="string">"jquery-utils"</span>
+module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
+  self.include Hotkeys
 
-runtime = require(<span class="string">"runtime"</span>)(PACKAGE)
-runtime.boot()
-runtime.applyStyleSheet(require(<span class="string">'./style'</span>))
+  self.addHotkey <span class="string">"1"</span>, -&gt;
+    addEventListener <span class="string">"message"</span>, (event) -&gt;
+      <span class="keyword">if</span> event.source <span class="keyword">is</span> pixelEditorWindow
+        console.log event
+    , <span class="literal">false</span>
 
-<span class="comment"># Updating Application Cache and prompting for new version</span>
-require <span class="string">"appcache"</span></code></pre>
+    window.pew = pixelEditorWindow = window.open <span class="string">"http://strd6.github.io/pixel-editor/"</span>, <span class="string">""</span>, <span class="string">"width=640,height=480"</span>
+
+  self.addHotkey <span class="string">"f5"</span>, -&gt;
+    console.log self.toJSON()
+
+  <span class="keyword">return</span> self</code></pre>
 </div>
         </li>
         

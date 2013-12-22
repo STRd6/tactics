@@ -38,8 +38,9 @@
   self.extend
     toJSON: -&gt;
       Object.extend {}, I,
-        seen: self.seen().map (seen) -&gt; seen.toJSON()
-        lit: self.lit().map (lit) -&gt; lit.toJSON()
+        squads: self.squads().invoke <span class="string">"toJSON"</span>
+        seen: self.seen().invoke <span class="string">"toJSON"</span>
+        lit: self.lit().invoke <span class="string">"toJSON"</span>
         tiles: self.tiles().toJSON()</code></pre>
 </div>
         </li>

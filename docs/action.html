@@ -43,11 +43,13 @@ module.<span class="function"><span class="title">exports</span></span> = (I={})
   self = {}
 
   Object.defaults self, I,
+    active: <span class="literal">false</span>
+    disabled: <span class="literal">false</span>
+    last: <span class="literal">false</span>
     name: <span class="string">"Action"</span>
 
-  self.active = <span class="literal">false</span>
-  self.disabled = <span class="literal">false</span>
-  self.icon = Resource.dataURL(I.icon)
+  Object.extend self,
+    icon: Resource.dataURL(I.icon)
 
   <span class="keyword">return</span> self</code></pre>
 </div>
