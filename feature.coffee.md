@@ -95,8 +95,11 @@ Features are things that are present within tiles in the tactical combat view.
           if character = characterAt(position)
             amount = 1
 
-            character.damage(amount, "Acid")
-            message "The acid burns #{character.name()} for #{amount} damage."
+            element = "Acid"
+            character.damage(amount, element)
+
+            unless character.immune(element)
+              message "The acid burns #{character.name()} for #{amount} damage."
 
     Feature.Slime = (position) ->
       Feature
@@ -142,9 +145,11 @@ Features are things that are present within tiles in the tactical combat view.
         zIndex: 1
         update: ({characterAt, message}) ->
           if character = characterAt(position)
-            message "#{character.name()} is surrounded by choking fumes!"
+            element = "Death"
+            character.damage 10, element
 
-            character.damage 10, "Death"
+            unless character.immune(element)
+              message "#{character.name()} is surrounded by choking fumes!"
 
     Feature.Fire = (position) ->
       Feature
@@ -165,8 +170,11 @@ Features are things that are present within tiles in the tactical combat view.
           if character = characterAt(position)
             amount = 1
 
-            character.damage(amount, "Fire")
-            message "The fire burns #{character.name()} for #{amount} damage."
+            element = "Fire"
+            character.damage(amount, element)
+
+            unless character.immune(element)
+              message "The fire burns #{character.name()} for #{amount} damage."
 
     Feature.Traps =
       Effect: (position, effectName) ->

@@ -13,7 +13,7 @@ Squad
         position: position
       , Class[type]
 
-    defaultCharacters = 
+    defaultCharacters =
       goblin: [
         "Grunt"
         "Wizard"
@@ -25,6 +25,12 @@ Squad
         "Archer"
         "Scout"
         "Wizard"
+      ]
+      spunk: [
+        "OilSlime"
+        "OilSlime"
+        "AcidSlime"
+        "FireSlime"
       ]
       undead: [
         "Lich"

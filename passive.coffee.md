@@ -22,3 +22,12 @@ TODO: Figure out creature type passives.
 
       Uncorrodible:
         immune: "Acid"
+
+      FireTrail:
+        enter: "Flame"
+
+      AcidTrail:
+        enter: "Acid"
+
+      OilTrail:
+        enter: "Oil"

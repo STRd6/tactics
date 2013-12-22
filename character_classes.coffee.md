@@ -9,28 +9,33 @@ Exploring various character classes here.
       FireSlime:
         spriteName: "jelly"
         abilities: [
-          "Scorch"
+          "Move"
           "Melee"
         ]
         passives: [
           "Fireproof"
+          "FireTrail"
         ]
 
       AcidSlime:
         spriteName: "slime"
         abilities: [
-          "Corrode"
+          "Move"
           "Melee"
         ]
         passives: [
           "Uncorrodible"
+          "AcidTrail"
         ]
 
       OilSlime:
         spriteName: "ooze"
         abilities: [
-          "Slide"
+          "Move"
           "Melee"
+        ]
+        passives: [
+          "OilTrail"
         ]
 
       ShrubMage:

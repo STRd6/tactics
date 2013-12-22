@@ -23,8 +23,12 @@ electricity, I don't know yet.
 
         if character = characterAt(position)
           character.stun(1)
-          character.damage(1)
-          message "#{character.name()} is on fire!"
+
+          element = "Fire"
+          character.damage(1, element)
+
+          unless character.immune(element)
+            message "#{character.name()} is on fire!"
 
     Effect.Move = (from, to, movingCharacter=null) ->
       perform: ({animate, characterAt, message, impassable, event}) ->
@@ -73,16 +77,15 @@ electricity, I don't know yet.
           # Revert tiles to default
           replaceTileAt(position)
 
-    Effect.Corrode = (position) ->
-      perform: ({addFeature}) ->
-        addFeature Feature.Acid(position)
-
-    Effect.Scorch = (position) ->
+    Effect.Flame = (position) ->
       perform: ({addFeature}) ->
         addFeature Feature.Fire(position)
 
-    # Used in Slide
-    Effect.Slime = (position) ->
+    Effect.Acid = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Acid(position)
+
+    Effect.Oil = (position) ->
       perform: ({addFeature}) ->
         addFeature Feature.Slime(position)
 
