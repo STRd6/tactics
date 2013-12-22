@@ -189,4 +189,6 @@ to self.width(), self.height())
 
       processAnimation()
 
+      # TODO: A way to clear the animation loop when hot reloading
+
       return self

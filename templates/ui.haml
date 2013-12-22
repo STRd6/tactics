@@ -1,4 +1,5 @@
 - ui = this
+- ActionPresenter = require "../presenters/action"
 
 .ui
   .winner_container
@@ -12,6 +13,8 @@
     %pre.messages
       - each @messages, (message) ->
         = message
+      - @messages.observe ->
+        - $(".messages").animate scrollTop: $('.messages')[0].scrollHeight, 1000
     .toggle
       = "="
       - on "click", (e) ->
@@ -40,10 +43,8 @@
 
   .actions
     - each @actions, (action) ->
-      - activeClass = -> "active" if action.active
-      - disabledClass = -> "disabled" if action.disabled
-      - title = -> action.description || ""
-      .action(class=activeClass class=disabledClass style="background-image: url(#{action.icon})" title=title)
+      - {classes, style, title} = ActionPresenter(action)
+      .action(class=classes style=style title=title)
         - if action.cooldown
           .cooldown= action.cooldown
         .costs
