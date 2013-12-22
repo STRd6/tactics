@@ -33,7 +33,23 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     $("body").append canvas.element()
 
-    global.map = map = null
+    # TODO: Eliminate this closured map, or move it into game as a component
+    map = null
+
+    launchGame = (data={}) ->
+      # HACK hide the name of the game
+      $(".title").hide()
+
+      # HACK: Exposing map to dev console
+      global.map = map = Map(data)
+
+      # TODO better observable proxying
+      map.messages.observe (messages) ->
+        ui.messages(messages.copy())
+
+      map.activeCharacter.observe updateActions
+
+      update()
 
     # TODO: Add actions for between rounds
     # TODO: Add conditional cancel action
@@ -68,16 +84,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           description: "Start a new battle."
           icon: "new_game"
           perform: ->
-            # HACK hide the name of the game
-            $(".title").hide()
-
-            global.map = map = Map()
-            map.messages.observe (messages) ->
-              ui.messages(messages.copy())
-
-            map.activeCharacter.observe updateActions
-
-            update()
+            launchGame()
       ]
       actionPerformed: ->
         update()
@@ -110,3 +117,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       update()
 
     $(".ui").prepend uiCanvas.element()
+
+    # Testing reloading map
+    $(document).bind "keydown", "f6", ->
+      data = JSON.parse JSON.stringify map
+      console.log data
+      launchGame data
