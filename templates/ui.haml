@@ -1,5 +1,6 @@
 - ui = this
 - ActionPresenter = require "../presenters/action"
+- CharacterPresenter = require "../presenters/character"
 
 .ui
   .winner_container
@@ -21,12 +22,8 @@
         - $(e.currentTarget).parent().toggleClass("hidden")
   .characters_container
     - each @characters, (character) ->
-      - activeClass = -> "active" if map.activeCharacter() is character
-      - stunnedClass = -> "stunned" if character.stunned()
-      - deadClass = -> "dead" unless character.alive()
-      - squadClass = -> if map.squads()[0].characters().indexOf(character) >= 0 then "squad1" else "squad2"
-
-      .character(class=activeClass class=stunnedClass class=deadClass class=squadClass)
+      - {classes} = CharacterPresenter(character)
+      .character(class=classes)
         / - on "click", (e) ->
         /   - return if $(e.currentTarget).is(".stunned, .dead")
         /   - name = $(e.currentTarget).find(".name").text()

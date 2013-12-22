@@ -68,7 +68,7 @@ electricity, I don't know yet.
         search.adjacent(position).forEach (position) ->
           if character = characterAt(position)
             unless character is owner
-              message "#{character.name()} has been shaken by #{owner.name()}'s mighty stomp."
+              message "#{character.name()} has been shaken by the mighty stomp of #{owner.name()}."
               character.damage(1)
               character.stun(2)
 
