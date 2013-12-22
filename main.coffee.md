@@ -76,7 +76,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     updateCharacters = (characters) ->
       if characters
-        ui.characters characters.copy().reverse()
+        ui.characters characters.copy()
       else
         ui.characters []
 
@@ -117,7 +117,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
 
     t = 0
     setInterval ->
-      t += 0.3333333
+      t += (1 / 30)
 
       map?.render(canvas, t)
       map?.renderUI(uiCanvas, t)

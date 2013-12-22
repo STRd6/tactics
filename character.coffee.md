@@ -5,6 +5,7 @@ Those little guys that run around.
 
     Ability = require "./ability"
     Action = require "./action"
+    Animation = require "./lib/animation"
     Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Effect = require "./effect"
@@ -19,7 +20,6 @@ Those little guys that run around.
           "Move"
           "Melee"
         ]
-        passives: []
         actions: 2
         alive: true
         cooldowns: {}
@@ -29,6 +29,7 @@ Those little guys that run around.
         magicalVision: []
         movement: 4
         name: Names.male.rand()
+        passives: []
         physicalAwareness: sqrt(2)
         position:
           x: 0
@@ -36,6 +37,7 @@ Those little guys that run around.
         sight: 7
         strength: 1
         stun: 0
+        type: "Grunt"
 
       self.include Compositions
 
@@ -51,6 +53,7 @@ Those little guys that run around.
         "physicalAwareness"
         "sight"
         "strength"
+        "type"
       )
 
       self.attrModel "position", Point
@@ -71,9 +74,15 @@ Those little guys that run around.
         "strength"
       )
 
+      self.include Compositions
       self.include Drawable
 
+      self.attrModel "animation", Animation
+
       Object.extend self,
+        currentAnimation: ->
+          self.animation()
+
         damage: (amount, type) ->
           damageTotal = self.damageMod(amount, type)
 

@@ -13,7 +13,7 @@ Squad
         position: position
       , Class[type]
 
-    defaultCharacters = 
+    defaultCharacters =
       goblin: [
         "Grunt"
         "Wizard"
@@ -25,6 +25,12 @@ Squad
         "Archer"
         "Scout"
         "Wizard"
+      ]
+      spunk: [
+        "OilSlime"
+        "OilSlime"
+        "AcidSlime"
+        "FireSlime"
       ]
       undead: [
         "Lich"
@@ -54,6 +60,10 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
         race: "human"
 
       self.include Compositions
+
+      self.attrAccessor(
+        "race"
+      )
 
       self.attrModels "characters", Character
 

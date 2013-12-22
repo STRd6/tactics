@@ -6,6 +6,41 @@ Exploring various character classes here.
     Names = require "./names"
 
     module.exports =
+      FireSlime:
+        spriteName: "jelly"
+        abilities: [
+          "Move"
+          "Melee"
+        ]
+        passives: [
+          "Fireproof"
+          "FireTrail"
+        ]
+        type: "Slime"
+
+      AcidSlime:
+        spriteName: "slime"
+        abilities: [
+          "Move"
+          "Melee"
+        ]
+        passives: [
+          "Uncorrodible"
+          "AcidTrail"
+        ]
+        type: "Slime"
+
+      OilSlime:
+        spriteName: "ooze"
+        abilities: [
+          "Move"
+          "Melee"
+        ]
+        passives: [
+          "OilTrail"
+        ]
+        type: "Slime"
+
       ShrubMage:
         spriteName: "kobold"
         abilities: [
@@ -13,6 +48,7 @@ Exploring various character classes here.
           "Entanglement"
           "ShrubSight"
         ]
+        type: "Mage"
 
       Harpy:
         spriteName: "harpy"
@@ -42,8 +78,13 @@ Exploring various character classes here.
           "Move"
           "Stomp"
           "Berserk"
+          "Demolish"
+        ]
+        passives: [
+          "LeadFoot"
         ]
         sight: 5
+        type: "Giant"
 
       Knight:
         health: 4
@@ -63,6 +104,7 @@ Exploring various character classes here.
           "Clairvoyance"
           "Undead"
         ]
+        type: "Mage"
 
       Scout:
         actions: 3
@@ -86,11 +128,13 @@ Exploring various character classes here.
         health: 2
         healthMax: 2
         spriteName: "wizard"
+        animation: ["wizard0", "wizard1"]
         abilities: [
           "Blink"
           "Fireball"
           "Farsight"
         ]
+        type: "Mage"
 
       Archer:
         spriteName: "elf_archer"

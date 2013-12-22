@@ -3,6 +3,7 @@ Feature
 
 Features are things that are present within tiles in the tactical combat view.
 
+    Animation = require "./lib/animation"
     Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Type = require "./type"
@@ -36,8 +37,12 @@ Features are things that are present within tiles in the tactical combat view.
       self.include Drawable
 
       self.attrModel "position", Point
+      self.attrModel "animation", Animation
 
       self.extend
+        currentAnimation: ->
+          self.animation()
+
         # TODO: Dangerous should depend on the character
         dangerous: ->
           I.trap
@@ -81,6 +86,27 @@ Features are things that are present within tiles in the tactical combat view.
 
       return self
 
+    Feature.Acid = (position) ->
+      Feature
+        position: position
+        spriteName: "acid"
+        type: Type.Acid
+        update: ({characterAt, position, message}) ->
+          if character = characterAt(position)
+            amount = 1
+
+            element = "Acid"
+            character.damage(amount, element)
+
+            unless character.immune(element)
+              message "The acid burns #{character.name()} for #{amount} damage."
+
+    Feature.Slime = (position) ->
+      Feature
+        position: position
+        spriteName: "oil"
+        type: Type.Oil
+
     Feature.Wall = (position) ->
       Feature
         impassable: true
@@ -119,15 +145,18 @@ Features are things that are present within tiles in the tactical combat view.
         zIndex: 1
         update: ({characterAt, message}) ->
           if character = characterAt(position)
-            message "#{character.name()} is surrounded by choking fumes!"
+            element = "Death"
+            character.damage 10, element
 
-            character.damage 10, "Death"
+            unless character.immune(element)
+              message "#{character.name()} is surrounded by choking fumes!"
 
     Feature.Fire = (position) ->
       Feature
         duration: 1
         position: position
         spriteName: "fire"
+        # animation: ["fire"]
         type: Type.Fire
         zIndex: 1
         update: ({addFeature, characterAt, position, message, find}) ->
@@ -141,8 +170,11 @@ Features are things that are present within tiles in the tactical combat view.
           if character = characterAt(position)
             amount = 1
 
-            character.damage(amount)
-            message "The fire burns #{character.name()} for #{amount} damage."
+            element = "Fire"
+            character.damage(amount, element)
+
+            unless character.immune(element)
+              message "The fire burns #{character.name()} for #{amount} damage."
 
     Feature.Traps =
       Effect: (position, effectName) ->

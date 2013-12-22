@@ -61,7 +61,8 @@
             owner.I.health = 0
             character.I.health = 0
 
-            message "#{owner.name()} teleports into #{character.name()}. Life ends in the blink of an eye."
+            message "#{owner.name()} teleports into #{character.name()}."
+            message "Life ends in the blink of an eye."
         '''
 
       Death:
@@ -181,6 +182,17 @@
         code: '''
           search.adjacent(position, 1 + sqrt(2)).forEach (position) ->
             effect "Plant", position
+        '''
+
+      Demolish:
+        name: "Demolish"
+        description: "Smash everything on a single tile."
+        iconName: "brick"
+        range: sqrt(2)
+        actionCost: 1
+        targetZone: ANY
+        code: '''
+          effect "Demolish", position, owner
         '''
 
       Stomp:

@@ -23,8 +23,12 @@ electricity, I don't know yet.
 
         if character = characterAt(position)
           character.stun(1)
-          character.damage(1)
-          message "#{character.name()} is on fire!"
+
+          element = "Fire"
+          character.damage(1, element)
+
+          unless character.immune(element)
+            message "#{character.name()} is on fire!"
 
     Effect.Move = (from, to, movingCharacter=null) ->
       perform: ({animate, characterAt, message, impassable, event}) ->
@@ -57,6 +61,25 @@ electricity, I don't know yet.
       perform: ({feature}) ->
         feature "PestilentVapor", position
 
+    Effect.Crush = (position) ->
+      perform: ({featuresAt, replaceTileAt}) ->
+        # TODO figure out why this doesn't
+        # remove the tiles immediately. It
+        # happens the next round.
+        featuresAt(position).invoke "destroy"
+
+        # Revert tiles to default
+        replaceTileAt(position)
+
+    Effect.Demolish = (position, owner) ->
+      perform: ({message, featuresAt, replaceTileAt}) ->
+        # TODO figure out why you can't find Walls using featuresAt
+        if (features = featuresAt(position)).length
+          featuresAt(position).invoke "destroy"
+          replaceTileAt(position)
+
+          message "#{owner.name()} demolishes everything in their path."
+
     Effect.Stomp = (position, owner) ->
       perform: ({characterAt, message, search, featuresAt, replaceTileAt}) ->
         # TODO: Add cracked / destroyed sprite
@@ -64,7 +87,7 @@ electricity, I don't know yet.
         search.adjacent(position).forEach (position) ->
           if character = characterAt(position)
             unless character is owner
-              message "#{character.name()} has been shaken by #{owner.name()}'s mighty stomp."
+              message "#{character.name()} has been shaken by the mighty stomp of #{owner.name()}."
               character.damage(1)
               character.stun(2)
 
@@ -72,6 +95,18 @@ electricity, I don't know yet.
 
           # Revert tiles to default
           replaceTileAt(position)
+
+    Effect.Flame = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Fire(position)
+
+    Effect.Acid = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Acid(position)
+
+    Effect.Oil = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Slime(position)
 
     # Used in Entanglement
     Effect.Plant = (position) ->
