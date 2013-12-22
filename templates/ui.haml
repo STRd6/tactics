@@ -29,6 +29,11 @@
         .health
           - character.health().times ->
             %span.heart
+        / Ghetto. Doing this to reuse styles from below
+        .costs
+          .container
+            - character.actions().times ->
+              .cost
         .avatar
         .name= character.name()
 
