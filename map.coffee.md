@@ -23,8 +23,10 @@ The primary tactical combat screen.
         messages: []
         squads: [{
           race: "undead"
+          index: 0
         }, {
           race: "goblin"
+          index: 1
         }]
 
       self ?= Core(I)
