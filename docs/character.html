@@ -37,6 +37,7 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Ability = require <span class="string">"./ability"</span>
 Action = require <span class="string">"./action"</span>
+Animation = require <span class="string">"./lib/animation"</span>
 Compositions = require <span class="string">"./lib/compositions"</span>
 Drawable = require <span class="string">"./lib/drawable"</span>
 Effect = require <span class="string">"./effect"</span>
@@ -51,7 +52,6 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="string">"Move"</span>
       <span class="string">"Melee"</span>
     ]
-    passives: []
     actions: <span class="number">2</span>
     alive: <span class="literal">true</span>
     cooldowns: {}
@@ -61,6 +61,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     magicalVision: []
     movement: <span class="number">4</span>
     name: Names.male.rand()
+    passives: []
     physicalAwareness: sqrt(<span class="number">2</span>)
     position:
       x: <span class="number">0</span>
@@ -68,6 +69,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     sight: <span class="number">7</span>
     strength: <span class="number">1</span>
     stun: <span class="number">0</span>
+    type: <span class="string">"Grunt"</span>
 
   self.include Compositions
 
@@ -83,6 +85,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"physicalAwareness"</span>
     <span class="string">"sight"</span>
     <span class="string">"strength"</span>
+    <span class="string">"type"</span>
   )
 
   self.attrModel <span class="string">"position"</span>, Point
@@ -103,9 +106,15 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     <span class="string">"strength"</span>
   )
 
+  self.include Compositions
   self.include Drawable
 
+  self.attrModel <span class="string">"animation"</span>, Animation
+
   Object.extend self,
+    currentAnimation: -&gt;
+      self.animation()
+
     damage: (amount, type) -&gt;
       damageTotal = self.damageMod(amount, type)
 

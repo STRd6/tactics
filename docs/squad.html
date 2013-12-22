@@ -46,7 +46,7 @@ extend = Object.extend
     position: position
   , Class[type]
 
-defaultCharacters = 
+defaultCharacters =
   goblin: [
     <span class="string">"Grunt"</span>
     <span class="string">"Wizard"</span>
@@ -58,6 +58,12 @@ defaultCharacters =
     <span class="string">"Archer"</span>
     <span class="string">"Scout"</span>
     <span class="string">"Wizard"</span>
+  ]
+  spunk: [
+    <span class="string">"OilSlime"</span>
+    <span class="string">"OilSlime"</span>
+    <span class="string">"AcidSlime"</span>
+    <span class="string">"FireSlime"</span>
   ]
   undead: [
     <span class="string">"Lich"</span>
@@ -97,6 +103,10 @@ defaultPositions = [[
 
   self.include Compositions
 
+  self.attrAccessor(
+    <span class="string">"race"</span>
+  )
+
   self.attrModels <span class="string">"characters"</span>, Character
 
   <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
@@ -109,12 +119,13 @@ defaultPositions = [[
         character.actions() &gt; <span class="number">0</span>
 
     activateCharacterAt: (position) -&gt;
-      character = self.activatableCharacters().filter (character) -&gt;
+      <span class="keyword">if</span> character = self.characterAt(position)
+        self.activeCharacter(character)
+
+    characterAt: (position) -&gt;
+      self.activatableCharacters().filter (character) -&gt;
         character.position().equal position
       .first()
-
-      <span class="keyword">if</span> character
-        self.activeCharacter(character)
 
     activeCharacter: Observable <span class="literal">null</span>
 

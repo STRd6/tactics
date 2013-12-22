@@ -49,7 +49,7 @@ implement an <code>.equal</code> method.</p>
 
 <span class="function"><span class="title">unique</span></span> = (array) -&gt;
   array.reduce (results, element) -&gt;
-    results.push element <span class="keyword">unless</span> indexOf(results, element)
+    results.push element <span class="keyword">unless</span> indexOf(results, element)?
     results
   , []
 

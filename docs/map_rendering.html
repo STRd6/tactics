@@ -97,7 +97,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">if</span> self.isSeen(position)
         self.tileAt(position)?.draw canvas, position.scale(tileSize)
 
-  <span class="function"><span class="title">drawFeatures</span></span> = (canvas, under) -&gt;
+  <span class="function"><span class="title">drawFeatures</span></span> = (canvas, under, t) -&gt;
     <span class="comment"># TODO: clipping?</span>
     <span class="comment"># TODO: Select only features in range from quad tree</span>
     self.features().forEach (feature) -&gt;
@@ -106,7 +106,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
       <span class="keyword">if</span> self.isSeen(position) <span class="keyword">and</span> feature.seen(self.activeSquadIndex())
         zIndex = feature.zIndex()
         <span class="keyword">if</span> (under <span class="keyword">and</span> zIndex &lt;= <span class="number">0</span>) <span class="keyword">or</span> (!under <span class="keyword">and</span> zIndex &gt; <span class="number">0</span>)
-          feature.draw canvas, position.scale(tileSize)
+          feature.draw canvas, position.scale(tileSize), t
 
   <span class="function"><span class="title">drawCharacters</span></span> = (canvas, t) -&gt;
     lit = self.lit.get(self.activeSquadIndex())
@@ -117,7 +117,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         <span class="keyword">if</span> lit.get(x + y * self.width())
           canvasPosition = character.position().scale(tileSize)
 
-          character.sprite().draw(canvas, canvasPosition)
+          character.draw canvas, canvasPosition, t
 
   <span class="function"><span class="title">drawFog</span></span> = (canvas) -&gt;
     screenPositions.forEach (position) -&gt;
@@ -206,9 +206,9 @@ to self.width(), self.height())</p>
 
         <span class="comment"># TODO: Iterate zSorted features + characters on a per chunk basis</span>
         <span class="comment"># TODO: Only draw seen features</span>
-        drawFeatures(canvas, <span class="literal">true</span>)
+        drawFeatures(canvas, <span class="literal">true</span>, t)
         drawCharacters(canvas, t)
-        drawFeatures(canvas)
+        drawFeatures(canvas, <span class="literal">undefined</span>, t)
 
         drawFog(canvas)
 
@@ -240,8 +240,12 @@ to self.width(), self.height())</p>
 
         <span class="keyword">if</span> inRange
           self.selectTarget tilePosition
-      <span class="keyword">else</span>
+      <span class="keyword">else</span> <span class="keyword">if</span> self.activeSquad().characterAt(tilePosition)
         self.activeSquad().activateCharacterAt(tilePosition)
+      <span class="keyword">else</span>
+        <span class="comment"># HACK to allow "scrolling" the map</span>
+        self.animate
+          position: tilePosition
 
   <span class="comment"># Kick off animation processing loop</span>
   <span class="function"><span class="title">processAnimation</span></span> = -&gt;

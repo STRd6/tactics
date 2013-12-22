@@ -38,6 +38,41 @@
             <div class="content"><pre><code class="lang-coffeescript">Names = require <span class="string">"./names"</span>
 
 module.exports =
+  FireSlime:
+    spriteName: <span class="string">"jelly"</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"Melee"</span>
+    ]
+    passives: [
+      <span class="string">"Fireproof"</span>
+      <span class="string">"FireTrail"</span>
+    ]
+    type: <span class="string">"Slime"</span>
+
+  AcidSlime:
+    spriteName: <span class="string">"slime"</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"Melee"</span>
+    ]
+    passives: [
+      <span class="string">"Uncorrodible"</span>
+      <span class="string">"AcidTrail"</span>
+    ]
+    type: <span class="string">"Slime"</span>
+
+  OilSlime:
+    spriteName: <span class="string">"ooze"</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"Melee"</span>
+    ]
+    passives: [
+      <span class="string">"OilTrail"</span>
+    ]
+    type: <span class="string">"Slime"</span>
+
   ShrubMage:
     spriteName: <span class="string">"kobold"</span>
     abilities: [
@@ -45,6 +80,7 @@ module.exports =
       <span class="string">"Entanglement"</span>
       <span class="string">"ShrubSight"</span>
     ]
+    type: <span class="string">"Mage"</span>
 
   Harpy:
     spriteName: <span class="string">"harpy"</span>
@@ -74,8 +110,13 @@ module.exports =
       <span class="string">"Move"</span>
       <span class="string">"Stomp"</span>
       <span class="string">"Berserk"</span>
+      <span class="string">"Demolish"</span>
+    ]
+    passives: [
+      <span class="string">"LeadFoot"</span>
     ]
     sight: <span class="number">5</span>
+    type: <span class="string">"Giant"</span>
 
   Knight:
     health: <span class="number">4</span>
@@ -95,6 +136,7 @@ module.exports =
       <span class="string">"Clairvoyance"</span>
       <span class="string">"Undead"</span>
     ]
+    type: <span class="string">"Mage"</span>
 
   Scout:
     actions: <span class="number">3</span>
@@ -118,11 +160,13 @@ module.exports =
     health: <span class="number">2</span>
     healthMax: <span class="number">2</span>
     spriteName: <span class="string">"wizard"</span>
+    animation: [<span class="string">"wizard0"</span>, <span class="string">"wizard1"</span>]
     abilities: [
       <span class="string">"Blink"</span>
       <span class="string">"Fireball"</span>
       <span class="string">"Farsight"</span>
     ]
+    type: <span class="string">"Mage"</span>
 
   Archer:
     spriteName: <span class="string">"elf_archer"</span>

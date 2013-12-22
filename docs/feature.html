@@ -35,7 +35,8 @@
               <p>Features are things that are present within tiles in the tactical combat view.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">Compositions = require <span class="string">"./lib/compositions"</span>
+            <div class="content"><pre><code class="lang-coffeescript">Animation = require <span class="string">"./lib/animation"</span>
+Compositions = require <span class="string">"./lib/compositions"</span>
 Drawable = require <span class="string">"./lib/drawable"</span>
 Type = require <span class="string">"./type"</span>
 
@@ -68,8 +69,12 @@ module.exports = <span class="function"><span class="title">Feature</span></span
   self.include Drawable
 
   self.attrModel <span class="string">"position"</span>, Point
+  self.attrModel <span class="string">"animation"</span>, Animation
 
   self.extend
+    currentAnimation: -&gt;
+      self.animation()
+
     <span class="comment"># TODO: Dangerous should depend on the character</span>
     dangerous: -&gt;
       I.trap
@@ -113,6 +118,27 @@ module.exports = <span class="function"><span class="title">Feature</span></span
 
   <span class="keyword">return</span> self
 
+Feature.<span class="function"><span class="title">Acid</span></span> = (position) -&gt;
+  Feature
+    position: position
+    spriteName: <span class="string">"acid"</span>
+    type: Type.Acid
+    update: ({characterAt, position, message}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        amount = <span class="number">1</span>
+
+        element = <span class="string">"Acid"</span>
+        character.damage(amount, element)
+
+        <span class="keyword">unless</span> character.immune(element)
+          message <span class="string">"The acid burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
+
+Feature.<span class="function"><span class="title">Slime</span></span> = (position) -&gt;
+  Feature
+    position: position
+    spriteName: <span class="string">"oil"</span>
+    type: Type.Oil
+
 Feature.<span class="function"><span class="title">Wall</span></span> = (position) -&gt;
   Feature
     impassable: <span class="literal">true</span>
@@ -151,15 +177,18 @@ Feature.<span class="function"><span class="title">DeathCloud</span></span> = (p
     zIndex: <span class="number">1</span>
     update: ({characterAt, message}) -&gt;
       <span class="keyword">if</span> character = characterAt(position)
-        message <span class="string">"<span class="subst">#{character.name()}</span> is surrounded by choking fumes!"</span>
+        element = <span class="string">"Death"</span>
+        character.damage <span class="number">10</span>, element
 
-        character.damage <span class="number">10</span>, <span class="string">"Death"</span>
+        <span class="keyword">unless</span> character.immune(element)
+          message <span class="string">"<span class="subst">#{character.name()}</span> is surrounded by choking fumes!"</span>
 
 Feature.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
   Feature
     duration: <span class="number">1</span>
     position: position
     spriteName: <span class="string">"fire"</span>
+    <span class="comment"># animation: ["fire"]</span>
     type: Type.Fire
     zIndex: <span class="number">1</span>
     update: ({addFeature, characterAt, position, message, find}) -&gt;
@@ -173,8 +202,11 @@ Feature.<span class="function"><span class="title">Fire</span></span> = (positio
       <span class="keyword">if</span> character = characterAt(position)
         amount = <span class="number">1</span>
 
-        character.damage(amount)
-        message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
+        element = <span class="string">"Fire"</span>
+        character.damage(amount, element)
+
+        <span class="keyword">unless</span> character.immune(element)
+          message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
 
 Feature.Traps =
   Effect: (position, effectName) -&gt;

@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>passive</title>
+  <title>lib/animation</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h1 id="passives">Passives</h1>
+              <h1 id="animation">Animation</h1>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,49 +32,16 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Passives are abilities that are always in effect for a character.</p>
-
+              
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Passive</span></span> = (I={}, self=Core(I)) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">Resource = require <span class="string">"../resource"</span>
 
-Passive.Passives =
-  Clairvoyance:
-    visionEffect: <span class="string">"Clairvoyance"</span>
+module.<span class="function"><span class="title">exports</span></span> = (names) -&gt;
+  <span class="keyword">return</span> <span class="literal">undefined</span> <span class="keyword">unless</span> names
 
-  EagleEye:
-    visionType: <span class="string">"magic"</span></code></pre>
-</div>
-        </li>
-        
-        
-        <li id="section-3">
-            <div class="annotation">
-              <div class="pilwrap">
-                <a class="pilcrow" href="#section-3">&#182;</a>
-              </div>
-              <p>TODO: Figure out creature type passives.</p>
-
-            </div>
-            <div class="content"><pre><code class="lang-coffeescript">  Undead:
-    immune: <span class="string">"Death"</span>
-
-  Fireproof:
-    immune: <span class="string">"Fire"</span>
-
-  Uncorrodible:
-    immune: <span class="string">"Acid"</span>
-
-  FireTrail:
-    enter: <span class="string">"Flame"</span>
-
-  AcidTrail:
-    enter: <span class="string">"Acid"</span>
-
-  OilTrail:
-    enter: <span class="string">"Oil"</span>
-
-  LeadFoot:
-    enter: <span class="string">"Crush"</span></code></pre>
+  draw: (canvas, canvasPosition, t) -&gt;
+    name = names.wrap(t | <span class="number">0</span>)
+    Resource.sprite(name).draw(canvas, canvasPosition)</code></pre>
 </div>
         </li>
         
@@ -94,6 +61,6 @@ Passive.Passives =
   }).then(function(PACKAGE) {
     Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
   })
-</script><script src="package.js"></script>
+</script><script src="../package.js"></script>
 </body>
 </html>

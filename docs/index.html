@@ -47,12 +47,7 @@ Map = require <span class="string">"./map"</span>
 Resource = require <span class="string">"./resource"</span>
 Resource.addSource(<span class="string">"7ffbdcf587f407dda0d6"</span>)
 
-{Grid, Size} = require <span class="string">"./lib/util"</span>
-Geom = require <span class="string">"./lib/geom"</span>
-
 {width, height} = require(<span class="string">"./pixie"</span>)
-
-tileExtent = Size <span class="number">32</span>, <span class="number">18</span>
 
 bgColor = <span class="string">"#222034"</span>
 
@@ -111,7 +106,7 @@ blankActions = [<span class="number">0.</span>.<span class="number">.12</span>].
 
 <span class="function"><span class="title">updateCharacters</span></span> = (characters) -&gt;
   <span class="keyword">if</span> characters
-    ui.characters characters.copy().reverse()
+    ui.characters characters.copy()
   <span class="keyword">else</span>
     ui.characters []
 
@@ -152,7 +147,7 @@ accessiblePositions = <span class="literal">null</span>
 
 t = <span class="number">0</span>
 setInterval -&gt;
-  t += <span class="number">0.3333333</span>
+  t += (<span class="number">1</span> / <span class="number">30</span>)
 
   map?.render(canvas, t)
   map?.renderUI(uiCanvas, t)

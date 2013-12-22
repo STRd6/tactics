@@ -65,8 +65,12 @@ Effect.<span class="function"><span class="title">Fire</span></span> = (position
 
     <span class="keyword">if</span> character = characterAt(position)
       character.stun(<span class="number">1</span>)
-      character.damage(<span class="number">1</span>)
-      message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
+
+      element = <span class="string">"Fire"</span>
+      character.damage(<span class="number">1</span>, element)
+
+      <span class="keyword">unless</span> character.immune(element)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
 
 Effect.<span class="function"><span class="title">Move</span></span> = (from, to, movingCharacter=<span class="literal">null</span>) -&gt;
   perform: ({animate, characterAt, message, impassable, event}) -&gt;
@@ -99,6 +103,20 @@ Effect.<span class="function"><span class="title">PestilentVapor</span></span> =
   perform: ({feature}) -&gt;
     feature <span class="string">"PestilentVapor"</span>, position
 
+Effect.<span class="function"><span class="title">Crush</span></span> = (position) -&gt;
+  perform: ({featuresAt}) -&gt;
+    <span class="comment"># TODO figure out why this doesn't</span>
+    <span class="comment"># remove the tiles immediately. It</span>
+    <span class="comment"># happens the next round.</span>
+    featuresAt(position).invoke <span class="string">"destroy"</span>
+
+Effect.<span class="function"><span class="title">Demolish</span></span> = (position, owner) -&gt;
+  perform: ({message, featuresAt, replaceTileAt}) -&gt;
+    featuresAt(position).invoke <span class="string">"destroy"</span>
+    replaceTileAt(position)
+
+    message <span class="string">"<span class="subst">#{owner.name()}</span> demolishes everything in their path."</span>
+
 Effect.<span class="function"><span class="title">Stomp</span></span> = (position, owner) -&gt;
   perform: ({characterAt, message, search, featuresAt, replaceTileAt}) -&gt;
     <span class="comment"># TODO: Add cracked / destroyed sprite</span>
@@ -106,7 +124,7 @@ Effect.<span class="function"><span class="title">Stomp</span></span> = (positio
     search.adjacent(position).forEach (position) -&gt;
       <span class="keyword">if</span> character = characterAt(position)
         <span class="keyword">unless</span> character <span class="keyword">is</span> owner
-          message <span class="string">"<span class="subst">#{character.name()}</span> has been shaken by <span class="subst">#{owner.name()}</span>'s mighty stomp."</span>
+          message <span class="string">"<span class="subst">#{character.name()}</span> has been shaken by the mighty stomp of <span class="subst">#{owner.name()}</span>."</span>
           character.damage(<span class="number">1</span>)
           character.stun(<span class="number">2</span>)
 
@@ -114,6 +132,18 @@ Effect.<span class="function"><span class="title">Stomp</span></span> = (positio
 
       <span class="comment"># Revert tiles to default</span>
       replaceTileAt(position)
+
+Effect.<span class="function"><span class="title">Flame</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Fire(position)
+
+Effect.<span class="function"><span class="title">Acid</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Acid(position)
+
+Effect.<span class="function"><span class="title">Oil</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Slime(position)
 
 <span class="comment"># Used in Entanglement</span>
 Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;

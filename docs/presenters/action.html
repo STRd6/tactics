@@ -35,11 +35,15 @@
               <p>A trash heap where we put all the code to make our haml nice.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (action) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (action, ui) -&gt;
   classes: -&gt;
     classes = [<span class="string">"active"</span>, <span class="string">"blank"</span>, <span class="string">"disabled"</span>, <span class="string">"last"</span>].select (name) -&gt;
       action[name]
     .join(<span class="string">" "</span>)
+  click: -&gt;
+    <span class="keyword">unless</span> action.disabled
+      action.perform()
+      ui.actionPerformed()
   title: -&gt;
     action.description || <span class="string">""</span>
   style: -&gt;

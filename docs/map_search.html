@@ -137,7 +137,7 @@ through tiles.</p>
       distanceMax: range
 
   visible: (position, range=<span class="number">1</span>, opaque) -&gt;
-    FOV.calculate(opaque, position, range)
+    unique FOV.calculate(opaque, position, range)
 
   movementPath: (position, target, passable) -&gt;
     Graph.aStar
