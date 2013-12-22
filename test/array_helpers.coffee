@@ -1,4 +1,4 @@
-{intersection, indexOf} = require "../array_helpers"
+{intersection, indexOf, unique} = require "../array_helpers"
 
 Number::equal = (other) ->
   (this + 0) == other
