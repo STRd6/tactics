@@ -36,9 +36,18 @@
                 .cost
           .avatar
           .info
-            %h3.name= character.name()
-            .type= character.type()
-            .level Level 1
+            %h2.name= character.name()
+            %span.type= character.type()
+          .stats
+            .movement
+              %span Movement:
+              %span.value= character.movement()
+            .strength
+              %span Strength:
+              %span.value= character.strength()
+            .sight
+              %span Sight:
+              %span.value= character.sight()
 
   .actions
     - each @actions, (action) ->

@@ -129,7 +129,7 @@ canvas, .ui
   .avatar
     display: inline-block
     top: 0
-    bottom: 0
+    bottom: -25px
     left: 5%
     margin: auto
     width: 32px
@@ -137,13 +137,26 @@ canvas, .ui
     position: absolute
     zoom: 1.5
 
-  .info
+  .info, .stats
     position: absolute
+
+  .info
+    left: 5%
+    top: 14px
+    width: 100%
+
+  .stats
+    top: 44px
     left: 60px
-    top: 23px
 
   .name
     margin: 0
+    display: inline-block
+
+  .type
+    position: absolute
+    right: 10%
+    top: 5px
 
 .hud
   position: relative
