@@ -5,6 +5,7 @@ Those little guys that run around.
 
     Ability = require "./ability"
     Action = require "./action"
+    Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Effect = require "./effect"
     Names = require "./names"
@@ -13,8 +14,6 @@ Those little guys that run around.
     {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
-      I.position = Point(I.position)
-
       Object.defaults I,
         abilities: [
           "Move"
@@ -31,9 +30,14 @@ Those little guys that run around.
         movement: 4
         name: Names.male.rand()
         physicalAwareness: sqrt(2)
+        position:
+          x: 0
+          y: 0
         sight: 7
         strength: 1
         stun: 0
+
+      self.include Compositions
 
       self.attrAccessor(
         "abilities"
@@ -42,14 +46,15 @@ Those little guys that run around.
         "debugPositions"
         "health"
         "healthMax"
-        "magicalVision"
         "movement"
         "name"
         "physicalAwareness"
-        "position"
         "sight"
         "strength"
       )
+
+      self.attrModel "position", Point
+      self.attrModels "magicalVision", Point
 
       effectModifiable = (names...) ->
         names.forEach (name) ->
@@ -84,7 +89,7 @@ Those little guys that run around.
           I.cooldowns[ability.name()] = ability.cooldown()
 
         addMagicalVision: (position) ->
-          I.magicalVision.push position
+          self.magicalVision().push position
 
         addEffect: (effect) ->
           I.effects.push effect
@@ -183,7 +188,7 @@ any status effects.
         ready: ->
           # Remove all magical vision
           # TODO: Maybe have separate vision effects with their own durations
-          I.magicalVision = []
+          self.magicalVision []
 
           I.stun -= 1 if I.stun > 0
 
@@ -206,5 +211,11 @@ any status effects.
           self.passives().reduce (memo, passive) ->
             memo or passive.visionType
           , undefined
+
+        toJSON: ->
+          console.log self.position()
+
+          Object.extend I,
+            position: self.position()
 
       return self
