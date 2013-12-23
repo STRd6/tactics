@@ -45,6 +45,7 @@ Those little guys that run around.
         "abilities"
         "actions"
         "alive"
+        "cooldowns"
         "debugPositions"
         "health"
         "healthMax"

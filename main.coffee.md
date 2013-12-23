@@ -64,7 +64,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           map.performAbility(character, Ability.Abilities.Wait, character.position())
     ]
 
-    blankActions = [0...12].map ->
+    blankActions = [0...8].map ->
       Action
         blank: true
 

@@ -17,11 +17,25 @@ canvas, .ui
   right: 0
   margin: auto
 
-.cooldown
+.progress_container
+  border-radius: 2px
+  width: 90%
+  height: 30px
+  border: 1px solid black
+  position: absolute
+  top: 0
   bottom: 0
+  margin: auto
+
+.progress
+  height: 100%
+  background-color: black
+
+.cooldown
+  top: 4px
   display: inline-block
   position: absolute
-  right: 0
+  right: -5px
   width: 24px
 
   &:before
@@ -211,13 +225,12 @@ canvas, .ui
     border-right: none
     cursor: pointer
     display: inline-block
-    height: 64px
+    height: 85px
     padding: 4px
     pointer-events: auto
     position: relative
-    text-align: center
     vertical-align: bottom
-    width: 64px
+    width: 100px
 
     &.blank
       visibility: hidden
@@ -230,6 +243,7 @@ canvas, .ui
 
     &.disabled
       background-color: #696A6A
+      cursor: not-allowed
 
 .costs
   position: absolute

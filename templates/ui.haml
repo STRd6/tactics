@@ -51,10 +51,12 @@
 
   .actions
     - each @actions, (action) ->
-      - {classes, click, style, title} = ActionPresenter(action, ui)
+      - {classes, click, progress, progressContainer, style, title} = ActionPresenter(action, ui)
       .action(class=classes style=style title=title)
         - if action.cooldown
           .cooldown= action.cooldown
+          .progress_container(style=progressContainer)
+            .progress(style=progress)
         .costs
           .container
             - action.cost?.times ->
