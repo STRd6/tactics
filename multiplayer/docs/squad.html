@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>squad</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="squad">Squad</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Character = require <span class="string">"./character"</span>
+Class = require <span class="string">"./character_classes"</span>
+
+Compositions = require <span class="string">"./lib/compositions"</span>
+
+extend = Object.extend
+
+<span class="function"><span class="title">create</span></span> = (type, position) -&gt;
+  Character extend
+    position: position
+  , Class[type]
+
+defaultCharacters =
+  goblin: [
+    <span class="string">"Grunt"</span>
+    <span class="string">"Wizard"</span>
+    <span class="string">"ShrubMage"</span>
+    <span class="string">"Giant"</span>
+  ]
+  human: [
+    <span class="string">"Knight"</span>
+    <span class="string">"Archer"</span>
+    <span class="string">"Scout"</span>
+    <span class="string">"Wizard"</span>
+  ]
+  spunk: [
+    <span class="string">"OilSlime"</span>
+    <span class="string">"OilSlime"</span>
+    <span class="string">"AcidSlime"</span>
+    <span class="string">"FireSlime"</span>
+  ]
+  undead: [
+    <span class="string">"Lich"</span>
+    <span class="string">"Harpy"</span>
+    <span class="string">"Skeleton"</span>
+    <span class="string">"Skeleton"</span>
+  ]
+
+defaultPositions = [[
+  Point(<span class="number">1</span>, <span class="number">1</span>)
+  Point(<span class="number">2</span>, <span class="number">4</span>)
+  Point(<span class="number">2</span>, <span class="number">3</span>)
+  Point(<span class="number">4</span>, <span class="number">2</span>)
+],[
+  Point(<span class="number">18</span>, <span class="number">16</span>)
+  Point(<span class="number">14</span>, <span class="number">16</span>)
+  Point(<span class="number">16</span>, <span class="number">14</span>)
+  Point(<span class="number">20</span>, <span class="number">14</span>)
+]]</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>A team of 4-6 characters who battle it out with other squads in tactical combat.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Squad</span></span> = (I={}, self=Core(I)) -&gt;
+  Object.defaults I,
+    characters: []
+    index: <span class="number">0</span>
+    race: <span class="string">"human"</span>
+
+  self.include Compositions
+
+  self.attrAccessor(
+    <span class="string">"race"</span>
+  )
+
+  self.attrModels <span class="string">"characters"</span>, Character
+
+  <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
+    self.activatableCharacters().first()
+
+  self.extend
+    activatableCharacters: -&gt;
+      self.characters().filter (character) -&gt;
+        character.alive() <span class="keyword">and</span>
+        character.actions() &gt; <span class="number">0</span>
+
+    activateCharacterAt: (position) -&gt;
+      <span class="keyword">if</span> character = self.characterAt(position)
+        self.activeCharacter(character)
+
+    characterAt: (position) -&gt;
+      self.activatableCharacters().filter (character) -&gt;
+        character.position().equal position
+      .first()
+
+    activeCharacter: Observable <span class="literal">null</span>
+
+    stateBasedActions: (params) -&gt;
+      self.characters().forEach (character) -&gt;
+        character.stateBasedActions(params)
+
+      <span class="comment"># TODO: This isn't really a state based action, more of a UI helper</span>
+      <span class="comment"># for the player</span>
+      <span class="keyword">if</span> character = self.activeCharacter()
+        <span class="keyword">if</span> character.actions() <span class="keyword">is</span> <span class="number">0</span>
+          self.activeCharacter nextActivatableCharacter()
+
+    ready: -&gt;
+      self.characters().forEach (character) -&gt;
+        character.ready()
+
+      self.activeCharacter nextActivatableCharacter()
+
+    toJSON: -&gt;
+      Object.extend I,
+        characters: self.characters().invoke <span class="string">"toJSON"</span>
+
+  <span class="keyword">if</span> self.characters().length <span class="keyword">is</span> <span class="number">0</span>
+    <span class="comment"># Load from presets</span>
+    self.characters defaultCharacters[I.race].map (type, i) -&gt;
+      create type, defaultPositions[I.index][i]
+
+  self.activeCharacter nextActivatableCharacter()
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
