@@ -156,7 +156,7 @@ Features are things that are present within tiles in the tactical combat view.
         duration: 1
         position: position
         spriteName: "fire"
-        # animation: ["fire"]
+        animation: ["fire0", "fire1"]
         type: Type.Fire
         zIndex: 1
         update: ({addFeature, characterAt, position, message, find}) ->
