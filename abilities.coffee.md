@@ -187,7 +187,7 @@
       Demolish:
         name: "Demolish"
         description: "Smash everything on a single tile."
-        iconName: "brick"
+        iconName: "bomb"
         range: sqrt(2)
         actionCost: 1
         targetZone: ANY
