@@ -251,9 +251,11 @@ parameterize it by passing in the character and the ability.
                 self.effect effectName, params.to, params.character
 
       self.include MapRendering
-      self.animate
-        position: self.activeCharacter().position()
-        duration: 0
+
+      if self.activeCharacter()
+        self.animate
+          position: self.activeCharacter().position()
+          duration: 0
 
       self.stateBasedActions()
 
