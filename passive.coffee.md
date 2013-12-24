@@ -20,6 +20,9 @@ TODO: Figure out creature type passives.
       Fireproof:
         immune: "Fire"
 
+      Iceproof:
+        immune: "Ice"
+
       Uncorrodible:
         immune: "Acid"
 

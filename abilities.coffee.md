@@ -93,6 +93,29 @@
             owner.addMagicalVision(position)
         '''
 
+      Heal:
+        name: "Heal"
+        description: "A permanent BandAid."
+        iconName: "regeneration"
+        range: sqrt(2)
+        actionCost: 2
+        cooldown: 2
+        costType: REST
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          if character
+            amount = 2
+
+            if character.I.passives.include("Undead")
+              method = "damage"
+            else
+              method = "heal"
+
+            character[method] amount
+
+            message "#{owner.name()} #{method}s #{character.name()} for #{amount}"
+        '''
+
       Melee:
         name: "Attack"
         description: "Hit enemies with it until they die."
@@ -122,7 +145,39 @@
             amount = binomial(owner.strength())
             character.damage amount
 
-            message "#{owner.name()} strikes #{character.name()} for #{amount}"
+            message "#{owner.name()} strikes #{character.name()} for #{amount}."
+        '''
+
+      IceWall:
+        name: "Ice Wall"
+        description: "Block your enemies with a giant block of ice."
+        iconName: "frozen0"
+        range:16
+        actionCost: 1
+        targetZone: ANY
+        code: '''
+          if character
+            message "#{owner.name()} cannot summon ice. #{character.name()} is in the way."
+          else
+            effect "Ice", position
+        '''
+
+      MagicMissile:
+        name: "Magic Missile"
+        description: "It's not that kind of missile."
+        iconName: "magic_missile"
+        range: 8
+        actionCost: 1
+        costType: REST
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          if character
+            # TODO make this based on intelligence
+            # or some other attribute
+            amount = binomial(owner.strength())
+            character.damage amount
+
+            message "#{owner.name()} strikes #{character.name()} with a Magic Missile for #{amount}."
         '''
 
       Berserk:
@@ -226,7 +281,7 @@
         description: "Somehow you know where all the plants are."
         iconName: "bush1"
         actionCost: 1
-        cooldown: 3
+        cooldown: 2
         targetZone: SELF
         code: '''
           effect "ShrubSight", position, owner

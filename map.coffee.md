@@ -22,7 +22,7 @@ The primary tactical combat screen.
         currentTurn: 0
         messages: []
         squads: [{
-          race: "spunk"
+          race: "undead"
           index: 0
         }, {
           race: "goblin"

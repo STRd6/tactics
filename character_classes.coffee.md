@@ -47,6 +47,7 @@ Exploring various character classes here.
           "Move"
           "Entanglement"
           "ShrubSight"
+          "MagicMissile"
         ]
         type: "Mage"
 
@@ -56,8 +57,6 @@ Exploring various character classes here.
           "Blink"
           "Melee"
         ]
-        health: 3
-        healthMax: 3
         name: Names.monster.rand()
 
       Grunt:
@@ -85,6 +84,16 @@ Exploring various character classes here.
         ]
         sight: 5
         type: "Giant"
+
+      Priest:
+        health: 4
+        spriteName: "dwarf"
+        abilities: [
+          "Move"
+          "Heal"
+          "Melee"
+        ]
+        type: "Mage"
 
       Knight:
         health: 4
@@ -124,6 +133,19 @@ Exploring various character classes here.
           "Undead"
         ]
 
+      FrostMage:
+        health: 2
+        healthMax: 2
+        spriteName: "ice_statue"
+        abilities: [
+          "Move"
+          "MagicMissile"
+          "IceWall"
+        ]
+        passives: [
+          "Iceproof"
+        ]
+
       Wizard:
         health: 2
         healthMax: 2
@@ -133,6 +155,7 @@ Exploring various character classes here.
           "Blink"
           "Fireball"
           "Farsight"
+          "MagicMissile"
         ]
         type: "Mage"
 

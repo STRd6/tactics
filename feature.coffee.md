@@ -151,6 +151,15 @@ Features are things that are present within tiles in the tactical combat view.
             unless character.immune(element)
               message "#{character.name()} is surrounded by choking fumes!"
 
+    Feature.Ice = (position) ->
+      Feature
+        duration: 3
+        position: position
+        spriteName: "frozen0"
+        animation: ["frozen0", "frozen1", "frozen2", "frozen3"]
+        type: Type.Ice
+        impassable: true
+
     Feature.Fire = (position) ->
       Feature
         duration: 1

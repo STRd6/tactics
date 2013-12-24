@@ -35,8 +35,8 @@ Squad
       undead: [
         "Lich"
         "Harpy"
-        "Skeleton"
-        "Skeleton"
+        "FrostMage"
+        "Priest"
       ]
 
     defaultPositions = [[
