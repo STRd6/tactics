@@ -19,8 +19,8 @@ electricity, I don't know yet.
     # Used in Fireball
     Effect.Fire = (position) ->
       perform: ({characterAt, message, addFeature, impassable, replaceTileAt}) ->
-        addFeature(Feature.Fire(position)) unless impassable(position)
         replaceTileAt(position)
+        addFeature(Feature.Fire(position))
 
         if character = characterAt(position)
           character.stun(1)
