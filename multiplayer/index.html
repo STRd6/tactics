@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1387775368364">
+<html manifest="manifest.appcache?1387859238439">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -406,6 +406,12 @@ require('./main')
       "content": "Character Presenter\n===================\n\nA trash heap where we put all the code to make our haml nice.\n\nCleans up some of our character HUD markup.\n\n    module.exports = (character) ->\n      classes: ->\n        classes = [\"squad\"]\n\n        if map.activeCharacter() is character\n          classes.push \"active\"\n\n        if character.actions() is 0\n          classes.push \"inactive\"\n\n        if character.stunned()\n          classes.push \"stunned\"\n\n        unless character.alive()\n          classes.push \"dead\"\n\n        race = map.squads().select (squad) ->\n          squad.characters().indexOf(character) >= 0\n        .first().race()\n\n        classes.push race\n\n        classes.join(\" \")\n\n      click: (e) ->\n        $target = $(e.currentTarget)\n\n        return if $target.is(\".stunned, .dead, .inactive\")\n\n        squad = map.activeSquad()\n        character = squad.activatableCharacters().filter (c) ->\n          c?.name() is $target.find(\".name\").text()\n        .first()\n\n        if character\n          squad.activeCharacter(character)\n",
       "type": "blob"
     },
+    "remote_server.coffee.md": {
+      "path": "remote_server.coffee.md",
+      "mode": "100644",
+      "content": "Remote Server\n=============\n\nMultiplayer via sending game state over remote server.\n\n    server = \"ws://thawing-mesa-4646.herokuapp.com\"\n\n    module.exports = ->\n      ws = new WebSocket(server)\n\n      return ws\n",
+      "type": "blob"
+    },
     "resource.coffee.md": {
       "path": "resource.coffee.md",
       "mode": "100644",
@@ -458,12 +464,6 @@ require('./main')
       "path": "type.coffee.md",
       "mode": "100644",
       "content": "Type\n====\n\nHolding all the types of things. Keeping all the types here really just helps\nwith static analysis. It's possible to use strings to hold and compare types\nand for new ones or extensions and modules that may be fine. Eventually they'll\nend up here if they're important.\n\nHelpers\n-------\n\n    toObject = (list) ->\n      list.split(\"\\n\").reduce (object, item) ->\n        object[item] = item.toLowerCase()\n\n        object\n      , {}\n\nList\n----\n\n    module.exports = toObject \"\"\"\n      Dirt\n      Fire\n      Ice\n      Plant\n      Stone\n      Water\n      Oil\n      Acid\n    \"\"\"\n",
-      "type": "blob"
-    },
-    "remote_server.coffee.md": {
-      "path": "remote_server.coffee.md",
-      "mode": "100644",
-      "content": "Remote Server\n=============\n\nMultiplayer via sending game state over remote server.\n\n    server = \"ws://192.168.2.102:8080\"\n\n    module.exports = ->\n      ws = new WebSocket(server)\n\n      return ws\n",
       "type": "blob"
     }
   },
@@ -643,6 +643,11 @@ require('./main')
       "content": "(function() {\n  module.exports = function(character) {\n    return {\n      classes: function() {\n        var classes, race;\n        classes = [\"squad\"];\n        if (map.activeCharacter() === character) {\n          classes.push(\"active\");\n        }\n        if (character.actions() === 0) {\n          classes.push(\"inactive\");\n        }\n        if (character.stunned()) {\n          classes.push(\"stunned\");\n        }\n        if (!character.alive()) {\n          classes.push(\"dead\");\n        }\n        race = map.squads().select(function(squad) {\n          return squad.characters().indexOf(character) >= 0;\n        }).first().race();\n        classes.push(race);\n        return classes.join(\" \");\n      },\n      click: function(e) {\n        var $target, squad;\n        $target = $(e.currentTarget);\n        if ($target.is(\".stunned, .dead, .inactive\")) {\n          return;\n        }\n        squad = map.activeSquad();\n        character = squad.activatableCharacters().filter(function(c) {\n          return (c != null ? c.name() : void 0) === $target.find(\".name\").text();\n        }).first();\n        if (character) {\n          return squad.activeCharacter(character);\n        }\n      }\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=presenters/character.coffee",
       "type": "blob"
     },
+    "remote_server": {
+      "path": "remote_server",
+      "content": "(function() {\n  var server;\n\n  server = \"ws://thawing-mesa-4646.herokuapp.com\";\n\n  module.exports = function() {\n    var ws;\n    ws = new WebSocket(server);\n    return ws;\n  };\n\n}).call(this);\n\n//# sourceURL=remote_server.coffee",
+      "type": "blob"
+    },
     "resource": {
       "path": "resource",
       "content": "(function() {\n  var Resource, Sprite, images, nullImage, sourceIndex, spriteCache;\n\n  Sprite = require(\"sprite\");\n\n  images = require(\"./images\");\n\n  spriteCache = {};\n\n  nullImage = new Image;\n\n  sourceIndex = 0;\n\n  Resource = {\n    dataURL: function(name) {\n      return images[name];\n    },\n    sprite: function(name) {\n      if (spriteCache[name]) {\n        return spriteCache[name];\n      }\n      if (images[name]) {\n        return spriteCache[name] = Sprite.load(images[name]);\n      } else {\n        return spriteCache[name] = Sprite(nullImage);\n      }\n    },\n    addSource: function(gistId) {\n      return (function(index) {\n        sourceIndex += 1;\n        return $.ajax({\n          url: \"https://api.github.com/gists/\" + gistId,\n          type: \"GET\",\n          dataType: \"jsonp\"\n        }).success(function(_arg) {\n          var data, meta, remoteImages;\n          data = _arg.data, meta = _arg.meta;\n          console.log(meta);\n          remoteImages = JSON.parse(data.files[\"images.json\"].content);\n          return Object.keys(remoteImages).forEach(function(name) {\n            var _ref;\n            if (!(((_ref = spriteCache[name]) != null ? _ref.index : void 0) > index)) {\n              return Sprite.load(remoteImages[name], function(sprite) {\n                if (spriteCache[name]) {\n                  Object.extend(spriteCache[name], sprite);\n                } else {\n                  spriteCache[name] = sprite;\n                }\n                return spriteCache[name].index = index;\n              });\n            }\n          });\n        });\n      })(sourceIndex);\n    }\n  };\n\n  module.exports = Resource;\n\n}).call(this);\n\n//# sourceURL=resource.coffee",
@@ -686,11 +691,6 @@ require('./main')
     "type": {
       "path": "type",
       "content": "(function() {\n  var toObject;\n\n  toObject = function(list) {\n    return list.split(\"\\n\").reduce(function(object, item) {\n      object[item] = item.toLowerCase();\n      return object;\n    }, {});\n  };\n\n  module.exports = toObject(\"Dirt\\nFire\\nIce\\nPlant\\nStone\\nWater\\nOil\\nAcid\");\n\n}).call(this);\n\n//# sourceURL=type.coffee",
-      "type": "blob"
-    },
-    "remote_server": {
-      "path": "remote_server",
-      "content": "(function() {\n  var server;\n\n  server = \"ws://192.168.2.102:8080\";\n\n  module.exports = function() {\n    var ws;\n    ws = new WebSocket(server);\n    return ws;\n  };\n\n}).call(this);\n\n//# sourceURL=remote_server.coffee",
       "type": "blob"
     }
   },
@@ -768,8 +768,8 @@ require('./main')
     "labels_url": "https://api.github.com/repos/STRd6/tactics/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/tactics/releases{/id}",
     "created_at": "2013-09-30T06:23:29Z",
-    "updated_at": "2013-12-23T03:35:25Z",
-    "pushed_at": "2013-12-23T03:35:23Z",
+    "updated_at": "2013-12-23T05:09:55Z",
+    "pushed_at": "2013-12-23T05:09:54Z",
     "git_url": "git://github.com/STRd6/tactics.git",
     "ssh_url": "git@github.com:STRd6/tactics.git",
     "clone_url": "https://github.com/STRd6/tactics.git",
@@ -784,9 +784,9 @@ require('./main')
     "has_wiki": true,
     "forks_count": 1,
     "mirror_url": null,
-    "open_issues_count": 1,
+    "open_issues_count": 3,
     "forks": 1,
-    "open_issues": 1,
+    "open_issues": 3,
     "watchers": 0,
     "default_branch": "master",
     "master_branch": "master",
