@@ -18,7 +18,8 @@ electricity, I don't know yet.
 
     # Used in Fireball
     Effect.Fire = (position) ->
-      perform: ({characterAt, message, addFeature}) ->
+      perform: ({characterAt, message, addFeature, impassable, replaceTileAt}) ->
+        replaceTileAt(position)
         addFeature(Feature.Fire(position))
 
         if character = characterAt(position)
