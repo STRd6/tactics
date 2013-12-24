@@ -60,7 +60,8 @@ Effect.<span class="function"><span class="title">Clairvoyance</span></span> = (
 
 <span class="comment"># Used in Fireball</span>
 Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
-  perform: ({characterAt, message, addFeature}) -&gt;
+  perform: ({characterAt, message, addFeature, impassable, replaceTileAt}) -&gt;
+    replaceTileAt(position)
     addFeature(Feature.Fire(position))
 
     <span class="keyword">if</span> character = characterAt(position)
