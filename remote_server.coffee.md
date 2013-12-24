@@ -3,7 +3,7 @@ Remote Server
 
 Multiplayer via sending game state over remote server.
 
-    server = "ws://192.168.2.102:8080"
+    server = "ws://thawing-mesa-4646.herokuapp.com"
 
     module.exports = ->
       ws = new WebSocket(server)
