@@ -145,6 +145,7 @@ Exploring various character classes here.
         passives: [
           "Iceproof"
         ]
+        type: "Mage"
 
       Wizard:
         health: 2
