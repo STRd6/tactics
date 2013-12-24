@@ -30,6 +30,8 @@ Squad
         "OilSlime"
         "OilSlime"
         "AcidSlime"
+        "AcidSlime"
+        "FireSlime"
         "FireSlime"
       ]
       undead: [
