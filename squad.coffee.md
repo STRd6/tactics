@@ -46,6 +46,8 @@ Squad
       Point(2, 4)
       Point(2, 3)
       Point(4, 2)
+      Point(4, 4)
+      Point(6, 4)
     ],[
       Point(18, 16)
       Point(14, 16)
