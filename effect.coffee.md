@@ -92,6 +92,10 @@ electricity, I don't know yet.
           # Revert tiles to default
           replaceTileAt(position)
 
+    Effect.Ice = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Ice(position)
+
     Effect.Flame = (position) ->
       perform: ({addFeature}) ->
         addFeature Feature.Fire(position)
