@@ -218,9 +218,11 @@ any status effects.
             Passive.Passives[name]
 
         visionType: ->
-          self.passives().reduce (memo, passive) ->
+          type = self.passives().reduce (memo, passive) ->
             memo or passive.visionType
           , undefined
+
+          type or "sight"
 
         toJSON: ->
           console.log self.position()

@@ -17,12 +17,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Resource = require "./resource"
     Resource.addSource("7ffbdcf587f407dda0d6")
 
-    {Grid, Size} = require "./lib/util"
-    Geom = require "./lib/geom"
-
     {width, height} = require("./pixie")
-
-    tileExtent = Size 32, 18
 
     bgColor = "#222034"
 
