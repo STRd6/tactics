@@ -19,7 +19,8 @@ Exploring various character classes here.
         type: "Slime"
 
       AcidSlime:
-        spriteName: "slime"
+        spriteName: "slime0"
+        animation: ["slime0", "slime1", "slime2", "slime1"]
         abilities: [
           "Move"
           "Melee"
