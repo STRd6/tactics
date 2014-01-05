@@ -183,12 +183,21 @@ Feature.<span class="function"><span class="title">DeathCloud</span></span> = (p
         <span class="keyword">unless</span> character.immune(element)
           message <span class="string">"<span class="subst">#{character.name()}</span> is surrounded by choking fumes!"</span>
 
+Feature.<span class="function"><span class="title">Ice</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">3</span>
+    position: position
+    spriteName: <span class="string">"frozen0"</span>
+    animation: [<span class="string">"frozen0"</span>, <span class="string">"frozen1"</span>, <span class="string">"frozen2"</span>, <span class="string">"frozen3"</span>]
+    type: Type.Ice
+    impassable: <span class="literal">true</span>
+
 Feature.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
   Feature
     duration: <span class="number">1</span>
     position: position
     spriteName: <span class="string">"fire"</span>
-    <span class="comment"># animation: ["fire"]</span>
+    animation: [<span class="string">"fire0"</span>, <span class="string">"fire1"</span>]
     type: Type.Fire
     zIndex: <span class="number">1</span>
     update: ({addFeature, characterAt, position, message, find}) -&gt;

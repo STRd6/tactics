@@ -47,7 +47,19 @@
   title: -&gt;
     action.description || <span class="string">""</span>
   style: -&gt;
-    <span class="string">"background-image: url(<span class="subst">#{action.icon}</span>)"</span></code></pre>
+    <span class="keyword">if</span> action.disabledFor &gt; <span class="number">0</span>
+      <span class="string">"background-image: none"</span>
+    <span class="keyword">else</span>
+      <span class="string">"background-image: url(<span class="subst">#{action.icon}</span>)"</span>
+  progressContainer: -&gt;
+    <span class="keyword">if</span> action.disabledFor &gt; <span class="number">0</span>
+      display = <span class="string">"block"</span>
+    <span class="keyword">else</span>
+      display = <span class="string">"none"</span>
+
+    <span class="string">"display: <span class="subst">#{display}</span>;"</span>
+  progress: -&gt;
+    <span class="string">"width: <span class="subst">#{((action.cooldown - action.disabledFor) / action.cooldown) * <span class="number">100</span>}</span>%;"</span></code></pre>
 </div>
         </li>
         

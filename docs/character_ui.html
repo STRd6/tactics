@@ -105,6 +105,7 @@ module.exports = CharacterUI =</code></pre>
       action = Action
         cooldown: ability.cooldown()
         cost: ability.actionCost()
+        disabledFor: character.cooldowns()[abilityName] || <span class="number">0</span>
         name: ability.name()
         description: ability.description()
         icon: ability.iconName()

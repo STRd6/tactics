@@ -51,7 +51,8 @@ module.exports =
     type: <span class="string">"Slime"</span>
 
   AcidSlime:
-    spriteName: <span class="string">"slime"</span>
+    spriteName: <span class="string">"slime0"</span>
+    animation: [<span class="string">"slime0"</span>, <span class="string">"slime1"</span>, <span class="string">"slime2"</span>, <span class="string">"slime1"</span>]
     abilities: [
       <span class="string">"Move"</span>
       <span class="string">"Melee"</span>
@@ -79,6 +80,7 @@ module.exports =
       <span class="string">"Move"</span>
       <span class="string">"Entanglement"</span>
       <span class="string">"ShrubSight"</span>
+      <span class="string">"MagicMissile"</span>
     ]
     type: <span class="string">"Mage"</span>
 
@@ -88,8 +90,6 @@ module.exports =
       <span class="string">"Blink"</span>
       <span class="string">"Melee"</span>
     ]
-    health: <span class="number">3</span>
-    healthMax: <span class="number">3</span>
     name: Names.monster.rand()
 
   Grunt:
@@ -117,6 +117,16 @@ module.exports =
     ]
     sight: <span class="number">5</span>
     type: <span class="string">"Giant"</span>
+
+  Priest:
+    health: <span class="number">4</span>
+    spriteName: <span class="string">"dwarf"</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"Heal"</span>
+      <span class="string">"Melee"</span>
+    ]
+    type: <span class="string">"Mage"</span>
 
   Knight:
     health: <span class="number">4</span>
@@ -156,6 +166,20 @@ module.exports =
       <span class="string">"Undead"</span>
     ]
 
+  FrostMage:
+    health: <span class="number">2</span>
+    healthMax: <span class="number">2</span>
+    spriteName: <span class="string">"ice_statue"</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"MagicMissile"</span>
+      <span class="string">"IceWall"</span>
+    ]
+    passives: [
+      <span class="string">"Iceproof"</span>
+    ]
+    type: <span class="string">"Mage"</span>
+
   Wizard:
     health: <span class="number">2</span>
     healthMax: <span class="number">2</span>
@@ -165,6 +189,7 @@ module.exports =
       <span class="string">"Blink"</span>
       <span class="string">"Fireball"</span>
       <span class="string">"Farsight"</span>
+      <span class="string">"MagicMissile"</span>
     ]
     type: <span class="string">"Mage"</span>
 
