@@ -287,6 +287,28 @@
           effect "ShrubSight", position, owner
         '''
 
+      Entomb:
+        name: "Entomb"
+        description: "Stone seals all"
+        actionCost: 2
+        costType: REST
+        cooldown: 2
+        range: 7
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          effect "Entomb", position, owner
+        '''
+
+      Stonesight:
+        name: "Stonesight"
+        description: ""
+        actionCost: 1
+        targetZone: ANY
+        range: 7
+        code: '''
+          effect "Stonesight", position, owner
+        '''
+
       Wait:
         name: "Wait"
         description: "Do this if you don't have any other good moves."

@@ -52,6 +52,15 @@ Exploring various character classes here.
         ]
         type: "Mage"
 
+      "Earth Wizard":
+        spriteName: "wizard"
+        abilities: [
+          "Move"
+          "MagicMissile"
+          "Stonesight"
+          "Entomb"
+        ]
+
       Harpy:
         spriteName: "harpy"
         abilities: [

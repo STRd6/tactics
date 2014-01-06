@@ -64,18 +64,7 @@ The primary tactical combat screen.
 
       self.include require("./map_serialization")
 
-      self.include require "finder"
-      oldFind = self.find
-      typeMatcher = (type, object) ->
-        object.type() is type
-      self.find = (selector) ->
-        results = oldFind(self.features(), selector, typeMatcher)
-
-        results.within = (position, radius) ->
-          results.filter (result) ->
-            Point.distance(result.position(), position) <= radius
-
-        return results
+      self.include require "./map_find"
 
       self.extend
         activeSquadIndex: ->
@@ -225,6 +214,7 @@ parameterize it by passing in the character and the ability.
             feature: self.feature
             featuresAt: self.featuresAt
             find: self.find
+            findTiles: self.findTiles
             impassable: self.impassable
             message: self.message
             replaceTileAt: self.replaceTileAt
