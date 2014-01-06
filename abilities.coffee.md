@@ -286,7 +286,19 @@
         code: '''
           effect "ShrubSight", position, owner
         '''
-      
+
+      Entomb:
+        name: "Entomb"
+        description: "Stone seals all"
+        actionCost: 2
+        costType: REST
+        cooldown: 2
+        range: 7
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          effect "Entomb", position, owner
+        '''
+
       Stonesight:
         name: "Stonesight"
         description: ""

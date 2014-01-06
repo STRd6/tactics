@@ -24,7 +24,7 @@ Squad
         "Knight"
         "Archer"
         "Scout"
-        "Wizard"
+        "Earth Wizard"
       ]
       spunk: [
         "OilSlime"

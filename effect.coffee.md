@@ -137,10 +137,15 @@ electricity, I don't know yet.
         find("plant").within(position, 13).forEach (plant) ->
           owner.addMagicalVision(plant.position())
 
+    Effect.Entomb = (position) ->
+      perform: ({search, replaceTileAt}) ->
+        search.adjacent(position).forEach (position) ->
+          replaceTileAt(position, 2)
+
     Effect.Stonesight = (position, owner) ->
       # TODO: Redo this 'find' idea to make use of the quadtree
       # build in radii, etc
-      perform: ({find}) ->
+      perform: ({findTiles}) ->
         findTiles
           position: position
           type: 2 # TODO: Have tile types not this magic number jazz

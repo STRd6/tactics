@@ -29,4 +29,6 @@ Map Find
             [(x - radius)..(x + radius)].forEach (x) ->
               results.push Point(x, y) if self.tileIndexAt({x, y}) is type
 
+          return results
+
       return self
