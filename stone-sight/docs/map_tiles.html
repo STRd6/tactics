@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>map_tiles</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="map-tiles">Map Tiles</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">BitArray = require <span class="string">"bit_array"</span>
+ByteArray = require <span class="string">"byte_array"</span>
+
+Tileset = require <span class="string">"./tileset"</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Methods for interacting with tiles witin the map.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
+  Object.defaults I,
+    width: <span class="number">32</span>
+    height: <span class="number">18</span>
+
+  tileset = Tileset()
+
+  self.attrAccessor <span class="string">"width"</span>, <span class="string">"height"</span>
+
+  self.<span class="function"><span class="title">tileCount</span></span> = -&gt;
+    I.width * I.height
+
+  Object.defaults I,
+    tiles: <span class="string">"data:application/octet-binary;AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICFhYWFhYWAgICAgICAgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAgICAgICAgICFhYWFhYWFhYWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYWFhYWFhYWAgICFhYWFhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYCAgIWFhYWFhYWFhYWFhYWFhYWFhYWFhYWAgIWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAhYWFhYWAgICAgICFhYCAgICAgICAgICAgIWFgICAgICFhYWFhYCAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgICAgICAgICAgICFhYCAgICAgICAgICAgIWFgICAgICAgICAgICAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgIWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgIWFhYWFhYCAgICAgIWFhYWFhYWFhYWFhYWFhYWFhYCAhYWFhYWFgICAgICAhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC"</span>
+    lit: [
+      <span class="comment"># TODO: Handle arbitrary number of squads</span>
+      <span class="comment"># TODO: Maybe store these with the squad data itself?</span>
+      self.tileCount()
+      self.tileCount()
+    ]
+    seen: [
+      self.tileCount()
+      self.tileCount()
+    ]
+
+  self.attrModel <span class="string">"tiles"</span>, ByteArray
+
+  self.attrModels <span class="string">"lit"</span>, BitArray
+  self.attrModels <span class="string">"seen"</span>, BitArray
+
+  <span class="function"><span class="title">boundsCheck</span></span> = (x, y) -&gt;
+    (<span class="number">0</span> &lt;= x &lt; self.width()) <span class="keyword">and</span> (<span class="number">0</span> &lt;= y &lt; self.height())
+
+  <span class="function"><span class="title">bitArrayLookup</span></span> = (field) -&gt;
+    (x, y) -&gt;
+      <span class="keyword">if</span> x.x?
+        {x, y} = x
+
+      <span class="keyword">if</span> boundsCheck(x, y)
+        field.get(self.activeSquadIndex()).get(x + y * self.width())
+
+  <span class="function"><span class="title">toSingleDimension</span></span> = (position) -&gt;
+    {x, y} = position
+
+    x + y * self.width()
+
+  self.extend
+    isLit: bitArrayLookup(self.lit)
+
+    isSeen: bitArrayLookup(self.seen)
+
+    <span class="comment"># TODO: Inculde character as an optional parameter</span>
+    impassable: (position) -&gt;
+      <span class="keyword">if</span> tileset.isImpassable(self.tileIndexAt(position))
+        <span class="keyword">return</span> <span class="literal">true</span>
+
+      self.featuresAt(position).some (feature) -&gt;
+        feature.impassable()
+
+    <span class="comment"># TODO: Include character as an optional parameter</span>
+    opaque: (position) -&gt;
+      <span class="keyword">if</span> tileset.isOpaque(self.tileIndexAt(position))
+        <span class="keyword">return</span> <span class="literal">true</span>
+
+      self.featuresAt(position).some (feature) -&gt;
+        feature.opaque()
+
+    tileIndexAt: (position) -&gt;
+      self.tiles().get(toSingleDimension(position))
+
+    tileAt: (position) -&gt;
+      {x, y} = position
+
+      <span class="keyword">if</span> boundsCheck(x, y)
+        index = self.tileIndexAt(position)
+        <span class="comment"># TODO: Refine tile variation selector</span>
+        tileset.tileFor(index, x, y)
+
+    replaceTileAt: (position, index=tileset.defaultIndex()) -&gt;
+      self.tiles().set(toSingleDimension(position), index)
+
+    viewTiles: ({positions, index, type, message}) -&gt;
+      positions.forEach (position) -&gt;
+        {x, y} = position
+
+        <span class="keyword">if</span> boundsCheck(x, y)
+          n = toSingleDimension(position)
+          self.lit.get(index).set(n, <span class="number">1</span>)
+          self.seen.get(index).set(n, <span class="number">1</span>)
+          self.featuresAt(position).forEach (feature) -&gt;
+            feature.view(index, type, message)
+
+    updateVisibleTiles: ({message}) -&gt;
+      self.lit [<span class="number">0.</span>..self.squads().length].map -&gt;
+        BitArray(self.tileCount())
+
+      self.squads().forEach (squad, index) -&gt;
+        squad.characters().filter (character) -&gt;
+          character.alive()
+        .forEach (character) -&gt;
+          character.visionEffects().forEach (effectName) -&gt;
+            <span class="comment"># TODO: Consolidate these to be I params</span>
+            self.effectInstant effectName, character.position(), character
+
+          <span class="comment"># Magical vision</span>
+          magicalVision = character.magicalVision()
+          character.debugPositions magicalVision
+          self.viewTiles
+            index: index
+            message: message
+            positions: magicalVision
+            type: <span class="string">"magic"</span>
+
+          <span class="comment"># Physical sensing</span>
+          self.viewTiles
+            index: index
+            message: message
+            positions: self.search.adjacent(character.position(), character.physicalAwareness())
+            type: <span class="string">"physical"</span>
+
+          <span class="comment"># Normal Sight</span>
+          visibleTiles = self.search.visible(character.position(), character.sight(), self.opaque)
+          <span class="comment"># character.debugPositions visibleTiles</span>
+          self.viewTiles
+            index: index
+            message: message
+            positions: visibleTiles
+            type: character.visionType()
+
+  <span class="comment"># Add Features from tileset</span>
+  <span class="comment"># In order to use a layerless editor we transform some tile values into</span>
+  <span class="comment"># others and create a given feature at the position</span>
+  I.height.times (y) -&gt;
+    I.width.times (x) -&gt;
+      position = {x, y}
+      tileIndex = self.tileIndexAt(position)
+
+      <span class="keyword">if</span> data = tileset.dataAt tileIndex
+        {feature, index} = data
+
+        <span class="keyword">if</span> feature
+          index ?= tileset.defaultIndex()
+          self.tiles().set(toSingleDimension(position), index)
+
+          self.feature(feature, position)
+      <span class="keyword">else</span>
+        console.error <span class="string">"Could not find data for tile index: <span class="subst">#{tileIndex}</span>"</span>
+
+  <span class="keyword">return</span> self</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
