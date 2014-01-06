@@ -137,9 +137,12 @@ electricity, I don't know yet.
         find("plant").within(position, 13).forEach (plant) ->
           owner.addMagicalVision(plant.position())
 
-    Effect.StoneSight = (position, owner) ->
+    Effect.Stonesight = (position, owner) ->
       # TODO: Redo this 'find' idea to make use of the quadtree
       # build in radii, etc
       perform: ({find}) ->
-        find("stone").within(position, 13).forEach (stone) ->
-          owner.addMagicalVision(plant.position())
+        findTiles
+          position: position
+          type: 2 # TODO: Have tile types not this magic number jazz
+          radius: 13
+        .forEach owner.addMagicalVision

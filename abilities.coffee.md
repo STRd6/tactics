@@ -286,6 +286,16 @@
         code: '''
           effect "ShrubSight", position, owner
         '''
+      
+      Stonesight:
+        name: "Stonesight"
+        description: ""
+        actionCost: 1
+        targetZone: ANY
+        range: 7
+        code: '''
+          effect "Stonesight", position, owner
+        '''
 
       Wait:
         name: "Wait"
