@@ -24,6 +24,7 @@ Exploring various character classes here.
         abilities: [
           "Move"
           "Melee"
+          "Blind"
         ]
         passives: [
           "Uncorrodible"
