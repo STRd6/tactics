@@ -84,6 +84,15 @@ module.exports =
     ]
     type: <span class="string">"Mage"</span>
 
+  <span class="string">"Earth Wizard"</span>:
+    spriteName: <span class="string">"wizard"</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"MagicMissile"</span>
+      <span class="string">"Stonesight"</span>
+      <span class="string">"Entomb"</span>
+    ]
+
   Harpy:
     spriteName: <span class="string">"harpy"</span>
     abilities: [
@@ -117,6 +126,21 @@ module.exports =
     ]
     sight: <span class="number">5</span>
     type: <span class="string">"Giant"</span>
+
+  Icedactyl:
+    spriteName: <span class="string">"simulacrum_flying"</span>
+    type: <span class="string">"Ice"</span>
+    health: <span class="number">5</span>
+    movement: <span class="number">6</span>
+    abilities: [
+      <span class="string">"Move"</span>
+      <span class="string">"Melee"</span>
+      <span class="comment"># TODO: Ice Attack</span>
+    ]
+    passives: [
+      <span class="string">"Iceproof"</span>
+      <span class="comment"># TODO: Fire Vulnerable</span>
+    ]
 
   Priest:
     health: <span class="number">4</span>

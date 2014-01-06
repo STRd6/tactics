@@ -96,18 +96,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.include require(<span class="string">"./map_serialization"</span>)
 
-  self.include require <span class="string">"finder"</span>
-  oldFind = self.find
-  <span class="function"><span class="title">typeMatcher</span></span> = (type, object) -&gt;
-    object.type() <span class="keyword">is</span> type
-  self.<span class="function"><span class="title">find</span></span> = (selector) -&gt;
-    results = oldFind(self.features(), selector, typeMatcher)
-
-    results.<span class="function"><span class="title">within</span></span> = (position, radius) -&gt;
-      results.filter (result) -&gt;
-        Point.distance(result.position(), position) &lt;= radius
-
-    <span class="keyword">return</span> results
+  self.include require <span class="string">"./map_find"</span>
 
   self.extend
     activeSquadIndex: -&gt;
@@ -265,6 +254,7 @@ parameterize it by passing in the character and the ability.</p>
         feature: self.feature
         featuresAt: self.featuresAt
         find: self.find
+        findTiles: self.findTiles
         impassable: self.impassable
         message: self.message
         replaceTileAt: self.replaceTileAt

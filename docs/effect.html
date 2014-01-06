@@ -179,12 +179,20 @@ Effect.<span class="function"><span class="title">ShrubSight</span></span> = (po
     find(<span class="string">"plant"</span>).within(position, <span class="number">13</span>).forEach (plant) -&gt;
       owner.addMagicalVision(plant.position())
 
-Effect.<span class="function"><span class="title">StoneSight</span></span> = (position, owner) -&gt;
+Effect.<span class="function"><span class="title">Entomb</span></span> = (position) -&gt;
+  perform: ({search, replaceTileAt}) -&gt;
+    search.adjacent(position).forEach (position) -&gt;
+      replaceTileAt(position, <span class="number">2</span>)
+
+Effect.<span class="function"><span class="title">Stonesight</span></span> = (position, owner) -&gt;
   <span class="comment"># TODO: Redo this 'find' idea to make use of the quadtree</span>
   <span class="comment"># build in radii, etc</span>
-  perform: ({find}) -&gt;
-    find(<span class="string">"stone"</span>).within(position, <span class="number">13</span>).forEach (stone) -&gt;
-      owner.addMagicalVision(plant.position())</code></pre>
+  perform: ({findTiles}) -&gt;
+    findTiles
+      position: position
+      type: <span class="number">2</span> <span class="comment"># TODO: Have tile types not this magic number jazz</span>
+      radius: <span class="number">13</span>
+    .forEach owner.addMagicalVision</code></pre>
 </div>
         </li>
         
