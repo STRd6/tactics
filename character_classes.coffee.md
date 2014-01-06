@@ -95,6 +95,21 @@ Exploring various character classes here.
         sight: 5
         type: "Giant"
 
+      Icedactyl:
+        spriteName: "simulacrum_flying"
+        type: "Ice"
+        health: 5
+        movement: 6
+        abilities: [
+          "Move"
+          "Melee"
+          # TODO: Ice Attack
+        ]
+        passives: [
+          "Iceproof"
+          # TODO: Fire Vulnerable
+        ]
+
       Priest:
         health: 4
         spriteName: "dwarf"
