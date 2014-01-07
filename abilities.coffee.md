@@ -212,6 +212,23 @@
               duration: 3
         '''
 
+      Poison:
+        name: "Poison"
+        description: "Poison, my one weakness."
+        iconName: "poison"
+        range: 8
+        actionCost: 1
+        costType: REST
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          character?.addEffect
+            name: "poison"
+            duration: 3
+            update: (character) ->
+              message "The poison takes its toll on #{character.name()}."
+              character.damage(1, "Poison")
+        '''
+
       Regeneration:
         name: "Regeneration"
         description: "Those who regenerate today live to fight another day."
