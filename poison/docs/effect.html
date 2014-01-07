@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>effect</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="effect">Effect</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript"><span class="comment"># TODO: Shouldn't have to depend on Feature</span>
+Feature = require <span class="string">"./feature"</span></code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Effects are things like explosions or dispelling undead. Maybe even fire or
+electricity, I don&#39;t know yet.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Effect</span></span> = (I={}, self=Core(I)) -&gt;
+
+Effect.<span class="function"><span class="title">Clairvoyance</span></span> = (position, owner) -&gt;
+  radius = <span class="number">7</span>
+
+  perform: ({search}) -&gt;
+    search.adjacent(position, radius).forEach (position) -&gt;
+      owner.addMagicalVision(position)
+
+<span class="comment"># Used in Fireball</span>
+Effect.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
+  perform: ({characterAt, message, addFeature, impassable, replaceTileAt}) -&gt;
+    replaceTileAt(position)
+    addFeature(Feature.Fire(position))
+
+    <span class="keyword">if</span> character = characterAt(position)
+      character.stun(<span class="number">1</span>)
+
+      element = <span class="string">"Fire"</span>
+      character.damage(<span class="number">1</span>, element)
+
+      <span class="keyword">unless</span> character.immune(element)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is on fire!"</span>
+
+Effect.<span class="function"><span class="title">Move</span></span> = (from, to, movingCharacter=<span class="literal">null</span>) -&gt;
+  perform: ({animate, characterAt, message, impassable, event}) -&gt;
+    <span class="comment"># If a character is moving themselves we don't want to move anyone else</span>
+    <span class="comment"># We also don't want to keep moving them if they lose awareness (death, stun).</span>
+    <span class="keyword">if</span> movingCharacter
+      <span class="keyword">if</span> movingCharacter.aware() <span class="keyword">and</span> movingCharacter.position().equal(from)
+        character = movingCharacter
+    <span class="keyword">else</span> <span class="comment"># An effect that will move any character, like knockback</span>
+      character = characterAt(from)
+
+    <span class="keyword">if</span> character
+      <span class="keyword">if</span> impassable(to)
+        message <span class="string">"<span class="subst">#{character.name()}</span> bumped into an unseen obstruction!"</span>
+      <span class="keyword">else</span>
+        character.position(to)
+        <span class="comment"># Enter and exit effects (traps, reaction abilities)</span>
+        event <span class="string">"move"</span>,
+          character: character
+          from: from
+          to: to
+
+        animate
+          position: to
+          duration: <span class="number">100</span>
+    <span class="keyword">else</span>
+      console.log <span class="string">"No character at"</span>, from
+
+Effect.<span class="function"><span class="title">PestilentVapor</span></span> = (position) -&gt;
+  perform: ({feature}) -&gt;
+    feature <span class="string">"PestilentVapor"</span>, position
+
+Effect.<span class="function"><span class="title">Crush</span></span> = (position) -&gt;
+  perform: ({featuresAt}) -&gt;
+    <span class="comment"># TODO figure out why this doesn't</span>
+    <span class="comment"># remove the tiles immediately. It</span>
+    <span class="comment"># happens the next round.</span>
+    featuresAt(position).invoke <span class="string">"destroy"</span>
+
+Effect.<span class="function"><span class="title">Demolish</span></span> = (position, owner) -&gt;
+  perform: ({message, featuresAt, replaceTileAt}) -&gt;
+    featuresAt(position).invoke <span class="string">"destroy"</span>
+    replaceTileAt(position)
+
+    message <span class="string">"<span class="subst">#{owner.name()}</span> demolishes everything in their path."</span>
+
+Effect.<span class="function"><span class="title">Stomp</span></span> = (position, owner) -&gt;
+  perform: ({characterAt, message, search, featuresAt, replaceTileAt}) -&gt;
+    <span class="comment"># TODO: Add cracked / destroyed sprite</span>
+    <span class="comment"># TODO: Screen shake</span>
+    search.adjacent(position).forEach (position) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        <span class="keyword">unless</span> character <span class="keyword">is</span> owner
+          message <span class="string">"<span class="subst">#{character.name()}</span> has been shaken by the mighty stomp of <span class="subst">#{owner.name()}</span>."</span>
+          character.damage(<span class="number">1</span>)
+          character.stun(<span class="number">2</span>)
+
+      featuresAt(position).invoke <span class="string">"destroy"</span>
+
+      <span class="comment"># Revert tiles to default</span>
+      replaceTileAt(position)
+
+Effect.<span class="function"><span class="title">Ice</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Ice(position)
+
+Effect.<span class="function"><span class="title">Flame</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Fire(position)
+
+Effect.<span class="function"><span class="title">Acid</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Acid(position)
+
+Effect.<span class="function"><span class="title">Oil</span></span> = (position) -&gt;
+  perform: ({addFeature}) -&gt;
+    addFeature Feature.Slime(position)
+
+<span class="comment"># Used in Entanglement</span>
+Effect.<span class="function"><span class="title">Plant</span></span> = (position) -&gt;
+  perform: ({animate, characterAt, message, addFeature, impassable}) -&gt;
+    <span class="keyword">unless</span> impassable(position)
+      <span class="comment"># TODO: Check for existing bushes</span>
+      addFeature Feature.Bush(position)
+
+    <span class="keyword">if</span> character = characterAt(position)
+      character.stun(<span class="number">1</span>)
+
+      animate
+        message: <span class="string">"<span class="subst">#{character.name()}</span> is caught in a shrub!"</span>
+        duration: <span class="number">100</span>
+
+Effect.<span class="function"><span class="title">Death</span></span> = (position, owner) -&gt;
+  perform: ({message, addFeature}) -&gt;
+    message <span class="string">"<span class="subst">#{owner.name()}</span> has been slain."</span>
+
+    addFeature Feature
+      spriteName: <span class="string">"skeleton"</span>
+      position: position
+
+Effect.<span class="function"><span class="title">ShrubSight</span></span> = (position, owner) -&gt;
+  <span class="comment"># TODO: Redo this 'find' idea to make use of the quadtree</span>
+  <span class="comment"># build in radii, etc</span>
+  perform: ({find}) -&gt;
+    find(<span class="string">"plant"</span>).within(position, <span class="number">13</span>).forEach (plant) -&gt;
+      owner.addMagicalVision(plant.position())
+
+Effect.<span class="function"><span class="title">Entomb</span></span> = (position) -&gt;
+  perform: ({search, replaceTileAt}) -&gt;
+    search.adjacent(position).forEach (position) -&gt;
+      replaceTileAt(position, <span class="number">2</span>)
+
+Effect.<span class="function"><span class="title">Stonesight</span></span> = (position, owner) -&gt;
+  <span class="comment"># TODO: Redo this 'find' idea to make use of the quadtree</span>
+  <span class="comment"># build in radii, etc</span>
+  perform: ({findTiles}) -&gt;
+    findTiles
+      position: position
+      type: <span class="number">2</span> <span class="comment"># TODO: Have tile types not this magic number jazz</span>
+      radius: <span class="number">13</span>
+    .forEach owner.addMagicalVision</code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
