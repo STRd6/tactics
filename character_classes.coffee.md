@@ -37,6 +37,7 @@ Exploring various character classes here.
         abilities: [
           "Move"
           "Melee"
+          "Poison"
         ]
         passives: [
           "OilTrail"
@@ -116,8 +117,8 @@ Exploring various character classes here.
         spriteName: "dwarf"
         abilities: [
           "Move"
-          "Heal"
           "Melee"
+          "Heal"
         ]
         type: "Mage"
 

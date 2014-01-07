@@ -1,7 +1,10 @@
 Ability Constants
 =================
 
-    module.exports = 
+TODO: Add `LINE_OF_FIRE`, a projectile that can be aimed anywhere, but stops on
+walls or other impassable areas.
+
+    module.exports =
       TARGET_ZONE:
         SELF: 1 # The character itself, skips targetting step
         LINE_OF_SIGHT: 2 # Any tile within character's line of sight and within range

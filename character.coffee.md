@@ -206,6 +206,8 @@ any status effects.
             I.cooldowns[name] -= 1
 
           I.effects.forEach (effect) ->
+            # TODO: Migrate into CharacterEffect class
+            effect.update?(self)
             effect.duration -= 1
 
           if I.stun is 0
