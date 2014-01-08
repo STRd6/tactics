@@ -7,6 +7,7 @@ The primary tactical combat screen.
     Compositions = require "./lib/compositions"
     Effect = require "./effect"
     MapFeatures = require "./map_features"
+    MapHotkeys = require "./map_hotkeys"
     MapSearch = require "./map_search"
     MapTiles = require "./map_tiles"
     MapRendering = require "./map_rendering"
@@ -19,10 +20,13 @@ The primary tactical combat screen.
     module.exports = (I={}, self) ->
       Object.defaults I,
         currentTurn: 0
+        messages: []
         squads: [{
-          race: "undead"
+          race: "spunk"
+          index: 0
         }, {
           race: "goblin"
+          index: 1
         }]
 
       self ?= Core(I)
@@ -33,10 +37,13 @@ The primary tactical combat screen.
 
       self.include MapFeatures
       self.include MapTiles
+      self.include MapHotkeys
 
       self.attrModels "squads", Squad
       self.activeSquad = Observable ->
         self.squads().wrap(self.currentTurn())
+
+      self.attrObservable "messages"
 
       characterPassable = (character) ->
         index = self.activeSquadIndex()
@@ -57,22 +64,9 @@ The primary tactical combat screen.
 
       self.include require("./map_serialization")
 
-      self.include require "finder"
-      oldFind = self.find
-      typeMatcher = (type, object) ->
-        object.type() is type
-      self.find = (selector) ->
-        results = oldFind(self.features(), selector, typeMatcher)
-
-        results.within = (position, radius) ->
-          results.filter (result) ->
-            Point.distance(result.position(), position) <= radius
-
-        return results
+      self.include require "./map_find"
 
       self.extend
-        messages: Observable []
-
         activeSquadIndex: ->
           # NOTE: Assumes squad length never changes
           self.currentTurn() % I.squads.length
@@ -119,11 +113,7 @@ parameterize it by passing in the character and the ability.
           if ability = self.targettingAbility()
             switch ability.targetZone()
               when Ability.TARGET_ZONE.SELF
-                # TODO this auto-perform doesn't belong here, it should be done
-                # in the caller if one so wishes
-                self.performAbility(character, ability, character.position())
-
-                return
+                [character.position()]
               when Ability.TARGET_ZONE.MOVEMENT
                 accessiblePositions = search.accessible(character.position(), character.movement(), characterPassable(character))
 
@@ -135,10 +125,11 @@ parameterize it by passing in the character and the ability.
 
               when Ability.TARGET_ZONE.LINE_OF_SIGHT
                 visiblePositions = search.visible(character.position(), character.sight(), self.opaque)
+                magicalVision = character.magicalVision()
                 positionsInRange = search.adjacent(character.position(), ability.range())
 
                 intersection(
-                  visiblePositions
+                  visiblePositions.concat(magicalVision)
                   positionsInRange
                 )
 
@@ -180,15 +171,12 @@ parameterize it by passing in the character and the ability.
 
         message: (message) ->
           self.messages.push message + "\n"
-          $(".messages").animate
-            scrollTop: $('.messages')[0].scrollHeight
-          , 1000
 
         addEffect: (effect) ->
           effectStack.push effect
 
         performAbility: (owner, ability, targetPosition) ->
-          if Ability.TARGET_ZONE.MOVEMENT
+          if ability.targetZone() is Ability.TARGET_ZONE.MOVEMENT
             movementPath = search.movementPath(
               owner.position(),
               targetPosition,
@@ -226,6 +214,7 @@ parameterize it by passing in the character and the ability.
             feature: self.feature
             featuresAt: self.featuresAt
             find: self.find
+            findTiles: self.findTiles
             impassable: self.impassable
             message: self.message
             replaceTileAt: self.replaceTileAt

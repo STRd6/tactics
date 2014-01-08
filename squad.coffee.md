@@ -8,17 +8,62 @@ Squad
 
     extend = Object.extend
 
-    create = (type, data) ->
-      Character extend data, Class[type]
+    create = (type, position) ->
+      Character extend
+        position: position
+      , Class[type]
+
+    defaultCharacters =
+      goblin: [
+        "Grunt"
+        "Wizard"
+        "ShrubMage"
+        "Giant"
+      ]
+      human: [
+        "Knight"
+        "Archer"
+        "Scout"
+        "Earth Wizard"
+      ]
+      spunk: [
+        "OilSlime"
+        "OilSlime"
+        "AcidSlime"
+        "FireSlime"
+      ]
+      undead: [
+        "Lich"
+        "Harpy"
+        "FrostMage"
+        "Priest"
+      ]
+
+    defaultPositions = [[
+      Point(1, 1)
+      Point(2, 4)
+      Point(2, 3)
+      Point(4, 2)
+    ],[
+      Point(18, 16)
+      Point(14, 16)
+      Point(16, 14)
+      Point(20, 14)
+    ]]
 
 A team of 4-6 characters who battle it out with other squads in tactical combat.
 
     module.exports = Squad = (I={}, self=Core(I)) ->
       Object.defaults I,
         characters: []
+        index: 0
         race: "human"
 
       self.include Compositions
+
+      self.attrAccessor(
+        "race"
+      )
 
       self.attrModels "characters", Character
 
@@ -32,12 +77,13 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
             character.actions() > 0
 
         activateCharacterAt: (position) ->
-          character = self.activatableCharacters().filter (character) ->
+          if character = self.characterAt(position)
+            self.activeCharacter(character)
+
+        characterAt: (position) ->
+          self.activatableCharacters().filter (character) ->
             character.position().equal position
           .first()
-
-          if character
-            self.activeCharacter(character)
 
         activeCharacter: Observable null
 
@@ -57,75 +103,15 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
 
           self.activeCharacter nextActivatableCharacter()
 
-      # TODO: Load characters from data
-      switch I.race
-        when "human"
-          self.characters [
-            create "Knight",
-              position:
-                x: 1
-                y: 1
+        toJSON: ->
+          Object.extend I,
+            characters: self.characters().invoke "toJSON"
 
-            create "Wizard",
-              position:
-                x: 2
-                y: 4
+      if self.characters().length is 0
+        # Load from presets
+        self.characters defaultCharacters[I.race].map (type, i) ->
+          create type, defaultPositions[I.index][i]
 
-            create "Archer",
-              position:
-                x: 4
-                y: 2
-
-            create "Scout",
-              position:
-                x: 2
-                y: 3
-          ]
-        when "undead"
-          self.characters [
-            create "Lich",
-              position:
-                x: 1
-                y: 1
-
-            create "Skeleton",
-              position:
-                x: 2
-                y: 4
-
-            create "Skeleton",
-              position:
-                x: 4
-                y: 2
-
-            create "Skeleton",
-              position:
-                x: 2
-                y: 3
-          ]
-        else
-          self.characters [
-            create "Grunt",
-              position:
-                x: 18
-                y: 16
-
-            create "Grunt",
-              position:
-                x: 20
-                y: 14
-
-            create "ShrubMage",
-              position:
-                x: 14
-                y: 16
-
-            create "Giant",
-              position:
-                x: 16
-                y: 14
-          ]
-
-      self.activeCharacter self.characters().first()
+      self.activeCharacter nextActivatableCharacter()
 
       return self

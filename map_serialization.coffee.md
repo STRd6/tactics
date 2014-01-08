@@ -5,6 +5,7 @@ Map Serialization
       self.extend
         toJSON: ->
           Object.extend {}, I,
-            seen: self.seen().map (seen) -> seen.toJSON()
-            lit: self.lit().map (lit) -> lit.toJSON()
+            squads: self.squads().invoke "toJSON"
+            seen: self.seen().invoke "toJSON"
+            lit: self.lit().invoke "toJSON"
             tiles: self.tiles().toJSON()

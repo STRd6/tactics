@@ -113,10 +113,12 @@ Methods for interacting with tiles witin the map.
                 self.effectInstant effectName, character.position(), character
 
               # Magical vision
+              magicalVision = character.magicalVision()
+              character.debugPositions magicalVision
               self.viewTiles
                 index: index
                 message: message
-                positions: character.magicalVision()
+                positions: magicalVision
                 type: "magic"
 
               # Physical sensing
@@ -128,7 +130,7 @@ Methods for interacting with tiles witin the map.
 
               # Normal Sight
               visibleTiles = self.search.visible(character.position(), character.sight(), self.opaque)
-              character.debugPositions visibleTiles
+              # character.debugPositions visibleTiles
               self.viewTiles
                 index: index
                 message: message

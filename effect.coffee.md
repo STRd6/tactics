@@ -18,13 +18,18 @@ electricity, I don't know yet.
 
     # Used in Fireball
     Effect.Fire = (position) ->
-      perform: ({characterAt, message, addFeature}) ->
+      perform: ({characterAt, message, addFeature, impassable, replaceTileAt}) ->
+        replaceTileAt(position)
         addFeature(Feature.Fire(position))
 
         if character = characterAt(position)
           character.stun(1)
-          character.damage(1)
-          message "#{character.name()} is on fire!"
+
+          element = "Fire"
+          character.damage(1, element)
+
+          unless character.immune(element)
+            message "#{character.name()} is on fire!"
 
     Effect.Move = (from, to, movingCharacter=null) ->
       perform: ({animate, characterAt, message, impassable, event}) ->
@@ -57,6 +62,20 @@ electricity, I don't know yet.
       perform: ({feature}) ->
         feature "PestilentVapor", position
 
+    Effect.Crush = (position) ->
+      perform: ({featuresAt}) ->
+        # TODO figure out why this doesn't
+        # remove the tiles immediately. It
+        # happens the next round.
+        featuresAt(position).invoke "destroy"
+
+    Effect.Demolish = (position, owner) ->
+      perform: ({message, featuresAt, replaceTileAt}) ->
+        featuresAt(position).invoke "destroy"
+        replaceTileAt(position)
+
+        message "#{owner.name()} demolishes everything in their path."
+
     Effect.Stomp = (position, owner) ->
       perform: ({characterAt, message, search, featuresAt, replaceTileAt}) ->
         # TODO: Add cracked / destroyed sprite
@@ -64,7 +83,7 @@ electricity, I don't know yet.
         search.adjacent(position).forEach (position) ->
           if character = characterAt(position)
             unless character is owner
-              message "#{character.name()} has been shaken by #{owner.name()}'s mighty stomp."
+              message "#{character.name()} has been shaken by the mighty stomp of #{owner.name()}."
               character.damage(1)
               character.stun(2)
 
@@ -72,6 +91,22 @@ electricity, I don't know yet.
 
           # Revert tiles to default
           replaceTileAt(position)
+
+    Effect.Ice = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Ice(position)
+
+    Effect.Flame = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Fire(position)
+
+    Effect.Acid = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Acid(position)
+
+    Effect.Oil = (position) ->
+      perform: ({addFeature}) ->
+        addFeature Feature.Slime(position)
 
     # Used in Entanglement
     Effect.Plant = (position) ->
@@ -102,9 +137,17 @@ electricity, I don't know yet.
         find("plant").within(position, 13).forEach (plant) ->
           owner.addMagicalVision(plant.position())
 
-    Effect.StoneSight = (position, owner) ->
+    Effect.Entomb = (position) ->
+      perform: ({search, replaceTileAt}) ->
+        search.adjacent(position).forEach (position) ->
+          replaceTileAt(position, 2)
+
+    Effect.Stonesight = (position, owner) ->
       # TODO: Redo this 'find' idea to make use of the quadtree
       # build in radii, etc
-      perform: ({find}) ->
-        find("stone").within(position, 13).forEach (stone) ->
-          owner.addMagicalVision(plant.position())
+      perform: ({findTiles}) ->
+        findTiles
+          position: position
+          type: 2 # TODO: Have tile types not this magic number jazz
+          radius: 13
+        .forEach owner.addMagicalVision

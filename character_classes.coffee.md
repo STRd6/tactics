@@ -6,13 +6,70 @@ Exploring various character classes here.
     Names = require "./names"
 
     module.exports =
+      FireSlime:
+        spriteName: "jelly"
+        abilities: [
+          "Move"
+          "Melee"
+        ]
+        passives: [
+          "Fireproof"
+          "FireTrail"
+        ]
+        type: "Slime"
+
+      AcidSlime:
+        spriteName: "slime0"
+        animation: ["slime0", "slime1", "slime2", "slime1"]
+        abilities: [
+          "Move"
+          "Melee"
+          "Blind"
+        ]
+        passives: [
+          "Uncorrodible"
+          "AcidTrail"
+        ]
+        type: "Slime"
+
+      OilSlime:
+        spriteName: "ooze"
+        abilities: [
+          "Move"
+          "Melee"
+          "Poison"
+        ]
+        passives: [
+          "OilTrail"
+        ]
+        type: "Slime"
+
       ShrubMage:
         spriteName: "kobold"
         abilities: [
           "Move"
           "Entanglement"
           "ShrubSight"
+          "MagicMissile"
         ]
+        type: "Mage"
+
+      "Earth Wizard":
+        spriteName: "wizard"
+        abilities: [
+          "Move"
+          "MagicMissile"
+          "Stonesight"
+          "Entomb"
+        ]
+
+      Harpy:
+        spriteName: "harpy"
+        abilities: [
+          "Blink"
+          "Melee"
+        ]
+        name: Names.monster.rand()
 
       Grunt:
         spriteName: "goblin"
@@ -31,8 +88,38 @@ Exploring various character classes here.
         abilities: [
           "Move"
           "Stomp"
+          "Demolish"
+        ]
+        passives: [
+          "LeadFoot"
         ]
         sight: 5
+        type: "Giant"
+
+      Icedactyl:
+        spriteName: "simulacrum_flying"
+        type: "Ice"
+        health: 5
+        movement: 6
+        abilities: [
+          "Move"
+          "Melee"
+          # TODO: Ice Attack
+        ]
+        passives: [
+          "Iceproof"
+          # TODO: Fire Vulnerable
+        ]
+
+      Priest:
+        health: 4
+        spriteName: "dwarf"
+        abilities: [
+          "Move"
+          "Melee"
+          "Heal"
+        ]
+        type: "Mage"
 
       Knight:
         health: 4
@@ -43,6 +130,7 @@ Exploring various character classes here.
         health: 4
         healthMax: 4
         spriteName: "lich"
+        sight: 0
         abilities: [
           "Blink"
           "Death"
@@ -51,6 +139,7 @@ Exploring various character classes here.
           "Clairvoyance"
           "Undead"
         ]
+        type: "Mage"
 
       Scout:
         actions: 3
@@ -70,15 +159,32 @@ Exploring various character classes here.
           "Undead"
         ]
 
+      FrostMage:
+        health: 2
+        healthMax: 2
+        spriteName: "ice_statue"
+        abilities: [
+          "Move"
+          "MagicMissile"
+          "IceWall"
+        ]
+        passives: [
+          "Iceproof"
+        ]
+        type: "Mage"
+
       Wizard:
         health: 2
         healthMax: 2
         spriteName: "wizard"
+        animation: ["wizard0", "wizard1"]
         abilities: [
           "Blink"
           "Fireball"
           "Farsight"
+          "MagicMissile"
         ]
+        type: "Mage"
 
       Archer:
         spriteName: "elf_archer"

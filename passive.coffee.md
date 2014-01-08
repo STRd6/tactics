@@ -16,3 +16,24 @@ TODO: Figure out creature type passives.
 
       Undead:
         immune: "Death"
+
+      Fireproof:
+        immune: "Fire"
+
+      Iceproof:
+        immune: "Ice"
+
+      Uncorrodible:
+        immune: "Acid"
+
+      FireTrail:
+        enter: "Flame"
+
+      AcidTrail:
+        enter: "Acid"
+
+      OilTrail:
+        enter: "Oil"
+
+      LeadFoot:
+        enter: "Crush"

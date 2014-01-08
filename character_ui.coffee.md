@@ -55,7 +55,9 @@ Draw the tactical overlay, status, health, max health.
           action = Action
             cooldown: ability.cooldown()
             cost: ability.actionCost()
+            disabledFor: character.cooldowns()[abilityName] || 0
             name: ability.name()
+            description: ability.description()
             icon: ability.iconName()
             perform: ->
               character.targettingAbility(ability)
@@ -70,9 +72,10 @@ Draw the tactical overlay, status, health, max health.
           return action
 
         if character.targettingAbility()
-          actions.concat Action
+          actions.push Action
             name: "Cancel"
+            description: "Cancel using the current action."
             perform: ->
               character.targettingAbility(null)
-        else
-          actions
+
+        actions

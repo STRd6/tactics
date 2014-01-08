@@ -5,6 +5,8 @@ Those little guys that run around.
 
     Ability = require "./ability"
     Action = require "./action"
+    Animation = require "./lib/animation"
+    Compositions = require "./lib/compositions"
     Drawable = require "./lib/drawable"
     Effect = require "./effect"
     Names = require "./names"
@@ -13,14 +15,11 @@ Those little guys that run around.
     {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
-      I.position = Point(I.position)
-
       Object.defaults I,
         abilities: [
           "Move"
           "Melee"
         ]
-        passives: []
         actions: 2
         alive: true
         cooldowns: {}
@@ -30,26 +29,36 @@ Those little guys that run around.
         magicalVision: []
         movement: 4
         name: Names.male.rand()
+        passives: []
         physicalAwareness: sqrt(2)
+        position:
+          x: 0
+          y: 0
         sight: 7
         strength: 1
         stun: 0
+        type: "Grunt"
+
+      self.include Compositions
 
       self.attrAccessor(
         "abilities"
         "actions"
         "alive"
+        "cooldowns"
         "debugPositions"
         "health"
         "healthMax"
-        "magicalVision"
         "movement"
         "name"
         "physicalAwareness"
-        "position"
         "sight"
         "strength"
+        "type"
       )
+
+      self.attrModel "position", Point
+      self.attrModels "magicalVision", Point
 
       effectModifiable = (names...) ->
         names.forEach (name) ->
@@ -66,9 +75,15 @@ Those little guys that run around.
         "strength"
       )
 
+      self.include Compositions
       self.include Drawable
 
+      self.attrModel "animation", Animation
+
       Object.extend self,
+        currentAnimation: ->
+          self.animation()
+
         damage: (amount, type) ->
           damageTotal = self.damageMod(amount, type)
 
@@ -84,7 +99,7 @@ Those little guys that run around.
           I.cooldowns[ability.name()] = ability.cooldown()
 
         addMagicalVision: (position) ->
-          I.magicalVision.push position
+          self.magicalVision().push position
 
         addEffect: (effect) ->
           I.effects.push effect
@@ -183,7 +198,7 @@ any status effects.
         ready: ->
           # Remove all magical vision
           # TODO: Maybe have separate vision effects with their own durations
-          I.magicalVision = []
+          self.magicalVision []
 
           I.stun -= 1 if I.stun > 0
 
@@ -191,6 +206,8 @@ any status effects.
             I.cooldowns[name] -= 1
 
           I.effects.forEach (effect) ->
+            # TODO: Migrate into CharacterEffect class
+            effect.update?(self)
             effect.duration -= 1
 
           if I.stun is 0
@@ -203,8 +220,16 @@ any status effects.
             Passive.Passives[name]
 
         visionType: ->
-          self.passives().reduce (memo, passive) ->
+          type = self.passives().reduce (memo, passive) ->
             memo or passive.visionType
           , undefined
+
+          type or "sight"
+
+        toJSON: ->
+          console.log self.position()
+
+          Object.extend I,
+            position: self.position()
 
       return self

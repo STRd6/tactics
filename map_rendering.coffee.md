@@ -47,7 +47,7 @@ Rendering offset in pixels.
           if self.isSeen(position)
             self.tileAt(position)?.draw canvas, position.scale(tileSize)
 
-      drawFeatures = (canvas, under) ->
+      drawFeatures = (canvas, under, t) ->
         # TODO: clipping?
         # TODO: Select only features in range from quad tree
         self.features().forEach (feature) ->
@@ -56,7 +56,7 @@ Rendering offset in pixels.
           if self.isSeen(position) and feature.seen(self.activeSquadIndex())
             zIndex = feature.zIndex()
             if (under and zIndex <= 0) or (!under and zIndex > 0)
-              feature.draw canvas, position.scale(tileSize)
+              feature.draw canvas, position.scale(tileSize), t
 
       drawCharacters = (canvas, t) ->
         lit = self.lit.get(self.activeSquadIndex())
@@ -67,7 +67,7 @@ Rendering offset in pixels.
             if lit.get(x + y * self.width())
               canvasPosition = character.position().scale(tileSize)
 
-              character.sprite().draw(canvas, canvasPosition)
+              character.draw canvas, canvasPosition, t
 
       drawFog = (canvas) ->
         screenPositions.forEach (position) ->
@@ -138,9 +138,9 @@ to self.width(), self.height())
 
             # TODO: Iterate zSorted features + characters on a per chunk basis
             # TODO: Only draw seen features
-            drawFeatures(canvas, true)
+            drawFeatures(canvas, true, t)
             drawCharacters(canvas, t)
-            drawFeatures(canvas)
+            drawFeatures(canvas, undefined, t)
 
             drawFog(canvas)
 
@@ -172,8 +172,12 @@ to self.width(), self.height())
 
             if inRange
               self.selectTarget tilePosition
-          else
+          else if self.activeSquad().characterAt(tilePosition)
             self.activeSquad().activateCharacterAt(tilePosition)
+          else
+            # HACK to allow "scrolling" the map
+            self.animate
+              position: tilePosition
 
       # Kick off animation processing loop
       processAnimation = ->
@@ -188,5 +192,7 @@ to self.width(), self.height())
           setTimeout processAnimation, 15
 
       processAnimation()
+
+      # TODO: A way to clear the animation loop when hot reloading
 
       return self
