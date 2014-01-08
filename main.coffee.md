@@ -16,6 +16,7 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     Map = require "./map"
     Resource = require "./resource"
     Resource.addSource("7ffbdcf587f407dda0d6")
+    RemoteServer = require "./remote_server"
 
     {width, height} = require("./pixie")
 
@@ -42,6 +43,11 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       # TODO better observable proxying
       map.messages.observe (messages) ->
         ui.messages(messages.copy())
+
+      if multiplayer
+        map.activeSquad.observe ->
+          setTimeout ->
+            server.send JSON.stringify map
 
       map.activeCharacter.observe updateActions
 
@@ -88,6 +94,9 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         $(".winner").text("#{map.squads()[0].I.race} squad wins!")
         $(".winner_container").show()
 
+    multiplayer = false
+    server = null
+
     ui =
       characters: Observable []
       messages: Observable [
@@ -99,6 +108,25 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
           description: "Start a new battle."
           icon: "new_game"
           perform: ->
+            launchGame()
+        Action
+          name: "Multiplayer Client"
+          perform: ->
+            multiplayer = true
+            $(".title").text "Waiting..."
+            server = RemoteServer()
+            server.onmessage = (event) ->
+              data = JSON.parse event.data
+              launchGame data
+            ui.actions []
+        Action
+          name: "Multiplayer Server"
+          perform: ->
+            server = RemoteServer()
+            server.onmessage = (event) ->
+              data = JSON.parse event.data
+              launchGame data
+            multiplayer = true
             launchGame()
       ]
       actionPerformed: ->
@@ -136,5 +164,4 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
     # Testing reloading map
     $(document).bind "keydown", "f6", ->
       data = JSON.parse JSON.stringify map
-      console.log data
       launchGame data
