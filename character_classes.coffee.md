@@ -88,7 +88,6 @@ Exploring various character classes here.
         abilities: [
           "Move"
           "Stomp"
-          "Berserk"
           "Demolish"
         ]
         passives: [

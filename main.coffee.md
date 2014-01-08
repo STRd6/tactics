@@ -80,14 +80,6 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       else
         ui.characters []
 
-    checkForWinner = ->
-      if map.squads()[0].characters().filter((c) -> c.alive()).length is 0
-        $(".winner").text("#{map.squads()[1].I.race} squad wins!")
-        $(".winner_container").show()
-      else if map.squads()[1].characters().filter((c) -> c.alive()).length is 0
-        $(".winner").text("#{map.squads()[0].I.race} squad wins!")
-        $(".winner_container").show()
-
     ui =
       characters: Observable []
       messages: Observable [
@@ -113,7 +105,6 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
         updateActions(map.activeCharacter())
         updateCharacters(map.activeSquad().characters())
         accessiblePositions = map.accessiblePositions()
-        checkForWinner()
 
     t = 0
     setInterval ->
@@ -132,6 +123,8 @@ Will you conquer the world? Will they all die? That's between you and the RNG.
       update()
 
     $(".ui").prepend uiCanvas.element()
+
+    require("console-module")().launchConsole()
 
     # Testing reloading map
     $(document).bind "keydown", "f6", ->

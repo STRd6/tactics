@@ -180,21 +180,7 @@
             message "#{owner.name()} strikes #{character.name()} with a Magic Missile for #{amount}."
         '''
 
-      Berserk:
-        name: "Berserk"
         description: "My hate for you is ticking clock."
-        iconName: "sword"
-        range: sqrt(2)
-        actionCost: 1
-        targetZone: LINE_OF_SIGHT
-        code: '''
-          if character
-            amount = binomial(owner.strength()) + 1
-            character.damage amount
-
-            message "#{owner.name()} strikes #{character.name()} for #{amount}"
-        '''
-
       Blind:
         name: "Blind"
         description: "Use this when your enemies are too good at seeing you."
