@@ -62,6 +62,15 @@ electricity, I don't know yet.
       perform: ({feature}) ->
         feature "PestilentVapor", position
 
+    Effect["Stun Gas"] = (position) ->
+      perform: ({characterAt, feature, message, search}) ->
+        search.adjacent(position).forEach (position) ->
+          if character = characterAt(position)
+            message "#{character.name()} is engulfed in a cloud of noxious fumes!"
+            character.stun(2)
+
+          feature "Stun Gas", position
+
     Effect.Crush = (position) ->
       perform: ({featuresAt}) ->
         # TODO figure out why this doesn't

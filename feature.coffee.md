@@ -123,6 +123,22 @@ Features are things that are present within tiles in the tactical combat view.
         type: Type.Plant
         zIndex: 1
 
+    Feature["Stun Gas"] = (position) ->
+      Feature
+        duration: 1
+        position: position
+        spriteName: "green_cloud"
+        zIndex: 1
+        trap: true
+        enter: ({characterAt, message}) ->
+          if character = characterAt(position)
+            message "#{character.name()} is engulfed in a cloud of noxious fumes!"
+            character.stun(2)
+        update: ({characterAt, message}) ->
+          if character = characterAt(position)
+            message "#{character.name()} is engulfed in a cloud of noxious fumes!"
+            character.stun(2)
+
     Feature.PestilentVapor = (position) ->
       Feature
         duration: 1

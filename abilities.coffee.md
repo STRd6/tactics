@@ -76,6 +76,17 @@
           effect "PestilentVapor", position
         '''
 
+      "Stun Gas":
+        name: "Stun Gas"
+        description: "Silent but deadly"
+        iconName: "green_cloud"
+        actionCost: 2
+        range: 8
+        targetZone: LINE_OF_SIGHT
+        code: '''
+          effect "Stun Gas", position
+        '''
+
       Farsight:
         name: "Farsight"
         description: "Use your mind's eye to visualize lands you've never seen."
