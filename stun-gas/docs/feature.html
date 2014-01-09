@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>feature</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    <ul class="sections">
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="feature">Feature</h1>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Features are things that are present within tiles in the tactical combat view.</p>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">Animation = require <span class="string">"./lib/animation"</span>
+Compositions = require <span class="string">"./lib/compositions"</span>
+Drawable = require <span class="string">"./lib/drawable"</span>
+Type = require <span class="string">"./type"</span>
+
+{sqrt} = Math
+
+module.exports = <span class="function"><span class="title">Feature</span></span> = (I={}, self=Core(I)) -&gt;
+  Object.defaults I,
+    createdAt: <span class="number">0</span>
+    destroyed: <span class="literal">false</span>
+    impassable: <span class="literal">false</span>
+    incorporeal: <span class="literal">false</span>
+    invisible: <span class="literal">false</span>
+    movementPenalty: <span class="number">0</span>
+    opaque: <span class="literal">false</span>
+    trap: <span class="literal">false</span>
+    type: Type.Dirt
+    zIndex: -<span class="number">1</span>
+    seen: []
+
+  self.attrAccessor(
+    <span class="string">"createdAt"</span>
+    <span class="string">"impassable"</span>
+    <span class="string">"movementPenalty"</span>
+    <span class="string">"opaque"</span>
+    <span class="string">"type"</span>
+    <span class="string">"zIndex"</span>
+  )
+
+  self.include Compositions
+  self.include Drawable
+
+  self.attrModel <span class="string">"position"</span>, Point
+  self.attrModel <span class="string">"animation"</span>, Animation
+
+  self.extend
+    currentAnimation: -&gt;
+      self.animation()
+
+    <span class="comment"># TODO: Dangerous should depend on the character</span>
+    dangerous: -&gt;
+      I.trap
+
+    destroy: -&gt;
+      <span class="keyword">if</span> !I.destroyed
+        I.destroyed = <span class="literal">true</span>
+
+    view: (index, type, message) -&gt;
+      <span class="keyword">if</span> (type <span class="keyword">is</span> <span class="string">"magic"</span>) <span class="keyword">or</span> (!I.invisible <span class="keyword">and</span> type <span class="keyword">is</span> <span class="string">"sight"</span>) <span class="keyword">or</span> (!I.incorporeal <span class="keyword">and</span> type <span class="keyword">is</span> <span class="string">"physical"</span>)
+        <span class="keyword">if</span> !I.seen[index]
+          <span class="keyword">if</span> I.trap
+            message <span class="string">"A trap has been uncovered! <span class="subst">#{self.position()}</span>"</span>
+          <span class="keyword">else</span> <span class="keyword">if</span> I.invisible
+            message <span class="string">"An invisible object has been uncovered! <span class="subst">#{self.position()}</span>"</span>
+
+        I.seen[index] = <span class="literal">true</span>
+
+    seen: (index) -&gt;
+      I.seen[index]
+
+    enter: (params) -&gt;
+      I.enter?.call(I, params)
+
+    update: (params) -&gt;
+      <span class="comment"># TODO: Allow for variable number of squads</span>
+      numSquads = <span class="number">2</span>
+      {turn} = params
+
+      params.position = self.position()
+
+      delta = turn - I.createdAt
+
+      <span class="keyword">if</span> (delta &gt; <span class="number">0</span>) <span class="keyword">and</span> (delta % numSquads <span class="keyword">is</span> <span class="number">0</span>)
+        I.update?(params)
+
+        <span class="keyword">if</span> I.duration?
+          <span class="keyword">return</span> delta &lt; I.duration
+
+      <span class="keyword">return</span> !I.destroyed
+
+  <span class="keyword">return</span> self
+
+Feature.<span class="function"><span class="title">Acid</span></span> = (position) -&gt;
+  Feature
+    position: position
+    spriteName: <span class="string">"acid"</span>
+    type: Type.Acid
+    update: ({characterAt, position, message}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        amount = <span class="number">1</span>
+
+        element = <span class="string">"Acid"</span>
+        character.damage(amount, element)
+
+        <span class="keyword">unless</span> character.immune(element)
+          message <span class="string">"The acid burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
+
+Feature.<span class="function"><span class="title">Slime</span></span> = (position) -&gt;
+  Feature
+    position: position
+    spriteName: <span class="string">"oil"</span>
+    type: Type.Oil
+
+Feature.<span class="function"><span class="title">Wall</span></span> = (position) -&gt;
+  Feature
+    impassable: <span class="literal">true</span>
+    position: position
+    opaque: <span class="literal">true</span>
+    spriteName: <span class="string">"brick_vines"</span> + rand(<span class="number">4</span>)
+    type: Type.Stone
+
+Feature.<span class="function"><span class="title">Bush</span></span> = (position) -&gt;
+  Feature
+    opaque: <span class="literal">true</span>
+    position: position
+    spriteName: <span class="string">"bush"</span> + rand(<span class="number">4</span>)
+    type: Type.Plant
+    zIndex: <span class="number">1</span>
+
+Feature[<span class="string">"Stun Gas"</span>] = (position) -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    position: position
+    spriteName: <span class="string">"green_cloud"</span>
+    zIndex: <span class="number">1</span>
+    trap: <span class="literal">true</span>
+    enter: ({characterAt, message}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is engulfed in a cloud of noxious fumes!"</span>
+        character.stun(<span class="number">2</span>)
+    update: ({characterAt, message}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is engulfed in a cloud of noxious fumes!"</span>
+        character.stun(<span class="number">2</span>)
+
+Feature.<span class="function"><span class="title">PestilentVapor</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    position: position
+    spriteName: <span class="string">"pestilent_vapor"</span>
+    zIndex: <span class="number">1</span>
+    update: ({feature, message, position, search}) -&gt;
+      radius = sqrt(<span class="number">2</span>)
+
+      message <span class="string">"The pestilent vapor erupts into a cloud of death!"</span>
+
+      search.adjacent(position, radius).forEach (position) -&gt;
+        feature <span class="string">"DeathCloud"</span>, position
+
+Feature.<span class="function"><span class="title">DeathCloud</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    position: position
+    spriteName: <span class="string">"black_cloud"</span>
+    zIndex: <span class="number">1</span>
+    update: ({characterAt, message}) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        element = <span class="string">"Death"</span>
+        character.damage <span class="number">10</span>, element
+
+        <span class="keyword">unless</span> character.immune(element)
+          message <span class="string">"<span class="subst">#{character.name()}</span> is surrounded by choking fumes!"</span>
+
+Feature.<span class="function"><span class="title">Ice</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">3</span>
+    position: position
+    spriteName: <span class="string">"frozen0"</span>
+    animation: [<span class="string">"frozen0"</span>, <span class="string">"frozen1"</span>, <span class="string">"frozen2"</span>, <span class="string">"frozen3"</span>]
+    type: Type.Ice
+    impassable: <span class="literal">true</span>
+
+Feature.<span class="function"><span class="title">Fire</span></span> = (position) -&gt;
+  Feature
+    duration: <span class="number">1</span>
+    position: position
+    spriteName: <span class="string">"fire"</span>
+    animation: [<span class="string">"fire0"</span>, <span class="string">"fire1"</span>]
+    type: Type.Fire
+    zIndex: <span class="number">1</span>
+    update: ({addFeature, characterAt, position, message, find}) -&gt;
+      radius = sqrt(<span class="number">2</span>)
+
+      <span class="comment"># TODO: Only have adding effects here, no finding features</span>
+      find(<span class="string">"plant"</span>).within(position, radius).forEach (plant) -&gt;
+        <span class="keyword">if</span> plant.destroy()
+          addFeature(Feature.Fire(plant.position()))
+
+      <span class="keyword">if</span> character = characterAt(position)
+        amount = <span class="number">1</span>
+
+        element = <span class="string">"Fire"</span>
+        character.damage(amount, element)
+
+        <span class="keyword">unless</span> character.immune(element)
+          message <span class="string">"The fire burns <span class="subst">#{character.name()}</span> for <span class="subst">#{amount}</span> damage."</span>
+
+Feature.Traps =
+  Effect: (position, effectName) -&gt;
+    Feature
+      effectName: effectName
+      invisible: <span class="literal">true</span>
+      position: position
+      spriteName: <span class="string">"trap"</span>
+      trap: <span class="literal">true</span>
+      <span class="comment"># TODO: Can't have Feature depend on Effect and Effect depend on Feature</span>
+      <span class="comment"># so the method passed in should coordinate both</span>
+      <span class="comment"># We'll migrate all of these to creating named effects with optional</span>
+      <span class="comment"># configuration data</span>
+      enter: ({effect}) -&gt;
+        <span class="comment"># TODO: Destroy?</span>
+
+        effect <span class="property">@effectName</span>, <span class="property">@position</span></code></pre>
+</div>
+        </li>
+        
+    </ul>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/require/v0.2.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+  $.ajax({
+    url: "http://strd6.github.io/interactive/v0.8.1.jsonp",
+    dataType: "jsonp",
+    jsonpCallback: "STRd6/interactive:v0.8.1",
+    cache: true
+  }).then(function(PACKAGE) {
+    Require.generateFor(PACKAGE)("./" + PACKAGE.entryPoint)
+  })
+</script><script src="package.js"></script>
+</body>
+</html>
