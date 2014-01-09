@@ -25,6 +25,7 @@ Exploring various character classes here.
           "Move"
           "Melee"
           "Blind"
+          "Stun Gas"
         ]
         passives: [
           "Uncorrodible"
