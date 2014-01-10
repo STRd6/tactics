@@ -98,6 +98,17 @@ module.exports =
       effect "PestilentVapor", position
     '''
 
+  "Stun Gas":
+    name: "Stun Gas"
+    description: "Silent but deadly"
+    iconName: "green_cloud"
+    actionCost: 2
+    range: 8
+    targetZone: LINE_OF_SIGHT
+    code: '''
+      effect "Stun Gas", position
+    '''
+
   Farsight:
     name: "Farsight"
     description: "Use your mind's eye to visualize lands you've never seen."
@@ -232,6 +243,23 @@ module.exports =
           attribute: "sight"
           amount: -100
           duration: 3
+    '''
+
+  Poison:
+    name: "Poison"
+    description: "Poison, my one weakness."
+    iconName: "poison"
+    range: 8
+    actionCost: 1
+    costType: REST
+    targetZone: LINE_OF_SIGHT
+    code: '''
+      character?.addEffect
+        name: "poison"
+        duration: 3
+        update: (character) -&gt;
+          message "The poison takes its toll on #{character.name()}."
+          character.damage(1, "Poison")
     '''
 
   Regeneration:

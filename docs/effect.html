@@ -104,6 +104,15 @@ Effect.<span class="function"><span class="title">PestilentVapor</span></span> =
   perform: ({feature}) -&gt;
     feature <span class="string">"PestilentVapor"</span>, position
 
+Effect[<span class="string">"Stun Gas"</span>] = (position) -&gt;
+  perform: ({characterAt, feature, message, search}) -&gt;
+    search.adjacent(position).forEach (position) -&gt;
+      <span class="keyword">if</span> character = characterAt(position)
+        message <span class="string">"<span class="subst">#{character.name()}</span> is engulfed in a cloud of noxious fumes!"</span>
+        character.stun(<span class="number">2</span>)
+
+      feature <span class="string">"Stun Gas"</span>, position
+
 Effect.<span class="function"><span class="title">Crush</span></span> = (position) -&gt;
   perform: ({featuresAt}) -&gt;
     <span class="comment"># TODO figure out why this doesn't</span>

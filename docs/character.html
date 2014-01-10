@@ -265,6 +265,8 @@ any status effects.</p>
         I.cooldowns[name] -= <span class="number">1</span>
 
       I.effects.forEach (effect) -&gt;
+        <span class="comment"># TODO: Migrate into CharacterEffect class</span>
+        effect.update?(self)
         effect.duration -= <span class="number">1</span>
 
       <span class="keyword">if</span> I.stun <span class="keyword">is</span> <span class="number">0</span>
