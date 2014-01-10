@@ -7,6 +7,27 @@ You manage a tribe of humble humanoids over a thousand years.
 
 Will you conquer the world? Will they all die? That's between you and the RNG.
 
+Characters
+----------
+
+Characters comprise your squad.
+
+[Characters](./character)
+
+Squad
+-----
+
+Tactical combat unfolds between squads.
+
+[Squad](./squad)
+
+Map
+---
+
+Currently the map manages the entire tactical combat process.
+
+[Map](./map)
+
     require "./setup"
 
     Canvas = require "touch-canvas"

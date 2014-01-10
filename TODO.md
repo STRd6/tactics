@@ -3,10 +3,6 @@ TODO
 
 Tactical
 --------
-Quadtree for map features
-
-Display Squad Overview, Click to Activate and Center
-
 Handle winning and losing
 
 Simple Ability Animations
@@ -14,10 +10,6 @@ Simple Ability Animations
 Smooth transitions
 
 Random Level Generation
-
-Display Messages
-
-Map Scrolling
 
 Field Of Vision Bug
 -------------------
@@ -48,6 +40,14 @@ Done
 
 Tactical
 --------
+Display Messages
+
+Map Scrolling
+
+Quadtree for map features
+
+Display Squad Overview, Click to Activate and Center
+
 Disable Ability if can't pay cost
 
 Ability Cooldowns
