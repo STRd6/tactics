@@ -3,6 +3,22 @@ Map
 
 The primary tactical combat screen.
 
+Components
+----------
+
+Many components combine to provide all the functionality for the map.
+
+- [Features](./map_features)
+- [Find](./map_find)
+- [Hotkeys](./map_hotkeys)
+- [Rendering](./map_rendering)
+- [Search](./map_search)
+- [Serialization](./map_serialization)
+- [Tiles](./map_tiles)
+
+Implementation
+--------------
+
     Ability = require "./ability"
     Compositions = require "./lib/compositions"
     Effect = require "./effect"
