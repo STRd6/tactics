@@ -32,7 +32,8 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              
+              <p>Stores tiles as a byte array. This gives a possibility of 255 different tiles.</p>
+
             </div>
             <div class="content"><pre><code class="lang-coffeescript">BitArray = require <span class="string">"bit_array"</span>
 ByteArray = require <span class="string">"byte_array"</span>
@@ -47,7 +48,8 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Methods for interacting with tiles witin the map.</p>
+              <p>Lit and seen states are stored as bit arrays for each squad.</p>
+<p>Methods for interacting with tiles witin the map.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
