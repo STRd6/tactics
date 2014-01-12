@@ -1,10 +1,14 @@
 Map Tiles
 =========
 
+Stores tiles as a byte array. This gives a possibility of 255 different tiles.
+
     BitArray = require "bit_array"
     ByteArray = require "byte_array"
 
     Tileset = require "./tileset"
+
+Lit and seen states are stored as bit arrays for each squad.
 
 Methods for interacting with tiles witin the map.
 
