@@ -6,6 +6,9 @@ Map Features
 
 Features are semi-permanent objects that exist at positions on the map.
 
+There is some overlap with characters, but currently they share no common
+components.
+
     module.exports = (I={}, self=Core(I)) ->
       Object.defaults I,
         features: []
