@@ -16,6 +16,6 @@ dependencies:
   priority_queue: "STRd6/priority_queue:v2.0.0"
   quadtree: "distri/quadtree:v0.1.1"
   random: "distri/random:v0.2.0"
-  runtime: "STRd6/runtime:v0.2.0"
+  runtime: "distri/runtime:v0.3.0"
   sprite: "distri/sprite:v0.2.0"
   "touch-canvas": "distri/touch-canvas:v0.3.0"
