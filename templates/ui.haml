@@ -7,26 +7,22 @@
 .ui
   .winner_container
     %h1.winner
-    %h3.restart
-      = "Play Again?"
-      - on "click", ->
-        - location.reload()
+    %h3.restart(click=location.reload)
+      Play Again?
   %h1.title Tactics
   .hud
+    - clickHandler = (e) ->
+      - $(e.currentTarget).parent().toggleClass("hidden")
     %pre.messages
       - each @messages, (message) ->
         = message
       - @messages.observe ->
         - $(".messages").animate scrollTop: $('.messages')[0].scrollHeight, 1000
-    .toggle
-      = "="
-      - on "click", (e) ->
-        - $(e.currentTarget).parent().toggleClass("hidden")
+    .toggle(click=clickHandler)= "="
     .characters_container
-      - each @characters, (character) ->
+      - @characters.each (character) ->
         - {classes, click} = CharacterPresenter(character)
-        .character(class=classes)
-          - on "click", click
+        .character(class=classes click=click)
           .bolt
           .health
             - character.health().times ->
@@ -65,5 +61,4 @@
               - typeClass = -> "rest" if action.costType?() is 2
               - title = if typeClass() is "rest" then "Uses remaining actions for this turn" else "Uses #{action.cost} actions"
               .cost(class=typeClass title=title)
-        = action.name
-        - on "click", click
+        = action.name(click=click)

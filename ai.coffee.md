@@ -16,4 +16,3 @@ Attack
     module.exports = (I={}, self=Core(I)) ->
       self.extend
         moveRandomly: ->
-          
