@@ -6,7 +6,7 @@ Loads data from a Google spreadsheet based on its key.
     # TODO: metaprogram this to be more flexible
     # when transforming arbitrary sheets
     transformRows = (rows) ->
-      rows.forEach (row) ->
+      rows.map (row) ->
         {
           name: row.gsx$name
           description: row.gsx$description
@@ -16,7 +16,7 @@ Loads data from a Google spreadsheet based on its key.
           effectRadius: row.gsx$effectRadius
         }    
 
-    processSpreadsheet = (data) ->            
+    processSpreadsheet = (data) ->
       return {
         name: data.feed.title.$t
         entries: transformRows(data.feed.entry)
