@@ -61,7 +61,7 @@ http://roguebasin.roguelikedevelopment.org/index.php?title=FOV_using_recursive_s
           dx += 1
           X = cx + dx * xx + dy * xy
           Y = cy + dx * yx + dy * yy
-          
+
           P = Point(X, Y)
 
           if (visionBlocked = opaque(P))?

@@ -50,7 +50,7 @@
   .actions
     - each @actions, (action) ->
       - {classes, click, progress, progressContainer, style, title} = ActionPresenter(action, ui)
-      .action(class=classes style=style title=title)
+      .action(class=classes style=style title=title click=click)
         - if action.cooldown
           .cooldown= action.cooldown
           .progress_container(style=progressContainer)
@@ -61,4 +61,4 @@
               - typeClass = -> "rest" if action.costType?() is 2
               - title = if typeClass() is "rest" then "Uses remaining actions for this turn" else "Uses #{action.cost} actions"
               .cost(class=typeClass title=title)
-        = action.name(click=click)
+        = action.name
