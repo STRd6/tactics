@@ -1,4 +1,4 @@
-Spreadsheet = require "../spreadsheet"
+Spreadsheet = require "../lib/spreadsheet"
 
 describe "Google Spreadsheet wrapper", ->
   it "loads spreadsheet from a given key", ->
