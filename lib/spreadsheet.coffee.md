@@ -8,12 +8,12 @@ Loads data from a Google spreadsheet based on its key.
     transformRows = (rows) ->
       rows.map (row) ->
         {
-          name: row.gsx$name
-          description: row.gsx$description
-          targetType: row.gsx$targettype
-          targetZone: row.gsx$targetzone
-          targetRange: row.gsx$targetrange
-          effectRadius: row.gsx$effectRadius
+          name: row.gsx$name?.$t
+          description: row.gsx$description?.$t
+          targetType: row.gsx$targettype?.$t
+          targetZone: row.gsx$targetzone?.$t
+          targetRange: row.gsx$targetrange?.$t
+          effectRadius: row.gsx$effectRadius?.$t
         }    
 
     processSpreadsheet = (data) ->
