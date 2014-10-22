@@ -3,21 +3,28 @@ Spreadsheet
 
 Load data from a Google spreadsheet from a key.
 
-    # TODO: metaprogram this to be more flexible
-    # when transforming arbitrary sheets
     transformRows = (rows) ->
       rows.map (row) ->
         output = {}
-        attrNames = []
+        
         Object.keys(row).forEach (key) ->
           if (/gsx\$/).test(key)
-            output[attrNames.push(key.slice(4))] = row[key]?$t 
+            humanKeyName = key.replace("gsx$", "")
+          
+            if row[key]?.$t.length
+              value = row[key]?.$t 
+            else 
+              value = undefined
+            
+            output[humanKeyName] = value
             
         output
 
     processSpreadsheet = (data) ->
       output = {}      
-      output[data.feed.title.$t] = transformRows(data.feed.entry)
+      spaces = new RegExp(" ", "g")
+      sheetTitle = data.feed.title.$t.replace(spaces, "")
+      output[sheetTitle] = transformRows(data.feed.entry)
       output
 
     get = (url) ->
