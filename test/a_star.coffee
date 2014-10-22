@@ -12,7 +12,7 @@ describe "A*", ->
         ]
       heuristic: (node, goal) ->
         (goal - node).abs()
-    
+
     assert.equal result.length, 11
 
 describe "accessible", ->
