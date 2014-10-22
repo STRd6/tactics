@@ -26,8 +26,7 @@ Load data from a Google spreadsheet from a key.
         type: "GET"
         url: url
 
-    module.exports.load = (key, cb) ->
-      transformedSpreadsheets = {}
+    module.exports.load = (key) ->
       listUrl = "//spreadsheets.google.com/feeds/worksheets/#{key}/public/values?alt=json"
      
       get(listUrl).then (listData) ->
@@ -36,15 +35,14 @@ Load data from a Google spreadsheet from a key.
           sheetId = sheetUrlComponents[sheetUrlComponents.length - 1]        
           sheetUrl = "//spreadsheets.google.com/feeds/list/#{key}/#{sheetId}/public/values?alt=json"
 
-          promise = get(sheetUrl)
-          
-          promise.then (sheetData) ->
+          get(sheetUrl)
+                    
+        $.when.apply($, sheetPromises).then (sheetData...) ->
+          (sheetData.map (d) -> d[0]).reduce (memo, sheet) ->
             spaces = new RegExp(" ", "g")
-            sheetTitle = sheetData.feed.title.$t.replace(spaces, "")
+            sheetTitle = sheet.feed.title.$t.replace(spaces, "")
+              
+            memo[sheetTitle] = transformRows(sheet.feed.entry)
             
-            transformedSpreadsheets[sheetTitle] = transformRows(sheetData.feed.entry)
-            
-          return promise
-        
-        $.when.apply($, sheetPromises).then ->
-          cb(transformedSpreadsheets)
+            memo
+          , {}

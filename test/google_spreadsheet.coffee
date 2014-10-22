@@ -1,8 +1,9 @@
 Spreadsheet = require "../lib/spreadsheet"
 
 describe "Google Spreadsheet wrapper", ->
-  it "loads spreadsheet from a given key", (done) ->
-    Spreadsheet.load "0ArtCBkZR37MmdFJqbjloVEp1OFZLWDJ6M29OcXQ1WkE", (data) ->      
+  it "loads spreadsheet from a given key", (done) ->    
+    Spreadsheet.load("0ArtCBkZR37MmdFJqbjloVEp1OFZLWDJ6M29OcXQ1WkE").then (data) ->   
+      console.log data
       assert data.Abilities
       assert data.Characters
       assert data.Passives
