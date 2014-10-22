@@ -34,9 +34,9 @@ Loads data from a Google spreadsheet based on its key.
      
       get(listUrl).then (listData) ->
         sheetPromises = listData.feed.entry.map (sheet) ->
-          sheetUrlComponents = sheet.id.split("/")
-          sheetId = worksheetUrlComponents[worksheetUrlComponents.length - 1]        
-          sheetUrl = "//spreadsheets.google.com/feeds/list/#{key}/#{worksheetId}/public/values?alt=json"
+          sheetUrlComponents = sheet.id.$t.split("/")
+          sheetId = sheetUrlComponents[sheetUrlComponents.length - 1]        
+          sheetUrl = "//spreadsheets.google.com/feeds/list/#{key}/#{sheetId}/public/values?alt=json"
 
           promise = get(sheetUrl)
           
