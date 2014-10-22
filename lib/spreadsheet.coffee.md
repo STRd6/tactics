@@ -1,26 +1,24 @@
 Spreadsheet
 ===========
 
-Loads data from a Google spreadsheet based on its key.
+Load data from a Google spreadsheet from a key.
 
     # TODO: metaprogram this to be more flexible
     # when transforming arbitrary sheets
     transformRows = (rows) ->
       rows.map (row) ->
-        {
-          name: row.gsx$name?.$t
-          description: row.gsx$description?.$t
-          targetType: row.gsx$targettype?.$t
-          targetZone: row.gsx$targetzone?.$t
-          targetRange: row.gsx$targetrange?.$t
-          effectRadius: row.gsx$effectRadius?.$t
-        }
+        output = {}
+        attrNames = []
+        Object.keys(row).forEach (key) ->
+          if (/gsx\$/).test(key)
+            output[attrNames.push(key.slice(4))] = row[key]?$t 
+            
+        output
 
     processSpreadsheet = (data) ->
-      return {
-        name: data.feed.title.$t
-        entries: transformRows(data.feed.entry)
-      }
+      output = {}      
+      output[data.feed.title.$t] = transformRows(data.feed.entry)
+      output
 
     get = (url) ->
       $.ajax
