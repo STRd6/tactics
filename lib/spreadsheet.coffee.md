@@ -20,13 +20,6 @@ Load data from a Google spreadsheet from a key.
             
         output
 
-    processSpreadsheet = (data) ->
-      output = {}      
-      spaces = new RegExp(" ", "g")
-      sheetTitle = data.feed.title.$t.replace(spaces, "")
-      output[sheetTitle] = transformRows(data.feed.entry)
-      output
-
     get = (url) ->
       $.ajax
         dataType: "jsonp"
@@ -34,7 +27,7 @@ Load data from a Google spreadsheet from a key.
         url: url
 
     module.exports.load = (key, cb) ->
-      transformedSpreadsheets = []
+      transformedSpreadsheets = {}
       listUrl = "//spreadsheets.google.com/feeds/worksheets/#{key}/public/values?alt=json"
      
       get(listUrl).then (listData) ->
@@ -46,7 +39,10 @@ Load data from a Google spreadsheet from a key.
           promise = get(sheetUrl)
           
           promise.then (sheetData) ->
-            transformedSpreadsheets.push processSpreadsheet(sheetData)
+            spaces = new RegExp(" ", "g")
+            sheetTitle = sheetData.feed.title.$t.replace(spaces, "")
+            
+            transformedSpreadsheets[sheetTitle] = transformRows(sheetData.feed.entry)
             
           return promise
         
