@@ -14,7 +14,7 @@ Loads data from a Google spreadsheet based on its key.
           targetZone: row.gsx$targetzone?.$t
           targetRange: row.gsx$targetrange?.$t
           effectRadius: row.gsx$effectRadius?.$t
-        }    
+        }
 
     processSpreadsheet = (data) ->
       return {
@@ -23,16 +23,26 @@ Loads data from a Google spreadsheet based on its key.
       }
 
     module.exports.load = (key, cb) ->
-      url = "//spreadsheets.google.com/feeds/list/#{key}/od6/public/values?alt=json"
-      
+      transformedSpreadsheets = []
+      listUrl = "//spreadsheets.google.com/feeds/worksheets/#{key}/public/values?alt=json"
+     
       $.ajax
         dataType: "jsonp"
         type: "GET"
-        url: url
+        url: listUrl
       .then (data) ->
+        sheetPromises = data.feed.entry.map (sheet) ->
+          sheetUrl = sheet.link[sheet.link.length - 1].href + "?alt=json"
 
-Transform our raw spreadsheet result into something more useful.
-Pass the result into our callback
-
-        cb(processSpreadsheet(data))
+          promise = $.ajax
+            dataType: "jsonp"
+            type: "GET"
+            url: sheetUrl
         
+          promise.then (data) ->
+            transformedSpreadsheets.push processSpreadsheet(data)
+            
+          return promise
+        
+        $.when.apply($, sheetPromises).then ->
+          cb(transformedSpreadsheets)
