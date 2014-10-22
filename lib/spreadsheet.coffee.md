@@ -22,25 +22,26 @@ Loads data from a Google spreadsheet based on its key.
         entries: transformRows(data.feed.entry)
       }
 
+    get = (url) ->
+      $.ajax
+        dataType: "jsonp"
+        type: "GET"
+        url: url
+
     module.exports.load = (key, cb) ->
       transformedSpreadsheets = []
       listUrl = "//spreadsheets.google.com/feeds/worksheets/#{key}/public/values?alt=json"
      
-      $.ajax
-        dataType: "jsonp"
-        type: "GET"
-        url: listUrl
-      .then (data) ->
-        sheetPromises = data.feed.entry.map (sheet) ->
-          sheetUrl = sheet.link[sheet.link.length - 1].href + "?alt=json"
+      get(listUrl).then (listData) ->
+        sheetPromises = listData.feed.entry.map (sheet) ->
+          sheetUrlComponents = sheet.id.split("/")
+          sheetId = worksheetUrlComponents[worksheetUrlComponents.length - 1]        
+          sheetUrl = "//spreadsheets.google.com/feeds/list/#{key}/#{worksheetId}/public/values?alt=json"
 
-          promise = $.ajax
-            dataType: "jsonp"
-            type: "GET"
-            url: sheetUrl
-        
-          promise.then (data) ->
-            transformedSpreadsheets.push processSpreadsheet(data)
+          promise = get(sheetUrl)
+          
+          promise.then (sheetData) ->
+            transformedSpreadsheets.push processSpreadsheet(sheetData)
             
           return promise
         
