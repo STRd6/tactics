@@ -217,7 +217,11 @@ any status effects.
 
         passives: ->
           I.passives.map (name) ->
-            Passive.Passives[name]
+            if passive = Passive.Passives[name]
+              passive
+            else
+              console.warn "Undefined Passive: '#{name}'"
+          .compact()
 
         visionType: ->
           type = self.passives().reduce (memo, passive) ->
@@ -233,3 +237,33 @@ any status effects.
             position: self.position()
 
       return self
+
+    dataTransform = (data) ->
+      Object.extend data,
+        healthMax: data.healthmax
+        abilities: data.abilities.split(',')
+        passives: (data.passives ? "").split(',')
+        spriteName: data.sprite
+
+      # TODO: May want to move these into the class constructor
+      # 
+      [
+        "actions"
+        "healthMax"
+        "movement"
+        "sight"
+      ].forEach (name) ->
+        data[name] = parseFloat(data[name])
+
+      delete data.healthmax
+      delete data.sprite
+
+      return data
+
+    module.exports.dataFromRemote = (data) ->
+      results = {}
+      data.forEach (datum) ->
+        results[datum.name] = dataTransform(datum)
+      
+
+      return results

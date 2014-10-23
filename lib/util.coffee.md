@@ -52,6 +52,11 @@ Bounds
       toString: ->
         "Bounds({#{@x}, #{@y}}, {#{@width}, #{@height}})"
 
+Global Extensions
+-----------------
+
+    
+
 Point Extensions
 ----------------
 
