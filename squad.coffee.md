@@ -8,6 +8,7 @@ Squad
     extend = Object.extend
 
     create = (data, position) ->
+      console.log data
       Character extend
         position: position
       , data
@@ -114,6 +115,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
 
       if self.characters().length is 0
         # Load from presets
+        console.log characterData
         self.characters defaultCharacters[I.race].map (type, i) ->
           data = characterData[type]
 
