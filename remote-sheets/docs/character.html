@@ -276,7 +276,11 @@ any status effects.</p>
 
     passives: -&gt;
       I.passives.map (name) -&gt;
-        Passive.Passives[name]
+        <span class="keyword">if</span> passive = Passive.Passives[name]
+          passive
+        <span class="keyword">else</span>
+          console.warn <span class="string">"Undefined Passive: '<span class="subst">#{name}</span>'"</span>
+      .compact()
 
     visionType: -&gt;
       type = self.passives().reduce (memo, passive) -&gt;
@@ -300,6 +304,16 @@ any status effects.</p>
     passives: (data.passives ? <span class="string">""</span>).split(<span class="string">','</span>)
     spriteName: data.sprite
 
+  <span class="comment"># TODO: May want to move these into the class constructor</span>
+  <span class="comment"># </span>
+  [
+    <span class="string">"actions"</span>
+    <span class="string">"healthMax"</span>
+    <span class="string">"movement"</span>
+    <span class="string">"sight"</span>
+  ].forEach (name) -&gt;
+    data[name] = parseFloat(data[name])
+
   <span class="keyword">delete</span> data.healthmax
   <span class="keyword">delete</span> data.sprite
 
@@ -308,7 +322,8 @@ any status effects.</p>
 module.exports.<span class="function"><span class="title">dataFromRemote</span></span> = (data) -&gt;
   results = {}
   data.forEach (datum) -&gt;
-    results[name] = dataTransform(datum)
+    results[datum.name] = dataTransform(datum)
+
 
   <span class="keyword">return</span> results</code></pre>
 </div>

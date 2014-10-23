@@ -41,6 +41,7 @@ Compositions = require <span class="string">"./lib/compositions"</span>
 extend = Object.extend
 
 <span class="function"><span class="title">create</span></span> = (data, position) -&gt;
+  console.log data
   Character extend
     position: position
   , data
@@ -156,6 +157,7 @@ defaultPositions = [[
 
   <span class="keyword">if</span> self.characters().length <span class="keyword">is</span> <span class="number">0</span>
     <span class="comment"># Load from presets</span>
+    console.log characterData
     self.characters defaultCharacters[I.race].map (type, i) -&gt;
       data = characterData[type]
 
