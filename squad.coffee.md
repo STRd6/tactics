@@ -2,22 +2,21 @@ Squad
 =====
 
     Character = require "./character"
-    Class = require "./character_classes"
 
     Compositions = require "./lib/compositions"
 
     extend = Object.extend
 
-    create = (type, position) ->
+    create = (data, position) ->
       Character extend
         position: position
-      , Class[type]
+      , data
 
     defaultCharacters =
       goblin: [
-        "Grunt"
+        "Goblin Grunt"
         "Wizard"
-        "ShrubMage"
+        "Shrub Mage"
         "Giant"
       ]
       human: [
@@ -27,17 +26,17 @@ Squad
         "Earth Wizard"
       ]
       spunk: [
-        "OilSlime"
-        "OilSlime"
-        "AcidSlime"
-        "AcidSlime"
-        "FireSlime"
-        "FireSlime"
+        "Oil Slime"
+        "Oil Slime"
+        "Acid Slime"
+        "Acid Slime"
+        "Fire Slime"
+        "Fire Slime"
       ]
       undead: [
         "Lich"
         "Harpy"
-        "FrostMage"
+        "Frost Mage"
         "Priest"
       ]
 
@@ -70,6 +69,8 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
       )
 
       self.attrModels "characters", Character
+
+      characterData = I.characterData
 
       nextActivatableCharacter = ->
         self.activatableCharacters().first()
@@ -114,7 +115,9 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
       if self.characters().length is 0
         # Load from presets
         self.characters defaultCharacters[I.race].map (type, i) ->
-          create type, defaultPositions[I.index][i]
+          data = characterData[type]
+
+          create data, defaultPositions[I.index][i]
 
       self.activeCharacter nextActivatableCharacter()
 

@@ -34,10 +34,13 @@ Currently the map manages the entire tactical combat process.
     CharacterUI = require "./character_ui"
     Ability = require "./ability"
     Action = require "./action"
+    Character = require "./character"
     Map = require "./map"
     Resource = require "./resource"
     Resource.addSource("7ffbdcf587f407dda0d6")
     RemoteServer = require "./remote_server"
+    
+    extend = Object.extend
 
     {width, height} = require("./pixie")
 
@@ -54,21 +57,27 @@ Currently the map manages the entire tactical combat process.
     # TODO: Eliminate this closured map, or move it into game as a component
     map = null
 
+    spreadsheetData = require("./lib/spreadsheet").load("0ArtCBkZR37MmdFJqbjloVEp1OFZLWDJ6M29OcXQ1WkE")
+
     launchGame = (data={}) ->
-      # HACK hide the name of the game
-      $(".title").hide()
+      spreadsheetData.then ({Characters}) ->
+        console.log Characters
 
-      # HACK: Exposing map to dev console
-      global.map = map = Map(data)
+        # HACK hide the name of the game
+        $(".title").hide()
 
-      # TODO better observable proxying
-      map.messages.observe (messages) ->
-        ui.messages(messages.copy())
+        # HACK: Exposing map to dev console
+        global.map = map = Map extend data,
+          characterData: Character.dataFromRemote Characters
 
-      if multiplayer
-        map.activeSquad.observe ->
-          setTimeout ->
-            server.send JSON.stringify map
+        # TODO better observable proxying
+        map.messages.observe (messages) ->
+          ui.messages(messages.copy())
+  
+        if multiplayer
+          map.activeSquad.observe ->
+            setTimeout ->
+              server.send JSON.stringify map
 
       map.activeCharacter.observe updateActions
 

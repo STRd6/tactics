@@ -5,25 +5,6 @@ Exploring various character classes here.
 
     Names = require "./names"
 
-    dataTransform = (data) ->
-      extend data,
-        healthMax: data.healthmax
-        abilities: data.abilities.split(',')
-        passives: data.passives.split(',')
-        spriteName: data.sprite
-
-      delete data.healthmax
-      delete data.sprite
-
-      return data
-
-    characterDataFromRemote = (data) ->
-      results = {}
-      data.forEach (datum) ->
-        results[name] = dataTransform(datum)
-
-      return results
-
     module.exports =
       FireSlime:
         spriteName: "jelly"

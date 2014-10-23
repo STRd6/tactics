@@ -40,9 +40,11 @@ Implementation
         squads: [{
           race: "spunk"
           index: 0
+          characterData: I.characterData
         }, {
           race: "goblin"
           index: 1
+          characterData: I.characterData
         }]
 
       self ?= Core(I)

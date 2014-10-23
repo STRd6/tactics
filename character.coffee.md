@@ -233,3 +233,22 @@ any status effects.
             position: self.position()
 
       return self
+
+    dataTransform = (data) ->
+      Object.extend data,
+        healthMax: data.healthmax
+        abilities: data.abilities.split(',')
+        passives: (data.passives ? "").split(',')
+        spriteName: data.sprite
+
+      delete data.healthmax
+      delete data.sprite
+
+      return data
+
+    module.exports.dataFromRemote = (data) ->
+      results = {}
+      data.forEach (datum) ->
+        results[name] = dataTransform(datum)
+
+      return results
