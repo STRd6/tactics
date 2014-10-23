@@ -35,22 +35,21 @@
               
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Character = require <span class="string">"./character"</span>
-Class = require <span class="string">"./character_classes"</span>
 
 Compositions = require <span class="string">"./lib/compositions"</span>
 
 extend = Object.extend
 
-<span class="function"><span class="title">create</span></span> = (type, position) -&gt;
+<span class="function"><span class="title">create</span></span> = (data, position) -&gt;
   Character extend
     position: position
-  , Class[type]
+  , data
 
 defaultCharacters =
   goblin: [
-    <span class="string">"Grunt"</span>
+    <span class="string">"Goblin Grunt"</span>
     <span class="string">"Wizard"</span>
-    <span class="string">"ShrubMage"</span>
+    <span class="string">"Shrub Mage"</span>
     <span class="string">"Giant"</span>
   ]
   human: [
@@ -60,17 +59,17 @@ defaultCharacters =
     <span class="string">"Earth Wizard"</span>
   ]
   spunk: [
-    <span class="string">"OilSlime"</span>
-    <span class="string">"OilSlime"</span>
-    <span class="string">"AcidSlime"</span>
-    <span class="string">"AcidSlime"</span>
-    <span class="string">"FireSlime"</span>
-    <span class="string">"FireSlime"</span>
+    <span class="string">"Oil Slime"</span>
+    <span class="string">"Oil Slime"</span>
+    <span class="string">"Acid Slime"</span>
+    <span class="string">"Acid Slime"</span>
+    <span class="string">"Fire Slime"</span>
+    <span class="string">"Fire Slime"</span>
   ]
   undead: [
     <span class="string">"Lich"</span>
     <span class="string">"Harpy"</span>
-    <span class="string">"FrostMage"</span>
+    <span class="string">"Frost Mage"</span>
     <span class="string">"Priest"</span>
   ]
 
@@ -112,6 +111,8 @@ defaultPositions = [[
   )
 
   self.attrModels <span class="string">"characters"</span>, Character
+
+  characterData = I.characterData
 
   <span class="function"><span class="title">nextActivatableCharacter</span></span> = -&gt;
     self.activatableCharacters().first()
@@ -156,7 +157,9 @@ defaultPositions = [[
   <span class="keyword">if</span> self.characters().length <span class="keyword">is</span> <span class="number">0</span>
     <span class="comment"># Load from presets</span>
     self.characters defaultCharacters[I.race].map (type, i) -&gt;
-      create type, defaultPositions[I.index][i]
+      data = characterData[type]
+
+      create data, defaultPositions[I.index][i]
 
   self.activeCharacter nextActivatableCharacter()
 

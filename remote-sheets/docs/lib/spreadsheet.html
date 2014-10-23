@@ -44,8 +44,8 @@
         humanKeyName = key.replace(<span class="string">"gsx$"</span>, <span class="string">""</span>)
 
         <span class="keyword">if</span> row[key]?.$t.length
-          value = row[key]?.$t 
-        <span class="keyword">else</span> 
+          value = row[key]?.$t
+        <span class="keyword">else</span>
           value = <span class="literal">undefined</span>
 
         output[humanKeyName] = value
@@ -64,7 +64,7 @@ module.exports.<span class="function"><span class="title">load</span></span> = (
   get(listUrl).<span class="keyword">then</span> (listData) -&gt;
     sheetPromises = listData.feed.entry.map (sheet) -&gt;
       sheetUrlComponents = sheet.id.$t.split(<span class="string">"/"</span>)
-      sheetId = sheetUrlComponents[sheetUrlComponents.length - <span class="number">1</span>]        
+      sheetId = sheetUrlComponents[sheetUrlComponents.length - <span class="number">1</span>]
       sheetUrl = <span class="string">"//spreadsheets.google.com/feeds/list/<span class="subst">#{key}</span>/<span class="subst">#{sheetId}</span>/public/values?alt=json"</span>
 
       get(sheetUrl)

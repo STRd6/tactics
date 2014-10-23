@@ -37,25 +37,6 @@
             </div>
             <div class="content"><pre><code class="lang-coffeescript">Names = require <span class="string">"./names"</span>
 
-<span class="function"><span class="title">dataTransform</span></span> = (data) -&gt;
-  extend data,
-    healthMax: data.healthmax
-    abilities: data.abilities.split(<span class="string">','</span>)
-    passives: data.passives.split(<span class="string">','</span>)
-    spriteName: data.sprite
-
-  <span class="keyword">delete</span> data.healthmax
-  <span class="keyword">delete</span> data.sprite
-
-  <span class="keyword">return</span> data
-
-<span class="function"><span class="title">characterDataFromRemote</span></span> = (data) -&gt;
-  results = {}
-  data.forEach (datum) -&gt;
-    results[name] = dataTransform(datum)
-
-  <span class="keyword">return</span> results
-
 module.exports =
   FireSlime:
     spriteName: <span class="string">"jelly"</span>

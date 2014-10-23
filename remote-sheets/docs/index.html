@@ -91,10 +91,13 @@ Canvas = require <span class="string">"touch-canvas"</span>
 CharacterUI = require <span class="string">"./character_ui"</span>
 Ability = require <span class="string">"./ability"</span>
 Action = require <span class="string">"./action"</span>
+Character = require <span class="string">"./character"</span>
 Map = require <span class="string">"./map"</span>
 Resource = require <span class="string">"./resource"</span>
 Resource.addSource(<span class="string">"7ffbdcf587f407dda0d6"</span>)
 RemoteServer = require <span class="string">"./remote_server"</span>
+
+extend = Object.extend
 
 {width, height} = require(<span class="string">"./pixie"</span>)
 
@@ -111,21 +114,27 @@ $(<span class="string">"body"</span>).append canvas.element()
 <span class="comment"># TODO: Eliminate this closured map, or move it into game as a component</span>
 map = <span class="literal">null</span>
 
+spreadsheetData = require(<span class="string">"./lib/spreadsheet"</span>).load(<span class="string">"0ArtCBkZR37MmdFJqbjloVEp1OFZLWDJ6M29OcXQ1WkE"</span>)
+
 <span class="function"><span class="title">launchGame</span></span> = (data={}) -&gt;
-  <span class="comment"># HACK hide the name of the game</span>
-  $(<span class="string">".title"</span>).hide()
+  spreadsheetData.<span class="keyword">then</span> ({Characters}) -&gt;
+    console.log Characters
 
-  <span class="comment"># HACK: Exposing map to dev console</span>
-  global.map = map = Map(data)
+    <span class="comment"># HACK hide the name of the game</span>
+    $(<span class="string">".title"</span>).hide()
 
-  <span class="comment"># TODO better observable proxying</span>
-  map.messages.observe (messages) -&gt;
-    ui.messages(messages.copy())
+    <span class="comment"># HACK: Exposing map to dev console</span>
+    global.map = map = Map extend data,
+      characterData: Character.dataFromRemote Characters
 
-  <span class="keyword">if</span> multiplayer
-    map.activeSquad.observe -&gt;
-      setTimeout -&gt;
-        server.send JSON.stringify map
+    <span class="comment"># TODO better observable proxying</span>
+    map.messages.observe (messages) -&gt;
+      ui.messages(messages.copy())
+
+    <span class="keyword">if</span> multiplayer
+      map.activeSquad.observe -&gt;
+        setTimeout -&gt;
+          server.send JSON.stringify map
 
   map.activeCharacter.observe updateActions
 
