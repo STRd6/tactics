@@ -12,13 +12,13 @@ Clicking on them makes them happen.
     module.exports = (I={}) ->
       self = {}
 
-      Object.defaults self, I,
+      defaults self, I,
         active: false
         disabled: false
         last: false
         name: "Action"
 
-      Object.extend self,
+      extend self,
         icon: Resource.dataURL(I.icon)
 
       return self

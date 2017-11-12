@@ -73,7 +73,7 @@ Extra utilities that may be broken out into separate libraries.
 A 2d grid of values.
 
       Grid: (I={}) ->
-        Object.defaults I,
+        defaults I,
           width: 0
           height: 0
           data: []

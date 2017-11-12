@@ -11,7 +11,7 @@ art.
     n = 256
 
     module.exports = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         impassable: n
         opaque: n
         size: 256
@@ -87,6 +87,6 @@ art.
             tileSprites[I.defaultIndex].wrap(x + y)
 
         toJSON: ->
-          Object.extend {}, I,
+          extend {}, I,
             impassable: self.impassable().toJSON()
             opaque: self.opaque().toJSON()

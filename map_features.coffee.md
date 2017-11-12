@@ -10,7 +10,7 @@ There is some overlap with characters, but currently they share no common
 components.
 
     module.exports = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         features: []
 
       self.attrModels "features", Feature

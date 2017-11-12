@@ -24,12 +24,14 @@ abstract graph searching and our concrete implementation.
       Point(-1, 0)
     ]
 
+    zero = Point(0, 0)
+
     calculateDiagonals = (directions) ->
       results = []
       directions.eachPair (a, b) ->
         results.push a.add(b)
 
-      without(unique(results), Point.ZERO)
+      without(unique(results), zero)
 
     ordinalDirections = calculateDiagonals(cardinalDirections)
 

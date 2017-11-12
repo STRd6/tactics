@@ -50,7 +50,7 @@ excessive.
               unless spriteCache[name]?.index > index
                 Sprite.load remoteImages[name], (sprite) ->
                   if spriteCache[name]
-                    Object.extend spriteCache[name], sprite
+                    extend spriteCache[name], sprite
                   else
                     spriteCache[name] = sprite
 
