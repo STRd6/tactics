@@ -15,7 +15,7 @@ Those little guys that run around.
     {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         abilities: [
           "Move"
           "Melee"

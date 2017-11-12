@@ -1,54 +1,48 @@
 - ui = this
-
 - ActionPresenter = require "../presenters/action"
-
 - CharacterPresenter = require "../presenters/character"
 
 .ui
   .winner_container
-    %h1.winner
-    %h3.restart(click=location.reload)
-      Play Again?
-  %h1.title Tactics
+    h1.winner
+    h3.restart(click=location.reload)
+      = "Play Again?"
+  h1.title Tactics
   .hud
     - clickHandler = (e) ->
       - $(e.currentTarget).parent().toggleClass("hidden")
-    %pre.messages
-      - each @messages, (message) ->
-        = message
-      - @messages.observe ->
-        - $(".messages").animate scrollTop: $('.messages')[0].scrollHeight, 1000
+    pre.messages
+      = @messages
     .toggle(click=clickHandler)= "="
     .characters_container
-      - @characters.each (character) ->
+      - @characters.forEach (character) ->
         - {classes, click} = CharacterPresenter(character)
         .character(class=classes click=click)
           .bolt
           .health
             - character.health().times ->
-              %span.heart
-          / Ghetto. Doing this to reuse styles from below
+              span.heart
           .costs
             .container
               - character.actions().times ->
                 .cost
           .avatar
           .info
-            %h2.name= character.name()
-            %span.type= character.type()
+            h2.name= character.name()
+            span.type= character.type()
           .stats
             .movement
-              %span Movement:
-              %span.value= character.movement()
+              span Movement:
+              span.value= character.movement()
             .strength
-              %span Strength:
-              %span.value= character.strength()
+              span Strength:
+              span.value= character.strength()
             .sight
-              %span Sight:
-              %span.value= character.sight()
+              span Sight:
+              span.value= character.sight()
 
   .actions
-    - each @actions, (action) ->
+    - @actions.forEach (action) ->
       - {classes, click, progress, progressContainer, style, title} = ActionPresenter(action, ui)
       .action(class=classes style=style title=title click=click)
         - if action.cooldown
