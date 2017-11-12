@@ -60,12 +60,14 @@ abstract graph searching and our concrete implementation.</p>
   Point(-<span class="number">1</span>, <span class="number">0</span>)
 ]
 
+zero = Point(<span class="number">0</span>, <span class="number">0</span>)
+
 <span class="function"><span class="title">calculateDiagonals</span></span> = (directions) -&gt;
   results = []
   directions.eachPair (a, b) -&gt;
     results.push a.add(b)
 
-  without(unique(results), Point.ZERO)
+  without(unique(results), zero)
 
 ordinalDirections = calculateDiagonals(cardinalDirections)
 
@@ -143,8 +145,7 @@ through tiles.</p>
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

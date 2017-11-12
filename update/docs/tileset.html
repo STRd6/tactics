@@ -47,7 +47,7 @@ art.</p>
   <div class="content"><pre><code class="lang-coffeescript">n = <span class="number">256</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
-  Object.defaults I,
+  defaults I,
     impassable: n
     opaque: n
     size: <span class="number">256</span>
@@ -123,7 +123,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
         tileSprites[I.defaultIndex].wrap(x + y)
 
     toJSON: -&gt;
-      Object.extend {}, I,
+      extend {}, I,
         impassable: self.impassable().toJSON()
         opaque: self.opaque().toJSON()</code></pre>
 </div>
@@ -131,8 +131,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

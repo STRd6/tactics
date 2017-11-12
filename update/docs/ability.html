@@ -63,7 +63,7 @@ Effect = require <span class="string">"./effect"</span>
 {COST_TYPE, TARGET_ZONE} = Constants = require <span class="string">"./ability_constants"</span>
 
 <span class="function"><span class="title">Ability</span></span> = (I={}, self=Core(I)) -&gt;
-  Object.defaults I,
+  defaults I,
     range: <span class="number">1</span>
     actionCost: <span class="number">1</span>
     cooldown: <span class="number">0</span>
@@ -83,7 +83,7 @@ Effect = require <span class="string">"./effect"</span>
     <span class="string">"targetZone"</span>
   )
 
-  Object.extend self,
+  self.extend
     canPay: (owner) -&gt;
       (owner.actions() &gt;= self.actionCost()) <span class="keyword">and</span>
       (owner.cooldown(self) <span class="keyword">is</span> <span class="number">0</span>)
@@ -134,7 +134,7 @@ that target&#39;s an enemy, but has movement range and connectedness constraints
   </div>
   <div class="content"><pre><code class="lang-coffeescript">Ability.Abilities = objectMap(require(<span class="string">"./abilities"</span>), Ability)
 
-Object.extend Ability, Constants
+extend Ability, Constants
 
 module.exports = Ability</code></pre>
 </div>
@@ -165,8 +165,7 @@ module.exports = Ability</code></pre>
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

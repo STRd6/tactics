@@ -80,7 +80,7 @@ Squad = require <span class="string">"./squad"</span>
 } = require <span class="string">"./array_helpers"</span>
 
 module.<span class="function"><span class="title">exports</span></span> = (I={}, self) -&gt;
-  Object.defaults I,
+  defaults I,
     currentTurn: <span class="number">0</span>
     messages: []
     squads: [{
@@ -273,7 +273,7 @@ parameterize it by passing in the character and the ability.</p>
       self.stateBasedActions()
 
     methodObject: (extraParams={}) -&gt;
-      Object.extend
+      extend
         addFeature: self.addFeature
         animate: self.animate
         characterAt: self.characterAt
@@ -323,8 +323,7 @@ parameterize it by passing in the character and the ability.</p>
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

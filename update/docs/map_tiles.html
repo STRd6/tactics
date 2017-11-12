@@ -47,7 +47,7 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
 
   </div>
   <div class="content"><pre><code class="lang-coffeescript">module.<span class="function"><span class="title">exports</span></span> = (I={}, self=Core(I)) -&gt;
-  Object.defaults I,
+  defaults I,
     width: <span class="number">32</span>
     height: <span class="number">18</span>
 
@@ -58,7 +58,7 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
   self.<span class="function"><span class="title">tileCount</span></span> = -&gt;
     I.width * I.height
 
-  Object.defaults I,
+  defaults I,
     tiles: <span class="string">"data:application/octet-binary;AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICFhYWFhYWAgICAgICAgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAgICAgICAgICFhYWFhYWFhYWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYWFhYWFhYWAgICFhYWFhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYCAgIWFhYWFhYWFhYWFhYWFhYWFhYWFhYWAgIWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAhYWFhYWAgICAgICFhYCAgICAgICAgICAgIWFgICAgICFhYWFhYCAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgICAgICAgICAgICFhYCAgICAgICAgICAgIWFgICAgICAgICAgICAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgIWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgIWFhYWFhYCAgICAgIWFhYWFhYWFhYWFhYWFhYWFhYCAhYWFhYWFgICAgICAhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC"</span>
     lit: [
       <span class="comment"># TODO: Handle arbitrary number of squads</span>
@@ -200,8 +200,7 @@ Tileset = require <span class="string">"./tileset"</span></code></pre>
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

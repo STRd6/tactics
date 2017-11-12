@@ -35,8 +35,6 @@ Class = require <span class="string">"./character_classes"</span>
 
 Compositions = require <span class="string">"./lib/compositions"</span>
 
-extend = Object.extend
-
 <span class="function"><span class="title">create</span></span> = (type, position) -&gt;
   Character extend
     position: position
@@ -94,7 +92,7 @@ defaultPositions = [[
 
   </div>
   <div class="content"><pre><code class="lang-coffeescript">module.exports = <span class="function"><span class="title">Squad</span></span> = (I={}, self=Core(I)) -&gt;
-  Object.defaults I,
+  defaults I,
     characters: []
     index: <span class="number">0</span>
     race: <span class="string">"human"</span>
@@ -144,7 +142,7 @@ defaultPositions = [[
       self.activeCharacter nextActivatableCharacter()
 
     toJSON: -&gt;
-      Object.extend I,
+      extend I,
         characters: self.characters().invoke <span class="string">"toJSON"</span>
 
   <span class="keyword">if</span> self.characters().length <span class="keyword">is</span> <span class="number">0</span>
@@ -160,8 +158,7 @@ defaultPositions = [[
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 

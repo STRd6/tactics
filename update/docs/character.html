@@ -108,7 +108,7 @@ module.<span class="function"><span class="title">exports</span></span> = (I={},
 
   self.attrModel <span class="string">"animation"</span>, Animation
 
-  Object.extend self,
+  self.extend
     currentAnimation: -&gt;
       self.animation()
 
@@ -278,7 +278,7 @@ any status effects.</p>
     toJSON: -&gt;
       console.log self.position()
 
-      Object.extend I,
+      extend I,
         position: self.position()
 
   <span class="keyword">return</span> self</code></pre>
@@ -287,8 +287,7 @@ any status effects.</p>
     </ul>
   </div>
   <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script src="http://strd6.github.io/tempest/javascripts/envweb-v0.4.7.js"></script><script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script><script>
   (function() {
   var ErrorReporter, bindUpdates, createEditor, exec, findInteractiveElements, readShebang, runners;
 
