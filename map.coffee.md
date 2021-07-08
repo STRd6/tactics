@@ -34,7 +34,7 @@ Implementation
     } = require "./array_helpers"
 
     module.exports = (I={}, self) ->
-      Object.defaults I,
+      defaults I,
         currentTurn: 0
         messages: []
         squads: [{
@@ -221,7 +221,7 @@ parameterize it by passing in the character and the ability.
           self.stateBasedActions()
 
         methodObject: (extraParams={}) ->
-          Object.extend
+          extend
             addFeature: self.addFeature
             animate: self.animate
             characterAt: self.characterAt

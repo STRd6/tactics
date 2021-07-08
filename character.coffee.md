@@ -15,7 +15,7 @@ Those little guys that run around.
     {sqrt, min, max} = Math
 
     module.exports = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         abilities: [
           "Move"
           "Melee"
@@ -80,7 +80,7 @@ Those little guys that run around.
 
       self.attrModel "animation", Animation
 
-      Object.extend self,
+      self.extend
         currentAnimation: ->
           self.animation()
 
@@ -229,7 +229,7 @@ any status effects.
         toJSON: ->
           console.log self.position()
 
-          Object.extend I,
+          extend I,
             position: self.position()
 
       return self

@@ -7,6 +7,11 @@ Set up our runtime styles and expose some stuff for debugging.
     global.PACKAGE = PACKAGE
     global.require = require
 
+    require "cornerstone"
+    # TODO: clean up these global methods
+    extend Object,
+      extend: extend
+
     require "jquery-utils"
 
     runtime = require("runtime")(PACKAGE)

@@ -11,7 +11,7 @@ Features are things that are present within tiles in the tactical combat view.
     {sqrt} = Math
 
     module.exports = Feature = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         createdAt: 0
         destroyed: false
         impassable: false

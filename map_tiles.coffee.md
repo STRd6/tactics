@@ -13,7 +13,7 @@ Lit and seen states are stored as bit arrays for each squad.
 Methods for interacting with tiles witin the map.
 
     module.exports = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         width: 32
         height: 18
 
@@ -24,7 +24,7 @@ Methods for interacting with tiles witin the map.
       self.tileCount = ->
         I.width * I.height
 
-      Object.defaults I,
+      defaults I,
         tiles: "data:application/octet-binary;AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICFhYWFhYWAgICAgICAgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAgICAgICAgICFhYWFhYWFhYWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYWFhYWFhYWAgICFhYWFhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYCAgIWFhYWFhYWFhYWFhYWFhYWFhYWFhYWAgIWFhYWFgICAhYWFhYWFgICAgICAgICAgIWFhYWFhYCAhYWFhYWAgICAgICFhYCAgICAgICAgICAgIWFgICAgICFhYWFhYCAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgICAgICAgICAgICFhYCAgICAgICAgICAgIWFgICAgICAgICAgICAgICAgIWFgICAgICAgICAgICAhYWAgICAgICAgICAgICAgICAhYWAgICAgICAgICAgICFhYCAgICAgIWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgIWFhYWFhYCAgICAgIWFhYWFhYWFhYWFhYWFhYWFhYCAhYWFhYWFgICAgICAhYWFhYWFhYWFhYWFhYWFhYWFgICFhYWFhYWAgICAgICFhYWFhYWFhYWFgICAhYWFhYWAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC"
         lit: [
           # TODO: Handle arbitrary number of squads

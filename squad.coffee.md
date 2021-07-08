@@ -6,8 +6,6 @@ Squad
 
     Compositions = require "./lib/compositions"
 
-    extend = Object.extend
-
     create = (type, position) ->
       Character extend
         position: position
@@ -58,7 +56,7 @@ Squad
 A team of 4-6 characters who battle it out with other squads in tactical combat.
 
     module.exports = Squad = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         characters: []
         index: 0
         race: "human"
@@ -108,7 +106,7 @@ A team of 4-6 characters who battle it out with other squads in tactical combat.
           self.activeCharacter nextActivatableCharacter()
 
         toJSON: ->
-          Object.extend I,
+          extend I,
             characters: self.characters().invoke "toJSON"
 
       if self.characters().length is 0

@@ -15,7 +15,7 @@ Messages in the log will be linked to the event so you can scroll back to where
 it happened.
 
     module.exports = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         duration: 300 #ms
         position: null
         message: null

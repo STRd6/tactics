@@ -42,7 +42,7 @@ Some cool abilities that should be in the game
     {COST_TYPE, TARGET_ZONE} = Constants = require "./ability_constants"
 
     Ability = (I={}, self=Core(I)) ->
-      Object.defaults I,
+      defaults I,
         range: 1
         actionCost: 1
         cooldown: 0
@@ -62,7 +62,7 @@ Some cool abilities that should be in the game
         "targetZone"
       )
 
-      Object.extend self,
+      self.extend
         canPay: (owner) ->
           (owner.actions() >= self.actionCost()) and
           (owner.cooldown(self) is 0)
@@ -106,7 +106,7 @@ that target's an enemy, but has movement range and connectedness constraints.
 
     Ability.Abilities = objectMap(require("./abilities"), Ability)
 
-    Object.extend Ability, Constants
+    extend Ability, Constants
 
     module.exports = Ability
 
